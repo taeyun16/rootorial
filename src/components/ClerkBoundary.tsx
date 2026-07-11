@@ -5,7 +5,7 @@ import { createContext, useContext } from "react";
 
 declare global {
   interface Window {
-    __rezeroClerkEnabled?: boolean;
+    __rootorialClerkEnabled?: boolean;
   }
 }
 
@@ -13,7 +13,7 @@ const ClerkEnabledContext = createContext(false);
 
 function clerkIsEnabled() {
   if (typeof window !== "undefined") {
-    return window.__rezeroClerkEnabled === true;
+    return window.__rootorialClerkEnabled === true;
   }
 
   try {
@@ -39,7 +39,7 @@ export function ClerkBoundary({ children }: { children: React.ReactNode }) {
 
   return (
     <ClerkEnabledContext.Provider value={enabled}>
-      <ScriptOnce>{`window.__rezeroClerkEnabled = ${JSON.stringify(enabled)};`}</ScriptOnce>
+      <ScriptOnce>{`window.__rootorialClerkEnabled = ${JSON.stringify(enabled)};`}</ScriptOnce>
       {content}
     </ClerkEnabledContext.Provider>
   );

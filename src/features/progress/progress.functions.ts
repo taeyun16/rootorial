@@ -4,6 +4,7 @@ import { setResponseHeader } from "@tanstack/react-start/server";
 import {
   buildProgressMetadata,
   readCompletedFromMetadata,
+  readProgressVersion,
   validateCompletedSlugs,
 } from "./progress";
 
@@ -23,6 +24,7 @@ export const getMyProgress = createServerFn({ method: "GET" }).handler(
     const user = await clerkClient().users.getUser(userId);
     return {
       completed: readCompletedFromMetadata(user.privateMetadata),
+      needsMigration: readProgressVersion(user.privateMetadata) < 2,
     };
   },
 );

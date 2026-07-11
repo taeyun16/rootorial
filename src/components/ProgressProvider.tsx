@@ -38,7 +38,12 @@ const ProgressContext = createContext<ProgressContextValue | null>(null);
 
 function readLocalProgress(key: string) {
   try {
-    return parseStoredProgress(window.localStorage.getItem(key));
+    const raw = window.localStorage.getItem(key);
+    const progress = parseStoredProgress(raw);
+    if (raw && raw !== JSON.stringify(progress)) {
+      window.localStorage.setItem(key, JSON.stringify(progress));
+    }
+    return progress;
   } catch {
     return [];
   }
@@ -130,7 +135,7 @@ function ClerkProgressProvider({ children }: { children: React.ReactNode }) {
         );
 
         const synced =
-          merged.length === remote.completed.length
+          !remote.needsMigration && merged.length === remote.completed.length
             ? remote.completed
             : (await syncMyProgress({ data: { completedSlugs: merged } }))
                 .completed;

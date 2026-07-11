@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useLocale } from "../features/localization/localization";
 
 export type ChapterTocItem = {
   id: string;
@@ -7,6 +8,7 @@ export type ChapterTocItem = {
 
 export function ChapterToc({ items }: { items: ChapterTocItem[] }) {
   const [activeId, setActiveId] = useState(items[0]?.id ?? "");
+  const { locale } = useLocale();
 
   useEffect(() => {
     const sections = items
@@ -36,8 +38,8 @@ export function ChapterToc({ items }: { items: ChapterTocItem[] }) {
   }, [items]);
 
   return (
-    <aside className="article-toc" aria-label="챕터 목차">
-      <p>이 챕터에서</p>
+    <aside className="article-toc" aria-label={locale === "ko" ? "챕터 목차" : "Chapter contents"}>
+      <p>{locale === "ko" ? "이 챕터에서" : "IN THIS CHAPTER"}</p>
       {items.map((item, index) => (
         <a
           href={`#${item.id}`}

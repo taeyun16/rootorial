@@ -7,6 +7,7 @@ import {
   normalizeCompletedSlugs,
   parseStoredProgress,
   readCompletedFromMetadata,
+  readProgressVersion,
   validateCompletedSlugs,
 } from "../src/features/progress/progress.ts";
 
@@ -19,7 +20,7 @@ test("normalizes stored progress to known chapters in curriculum order", () => {
       "vectors",
       42,
     ]),
-    ["vectors", "attention"],
+    ["transformer-from-zero/vectors", "transformer-from-zero/attention"],
   );
   assert.deepEqual(parseStoredProgress("not-json"), []);
   assert.deepEqual(parseStoredProgress('{"vectors":true}'), []);
@@ -27,8 +28,8 @@ test("normalizes stored progress to known chapters in curriculum order", () => {
 
 test("validates sync input and rejects unknown chapter slugs", () => {
   assert.deepEqual(validateCompletedSlugs(["vectors", "optimization"]), [
-    "vectors",
-    "optimization",
+    "transformer-from-zero/vectors",
+    "transformer-from-zero/optimization",
   ]);
   assert.throws(
     () => validateCompletedSlugs(["vectors", "not-a-chapter"]),
@@ -43,13 +44,17 @@ test("merges anonymous, cached, and remote progress without duplicates", () => {
       ["attention", "vectors"],
       ["vectors", "optimization"],
     ),
-    ["vectors", "optimization", "attention"],
+    [
+      "transformer-from-zero/vectors",
+      "transformer-from-zero/optimization",
+      "transformer-from-zero/attention",
+    ],
   );
 });
 
 test("converts Clerk private metadata without trusting unknown values", () => {
   const metadata = {
-    rezero: {
+    rootorial: {
       completedChapters: {
         attention: true,
         vectors: true,
@@ -59,21 +64,42 @@ test("converts Clerk private metadata without trusting unknown values", () => {
     },
   };
 
-  assert.deepEqual(readCompletedFromMetadata(metadata), ["vectors", "attention"]);
+  assert.deepEqual(readCompletedFromMetadata(metadata), [
+    "transformer-from-zero/vectors",
+    "transformer-from-zero/attention",
+  ]);
   assert.deepEqual(buildProgressMetadata(["attention", "vectors"]), {
-    rezero: {
-      completedChapters: {
-        vectors: true,
-        attention: true,
+    rootorial: {
+      progressVersion: 2,
+      curricula: {
+        "transformer-from-zero": {
+          completedChapters: {
+            vectors: true,
+            attention: true,
+          },
+        },
       },
     },
   });
-  assert.deepEqual(readCompletedFromMetadata({ rezero: [] }), []);
+  assert.deepEqual(readCompletedFromMetadata({ rootorial: [] }), []);
+  assert.equal(readProgressVersion(metadata), 1);
+});
+
+test("reads curriculum-aware v2 metadata", () => {
+  assert.deepEqual(readCompletedFromMetadata({
+    rootorial: {
+      progressVersion: 2,
+      curricula: {
+        "transformer-from-zero": { completedChapters: { vectors: true } },
+      },
+    },
+  }), ["transformer-from-zero/vectors"]);
+  assert.equal(readProgressVersion({ rootorial: { progressVersion: 2 } }), 2);
 });
 
 test("uses an encoded, account-specific local fallback key", () => {
   assert.equal(
     accountProgressKey("user/demo@example.com"),
-    "rezero-progress:account:user%2Fdemo%40example.com",
+    "rootorial-progress:account:user%2Fdemo%40example.com",
   );
 });

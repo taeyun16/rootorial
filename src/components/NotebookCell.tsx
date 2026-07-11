@@ -3,11 +3,13 @@ import type { ReactNode } from "react";
 import { NotebookCodeEditor } from "./NotebookCodeEditor";
 import {
   NotebookExecutionError,
+  prepareNotebookRuntime,
   restartNotebookRuntime,
   retainNotebookRuntime,
   runNotebookCode,
 } from "./notebookRuntime";
 import type { NotebookRunPhase } from "./notebookRuntime";
+import { useLocale } from "../features/localization/localization";
 
 type NotebookCellStatus =
   | "idle"
@@ -29,7 +31,7 @@ export type NotebookCellProps = {
   className?: string;
 };
 
-const statusLabels: Record<NotebookCellStatus, string> = {
+const statusLabelsKo: Record<NotebookCellStatus, string> = {
   idle: "실행 대기",
   loading: "Python 준비 중",
   queued: "실행 순서 대기 중",
@@ -37,6 +39,11 @@ const statusLabels: Record<NotebookCellStatus, string> = {
   done: "실행 완료",
   stopped: "실행 중지",
   error: "실행 오류",
+};
+
+const statusLabelsEn: Record<NotebookCellStatus, string> = {
+  idle: "Ready to run", loading: "Preparing Python", queued: "Waiting in queue",
+  running: "Running code", done: "Run complete", stopped: "Run stopped", error: "Run error",
 };
 
 function statusFromPhase(phase: NotebookRunPhase): NotebookCellStatus {
@@ -65,6 +72,9 @@ export function NotebookCell({
   figureAlt,
   className,
 }: NotebookCellProps) {
+  const { locale } = useLocale();
+  const isKo = locale === "ko";
+  const statusLabels = isKo ? statusLabelsKo : statusLabelsEn;
   const titleId = useId();
   const statusId = useId();
   const outputId = useId();
@@ -89,10 +99,21 @@ export function NotebookCell({
     };
   }, []);
 
+  useEffect(() => {
+    runVersionRef.current += 1;
+    inFlightRef.current = false;
+    setCode(initialCode);
+    setStatus("idle");
+    setOutput("");
+    setError("");
+    setFigures([]);
+    setExecutionCount(null);
+  }, [initialCode]);
+
   const busy = status === "loading" || status === "queued" || status === "running";
   const changed = code !== initialCode;
   const hasResult = status === "done" || status === "stopped" || status === "error";
-  const resolvedAriaLabel = ariaLabel ?? `${title}에 실행할 Python 코드`;
+  const resolvedAriaLabel = ariaLabel ?? (isKo ? `${title}에 실행할 Python 코드` : `Python code to run for ${title}`);
 
   async function runCode() {
     if (inFlightRef.current) return;
@@ -135,7 +156,7 @@ export function NotebookCell({
         setError(
           caughtError instanceof Error
             ? caughtError.message
-            : "Python 코드를 실행하지 못했습니다.",
+            : (isKo ? "Python 코드를 실행하지 못했습니다." : "Could not run the Python code."),
         );
       }
       setStatus("error");
@@ -170,12 +191,18 @@ export function NotebookCell({
     setExecutionCount(null);
   }
 
+  function prepareRuntime() {
+    void prepareNotebookRuntime().catch(() => {
+      // The normal run path reports initialization errors with full cell context.
+    });
+  }
+
   function getFigureAlt(index: number) {
     if (typeof figureAlt === "function") return figureAlt(index);
     if (figureAlt) {
       return figures.length > 1 ? `${figureAlt} ${index + 1}` : figureAlt;
     }
-    return `${title} 실행 결과 차트 ${index + 1}`;
+    return isKo ? `${title} 실행 결과 차트 ${index + 1}` : `${title} output chart ${index + 1}`;
   }
 
   const rootClassName = [
@@ -210,17 +237,19 @@ export function NotebookCell({
               onClick={resetCell}
               disabled={busy || (!changed && status === "idle")}
             >
-              초기화
+              {isKo ? "초기화" : "Reset"}
             </button>
             <button
               type="button"
               className="notebook-cell-run"
               onClick={busy ? stopCode : runCode}
+              onPointerEnter={busy ? undefined : prepareRuntime}
+              onFocus={busy ? undefined : prepareRuntime}
               aria-describedby={statusId}
               aria-controls={outputId}
-              aria-label={busy ? `${title} 실행 중지` : `${title} 실행`}
+              aria-label={busy ? (isKo ? `${title} 실행 중지` : `Stop ${title}`) : (isKo ? `${title} 실행` : `Run ${title}`)}
             >
-              {busy ? "중지" : "실행"}
+              {busy ? (isKo ? "중지" : "Stop") : (isKo ? "실행" : "Run")}
             </button>
           </div>
         </div>
@@ -257,11 +286,11 @@ export function NotebookCell({
                 <pre className="notebook-cell-output-text">{output}</pre>
               ) : status === "stopped" ? (
                 <p className="notebook-cell-empty-output">
-                  실행을 중지했습니다. 다시 실행하면 새 Python 커널을 시작합니다.
+                  {isKo ? "실행을 중지했습니다. 다시 실행하면 새 Python 커널을 시작합니다." : "Execution stopped. Running again will start a new Python kernel."}
                 </p>
               ) : status === "done" && figures.length === 0 ? (
                 <p className="notebook-cell-empty-output">
-                  실행을 마쳤습니다. 표시할 출력은 없습니다.
+                  {isKo ? "실행을 마쳤습니다. 표시할 출력은 없습니다." : "Execution finished with no output to display."}
                 </p>
               ) : null}
 
@@ -282,14 +311,14 @@ export function NotebookCell({
           ) : (
             <p className="notebook-cell-output-placeholder">
               <span aria-hidden="true">Out [ ]</span>
-              실행 결과가 여기에 표시됩니다.
+              {isKo ? "실행 결과가 여기에 표시됩니다." : "Output will appear here."}
             </p>
           )}
         </div>
 
         {hint ? (
           <aside className="notebook-cell-hint">
-            <strong>실험 제안</strong>
+            <strong>{isKo ? "실험 제안" : "Experiment suggestion"}</strong>
             <div>{hint}</div>
           </aside>
         ) : null}

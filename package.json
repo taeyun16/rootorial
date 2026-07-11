@@ -1,5 +1,5 @@
 {
-  "name": "rezero",
+  "name": "rootorial",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -7,12 +7,18 @@
   },
   "scripts": {
     "dev": "vite dev --port 3000",
+    "dev:e2e": "vite dev --port 3100 --mode e2e",
     "build": "tsc --noEmit && vite build",
     "start": "vite preview --port 3000",
     "preview": "vite preview --port 3000",
     "deploy": "npm run build && wrangler deploy",
     "cf-typegen": "wrangler types",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:seed:local": "wrangler d1 execute DB --local --file scripts/seed.local.sql",
+    "db:migrate:e2e": "wrangler d1 migrations apply DB --local --env e2e --persist-to .wrangler/e2e-state",
+    "db:status:local": "wrangler d1 migrations list DB --local",
     "test": "npm run build && node --experimental-strip-types --test tests/*.test.mjs",
+    "test:e2e": "npm run db:migrate:e2e && node e2e/run-local-e2e.mjs",
     "check": "tsc --noEmit",
     "lint": "npm run check",
     "db:generate": "drizzle-kit generate"
@@ -29,12 +35,19 @@
     "@tanstack/react-start": "1.168.27",
     "codemirror": "^6.0.2",
     "drizzle-orm": "0.45.2",
+    "highlight.js": "^11.11.1",
+    "katex": "^0.17.0",
     "react": "19.2.7",
-    "react-dom": "19.2.7"
+    "react-dom": "19.2.7",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
+    "@clerk/backend": "3.11.4",
+    "@clerk/testing": "2.2.7",
     "@cloudflare/vite-plugin": "1.44.0",
     "@cloudflare/workers-types": "5.20260711.1",
+    "@playwright/test": "1.61.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",

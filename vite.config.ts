@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 // macOS Seatbelt blocks FSEvents, so Codex previews need polling for HMR.
 const isCodexSeatbeltSandbox = process.env.CODEX_SANDBOX === "seatbelt";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   server: {
     port: 3000,
     strictPort: true,
@@ -15,8 +15,12 @@ export default defineConfig({
       : undefined,
   },
   plugins: [
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    cloudflare({
+      viteEnvironment: { name: "ssr" },
+      persistState:
+        mode === "e2e" ? { path: ".wrangler/e2e-state" } : true,
+    }),
     tanstackStart(),
     react(),
   ],
-});
+}));

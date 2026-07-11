@@ -20,9 +20,9 @@ function createEditorTheme(minHeight: number) {
     {
       "&": {
         minHeight: `${minHeight}px`,
-        backgroundColor: "#171d1a",
-        color: "#dfe9e3",
-        fontSize: "12px",
+        backgroundColor: "var(--paper-raised)",
+        color: "var(--ink)",
+        fontSize: "var(--text-code)",
       },
       ".cm-scroller": {
         minHeight: `${minHeight}px`,
@@ -32,49 +32,49 @@ function createEditorTheme(minHeight: number) {
       },
       ".cm-content": {
         padding: "14px 0",
-        caretColor: "#f1cf62",
+        caretColor: "var(--accent)",
       },
       ".cm-line": {
         padding: "0 20px 0 10px",
       },
       ".cm-gutters": {
         border: "0",
-        backgroundColor: "#141a17",
-        color: "#68756e",
+        backgroundColor: "var(--paper-pressed)",
+        color: "var(--quiet)",
         paddingLeft: "5px",
       },
       ".cm-activeLine": {
-        backgroundColor: "rgba(216, 242, 229, 0.045)",
+        backgroundColor: "rgba(68, 82, 65, 0.065)",
       },
       ".cm-activeLineGutter": {
-        backgroundColor: "rgba(216, 242, 229, 0.06)",
-        color: "#a6b7ad",
+        backgroundColor: "rgba(68, 82, 65, 0.1)",
+        color: "var(--accent)",
       },
       ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection": {
-        backgroundColor: "rgba(91, 91, 214, 0.34) !important",
+        backgroundColor: "rgba(76, 91, 100, 0.34) !important",
       },
       "&.cm-focused": {
-        outline: "3px solid rgba(117, 200, 166, 0.26)",
+        outline: "3px solid var(--focus)",
         outlineOffset: "-3px",
       },
       "&.cm-focused .cm-cursor": {
-        borderLeftColor: "#f1cf62",
+        borderLeftColor: "var(--accent)",
       },
       ".cm-matchingBracket": {
-        backgroundColor: "rgba(241, 207, 98, 0.18)",
-        outline: "1px solid rgba(241, 207, 98, 0.5)",
+        backgroundColor: "rgba(152, 82, 60, 0.14)",
+        outline: "1px solid rgba(152, 82, 60, 0.52)",
       },
       ".cm-tooltip": {
-        border: "1px solid #38433e",
-        backgroundColor: "#1c2420",
-        color: "#dfe9e3",
+        border: "1px solid var(--line-strong)",
+        backgroundColor: "var(--paper-raised)",
+        color: "var(--ink)",
       },
       ".cm-tooltip-autocomplete > ul > li[aria-selected]": {
-        backgroundColor: "#28463d",
-        color: "#ffffff",
+        backgroundColor: "var(--accent)",
+        color: "var(--paper-raised)",
       },
     },
-    { dark: true },
+    { dark: false },
   );
 }
 

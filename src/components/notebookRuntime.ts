@@ -238,6 +238,11 @@ async function ensureRuntime(onPhase?: (phase: NotebookRunPhase) => void) {
   await readyPromise;
 }
 
+/** Begin loading the shared runtime when the user signals intent to run a cell. */
+export function prepareNotebookRuntime() {
+  return ensureRuntime();
+}
+
 /** Keep the shared kernel alive while at least one notebook cell is mounted. */
 export function retainNotebookRuntime() {
   activeConsumers += 1;

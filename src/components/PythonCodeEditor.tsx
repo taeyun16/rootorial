@@ -18,9 +18,9 @@ const editorTheme = EditorView.theme(
     "&": {
       height: "100%",
       minHeight: "390px",
-      backgroundColor: "#171d1a",
-      color: "#dfe9e3",
-      fontSize: "12px",
+      backgroundColor: "var(--code-bg)",
+      color: "var(--code-text)",
+      fontSize: "var(--text-code)",
     },
     ".cm-scroller": {
       overflow: "auto",
@@ -29,15 +29,15 @@ const editorTheme = EditorView.theme(
     },
     ".cm-content": {
       padding: "18px 0",
-      caretColor: "#f1cf62",
+      caretColor: "var(--syntax-keyword)",
     },
     ".cm-line": {
       padding: "0 22px 0 12px",
     },
     ".cm-gutters": {
       border: "0",
-      backgroundColor: "#141a17",
-      color: "#5f6d65",
+      backgroundColor: "var(--code-surface)",
+      color: "var(--code-muted)",
       paddingLeft: "6px",
     },
     ".cm-activeLine": {
@@ -45,30 +45,30 @@ const editorTheme = EditorView.theme(
     },
     ".cm-activeLineGutter": {
       backgroundColor: "rgba(216, 242, 229, 0.06)",
-      color: "#a6b7ad",
+      color: "var(--code-text)",
     },
     ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection": {
-      backgroundColor: "rgba(91, 91, 214, 0.34) !important",
+      backgroundColor: "rgba(76, 91, 100, 0.34) !important",
     },
     "&.cm-focused": {
-      outline: "3px solid rgba(117, 200, 166, 0.26)",
+      outline: "3px solid rgba(47, 107, 91, 0.75)",
       outlineOffset: "-3px",
     },
     "&.cm-focused .cm-cursor": {
-      borderLeftColor: "#f1cf62",
+      borderLeftColor: "var(--syntax-keyword)",
     },
     ".cm-matchingBracket": {
       backgroundColor: "rgba(241, 207, 98, 0.18)",
       outline: "1px solid rgba(241, 207, 98, 0.5)",
     },
     ".cm-tooltip": {
-      border: "1px solid #38433e",
-      backgroundColor: "#1c2420",
-      color: "#dfe9e3",
+      border: "1px solid var(--code-border)",
+      backgroundColor: "var(--code-surface)",
+      color: "var(--code-text)",
     },
     ".cm-tooltip-autocomplete > ul > li[aria-selected]": {
-      backgroundColor: "#28463d",
-      color: "#ffffff",
+      backgroundColor: "var(--accent-hover)",
+      color: "var(--paper-raised)",
     },
   },
   { dark: true },

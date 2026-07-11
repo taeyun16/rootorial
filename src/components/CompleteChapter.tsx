@@ -1,43 +1,52 @@
 import { Link } from "@tanstack/react-router";
 import { useProgress } from "./ProgressProvider";
+import { useLocale } from "../features/localization/localization";
+import { chapterId, TRANSFORMER_CURRICULUM_SLUG } from "../data/curriculum";
 
 type CompleteChapterProps = {
   slug: string;
+  curriculumSlug?: string;
   canComplete?: boolean;
   lockedMessage?: string;
 };
 
 export function CompleteChapter({
   slug,
+  curriculumSlug = TRANSFORMER_CURRICULUM_SLUG,
   canComplete = true,
   lockedMessage = "이해 확인을 마치면 챕터를 완료할 수 있습니다.",
 }: CompleteChapterProps) {
   const { completed, markComplete, retry, status } = useProgress();
-  const isCompleted = completed.includes(slug);
+  const { locale } = useLocale();
+  const isKo = locale === "ko";
+  const progressId = chapterId(curriculumSlug, slug);
+  const isCompleted = completed.includes(progressId);
 
   if (isCompleted) {
     const message =
       status === "syncing"
-        ? "진도를 계정에 저장하고 있습니다."
+        ? (isKo ? "진도를 계정에 저장하고 있습니다." : "Saving progress to your account.")
         : status === "synced"
-          ? "진도가 계정에 저장되었습니다."
+          ? (isKo ? "진도가 계정에 저장되었습니다." : "Progress saved to your account.")
           : status === "error"
-            ? "이 기기에는 저장했지만 계정 동기화에 실패했습니다."
-            : "진도가 이 브라우저에 저장되었습니다.";
+            ? (isKo ? "이 기기에는 저장했지만 계정 동기화에 실패했습니다." : "Saved on this device, but account sync failed.")
+            : (isKo ? "진도가 이 브라우저에 저장되었습니다." : "Progress saved in this browser.");
 
     return (
       <div className="completed-panel">
         <span className="completed-check">✓</span>
         <div>
-          <strong>챕터 완료</strong>
+          <strong>{isKo ? "챕터 완료" : "Chapter complete"}</strong>
           <p role="status">{message}</p>
         </div>
         {status === "error" ? (
           <button className="text-link" type="button" onClick={retry}>
-            다시 동기화
+            {isKo ? "다시 동기화" : "Sync again"}
           </button>
         ) : (
-          <Link to="/">커리큘럼으로</Link>
+          <Link to="/curricula/$curriculumSlug" params={{ curriculumSlug }}>
+            {isKo ? "커리큘럼으로" : "To curriculum"}
+          </Link>
         )}
       </div>
     );
@@ -49,17 +58,19 @@ export function CompleteChapter({
         type="button"
         className="button button-primary complete-button"
         disabled={!canComplete || status === "loading" || status === "syncing"}
-        onClick={() => void markComplete(slug)}
+        onClick={() => void markComplete(progressId)}
       >
-        {status === "loading" ? "진도 불러오는 중" : "이 챕터 완료하기"}{" "}
+        {status === "loading"
+          ? (isKo ? "진도 불러오는 중" : "Loading progress")
+          : (isKo ? "이 챕터 완료하기" : "Complete this chapter")}{" "}
         <span aria-hidden="true">✓</span>
       </button>
       {!canComplete ? <p role="status">{lockedMessage}</p> : null}
       {status === "error" ? (
         <p role="status">
-          계정 진도를 불러오지 못했습니다.{" "}
+          {isKo ? "계정 진도를 불러오지 못했습니다." : "Could not load account progress."}{" "}
           <button className="text-link" type="button" onClick={retry}>
-            다시 시도
+            {isKo ? "다시 시도" : "Try again"}
           </button>
         </p>
       ) : null}

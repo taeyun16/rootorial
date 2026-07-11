@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PythonCode } from "./PythonCode";
+import { useLocale } from "../features/localization/localization";
+import { MathFormula } from "./MathFormula";
 
 type Vector = [number, number];
 
@@ -38,6 +40,8 @@ function drawArrow(
 }
 
 export function VectorExplorer() {
+  const { locale } = useLocale();
+  const isKo = locale === "ko";
   const [v, setV] = useState<Vector>([3, 2]);
   const [w, setW] = useState<Vector>([-1, 3]);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -46,8 +50,10 @@ export function VectorExplorer() {
     const dot = v[0] * w[0] + v[1] * w[1];
     const normV = Math.hypot(...v);
     const normW = Math.hypot(...w);
-    const cosine = normV && normW ? dot / (normV * normW) : 0;
-    const angle = Math.acos(Math.max(-1, Math.min(1, cosine))) * (180 / Math.PI);
+    const cosine = normV && normW ? dot / (normV * normW) : null;
+    const angle = cosine === null
+      ? null
+      : Math.acos(Math.max(-1, Math.min(1, cosine))) * (180 / Math.PI);
     const projectionScale = normV ? dot / (normV * normV) : 0;
     const projection: Vector = [v[0] * projectionScale, v[1] * projectionScale];
     return { dot, normV, normW, cosine, angle, projection };
@@ -71,7 +77,7 @@ export function VectorExplorer() {
     const scale = Math.min(width / 14, height / 10);
 
     context.clearRect(0, 0, width, height);
-    context.strokeStyle = "rgba(55, 65, 81, 0.11)";
+    context.strokeStyle = "rgba(70, 93, 106, 0.11)";
     context.lineWidth = 1;
 
     for (let x = origin.x % scale; x < width; x += scale) {
@@ -87,7 +93,7 @@ export function VectorExplorer() {
       context.stroke();
     }
 
-    context.strokeStyle = "rgba(15, 23, 42, 0.42)";
+    context.strokeStyle = "rgba(37, 36, 32, 0.42)";
     context.beginPath();
     context.moveTo(0, origin.y);
     context.lineTo(width, origin.y);
@@ -95,9 +101,9 @@ export function VectorExplorer() {
     context.lineTo(origin.x, height);
     context.stroke();
 
-    drawArrow(context, origin, metrics.projection, scale, "#d97757", "projᵥ(w)", true);
-    drawArrow(context, origin, v, scale, "#1d4f45", "v");
-    drawArrow(context, origin, w, scale, "#5b5bd6", "w");
+    drawArrow(context, origin, metrics.projection, scale, "#8f4f3c", "projᵥ(w)", true);
+    drawArrow(context, origin, v, scale, "#365548", "v");
+    drawArrow(context, origin, w, scale, "#465d6a", "w");
   }, [metrics.projection, v, w]);
 
   function slider(
@@ -112,7 +118,7 @@ export function VectorExplorer() {
         <span>{label}</span>
         <input
           type="range"
-          aria-label={`${vectorName}의 ${label} 좌표`}
+          aria-label={isKo ? `${vectorName}의 ${label} 좌표` : `${vectorName} ${label} coordinate`}
           min="-4"
           max="4"
           step="0.5"
@@ -127,11 +133,17 @@ export function VectorExplorer() {
   return (
     <div className="vector-explorer">
       <div className="vector-canvas-wrap">
-        <canvas ref={canvasRef} className="vector-canvas" aria-label="벡터 v, w와 투영을 보여주는 좌표 평면" />
+        <canvas
+          ref={canvasRef}
+          className="vector-canvas"
+          role="img"
+          aria-label={isKo ? "벡터 v, w와 투영을 보여주는 좌표 평면" : "Coordinate plane showing vectors v and w and their projection"}
+          aria-describedby="vector-explorer-description"
+        />
         <div className="canvas-legend" aria-hidden="true">
           <span><i className="legend-v" /> v</span>
           <span><i className="legend-w" /> w</span>
-          <span><i className="legend-p" /> 투영</span>
+          <span><i className="legend-p" /> {isKo ? "투영" : "projection"}</span>
         </div>
       </div>
       <div className="vector-controls">
@@ -151,19 +163,42 @@ export function VectorExplorer() {
           {slider("w", "x", w[0], (value) => setW([value, w[1]]), "indigo")}
           {slider("w", "y", w[1], (value) => setW([w[0], value]), "indigo")}
         </div>
+        <div className="vector-presets" aria-label={isKo ? "관계 프리셋" : "Relationship presets"}>
+          <span>{isKo ? "빠른 실험" : "QUICK EXPERIMENTS"}</span>
+          <div>
+            <button type="button" onClick={() => { setV([3, 2]); setW([6, 4]); }}>{isKo ? "같은 방향" : "Same direction"}</button>
+            <button type="button" onClick={() => { setV([3, 0]); setW([0, 3]); }}>{isKo ? "직각" : "Perpendicular"}</button>
+            <button type="button" onClick={() => { setV([3, 2]); setW([-3, -2]); }}>{isKo ? "반대 방향" : "Opposite directions"}</button>
+            <button type="button" onClick={() => { setV([0, 0]); setW([2, 1]); }}>{isKo ? "영벡터" : "Zero vector"}</button>
+          </div>
+        </div>
+        <div role="status" aria-live="polite" id="vector-explorer-description">
         <dl className="metric-grid">
-          <div><dt>내적</dt><dd>{metrics.dot.toFixed(2)}</dd></div>
-          <div><dt>각도</dt><dd>{Number.isFinite(metrics.angle) ? `${metrics.angle.toFixed(1)}°` : "—"}</dd></div>
-          <div><dt>‖v‖</dt><dd>{metrics.normV.toFixed(2)}</dd></div>
-          <div><dt>cos θ</dt><dd>{metrics.cosine.toFixed(3)}</dd></div>
+          <div><dt>{isKo ? "내적" : "Dot product"}</dt><dd>{metrics.dot.toFixed(2)}</dd></div>
+          <div><dt>{isKo ? "각도" : "Angle"}</dt><dd>{metrics.angle === null ? (isKo ? "정의 안 됨" : "Undefined") : `${metrics.angle.toFixed(1)}°`}</dd></div>
+          <div><dt><MathFormula latex={String.raw`\lVert \mathbf{v} \rVert_2`} /></dt><dd>{metrics.normV.toFixed(2)}</dd></div>
+          <div><dt><MathFormula latex={String.raw`\cos\theta`} /></dt><dd>{metrics.cosine === null ? (isKo ? "정의 안 됨" : "Undefined") : metrics.cosine.toFixed(3)}</dd></div>
         </dl>
+        <div className="dot-breakdown" aria-label={isKo ? "내적의 원소별 계산" : "Element-wise dot-product calculation"}>
+          <span>{isKo ? "원소별로 곱하고 모두 더하기" : "Multiply matching values, then add"}</span>
+          <div aria-hidden="true">
+            <strong>{v[0].toFixed(1)}</strong><i>×</i><strong>{w[0].toFixed(1)}</strong>
+            <em>+</em>
+            <strong>{v[1].toFixed(1)}</strong><i>×</i><strong>{w[1].toFixed(1)}</strong>
+            <em>=</em>
+            <output>{metrics.dot.toFixed(2)}</output>
+          </div>
+        </div>
         <p className="metric-insight">
-          {metrics.dot > 0.1
-            ? "두 벡터는 대체로 같은 방향을 바라봅니다."
+          {metrics.cosine === null
+            ? (isKo ? "영벡터에는 방향이 없어 각도와 코사인 유사도를 정의할 수 없습니다." : "The zero vector has no direction, so its angle and cosine similarity are undefined.")
+            : metrics.dot > 0.1
+            ? (isKo ? "두 벡터는 대체로 같은 방향을 바라봅니다." : "The two vectors point mostly in the same direction.")
             : metrics.dot < -0.1
-              ? "두 벡터는 서로 반대 방향을 바라봅니다."
-              : "두 벡터는 거의 직각입니다. 내적이 0에 가깝습니다."}
+              ? (isKo ? "두 벡터는 서로 반대 방향을 바라봅니다." : "The two vectors point in opposite directions.")
+              : (isKo ? "두 벡터는 거의 직각입니다. 내적이 0에 가깝습니다." : "The two vectors are nearly perpendicular, so their dot product is close to zero.")}
         </p>
+        </div>
       </div>
     </div>
   );

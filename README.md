@@ -1,6 +1,12 @@
-# Re:Zero
+# Rootorial
 
-Transformer를 벡터부터 직접 움직이고 실행하며 배우는 인터랙티브 교과서입니다.
+Technology, understood from the root.
+
+복잡한 기술을 바닥부터.
+
+직접 움직이고 실행하며 어려운 기술을 이해하는 인터랙티브 커리큘럼 플랫폼입니다.
+Transformer 시리즈는 Rootorial이 제공하는 첫 번째 커리큘럼이며, Linux 시스템,
+인프라 설계, 디자인 패턴 등 독립적인 학습 여정을 같은 구조에서 제공하도록 설계되어 있습니다.
 현재 앱은 TanStack Start 위에서 React로 렌더링되고 Cloudflare Workers에서
 실행되도록 구성되어 있습니다.
 
@@ -20,10 +26,22 @@ Node.js `>=22.13.0`이 필요합니다.
 
 ```bash
 npm install
+npm run db:migrate:local
+npm run db:seed:local
 npm run dev
 ```
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 엽니다.
+로컬 D1 데이터는 `.wrangler/` 아래에 저장되며 Cloudflare 로그인이나 원격
+데이터베이스 없이도 질문·답변 기능을 검증할 수 있습니다. 스키마가 변경되면
+개발 서버를 시작하기 전에 `npm run db:migrate:local`을 다시 실행하세요.
+`npm run db:seed:local`은 벡터 챕터에 질문 2개, 답변 3개, 좋아요와 세 명의
+fallback 아바타를 idempotent하게 추가해 커뮤니티 UI를 바로 확인하게 합니다.
+브라우저 E2E는 `rootorial-e2e-local` 데이터베이스를 별도로 사용하므로 개발 중인
+로컬 질문 데이터를 수정하지 않습니다. 실행 중 Clerk 개발 인스턴스에 테스트
+사용자와 임시 관리자를 만들지만 테스트 종료 시 계정과 D1 데이터를 모두
+정리합니다. Python 실행, 익명·계정 진도 병합, 가입, 질문 수정·삭제, 두 사용자
+답변·좋아요·차단, 관리자 숨김·복구를 Chromium에서 검증합니다.
 Clerk 키가 없어도 모든 공개 학습 콘텐츠와 브라우저 Python 실습은 동작하며,
 헤더에는 `로그인 준비 중`이 표시됩니다.
 
@@ -33,7 +51,7 @@ Clerk 키가 없어도 모든 공개 학습 콘텐츠와 브라우저 Python 실
 
 ## Clerk 연결
 
-Clerk 대시보드의 `rezero` 애플리케이션에서 Google, GitHub, 이메일 OTP를
+Clerk 대시보드의 `rootorial` 애플리케이션에서 Google, GitHub, 이메일 OTP를
 활성화하고 API 키 두 개를 로컬 `.env`에 넣습니다.
 
 ```bash
@@ -58,7 +76,7 @@ Dashboard의 사용자 ID를 쉼표로 구분해 추가하세요. 값이 비어 
 관리자 권한을 주지 않습니다.
 
 ```dotenv
-REZERO_ADMIN_USER_IDS=user_abc123,user_def456
+ROOTORIAL_ADMIN_USER_IDS=user_abc123,user_def456
 ```
 
 운영 환경에서는 실제 값을 Git에 넣지 말고 Cloudflare secret으로 등록합니다.
@@ -66,7 +84,7 @@ REZERO_ADMIN_USER_IDS=user_abc123,user_def456
 ```bash
 npx wrangler secret put CLERK_PUBLISHABLE_KEY
 npx wrangler secret put CLERK_SECRET_KEY
-npx wrangler secret put REZERO_ADMIN_USER_IDS
+npx wrangler secret put ROOTORIAL_ADMIN_USER_IDS
 ```
 
 ## Cloudflare deploy
@@ -78,19 +96,20 @@ npm run build
 npm run deploy
 ```
 
-배포가 만들어지면 Cloudflare 대시보드에서 `rezero.taeyun.me` custom domain을
+배포가 만들어지면 Cloudflare 대시보드에서 `rootorial.taeyun.me` custom domain을
 Worker에 연결합니다.
 
 D1은 질문·답변, 좋아요, 사용자별 차단, 관리자 감사 기록을 저장합니다. 현재
 저장소에는 토론·관리·rate limit용 7개 테이블의 Drizzle migration이 포함되어
-있으며, Cloudflare에서 데이터베이스를 만든 뒤 `DB` binding을
-`wrangler.jsonc`에 추가해야 합니다.
+있습니다. 로컬용 `DB` binding은 이미 구성되어 있습니다. 배포 전에는
+Cloudflare에서 데이터베이스를 만든 뒤 출력된 `database_id`를 기존 binding에
+추가하고 이름을 운영 데이터베이스에 맞게 바꿔야 합니다.
 
 ```json
 "d1_databases": [
   {
     "binding": "DB",
-    "database_name": "rezero",
+    "database_name": "rootorial",
     "database_id": "<wrangler d1 create가 출력한 ID>",
     "migrations_dir": "drizzle"
   }
@@ -98,8 +117,7 @@ D1은 질문·답변, 좋아요, 사용자별 차단, 관리자 감사 기록을
 ```
 
 ```bash
-npx wrangler d1 create rezero
-npx wrangler d1 migrations apply DB --local
+npx wrangler d1 create rootorial
 npx wrangler d1 migrations apply DB --remote
 ```
 
@@ -115,6 +133,11 @@ npm run dev        # Workers 로컬 런타임 + Vite HMR
 npm run check      # TypeScript 검사
 npm run build      # 프로덕션 client/SSR Worker 빌드
 npm test           # 빌드 후 홈·챕터 SSR 계약 테스트
+npm run test:e2e   # Clerk 테스트 가입 + 로컬 D1 질문 저장 브라우저 E2E
+npm run db:migrate:local # 로컬 D1 migration 적용
+npm run db:seed:local    # 커뮤니티 UI 확인용 로컬 데모 데이터 적용
+npm run db:migrate:e2e   # 격리된 E2E D1 migration 적용
+npm run db:status:local  # 로컬 D1 migration 상태 확인
 npm run deploy     # 검증 후 Cloudflare Workers 배포
 npm run cf-typegen # wrangler binding 타입 생성
 ```
@@ -123,6 +146,7 @@ npm run cf-typegen # wrangler binding 타입 생성
 
 - `src/routes/`: TanStack file-based routes
 - `src/components/`: 학습 UI, 인증 셸, 노트북 셀, 컴포넌트별 토론 패널
+- `src/data/curriculum.ts`: 플랫폼 커리큘럼 registry와 챕터 메타데이터
 - `src/data/`: 커리큘럼 카탈로그와 챕터별 실행 코드
 - `src/styles/`: 전역 디자인 시스템
 - `public/pyodide-worker.js`: 브라우저 Python worker

@@ -218,3 +218,40 @@ export const discussionRateLimits = sqliteTable("discussion_rate_limits", {
     sql`${table.count} > 0`,
   ),
 ]);
+
+export const contentFeedback = sqliteTable("content_feedback", {
+  id: text("id").primaryKey(),
+  authorUserId: text("author_user_id").notNull(),
+  kind: text("kind", {
+    enum: ["incorrect", "confusing", "suggestion"],
+  }).notNull(),
+  message: text("message").notNull(),
+  pagePath: text("page_path").notNull(),
+  pageTitle: text("page_title").notNull(),
+  createdAt: integer("created_at").notNull(),
+}, (table) => [
+  index("content_feedback_author_created_idx").on(
+    table.authorUserId,
+    table.createdAt,
+  ),
+  index("content_feedback_page_created_idx").on(
+    table.pagePath,
+    table.createdAt,
+  ),
+  check(
+    "content_feedback_kind_check",
+    sql`${table.kind} in ('incorrect', 'confusing', 'suggestion')`,
+  ),
+  check(
+    "content_feedback_message_length",
+    sql`length(trim(${table.message})) between 1 and 2000`,
+  ),
+  check(
+    "content_feedback_page_path_length",
+    sql`length(${table.pagePath}) between 1 and 500`,
+  ),
+  check(
+    "content_feedback_page_title_length",
+    sql`length(trim(${table.pageTitle})) between 1 and 200`,
+  ),
+]);

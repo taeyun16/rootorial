@@ -37,15 +37,17 @@ import {
   type DiscussionView,
   validateCreateAnswerInput,
   validateCreateQuestionInput,
+  validateDeletePostInput,
   validateGetDiscussionInput,
   validateModeratePostInput,
   validateSetAnswerLikeInput,
   validateSetAuthorBlockInput,
+  validateUpdatePostInput,
 } from "./discussion";
 
 type DiscussionBindings = {
   DB?: D1Database;
-  REZERO_ADMIN_USER_IDS?: string;
+  ROOTORIAL_ADMIN_USER_IDS?: string;
 };
 
 type DiscussionDb = ReturnType<typeof getDb>;
@@ -70,8 +72,8 @@ function getDiscussionDb() {
 
 function getConfiguredAdminUserIds() {
   return (
-    getBindings().REZERO_ADMIN_USER_IDS ??
-    process.env.REZERO_ADMIN_USER_IDS
+    getBindings().ROOTORIAL_ADMIN_USER_IDS ??
+    process.env.ROOTORIAL_ADMIN_USER_IDS
   );
 }
 
@@ -396,8 +398,8 @@ export const getDiscussion = createServerFn({ method: "GET" })
               and(
                 inArray(discussionAnswers.questionId, questionIds),
                 viewerIsAdmin
-                  ? inArray(discussionAnswers.state, ["visible", "hidden"])
-                  : eq(discussionAnswers.state, "visible"),
+                  ? inArray(discussionAnswers.state, ["visible", "hidden", "deleted"])
+                  : inArray(discussionAnswers.state, ["visible", "deleted"]),
                 blocked.length
                   ? notInArray(discussionAnswers.authorUserId, blocked)
                   : undefined,
@@ -715,6 +717,136 @@ export const createAnswer = createServerFn({ method: "POST" })
       return { ok: true as const, answerId: id, kind };
     } catch (error) {
       reportDatabaseFailure("create-answer", error);
+      return mutationFailure("unavailable", DISCUSSION_UNAVAILABLE_MESSAGE);
+    }
+  });
+
+export const updatePost = createServerFn({ method: "POST" })
+  .validator(validateUpdatePostInput)
+  .handler(async ({ data }) => {
+    preventSharedCaching();
+
+    const db = getDiscussionDb();
+    if (!db) {
+      return mutationFailure("unavailable", DISCUSSION_UNAVAILABLE_MESSAGE);
+    }
+    const userId = await getOptionalUserId();
+    if (!userId) {
+      return mutationFailure("unauthorized", "로그인이 필요합니다.");
+    }
+
+    try {
+      const [target] = data.targetType === "question"
+        ? await db
+            .select({
+              authorUserId: discussionQuestions.authorUserId,
+              state: discussionQuestions.state,
+            })
+            .from(discussionQuestions)
+            .where(eq(discussionQuestions.id, data.targetId))
+            .limit(1)
+        : await db
+            .select({
+              authorUserId: discussionAnswers.authorUserId,
+              state: discussionAnswers.state,
+            })
+            .from(discussionAnswers)
+            .where(eq(discussionAnswers.id, data.targetId))
+            .limit(1);
+
+      if (!target) return mutationFailure("not_found", "글을 찾을 수 없습니다.");
+      if (target.authorUserId !== userId) {
+        return mutationFailure("forbidden", "내가 작성한 글만 수정할 수 있습니다.");
+      }
+      if (target.state !== "visible") {
+        return mutationFailure("conflict", "현재 이 글은 수정할 수 없습니다.");
+      }
+
+      const updatedAt = Date.now();
+      if (data.targetType === "question") {
+        await db
+          .update(discussionQuestions)
+          .set({ body: data.body, updatedAt })
+          .where(eq(discussionQuestions.id, data.targetId));
+      } else {
+        await db
+          .update(discussionAnswers)
+          .set({ body: data.body, updatedAt })
+          .where(eq(discussionAnswers.id, data.targetId));
+      }
+
+      return { ok: true as const, body: data.body, updatedAt };
+    } catch (error) {
+      reportDatabaseFailure("update-post", error);
+      return mutationFailure("unavailable", DISCUSSION_UNAVAILABLE_MESSAGE);
+    }
+  });
+
+export const deletePost = createServerFn({ method: "POST" })
+  .validator(validateDeletePostInput)
+  .handler(async ({ data }) => {
+    preventSharedCaching();
+
+    const db = getDiscussionDb();
+    if (!db) {
+      return mutationFailure("unavailable", DISCUSSION_UNAVAILABLE_MESSAGE);
+    }
+    const userId = await getOptionalUserId();
+    if (!userId) {
+      return mutationFailure("unauthorized", "로그인이 필요합니다.");
+    }
+
+    try {
+      const [target] = data.targetType === "question"
+        ? await db
+            .select({
+              authorUserId: discussionQuestions.authorUserId,
+              state: discussionQuestions.state,
+            })
+            .from(discussionQuestions)
+            .where(eq(discussionQuestions.id, data.targetId))
+            .limit(1)
+        : await db
+            .select({
+              authorUserId: discussionAnswers.authorUserId,
+              state: discussionAnswers.state,
+            })
+            .from(discussionAnswers)
+            .where(eq(discussionAnswers.id, data.targetId))
+            .limit(1);
+
+      if (!target) return mutationFailure("not_found", "글을 찾을 수 없습니다.");
+      if (target.authorUserId !== userId) {
+        return mutationFailure("forbidden", "내가 작성한 글만 삭제할 수 있습니다.");
+      }
+      if (target.state !== "visible") {
+        return mutationFailure("conflict", "현재 이 글은 삭제할 수 없습니다.");
+      }
+
+      const updatedAt = Date.now();
+      const deletedValues = {
+        body: "",
+        state: "deleted" as const,
+        updatedAt,
+        moderatedByUserId: null,
+        moderatedAt: null,
+        moderationReason: null,
+      };
+      if (data.targetType === "question") {
+        await db
+          .update(discussionQuestions)
+          .set(deletedValues)
+          .where(eq(discussionQuestions.id, data.targetId));
+      } else {
+        await db
+          .update(discussionAnswers)
+          .set(deletedValues)
+          .where(eq(discussionAnswers.id, data.targetId));
+      }
+
+      return { ok: true as const, state: "deleted" as const, updatedAt };
+    } catch (error) {
+      reportDatabaseFailure("delete-post", error);
       return mutationFailure("unavailable", DISCUSSION_UNAVAILABLE_MESSAGE);
     }
   });

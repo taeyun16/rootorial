@@ -10,14 +10,14 @@ async function initialize() {
     importScripts(`${PYODIDE_BASE}pyodide.js`);
     pyodideReady = self.loadPyodide({ indexURL: PYODIDE_BASE }).then(async (pyodide) => {
       await pyodide.runPythonAsync(`
-import os as __rezero_os
-import warnings as __rezero_warnings
-__rezero_os.environ.setdefault("MPLBACKEND", "Agg")
-__rezero_warnings.filterwarnings(
+import os as __rootorial_os
+import warnings as __rootorial_warnings
+__rootorial_os.environ.setdefault("MPLBACKEND", "Agg")
+__rootorial_warnings.filterwarnings(
     "ignore",
     message="FigureCanvasAgg is non-interactive.*",
 )
-del __rezero_os, __rezero_warnings
+del __rootorial_os, __rootorial_warnings
 `);
       return pyodide;
     });
@@ -31,10 +31,10 @@ function postRunMessage(message, requestId) {
 
 async function clearFigures(pyodide) {
   await pyodide.runPythonAsync(`
-import sys as __rezero_sys
-if "matplotlib.pyplot" in __rezero_sys.modules:
-    __rezero_sys.modules["matplotlib.pyplot"].close("all")
-del __rezero_sys
+import sys as __rootorial_sys
+if "matplotlib.pyplot" in __rootorial_sys.modules:
+    __rootorial_sys.modules["matplotlib.pyplot"].close("all")
+del __rootorial_sys
 `);
 }
 
@@ -43,7 +43,7 @@ async function collectFigures(pyodide) {
 
   try {
     figureProxy = await pyodide.runPythonAsync(`
-def __rezero_capture_figures():
+def __rootorial_capture_figures():
     import sys
     import io
     import base64
@@ -74,10 +74,10 @@ def __rezero_capture_figures():
         pyplot.close("all")
 
 try:
-    __rezero_capture_result = __rezero_capture_figures()
+    __rootorial_capture_result = __rootorial_capture_figures()
 finally:
-    del __rezero_capture_figures
-__rezero_capture_result
+    del __rootorial_capture_figures
+__rootorial_capture_result
 `);
     const figures = figureProxy.toJs({ create_pyproxies: false });
     return Array.from(figures, (figure) => String(figure));
@@ -85,7 +85,7 @@ __rezero_capture_result
     figureProxy?.destroy?.();
     try {
       await pyodide.runPythonAsync(
-        `globals().pop("__rezero_capture_result", None)`,
+        `globals().pop("__rootorial_capture_result", None)`,
       );
     } catch {
       // Do not mask the original execution or figure-capture error.

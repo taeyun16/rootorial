@@ -250,6 +250,27 @@ export function validateCreateAnswerInput(value: unknown) {
   };
 }
 
+export function validateUpdatePostInput(value: unknown) {
+  const input = readRecord(value, "수정할 글이 필요합니다.");
+  const targetType = readPostType(input.targetType);
+  return {
+    targetType,
+    targetId: validateDiscussionId(input.targetId),
+    body: validateDiscussionBody(
+      input.body,
+      targetType === "question" ? "질문" : "답변",
+    ),
+  };
+}
+
+export function validateDeletePostInput(value: unknown) {
+  const input = readRecord(value, "삭제할 글이 필요합니다.");
+  return {
+    targetType: readPostType(input.targetType),
+    targetId: validateDiscussionId(input.targetId),
+  };
+}
+
 export function validateSetAnswerLikeInput(value: unknown) {
   const input = readRecord(value, "답변과 좋아요 상태가 필요합니다.");
   return {

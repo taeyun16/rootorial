@@ -1,22 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CurriculumHome } from "../components/CurriculumHome";
+import { PlatformHome } from "../components/PlatformHome";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      {
-        title: "Re:Zero — Transformer를 바닥부터 이해하는 인터랙티브 교과서",
-      },
-      {
-        name: "description",
-        content:
-          "벡터와 경사하강법부터 Attention과 Mini Transformer까지, 브라우저에서 직접 움직이고 실행하며 배우는 딥러닝 커리큘럼입니다.",
-      },
-    ],
-  }),
+  head: ({ match }) => {
+    const isEnglish = (match.search as { lang?: unknown }).lang === "en";
+
+    return {
+      meta: [
+        {
+          title: isEnglish
+            ? "Rootorial — Technology, understood from the root."
+            : "Rootorial — 복잡한 기술을 바닥부터.",
+        },
+        {
+          name: "description",
+          content: isEnglish
+            ? "Interactive curricula for understanding AI, systems, infrastructure, and software design from the ground up."
+            : "AI, Linux 시스템, 인프라 설계와 소프트웨어 패턴을 직접 움직이고 실행하며 바닥부터 이해합니다.",
+        },
+      ],
+    };
+  },
   component: Home,
 });
 
 function Home() {
-  return <CurriculumHome />;
+  return <PlatformHome />;
 }

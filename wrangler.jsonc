@@ -1,10 +1,28 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "rezero",
+  "name": "rootorial",
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2026-07-11",
   "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "rootorial-local",
+      "migrations_dir": "drizzle"
+    }
+  ],
   "observability": {
     "enabled": true
+  },
+  "env": {
+    "e2e": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "rootorial-e2e-local",
+          "migrations_dir": "drizzle"
+        }
+      ]
+    }
   }
 }

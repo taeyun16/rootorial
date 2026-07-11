@@ -10,11 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CurriculaCurriculumSlugRouteImport } from './routes/curricula.$curriculumSlug'
 import { Route as ChaptersVectorsRouteImport } from './routes/chapters.vectors'
+import { Route as CurriculaCurriculumSlugChaptersChapterSlugRouteImport } from './routes/curricula.$curriculumSlug_.chapters.$chapterSlug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CurriculaCurriculumSlugRoute = CurriculaCurriculumSlugRouteImport.update({
+  id: '/curricula/$curriculumSlug',
+  path: '/curricula/$curriculumSlug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChaptersVectorsRoute = ChaptersVectorsRouteImport.update({
@@ -22,31 +29,58 @@ const ChaptersVectorsRoute = ChaptersVectorsRouteImport.update({
   path: '/chapters/vectors',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CurriculaCurriculumSlugChaptersChapterSlugRoute =
+  CurriculaCurriculumSlugChaptersChapterSlugRouteImport.update({
+    id: '/curricula/$curriculumSlug_/chapters/$chapterSlug',
+    path: '/curricula/$curriculumSlug/chapters/$chapterSlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/chapters/vectors': typeof ChaptersVectorsRoute
+  '/curricula/$curriculumSlug': typeof CurriculaCurriculumSlugRoute
+  '/curricula/$curriculumSlug/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/chapters/vectors': typeof ChaptersVectorsRoute
+  '/curricula/$curriculumSlug': typeof CurriculaCurriculumSlugRoute
+  '/curricula/$curriculumSlug/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/chapters/vectors': typeof ChaptersVectorsRoute
+  '/curricula/$curriculumSlug': typeof CurriculaCurriculumSlugRoute
+  '/curricula/$curriculumSlug_/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/chapters/vectors'
+  fullPaths:
+    | '/'
+    | '/chapters/vectors'
+    | '/curricula/$curriculumSlug'
+    | '/curricula/$curriculumSlug/chapters/$chapterSlug'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/chapters/vectors'
-  id: '__root__' | '/' | '/chapters/vectors'
+  to:
+    | '/'
+    | '/chapters/vectors'
+    | '/curricula/$curriculumSlug'
+    | '/curricula/$curriculumSlug/chapters/$chapterSlug'
+  id:
+    | '__root__'
+    | '/'
+    | '/chapters/vectors'
+    | '/curricula/$curriculumSlug'
+    | '/curricula/$curriculumSlug_/chapters/$chapterSlug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChaptersVectorsRoute: typeof ChaptersVectorsRoute
+  CurriculaCurriculumSlugRoute: typeof CurriculaCurriculumSlugRoute
+  CurriculaCurriculumSlugChaptersChapterSlugRoute: typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -58,11 +92,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/curricula/$curriculumSlug': {
+      id: '/curricula/$curriculumSlug'
+      path: '/curricula/$curriculumSlug'
+      fullPath: '/curricula/$curriculumSlug'
+      preLoaderRoute: typeof CurriculaCurriculumSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chapters/vectors': {
       id: '/chapters/vectors'
       path: '/chapters/vectors'
       fullPath: '/chapters/vectors'
       preLoaderRoute: typeof ChaptersVectorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/curricula/$curriculumSlug_/chapters/$chapterSlug': {
+      id: '/curricula/$curriculumSlug_/chapters/$chapterSlug'
+      path: '/curricula/$curriculumSlug/chapters/$chapterSlug'
+      fullPath: '/curricula/$curriculumSlug/chapters/$chapterSlug'
+      preLoaderRoute: typeof CurriculaCurriculumSlugChaptersChapterSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -71,6 +119,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ChaptersVectorsRoute: ChaptersVectorsRoute,
+  CurriculaCurriculumSlugRoute: CurriculaCurriculumSlugRoute,
+  CurriculaCurriculumSlugChaptersChapterSlugRoute:
+    CurriculaCurriculumSlugChaptersChapterSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

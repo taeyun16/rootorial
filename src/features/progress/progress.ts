@@ -1,12 +1,25 @@
-import { chapters } from "../../data/curriculum.ts";
+import {
+  chapterId,
+  curricula,
+  curriculumChapterIds,
+  TRANSFORMER_CURRICULUM_SLUG,
+} from "../../data/curriculum.ts";
 
-export const anonymousProgressKey = "rezero-progress";
+export const anonymousProgressKey = "rootorial-progress";
 
-const accountProgressKeyPrefix = "rezero-progress:account:";
+const accountProgressKeyPrefix = "rootorial-progress:account:";
 const chapterOrder = new Map(
-  chapters.map((chapter, index) => [chapter.slug, index]),
+  curriculumChapterIds.map((id, index) => [id, index]),
 );
 const knownChapterSlugs = new Set(chapterOrder.keys());
+const legacyChapterIds = new Map<string, string>();
+
+for (const curriculum of curricula) {
+  for (const chapter of curriculum.chapters.ko) {
+    const existing = legacyChapterIds.get(chapter.slug);
+    legacyChapterIds.set(chapter.slug, existing && existing !== chapter.id ? "" : chapter.id);
+  }
+}
 
 type JsonRecord = Record<string, unknown>;
 
@@ -27,8 +40,16 @@ export function normalizeCompletedSlugs(value: unknown): string[] {
 
   const completed = new Set<string>();
   for (const slug of value) {
-    if (typeof slug === "string" && knownChapterSlugs.has(slug)) {
+    if (typeof slug !== "string") continue;
+    if (knownChapterSlugs.has(slug)) {
       completed.add(slug);
+      continue;
+    }
+
+    // v1 stored global chapter slugs. Accept only unambiguous legacy values.
+    const migrated = legacyChapterIds.get(slug);
+    if (migrated) {
+      completed.add(migrated);
     }
   }
 
@@ -40,12 +61,15 @@ export function validateCompletedSlugs(value: unknown): string[] {
     throw new Error("완료한 챕터 목록이 필요합니다.");
   }
 
-  if (value.length > chapters.length) {
+  if (value.length > curriculumChapterIds.length) {
     throw new Error("완료한 챕터 목록이 너무 깁니다.");
   }
 
   for (const slug of value) {
-    if (typeof slug !== "string" || !knownChapterSlugs.has(slug)) {
+    if (
+      typeof slug !== "string" ||
+      (!knownChapterSlugs.has(slug) && !legacyChapterIds.get(slug))
+    ) {
       throw new Error("알 수 없는 챕터가 포함되어 있습니다.");
     }
   }
@@ -74,27 +98,55 @@ export function accountProgressKey(userId: string) {
 export function readCompletedFromMetadata(metadata: unknown): string[] {
   if (!isRecord(metadata)) return [];
 
-  const rezero = metadata.rezero;
-  if (!isRecord(rezero)) return [];
+  const rootorial = metadata.rootorial;
+  if (!isRecord(rootorial)) return [];
 
-  const completedChapters = rezero.completedChapters;
-  if (!isRecord(completedChapters)) return [];
+  const ids: string[] = [];
+  const curriculumProgress = rootorial.curricula;
+  if (isRecord(curriculumProgress)) {
+    for (const [curriculumSlug, value] of Object.entries(curriculumProgress)) {
+      if (!isRecord(value) || !isRecord(value.completedChapters)) continue;
+      for (const [slug, completed] of Object.entries(value.completedChapters)) {
+        if (completed === true) ids.push(chapterId(curriculumSlug, slug));
+      }
+    }
+  }
 
-  return normalizeCompletedSlugs(
-    Object.entries(completedChapters)
-      .filter(([, completed]) => completed === true)
-      .map(([slug]) => slug),
-  );
+  // v1 metadata stored every chapter in a single global map.
+  const legacyCompleted = rootorial.completedChapters;
+  if (isRecord(legacyCompleted)) {
+    ids.push(
+      ...Object.entries(legacyCompleted)
+        .filter(([, completed]) => completed === true)
+        .map(([slug]) => slug),
+    );
+  }
+
+  return normalizeCompletedSlugs(ids);
+}
+
+export function readProgressVersion(metadata: unknown) {
+  if (!isRecord(metadata) || !isRecord(metadata.rootorial)) return 0;
+  return metadata.rootorial.progressVersion === 2 ? 2 : 1;
 }
 
 export function buildProgressMetadata(completedSlugs: readonly string[]) {
-  const completedChapters = Object.fromEntries(
-    validateCompletedSlugs([...completedSlugs]).map((slug) => [slug, true]),
-  );
+  const curriculaProgress: Record<string, { completedChapters: Record<string, true> }> = {};
+  for (const id of validateCompletedSlugs([...completedSlugs])) {
+    const separator = id.indexOf("/");
+    const curriculumSlug = id.slice(0, separator);
+    const chapterSlug = id.slice(separator + 1);
+    curriculaProgress[curriculumSlug] ??= { completedChapters: {} };
+    curriculaProgress[curriculumSlug].completedChapters[chapterSlug] = true;
+  }
 
   return {
-    rezero: {
-      completedChapters,
+    rootorial: {
+      progressVersion: 2,
+      curricula: curriculaProgress,
     },
   };
 }
+
+export const legacyTransformerChapterId = (slug: string) =>
+  chapterId(TRANSFORMER_CURRICULUM_SLUG, slug);

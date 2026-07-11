@@ -12,10 +12,12 @@ import {
   parseAdminUserIds,
   validateCreateAnswerInput,
   validateCreateQuestionInput,
+  validateDeletePostInput,
   validateGetDiscussionInput,
   validateModeratePostInput,
   validateSetAnswerLikeInput,
   validateSetAuthorBlockInput,
+  validateUpdatePostInput,
 } from "../src/features/discussion/discussion.ts";
 import {
   discussionScopeIds,
@@ -26,24 +28,24 @@ const QUESTION_ID = "018f0f47-3d6f-7d0a-8b5e-516d1f1ad333";
 const ANSWER_ID = "76f68414-2c6d-44f8-a8af-5b7d1fe32ae0";
 
 test("keeps discussion scopes finite, typed, and stable", () => {
-  assert.ok(discussionScopeIds.includes("vectors.meaning"));
+  assert.ok(discussionScopeIds.includes("transformer-from-zero.vectors.meaning"));
   assert.ok(
-    discussionScopeIds.includes("vectors.notebook.attention-preview"),
+    discussionScopeIds.includes("transformer-from-zero.vectors.notebook.attention-preview"),
   );
-  assert.equal(isDiscussionScopeId("vectors.dot-product.explorer"), true);
-  assert.equal(isDiscussionScopeId("vectors.arbitrary-client-scope"), false);
+  assert.equal(isDiscussionScopeId("transformer-from-zero.vectors.dot-product.explorer"), true);
+  assert.equal(isDiscussionScopeId("transformer-from-zero.vectors.arbitrary-client-scope"), false);
 });
 
 test("normalizes question and answer inputs without trusting client identity", () => {
   assert.deepEqual(
     validateCreateQuestionInput({
-      scopeId: "vectors.meaning",
+      scopeId: "transformer-from-zero.vectors.meaning",
       body: "  벡터의 방향은 어떻게 정해지나요?  ",
       authorUserId: "user_spoofed",
       state: "hidden",
     }),
     {
-      scopeId: "vectors.meaning",
+      scopeId: "transformer-from-zero.vectors.meaning",
       body: "벡터의 방향은 어떻게 정해지나요?",
     },
   );
@@ -62,7 +64,7 @@ test("normalizes question and answer inputs without trusting client identity", (
   assert.throws(
     () =>
       validateCreateQuestionInput({
-        scopeId: "vectors.made-up",
+        scopeId: "transformer-from-zero.vectors.made-up",
         body: "질문",
       }),
     /학습 항목/,
@@ -70,7 +72,7 @@ test("normalizes question and answer inputs without trusting client identity", (
   assert.throws(
     () =>
       validateCreateQuestionInput({
-        scopeId: "vectors.meaning",
+        scopeId: "transformer-from-zero.vectors.meaning",
         body: "x".repeat(QUESTION_BODY_MAX_LENGTH + 1),
       }),
     /2,000자/,
@@ -85,14 +87,46 @@ test("normalizes question and answer inputs without trusting client identity", (
   );
 });
 
+test("validates owner update and delete mutation targets", () => {
+  assert.deepEqual(
+    validateUpdatePostInput({
+      targetType: "question",
+      targetId: QUESTION_ID,
+      body: "  수정한 질문  ",
+      authorUserId: "user_spoofed",
+    }),
+    {
+      targetType: "question",
+      targetId: QUESTION_ID,
+      body: "수정한 질문",
+    },
+  );
+  assert.deepEqual(
+    validateDeletePostInput({
+      targetType: "answer",
+      targetId: ANSWER_ID,
+      state: "deleted",
+    }),
+    { targetType: "answer", targetId: ANSWER_ID },
+  );
+  assert.throws(
+    () => validateUpdatePostInput({
+      targetType: "answer",
+      targetId: ANSWER_ID,
+      body: " ",
+    }),
+    /답변 내용을 입력/,
+  );
+});
+
 test("validates cursors and idempotent social mutation inputs", () => {
   assert.deepEqual(
     validateGetDiscussionInput({
-      scopeId: "vectors.notebook.vector-magnitude",
+      scopeId: "transformer-from-zero.vectors.notebook.vector-magnitude",
       cursor: { createdAt: 1_783_740_000_000, id: QUESTION_ID },
     }),
     {
-      scopeId: "vectors.notebook.vector-magnitude",
+      scopeId: "transformer-from-zero.vectors.notebook.vector-magnitude",
       cursor: { createdAt: 1_783_740_000_000, id: QUESTION_ID },
     },
   );
