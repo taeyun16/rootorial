@@ -109,8 +109,8 @@ npm run deploy:check
 npm run deploy
 ```
 
-배포가 만들어지면 Cloudflare 대시보드에서 `rootorial.taeyun.me` custom domain을
-Worker에 연결합니다.
+배포가 만들어지면 `wrangler.jsonc`에 선언된 `rootorial.com` custom domain이
+Worker에 연결됩니다.
 
 D1은 질문·답변, 좋아요, 사용자별 차단, 관리자 감사 기록을 저장합니다. 현재
 저장소에는 토론·관리·rate limit용 7개 테이블의 Drizzle migration이 포함되어
