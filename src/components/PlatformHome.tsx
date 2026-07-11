@@ -186,7 +186,9 @@ export function PlatformHome() {
           <h1 id="platform-hero-title">{brand.name}</h1>
           <div className="brand-promise">
             <p className="brand-tagline-en" lang="en">{brand.taglineEn}</p>
-            <p className="brand-tagline-ko" lang="ko">{brand.taglineKo}</p>
+            {locale === "ko" ? (
+              <p className="brand-tagline-ko" lang="ko">{brand.taglineKo}</p>
+            ) : null}
           </div>
           <p className="hero-summary">{c.summary}</p>
           <div className="hero-actions">

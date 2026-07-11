@@ -60,7 +60,7 @@ test("renders the English landing on the first server response", async () => {
   assert.match(html, /<html[^>]+lang="en"/);
   assert.match(html, /Rootorial/);
   assert.match(html, /Technology, understood from the root\./);
-  assert.match(html, /복잡한 기술을 바닥부터\./);
+  assert.doesNotMatch(html, /복잡한 기술을 바닥부터\./);
   assert.match(html, /Start the first chapter/);
   assert.match(html, /Taeyun Jang&#x27;s social accounts/);
   assert.match(html, /What we&#x27;re preparing next/);
