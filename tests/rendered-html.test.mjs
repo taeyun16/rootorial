@@ -47,11 +47,14 @@ test("renders the interactive vectors chapter", async () => {
   assert.match(html, /batch, tokens, d_model/);
   assert.match(html, /브로드캐스팅/);
   assert.match(html, /두 벡터를 움직여 보세요/);
-  assert.match(html, /NumPy로 같은 계산 재현하기/);
+  assert.match(html, /벡터를 만들고 크기와 방향 확인하기/);
+  assert.match(html, /브로드캐스팅 전후 값을 heatmap으로 비교하기/);
+  assert.match(html, /내적을 Attention 행렬로 확장하기/);
+  assert.match(html, /작은 Self-Attention heatmap 만들기/);
   assert.match(html, /이해 확인: shape를 먼저 예측하기/);
   assert.match(html, /aria-label="v의 x 좌표"/);
   assert.match(html, /aria-label="w의 x 좌표"/);
-  assert.match(html, /vector_tensor_lab\.py/);
+  assert.match(html, /In \[ \]/);
   assert.match(html, /이 챕터 완료하기/);
   assert.match(html, /data-language="python"/);
   assert.match(html, /tok-variableName/);
@@ -61,7 +64,9 @@ test("renders the interactive vectors chapter", async () => {
 test("ships the browser Python worker and removes legacy framework entrypoints", async () => {
   const worker = await readFile(new URL("../public/pyodide-worker.js", import.meta.url), "utf8");
   assert.match(worker, /loadPyodide/);
-  assert.match(worker, /loadPackage\("numpy"\)/);
+  assert.match(worker, /loadPackagesFromImports/);
+  assert.match(worker, /matplotlib\.pyplot/);
+  assert.match(worker, /data:image\/png;base64/);
   await assert.rejects(access(new URL("../worker/index.ts", import.meta.url)));
   await assert.rejects(access(new URL("../next.config.ts", import.meta.url)));
 });

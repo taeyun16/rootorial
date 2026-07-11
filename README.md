@@ -11,7 +11,7 @@ Transformer를 벡터부터 직접 움직이고 실행하며 배우는 인터랙
 - Cloudflare Workers + Cloudflare Vite plugin
 - Clerk TanStack Start SDK (선택적 인증)
 - CodeMirror 6 (Python 편집과 syntax highlighting)
-- Pyodide + NumPy (브라우저 안에서 코드 실행)
+- Pyodide + NumPy + Matplotlib (브라우저 안에서 코드 실행·차트 렌더링)
 - Drizzle ORM + Cloudflare D1 (다음 단계의 진도·질문 데이터)
 
 ## Local development
@@ -26,6 +26,10 @@ npm run dev
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 엽니다.
 Clerk 키가 없어도 모든 공개 학습 콘텐츠와 브라우저 Python 실습은 동작하며,
 헤더에는 `로그인 준비 중`이 표시됩니다.
+
+벡터 챕터의 코드 셀은 하나의 브라우저 Python 커널을 공유합니다. Jupyter처럼
+셀을 직접 수정해 실행할 수 있고, 텍스트 출력과 Matplotlib 차트가 셀 바로 아래에
+표시됩니다. 각 셀은 단독 실행도 가능하도록 기본 코드를 포함합니다.
 
 ## Clerk 연결
 
@@ -87,8 +91,8 @@ npm run cf-typegen # wrangler binding 타입 생성
 ## Source layout
 
 - `src/routes/`: TanStack file-based routes
-- `src/components/`: 학습 UI, 인증 셸, 인터랙티브 실습
-- `src/data/`: 커리큘럼 카탈로그
+- `src/components/`: 학습 UI, 인증 셸, 공유 커널 기반 노트북 셀
+- `src/data/`: 커리큘럼 카탈로그와 챕터별 실행 코드
 - `src/styles/`: 전역 디자인 시스템
 - `public/pyodide-worker.js`: 브라우저 Python worker
 - `db/`: Drizzle/D1 진입점

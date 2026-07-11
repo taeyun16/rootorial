@@ -20,7 +20,7 @@ export const chapters: Chapter[] = [
     description:
       "벡터 연산, 내적, 크기, 투영과 브로드캐스팅을 그림과 NumPy 코드로 연결합니다.",
     runtime: "NumPy",
-    duration: "45분",
+    duration: "70분",
     status: "available",
     concepts: ["shape", "내적", "투영"],
   },
