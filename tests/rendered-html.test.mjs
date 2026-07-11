@@ -51,6 +51,10 @@ test("renders the interactive vectors chapter", async () => {
   assert.match(html, /브로드캐스팅 전후 값을 heatmap으로 비교하기/);
   assert.match(html, /내적을 Attention 행렬로 확장하기/);
   assert.match(html, /작은 Self-Attention heatmap 만들기/);
+  assert.match(html, /DISCUSSION/);
+  assert.match(html, /벡터 크기 코드 셀/);
+  assert.match(html, /텐서 shape 탐색기/);
+  assert.match(html, /shape 이해 확인/);
   assert.match(html, /이해 확인: shape를 먼저 예측하기/);
   assert.match(html, /aria-label="v의 x 좌표"/);
   assert.match(html, /aria-label="w의 x 좌표"/);

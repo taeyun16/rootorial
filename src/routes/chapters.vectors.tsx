@@ -3,6 +3,7 @@ import { useState } from "react";
 import { ChapterToc } from "../components/ChapterToc";
 import { CompleteChapter } from "../components/CompleteChapter";
 import { ConceptCheck } from "../components/ConceptCheck";
+import { Discussable } from "../components/DiscussionPanel";
 import { NotebookCell } from "../components/NotebookCell";
 import { PythonCode } from "../components/PythonCode";
 import { TensorShapeExplorer } from "../components/TensorShapeExplorer";
@@ -103,23 +104,25 @@ function VectorsChapter() {
               토큰의 의미처럼 서로 다른 대상을 같은 계산 규칙으로 다룰 수 있게
               해 주는 공통 언어가 벡터입니다.
             </p>
-            <div className="concept-definition-grid" aria-label="벡터를 읽는 세 관점">
-              <article>
-                <span>MAGNITUDE</span>
-                <h3>크기</h3>
-                <p>원점에서 얼마나 멀리 떨어져 있는지를 하나의 값으로 요약합니다.</p>
-              </article>
-              <article>
-                <span>DIRECTION</span>
-                <h3>방향</h3>
-                <p>어떤 특징의 조합을 향하는지, 다른 벡터와 얼마나 정렬되는지 말합니다.</p>
-              </article>
-              <article>
-                <span>DIMENSION</span>
-                <h3>차원</h3>
-                <p>벡터를 표현하는 숫자의 개수입니다. 모델에서는 보통 d_model로 표시합니다.</p>
-              </article>
-            </div>
+            <Discussable scopeId="vectors.meaning" subjectLabel="벡터를 읽는 세 관점">
+              <div className="concept-definition-grid" aria-label="벡터를 읽는 세 관점">
+                <article>
+                  <span>MAGNITUDE</span>
+                  <h3>크기</h3>
+                  <p>원점에서 얼마나 멀리 떨어져 있는지를 하나의 값으로 요약합니다.</p>
+                </article>
+                <article>
+                  <span>DIRECTION</span>
+                  <h3>방향</h3>
+                  <p>어떤 특징의 조합을 향하는지, 다른 벡터와 얼마나 정렬되는지 말합니다.</p>
+                </article>
+                <article>
+                  <span>DIMENSION</span>
+                  <h3>차원</h3>
+                  <p>벡터를 표현하는 숫자의 개수입니다. 모델에서는 보통 d_model로 표시합니다.</p>
+                </article>
+              </div>
+            </Discussable>
             <div className="equation-block" aria-label="벡터 크기 공식">
               <span>‖v‖</span>
               <span>=</span>
@@ -131,25 +134,31 @@ function VectorsChapter() {
               표현합니다.
             </p>
             <div className="notebook-stack notebook-stack-inset">
-              <NotebookCell
-                title="벡터를 만들고 크기와 방향 확인하기"
-                initialCode={vectorMagnitudeCode}
-                description={
-                  <p>
-                    배열의 <PythonCode>shape</PythonCode>와 크기를 출력하고,
-                    같은 벡터를 좌표 평면의 화살표로 그립니다.
-                  </p>
-                }
-                hint={
-                  <p>
-                    <PythonCode>v = [3, 2]</PythonCode>를
-                    <PythonCode> [6, 4]</PythonCode>로 바꾸면 방향과 크기 중
-                    무엇이 유지되는지 비교해 보세요.
-                  </p>
-                }
-                editorMinHeight={250}
-                figureAlt="벡터 v의 크기와 방향을 나타낸 좌표 차트"
-              />
+              <Discussable
+                scopeId="vectors.notebook.vector-magnitude"
+                subjectLabel="벡터 크기 코드 셀"
+                variant="code-cell"
+              >
+                <NotebookCell
+                  title="벡터를 만들고 크기와 방향 확인하기"
+                  initialCode={vectorMagnitudeCode}
+                  description={
+                    <p>
+                      배열의 <PythonCode>shape</PythonCode>와 크기를 출력하고,
+                      같은 벡터를 좌표 평면의 화살표로 그립니다.
+                    </p>
+                  }
+                  hint={
+                    <p>
+                      <PythonCode>v = [3, 2]</PythonCode>를
+                      <PythonCode> [6, 4]</PythonCode>로 바꾸면 방향과 크기 중
+                      무엇이 유지되는지 비교해 보세요.
+                    </p>
+                  }
+                  editorMinHeight={250}
+                  figureAlt="벡터 v의 크기와 방향을 나타낸 좌표 차트"
+                />
+              </Discussable>
             </div>
           </section>
 
@@ -171,43 +180,60 @@ function VectorsChapter() {
               </div>
               <span className="live-badge"><span /> LIVE</span>
             </div>
-            <TensorShapeExplorer />
+            <Discussable
+              scopeId="vectors.tensor-shape.explorer"
+              subjectLabel="텐서 shape 탐색기"
+            >
+              <TensorShapeExplorer />
+            </Discussable>
             <div className="notebook-stack">
-              <NotebookCell
-                title="토큰 벡터를 문장과 배치로 쌓기"
-                initialCode={tensorShapeCode}
-                description={
-                  <p>
-                    같은 숫자도 쌓는 순서에 따라 rank와 shape가 달라집니다.
-                    출력의 각 축을 소리 내어 읽어 보세요.
-                  </p>
-                }
-                hint={
-                  <p>
-                    토큰을 하나 더 추가해 <PythonCode>[2, 4, 4]</PythonCode>를
-                    만들고 어떤 축이 바뀌었는지 확인해 보세요.
-                  </p>
-                }
-                editorMinHeight={260}
-              />
-              <NotebookCell
-                title="브로드캐스팅 전후 값을 heatmap으로 비교하기"
-                initialCode={broadcastingHeatmapCode}
-                description={
-                  <p>
-                    위치 행렬 <PythonCode>[tokens, d_model]</PythonCode>이 batch
-                    축을 따라 반복되면서도 최종 shape는 유지되는 과정을 봅니다.
-                  </p>
-                }
-                hint={
-                  <p>
-                    <PythonCode>positions</PythonCode>의 첫 번째 행을 크게 바꾸고
-                    두 heatmap에서 어느 토큰 행만 달라지는지 찾아보세요.
-                  </p>
-                }
-                editorMinHeight={360}
-                figureAlt="토큰 임베딩과 위치 값이 더해진 결과를 비교한 heatmap"
-              />
+              <Discussable
+                scopeId="vectors.notebook.tensor-shape"
+                subjectLabel="텐서 shape 코드 셀"
+                variant="code-cell"
+              >
+                <NotebookCell
+                  title="토큰 벡터를 문장과 배치로 쌓기"
+                  initialCode={tensorShapeCode}
+                  description={
+                    <p>
+                      같은 숫자도 쌓는 순서에 따라 rank와 shape가 달라집니다.
+                      출력의 각 축을 소리 내어 읽어 보세요.
+                    </p>
+                  }
+                  hint={
+                    <p>
+                      토큰을 하나 더 추가해 <PythonCode>[2, 4, 4]</PythonCode>를
+                      만들고 어떤 축이 바뀌었는지 확인해 보세요.
+                    </p>
+                  }
+                  editorMinHeight={260}
+                />
+              </Discussable>
+              <Discussable
+                scopeId="vectors.notebook.broadcasting"
+                subjectLabel="브로드캐스팅 코드 셀"
+                variant="code-cell"
+              >
+                <NotebookCell
+                  title="브로드캐스팅 전후 값을 heatmap으로 비교하기"
+                  initialCode={broadcastingHeatmapCode}
+                  description={
+                    <p>
+                      위치 행렬 <PythonCode>[tokens, d_model]</PythonCode>이 batch
+                      축을 따라 반복되면서도 최종 shape는 유지되는 과정을 봅니다.
+                    </p>
+                  }
+                  hint={
+                    <p>
+                      <PythonCode>positions</PythonCode>의 첫 번째 행을 크게 바꾸고
+                      두 heatmap에서 어느 토큰 행만 달라지는지 찾아보세요.
+                    </p>
+                  }
+                  editorMinHeight={360}
+                  figureAlt="토큰 임베딩과 위치 값이 더해진 결과를 비교한 heatmap"
+                />
+              </Discussable>
             </div>
           </section>
 
@@ -229,26 +255,37 @@ function VectorsChapter() {
               </div>
               <span className="live-badge"><span /> LIVE</span>
             </div>
-            <VectorExplorer />
+            <Discussable
+              scopeId="vectors.dot-product.explorer"
+              subjectLabel="내적 탐색기"
+            >
+              <VectorExplorer />
+            </Discussable>
             <div className="notebook-stack">
-              <NotebookCell
-                title="각도를 코사인 유사도로 바꾸기"
-                initialCode={cosineCurveCode}
-                description={
-                  <p>
-                    0°에서 180°까지 각도를 움직이며 같은 방향, 직각, 반대 방향이
-                    각각 1, 0, -1에 대응하는지 확인합니다.
-                  </p>
-                }
-                hint={
-                  <p>
-                    그래프에 60°와 120° 지점을 표시하고 두 값의 부호가 왜 다른지
-                    설명해 보세요.
-                  </p>
-                }
-                editorMinHeight={330}
-                figureAlt="각도에 따른 코사인 유사도 곡선"
-              />
+              <Discussable
+                scopeId="vectors.notebook.cosine"
+                subjectLabel="코사인 유사도 코드 셀"
+                variant="code-cell"
+              >
+                <NotebookCell
+                  title="각도를 코사인 유사도로 바꾸기"
+                  initialCode={cosineCurveCode}
+                  description={
+                    <p>
+                      0°에서 180°까지 각도를 움직이며 같은 방향, 직각, 반대 방향이
+                      각각 1, 0, -1에 대응하는지 확인합니다.
+                    </p>
+                  }
+                  hint={
+                    <p>
+                      그래프에 60°와 120° 지점을 표시하고 두 값의 부호가 왜 다른지
+                      설명해 보세요.
+                    </p>
+                  }
+                  editorMinHeight={330}
+                  figureAlt="각도에 따른 코사인 유사도 곡선"
+                />
+              </Discussable>
             </div>
           </section>
 
@@ -270,35 +307,43 @@ function VectorsChapter() {
               <span>=</span>
               <span>projᵥ(w) + (w − projᵥ(w))</span>
             </div>
-            <div className="concept-callout">
-              <span className="callout-mark">→</span>
-              <div>
-                <strong>Transformer로 이어지는 다리</strong>
-                <p>
-                  Attention에서도 Query와 Key의 내적으로 “얼마나 참고할지”를
-                  정합니다. 지금 배우는 내적은 7장에서 그대로 다시 등장합니다.
-                </p>
+            <Discussable scopeId="vectors.projection" subjectLabel="벡터 투영의 의미">
+              <div className="concept-callout">
+                <span className="callout-mark">→</span>
+                <div>
+                  <strong>Transformer로 이어지는 다리</strong>
+                  <p>
+                    Attention에서도 Query와 Key의 내적으로 “얼마나 참고할지”를
+                    정합니다. 지금 배우는 내적은 7장에서 그대로 다시 등장합니다.
+                  </p>
+                </div>
               </div>
-            </div>
+            </Discussable>
             <div className="notebook-stack notebook-stack-inset">
-              <NotebookCell
-                title="평행 성분과 직교 성분을 분리하기"
-                initialCode={projectionCode}
-                description={
-                  <p>
-                    투영 벡터를 계산하고, 남은 직교 성분과 다시 더해 원래
-                    <PythonCode>w</PythonCode>가 복원되는지 검증합니다.
-                  </p>
-                }
-                hint={
-                  <p>
-                    <PythonCode>w</PythonCode>를 v와 완전히 같은 방향으로 바꾸면
-                    직교 성분과 점선이 어떻게 달라지는지 확인해 보세요.
-                  </p>
-                }
-                editorMinHeight={390}
-                figureAlt="벡터 w의 투영과 직교 성분을 나타낸 차트"
-              />
+              <Discussable
+                scopeId="vectors.notebook.projection"
+                subjectLabel="벡터 투영 코드 셀"
+                variant="code-cell"
+              >
+                <NotebookCell
+                  title="평행 성분과 직교 성분을 분리하기"
+                  initialCode={projectionCode}
+                  description={
+                    <p>
+                      투영 벡터를 계산하고, 남은 직교 성분과 다시 더해 원래
+                      <PythonCode>w</PythonCode>가 복원되는지 검증합니다.
+                    </p>
+                  }
+                  hint={
+                    <p>
+                      <PythonCode>w</PythonCode>를 v와 완전히 같은 방향으로 바꾸면
+                      직교 성분과 점선이 어떻게 달라지는지 확인해 보세요.
+                    </p>
+                  }
+                  editorMinHeight={390}
+                  figureAlt="벡터 w의 투영과 직교 성분을 나타낸 차트"
+                />
+              </Discussable>
             </div>
           </section>
 
@@ -321,24 +366,30 @@ function VectorsChapter() {
               <span className="runtime-pill">Python · WASM</span>
             </div>
             <div className="notebook-stack">
-              <NotebookCell
-                title="작은 Self-Attention heatmap 만들기"
-                initialCode={attentionPreviewCode}
-                description={
-                  <p>
-                    토큰 세 개의 유사도 점수를 계산하고 softmax로 정규화합니다.
-                    각 행의 합이 1인지 출력과 heatmap으로 확인하세요.
-                  </p>
-                }
-                hint={
-                  <p>
-                    첫 번째와 두 번째 토큰을 똑같이 만든 뒤 Attention 가중치가
-                    어떻게 달라지는지 실행해 보세요.
-                  </p>
-                }
-                editorMinHeight={390}
-                figureAlt="세 토큰 사이의 Self-Attention 가중치 heatmap"
-              />
+              <Discussable
+                scopeId="vectors.notebook.attention-preview"
+                subjectLabel="Attention 미리보기 코드 셀"
+                variant="code-cell"
+              >
+                <NotebookCell
+                  title="작은 Self-Attention heatmap 만들기"
+                  initialCode={attentionPreviewCode}
+                  description={
+                    <p>
+                      토큰 세 개의 유사도 점수를 계산하고 softmax로 정규화합니다.
+                      각 행의 합이 1인지 출력과 heatmap으로 확인하세요.
+                    </p>
+                  }
+                  hint={
+                    <p>
+                      첫 번째와 두 번째 토큰을 똑같이 만든 뒤 Attention 가중치가
+                      어떻게 달라지는지 실행해 보세요.
+                    </p>
+                  }
+                  editorMinHeight={390}
+                  figureAlt="세 토큰 사이의 Self-Attention 가중치 heatmap"
+                />
+              </Discussable>
             </div>
           </section>
 
@@ -349,7 +400,9 @@ function VectorsChapter() {
               Transformer 코드를 읽을 때는 계산값보다 각 축의 의미를 먼저
               추적하는 습관이 중요합니다.
             </p>
-            <ConceptCheck onMasteryChange={setMastered} />
+            <Discussable scopeId="vectors.check" subjectLabel="shape 이해 확인">
+              <ConceptCheck onMasteryChange={setMastered} />
+            </Discussable>
           </section>
 
           <section className="chapter-finish">

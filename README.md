@@ -12,7 +12,7 @@ Transformer를 벡터부터 직접 움직이고 실행하며 배우는 인터랙
 - Clerk TanStack Start SDK (선택적 인증)
 - CodeMirror 6 (Python 편집과 syntax highlighting)
 - Pyodide + NumPy + Matplotlib (브라우저 안에서 코드 실행·차트 렌더링)
-- Drizzle ORM + Cloudflare D1 (다음 단계의 진도·질문 데이터)
+- Drizzle ORM + Cloudflare D1 (컴포넌트별 질문·답변·좋아요·차단)
 
 ## Local development
 
@@ -53,11 +53,20 @@ CLERK_SECRET_KEY=sk_test_...
 질문 작성·관리자 답변처럼 별도 데이터가 필요한 쓰기 작업도 같은 서버 인증
 경계를 사용합니다.
 
+관리자 답변과 숨김·복구 권한은 서버 전용 allowlist로 부여합니다. Clerk
+Dashboard의 사용자 ID를 쉼표로 구분해 추가하세요. 값이 비어 있으면 누구에게도
+관리자 권한을 주지 않습니다.
+
+```dotenv
+REZERO_ADMIN_USER_IDS=user_abc123,user_def456
+```
+
 운영 환경에서는 실제 값을 Git에 넣지 말고 Cloudflare secret으로 등록합니다.
 
 ```bash
 npx wrangler secret put CLERK_PUBLISHABLE_KEY
 npx wrangler secret put CLERK_SECRET_KEY
+npx wrangler secret put REZERO_ADMIN_USER_IDS
 ```
 
 ## Cloudflare deploy
@@ -72,10 +81,32 @@ npm run deploy
 배포가 만들어지면 Cloudflare 대시보드에서 `rezero.taeyun.me` custom domain을
 Worker에 연결합니다.
 
-D1은 질문·답변이나 세부 학습 이력처럼 Clerk metadata에 두기 어려운 데이터가
-필요해질 때 실제 데이터베이스를 생성하고 `DB` binding을 추가합니다. Clerk
-`userId`는 항상 서버에서만 확정합니다. Durable Objects는 실시간 presence나
-질문방 WebSocket이 실제로 필요해질 때 추가합니다.
+D1은 질문·답변, 좋아요, 사용자별 차단, 관리자 감사 기록을 저장합니다. 현재
+저장소에는 토론·관리·rate limit용 7개 테이블의 Drizzle migration이 포함되어
+있으며, Cloudflare에서 데이터베이스를 만든 뒤 `DB` binding을
+`wrangler.jsonc`에 추가해야 합니다.
+
+```json
+"d1_databases": [
+  {
+    "binding": "DB",
+    "database_name": "rezero",
+    "database_id": "<wrangler d1 create가 출력한 ID>",
+    "migrations_dir": "drizzle"
+  }
+]
+```
+
+```bash
+npx wrangler d1 create rezero
+npx wrangler d1 migrations apply DB --local
+npx wrangler d1 migrations apply DB --remote
+```
+
+`DB` binding이 없으면 공개 학습과 코드 실행은 그대로 동작하고, 토론 패널에는
+연결 안내가 표시됩니다. Clerk `userId`와 관리자 여부는 항상 서버에서만
+확정합니다. Durable Objects는 실시간 presence나 질문방 WebSocket이 실제로
+필요해질 때 추가합니다.
 
 ## Commands
 
@@ -91,9 +122,9 @@ npm run cf-typegen # wrangler binding 타입 생성
 ## Source layout
 
 - `src/routes/`: TanStack file-based routes
-- `src/components/`: 학습 UI, 인증 셸, 공유 커널 기반 노트북 셀
+- `src/components/`: 학습 UI, 인증 셸, 노트북 셀, 컴포넌트별 토론 패널
 - `src/data/`: 커리큘럼 카탈로그와 챕터별 실행 코드
 - `src/styles/`: 전역 디자인 시스템
 - `public/pyodide-worker.js`: 브라우저 Python worker
-- `db/`: Drizzle/D1 진입점
+- `db/`, `drizzle/`: 토론 스키마와 D1 migration
 - `tests/`: Workers SSR 렌더링 테스트
