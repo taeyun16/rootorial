@@ -43,8 +43,15 @@ test("renders the interactive vectors chapter", async () => {
 
   const html = await response.text();
   assert.match(html, /CHAPTER 01/);
+  assert.match(html, /텐서를 읽는 세 가지 축/);
+  assert.match(html, /batch, tokens, d_model/);
+  assert.match(html, /브로드캐스팅/);
   assert.match(html, /두 벡터를 움직여 보세요/);
   assert.match(html, /NumPy로 같은 계산 재현하기/);
+  assert.match(html, /이해 확인: shape를 먼저 예측하기/);
+  assert.match(html, /aria-label="v의 x 좌표"/);
+  assert.match(html, /aria-label="w의 x 좌표"/);
+  assert.match(html, /vector_tensor_lab\.py/);
   assert.match(html, /이 챕터 완료하기/);
   assert.match(html, /data-language="python"/);
   assert.match(html, /tok-variableName/);

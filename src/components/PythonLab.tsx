@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { PythonCode } from "./PythonCode";
 import { PythonCodeEditor } from "./PythonCodeEditor";
 
@@ -7,7 +8,17 @@ type WorkerMessage =
   | { type: "result"; output: string }
   | { type: "error"; error: string };
 
-export function PythonLab({ initialCode }: { initialCode: string }) {
+type PythonLabProps = {
+  initialCode: string;
+  fileName?: string;
+  hint?: ReactNode;
+};
+
+export function PythonLab({
+  initialCode,
+  fileName = "vector_lab.py",
+  hint,
+}: PythonLabProps) {
   const [code, setCode] = useState(initialCode);
   const [output, setOutput] = useState("실행하면 결과가 여기에 표시됩니다.");
   const [status, setStatus] = useState<"idle" | "loading" | "running" | "done" | "error">("idle");
@@ -59,11 +70,17 @@ export function PythonLab({ initialCode }: { initialCode: string }) {
   }
 
   const busy = status === "loading" || status === "running";
+  const resolvedHint = hint ?? (
+    <>
+      <PythonCode>w</PythonCode>를 <PythonCode>[2.0, -3.0]</PythonCode>
+      {"으로 바꾸고 내적과 코사인 유사도가 어떻게 달라지는지 확인해 보세요."}
+    </>
+  );
 
   return (
     <div className="python-lab">
       <div className="lab-toolbar">
-        <div className="lab-file"><span className="python-mark">Py</span> vector_lab.py</div>
+        <div className="lab-file"><span className="python-mark">Py</span> {fileName}</div>
         <div className="lab-actions">
           <button type="button" className="lab-reset" onClick={resetLab}>초기화</button>
           <button type="button" className="lab-run" onClick={runCode} disabled={busy}>
@@ -77,7 +94,7 @@ export function PythonLab({ initialCode }: { initialCode: string }) {
           <PythonCodeEditor
             value={code}
             onChange={setCode}
-            ariaLabel="실행할 Python 코드"
+            ariaLabel={`실행할 Python 코드: ${fileName}`}
           />
         </div>
         <div className="lab-output" aria-live="polite">
@@ -90,10 +107,7 @@ export function PythonLab({ initialCode }: { initialCode: string }) {
       </div>
       <div className="lab-hint">
         <span>실험 제안</span>
-        <p>
-          <PythonCode>w</PythonCode>를 <PythonCode>[2.0, -3.0]</PythonCode>
-          {"으로 바꾸고 내적과 코사인 유사도가 어떻게 달라지는지 확인해 보세요."}
-        </p>
+        <p>{resolvedHint}</p>
       </div>
     </div>
   );

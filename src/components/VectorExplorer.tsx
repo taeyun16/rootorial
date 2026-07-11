@@ -101,6 +101,7 @@ export function VectorExplorer() {
   }, [metrics.projection, v, w]);
 
   function slider(
+    vectorName: "v" | "w",
     label: string,
     value: number,
     onChange: (value: number) => void,
@@ -111,6 +112,7 @@ export function VectorExplorer() {
         <span>{label}</span>
         <input
           type="range"
+          aria-label={`${vectorName}의 ${label} 좌표`}
           min="-4"
           max="4"
           step="0.5"
@@ -138,16 +140,16 @@ export function VectorExplorer() {
             <span className="vector-chip vector-chip-v">v</span>
             <PythonCode>{`[${v.join(", ")}]`}</PythonCode>
           </div>
-          {slider("x", v[0], (value) => setV([value, v[1]]), "green")}
-          {slider("y", v[1], (value) => setV([v[0], value]), "green")}
+          {slider("v", "x", v[0], (value) => setV([value, v[1]]), "green")}
+          {slider("v", "y", v[1], (value) => setV([v[0], value]), "green")}
         </div>
         <div className="control-group">
           <div className="control-heading">
             <span className="vector-chip vector-chip-w">w</span>
             <PythonCode>{`[${w.join(", ")}]`}</PythonCode>
           </div>
-          {slider("x", w[0], (value) => setW([value, w[1]]), "indigo")}
-          {slider("y", w[1], (value) => setW([w[0], value]), "indigo")}
+          {slider("w", "x", w[0], (value) => setW([value, w[1]]), "indigo")}
+          {slider("w", "y", w[1], (value) => setW([w[0], value]), "indigo")}
         </div>
         <dl className="metric-grid">
           <div><dt>내적</dt><dd>{metrics.dot.toFixed(2)}</dd></div>

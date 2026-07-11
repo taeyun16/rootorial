@@ -43,8 +43,11 @@ CLERK_SECRET_KEY=sk_test_...
 
 서버를 다시 시작하면 헤더가 로그인·가입 버튼 또는 사용자 메뉴로 전환됩니다.
 `clerkMiddleware()`는 인증 상태만 주입하며 페이지를 자동으로 잠그지 않습니다.
-따라서 읽기는 계속 공개하고, 향후 진도 저장·질문 작성·관리자 답변 같은 쓰기
-작업에서만 서버 측 `auth()` 검사를 적용합니다.
+따라서 읽기는 계속 공개합니다. 로그아웃 상태의 챕터 진도는 브라우저에 저장되고,
+로그인하면 기존 브라우저 진도와 Clerk 계정의 진도를 병합합니다. 계정 진도는
+서버 함수가 `auth()`로 사용자 ID를 확정한 뒤 Clerk `privateMetadata`에만 씁니다.
+질문 작성·관리자 답변처럼 별도 데이터가 필요한 쓰기 작업도 같은 서버 인증
+경계를 사용합니다.
 
 운영 환경에서는 실제 값을 Git에 넣지 말고 Cloudflare secret으로 등록합니다.
 
@@ -65,10 +68,10 @@ npm run deploy
 배포가 만들어지면 Cloudflare 대시보드에서 `rezero.taeyun.me` custom domain을
 Worker에 연결합니다.
 
-D1은 실제 데이터베이스를 생성한 뒤 `DB` binding을 추가합니다. 첫 데이터
-모델은 사용자, 챕터 진도, 질문, 답변으로 구성하고 Clerk `userId`는 서버에서만
-확정합니다. Durable Objects는 실시간 presence나 질문방 WebSocket이 실제로
-필요해질 때 추가하며, 현재 CRUD에는 D1만 사용합니다.
+D1은 질문·답변이나 세부 학습 이력처럼 Clerk metadata에 두기 어려운 데이터가
+필요해질 때 실제 데이터베이스를 생성하고 `DB` binding을 추가합니다. Clerk
+`userId`는 항상 서버에서만 확정합니다. Durable Objects는 실시간 presence나
+질문방 WebSocket이 실제로 필요해질 때 추가합니다.
 
 ## Commands
 

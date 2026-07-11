@@ -1,24 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { chapters } from "../data/curriculum";
 import { AuthControls } from "./AuthControls";
-
-const progressKey = "rezero-progress";
-
-function readProgress() {
-  try {
-    return JSON.parse(localStorage.getItem(progressKey) ?? "[]") as string[];
-  } catch {
-    return [];
-  }
-}
+import { useProgress } from "./ProgressProvider";
 
 export function CurriculumHome() {
-  const [completed, setCompleted] = useState<string[]>([]);
-
-  useEffect(() => {
-    setCompleted(readProgress());
-  }, []);
+  const { completed, retry, status } = useProgress();
 
   const progress = useMemo(
     () => Math.round((completed.length / chapters.length) * 100),
@@ -84,7 +71,25 @@ export function CurriculumHome() {
             <div className="progress-track" aria-label={`전체 진도 ${progress}%`}>
               <span style={{ width: `${progress}%` }} />
             </div>
-            <small>이 브라우저에 자동 저장됩니다.</small>
+            <small role="status">
+              {status === "loading"
+                ? "계정 진도를 불러오는 중입니다."
+                : status === "syncing"
+                  ? "계정에 진도를 저장하는 중입니다."
+                  : status === "synced"
+                    ? "Clerk 계정에 안전하게 동기화됩니다."
+                    : status === "error"
+                      ? "계정 동기화가 잠시 중단되었습니다."
+                      : "이 브라우저에 자동 저장됩니다."}
+              {status === "error" ? (
+                <>
+                  {" "}
+                  <button className="text-link" type="button" onClick={retry}>
+                    다시 시도
+                  </button>
+                </>
+              ) : null}
+            </small>
           </div>
         </div>
       </section>

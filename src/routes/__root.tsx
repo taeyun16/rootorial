@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router";
 import appCss from "../styles/globals.css?url";
 import { ClerkBoundary } from "../components/ClerkBoundary";
+import { ProgressProvider } from "../components/ProgressProvider";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -37,7 +38,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        <ClerkBoundary>{children}</ClerkBoundary>
+        <ClerkBoundary>
+          <ProgressProvider>{children}</ProgressProvider>
+        </ClerkBoundary>
         <Scripts />
       </body>
     </html>
