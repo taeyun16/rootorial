@@ -33,6 +33,7 @@ test("renders the curriculum home", async () => {
   assert.match(html, /바닥부터/);
   assert.match(html, /벡터와 텐서/);
   assert.match(html, /Mini Transformer/);
+  assert.match(html, /로그인 준비 중/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
 });
 
@@ -50,9 +51,10 @@ test("renders the interactive vectors chapter", async () => {
   assert.match(html, /tok-number/);
 });
 
-test("ships the browser Python worker and removes the starter preview", async () => {
+test("ships the browser Python worker and removes legacy framework entrypoints", async () => {
   const worker = await readFile(new URL("../public/pyodide-worker.js", import.meta.url), "utf8");
   assert.match(worker, /loadPyodide/);
   assert.match(worker, /loadPackage\("numpy"\)/);
-  await assert.rejects(access(new URL("../app\/_sites-preview", import.meta.url)));
+  await assert.rejects(access(new URL("../worker/index.ts", import.meta.url)));
+  await assert.rejects(access(new URL("../next.config.ts", import.meta.url)));
 });

@@ -1,8 +1,7 @@
-"use client";
-
-import Link from "next/link";
+import { Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { chapters } from "../curriculum";
+import { chapters } from "../data/curriculum";
+import { AuthControls } from "./AuthControls";
 
 const progressKey = "rezero-progress";
 
@@ -29,7 +28,7 @@ export function CurriculumHome() {
   return (
     <main className="site-shell">
       <header className="topbar">
-        <Link className="wordmark" href="/" aria-label="Re:Zero 홈">
+        <Link className="wordmark" to="/" aria-label="Re:Zero 홈">
           <span className="wordmark-mark">R0</span>
           <span>Re:Zero</span>
         </Link>
@@ -39,6 +38,7 @@ export function CurriculumHome() {
           <span className="runtime-status">
             <span className="status-dot" aria-hidden="true" /> 브라우저 실습
           </span>
+          <AuthControls />
         </nav>
       </header>
 
@@ -56,7 +56,7 @@ export function CurriculumHome() {
             Transformer까지 하나의 길로 연결합니다.
           </p>
           <div className="hero-actions">
-            <Link className="button button-primary" href="/chapters/vectors">
+            <Link className="button button-primary" to="/chapters/vectors">
               첫 챕터 시작하기 <span aria-hidden="true">→</span>
             </Link>
             <a className="text-link" href="#curriculum">
@@ -160,7 +160,11 @@ export function CurriculumHome() {
             );
 
             return chapter.status === "available" ? (
-              <Link className="chapter-row chapter-row-active" href={`/chapters/${chapter.slug}`} key={chapter.slug}>
+              <Link
+                className="chapter-row chapter-row-active"
+                to={`/chapters/${chapter.slug}` as "/chapters/vectors"}
+                key={chapter.slug}
+              >
                 {content}
               </Link>
             ) : (

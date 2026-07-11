@@ -1,3 +1,4 @@
+// The catalog is intentionally framework-agnostic so content can later be localized.
 export type Chapter = {
   number: number;
   slug: string;

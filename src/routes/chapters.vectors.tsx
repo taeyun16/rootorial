@@ -1,15 +1,23 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { VectorExplorer } from "../../components/VectorExplorer";
-import { PythonLab } from "../../components/PythonLab";
-import { CompleteChapter } from "../../components/CompleteChapter";
-import { PythonCode } from "../../components/PythonCode";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { CompleteChapter } from "../components/CompleteChapter";
+import { PythonCode } from "../components/PythonCode";
+import { PythonLab } from "../components/PythonLab";
+import { VectorExplorer } from "../components/VectorExplorer";
+import { AuthControls } from "../components/AuthControls";
 
-export const metadata: Metadata = {
-  title: "01. 벡터와 텐서",
-  description:
-    "벡터의 크기, 내적, 코사인 유사도와 투영을 인터랙티브 시각화와 NumPy 코드로 이해합니다.",
-};
+export const Route = createFileRoute("/chapters/vectors")({
+  head: () => ({
+    meta: [
+      { title: "01. 벡터와 텐서 · Re:Zero" },
+      {
+        name: "description",
+        content:
+          "벡터의 크기, 내적, 코사인 유사도와 투영을 인터랙티브 시각화와 NumPy 코드로 이해합니다.",
+      },
+    ],
+  }),
+  component: VectorsChapter,
+});
 
 const starterCode = `import numpy as np
 
@@ -26,18 +34,21 @@ print("코사인 유사도:", round(cosine, 3))
 projection = np.dot(w, v) / np.dot(v, v) * v
 print("w를 v에 투영:", np.round(projection, 3))`;
 
-export default function VectorsChapter() {
+function VectorsChapter() {
   return (
     <main className="chapter-shell">
       <header className="chapter-topbar">
-        <Link className="wordmark" href="/" aria-label="Re:Zero 홈">
+        <Link className="wordmark" to="/" aria-label="Re:Zero 홈">
           <span className="wordmark-mark">R0</span>
           <span>Re:Zero</span>
         </Link>
-        <div className="chapter-progress-label">
-          <span>CHAPTER 01</span>
-          <div className="mini-progress"><span /></div>
-          <span>1 / 10</span>
+        <div className="chapter-header-actions">
+          <div className="chapter-progress-label">
+            <span>CHAPTER 01</span>
+            <div className="mini-progress"><span /></div>
+            <span>1 / 10</span>
+          </div>
+          <AuthControls compact />
         </div>
       </header>
 
@@ -159,7 +170,7 @@ export default function VectorsChapter() {
           </section>
 
           <nav className="chapter-bottom-nav" aria-label="챕터 이동">
-            <Link href="/">← 커리큘럼</Link>
+            <Link to="/">← 커리큘럼</Link>
             <span>
               다음: 학습과 최적화 <small>준비 중</small>
             </span>

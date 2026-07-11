@@ -1,5 +1,3 @@
-"use client";
-
 import { indentWithTab } from "@codemirror/commands";
 import { python } from "@codemirror/lang-python";
 import { syntaxHighlighting } from "@codemirror/language";
@@ -121,8 +119,6 @@ export function PythonCodeEditor({
       view.destroy();
       viewRef.current = null;
     };
-    // The editor is created once; value changes are synchronized below.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ariaLabel]);
 
   useEffect(() => {

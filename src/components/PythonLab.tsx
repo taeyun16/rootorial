@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useRef, useState } from "react";
 import { PythonCode } from "./PythonCode";
 import { PythonCodeEditor } from "./PythonCodeEditor";

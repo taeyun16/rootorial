@@ -2,10 +2,10 @@ import type { ReactNode } from "react";
 import { pythonLanguage } from "@codemirror/lang-python";
 import { classHighlighter, highlightTree } from "@lezer/highlight";
 
-type PythonCodeProps = {
+interface PythonCodeProps {
   children: string;
   className?: string;
-};
+}
 
 export function PythonCode({ children, className }: PythonCodeProps) {
   const highlighted: ReactNode[] = [];
