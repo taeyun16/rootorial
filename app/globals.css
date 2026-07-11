@@ -930,7 +930,7 @@ textarea:focus-visible {
 
 .vector-chip-v { background: var(--forest); }
 .vector-chip-w { background: var(--indigo); }
-.control-heading code { color: var(--muted); font-family: var(--mono); font-size: 10px; }
+.control-heading code { font-size: 10px; }
 
 .vector-slider {
   display: grid;
@@ -1019,26 +1019,67 @@ textarea:focus-visible {
   min-height: 390px;
 }
 
-.code-editor-label {
-  display: flex;
+.code-editor-shell {
   min-width: 0;
+  border-right: 1px solid #303834;
+  background: #171d1a;
 }
 
 .code-editor {
+  height: 100%;
   width: 100%;
   min-height: 390px;
-  padding: 22px;
-  resize: vertical;
-  border: 0;
-  border-right: 1px solid #303834;
-  outline: 0;
   background: #171d1a;
-  color: #dfe9e3;
-  font-family: var(--mono);
-  font-size: 12px;
-  line-height: 1.8;
-  tab-size: 4;
 }
+
+/* Shared Python token palette for editable and inline code. */
+.syntax-code {
+  padding: 0.13em 0.34em;
+  border-radius: 3px;
+  background: rgba(29, 79, 69, 0.08);
+  color: #34413b;
+  font-family: var(--mono);
+  font-size: 0.88em;
+  white-space: break-spaces;
+}
+
+.tok-keyword { color: #c06f42; font-weight: 700; }
+.tok-atom,
+.tok-bool,
+.tok-number { color: #c45f74; }
+.tok-string,
+.tok-string2 { color: #2f8069; }
+.tok-variableName,
+.tok-propertyName { color: #316f91; }
+.tok-definition { color: #167c75; font-weight: 700; }
+.tok-typeName,
+.tok-className,
+.tok-namespace { color: #8a62b5; }
+.tok-operator { color: #9a5c8f; }
+.tok-punctuation { color: #7b827e; }
+.tok-comment { color: #78837d; font-style: italic; }
+.tok-meta,
+.tok-macroName { color: #a66d2f; }
+.tok-invalid { color: #b63d3d; text-decoration: underline wavy; }
+
+.cm-editor .tok-keyword { color: #f1cf62; }
+.cm-editor .tok-atom,
+.cm-editor .tok-bool,
+.cm-editor .tok-number { color: #ed987d; }
+.cm-editor .tok-string,
+.cm-editor .tok-string2 { color: #8fd6b8; }
+.cm-editor .tok-variableName,
+.cm-editor .tok-propertyName { color: #a8d5ee; }
+.cm-editor .tok-definition { color: #76d5ca; }
+.cm-editor .tok-typeName,
+.cm-editor .tok-className,
+.cm-editor .tok-namespace { color: #c8a9ef; }
+.cm-editor .tok-operator { color: #d7a6cf; }
+.cm-editor .tok-punctuation { color: #9eaaa3; }
+.cm-editor .tok-comment { color: #77847d; }
+.cm-editor .tok-meta,
+.cm-editor .tok-macroName { color: #e6b86b; }
+.cm-editor .tok-invalid { color: #ff9b86; }
 
 .lab-output {
   min-width: 0;
@@ -1079,9 +1120,13 @@ textarea:focus-visible {
   font-size: 10px;
 }
 
-.lab-hint span { flex: none; color: #f1cf62; font-weight: 800; }
+.lab-hint > span { flex: none; color: #f1cf62; font-weight: 800; }
 .lab-hint p { margin: 0; color: #9eaaa3; }
-.lab-hint code { background: rgba(255, 255, 255, 0.06); color: #dfe9e3; }
+.lab-hint .syntax-code { background: rgba(255, 255, 255, 0.06); }
+.lab-hint .tok-variableName { color: #a8d5ee; }
+.lab-hint .tok-number { color: #ed987d; }
+.lab-hint .tok-operator { color: #d7a6cf; }
+.lab-hint .tok-punctuation { color: #9eaaa3; }
 
 .chapter-finish {
   padding: 100px 48px;
@@ -1207,7 +1252,9 @@ textarea:focus-visible {
   .vector-canvas-wrap { min-height: 360px; border-right: 0; border-bottom: 1px solid var(--line); }
   .vector-canvas { height: 360px; }
   .lab-body { grid-template-columns: 1fr; }
-  .code-editor { min-height: 360px; border-right: 0; border-bottom: 1px solid #303834; }
+  .code-editor-shell { border-right: 0; border-bottom: 1px solid #303834; }
+  .code-editor,
+  .code-editor .cm-editor { min-height: 360px; }
   .lab-output { min-height: 190px; }
   .lab-hint { flex-direction: column; gap: 5px; }
   .completed-panel { grid-template-columns: 40px 1fr; }

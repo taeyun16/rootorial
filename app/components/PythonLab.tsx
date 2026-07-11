@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { PythonCode } from "./PythonCode";
+import { PythonCodeEditor } from "./PythonCodeEditor";
 
 type WorkerMessage =
   | { type: "ready" }
@@ -73,16 +75,13 @@ export function PythonLab({ initialCode }: { initialCode: string }) {
         </div>
       </div>
       <div className="lab-body">
-        <label className="code-editor-label">
-          <span className="sr-only">Python 코드</span>
-          <textarea
-            className="code-editor"
+        <div className="code-editor-shell">
+          <PythonCodeEditor
             value={code}
-            onChange={(event) => setCode(event.target.value)}
-            spellCheck={false}
-            aria-label="실행할 Python 코드"
+            onChange={setCode}
+            ariaLabel="실행할 Python 코드"
           />
-        </label>
+        </div>
         <div className="lab-output" aria-live="polite">
           <div className="output-heading">
             <span>OUTPUT</span>
@@ -93,7 +92,10 @@ export function PythonLab({ initialCode }: { initialCode: string }) {
       </div>
       <div className="lab-hint">
         <span>실험 제안</span>
-        <p><code>w</code>를 <code>[2.0, -3.0]</code>으로 바꾸고 내적과 코사인 유사도가 어떻게 달라지는지 확인해 보세요.</p>
+        <p>
+          <PythonCode>w</PythonCode>를 <PythonCode>[2.0, -3.0]</PythonCode>
+          {"으로 바꾸고 내적과 코사인 유사도가 어떻게 달라지는지 확인해 보세요."}
+        </p>
       </div>
     </div>
   );

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { VectorExplorer } from "../../components/VectorExplorer";
 import { PythonLab } from "../../components/PythonLab";
 import { CompleteChapter } from "../../components/CompleteChapter";
+import { PythonCode } from "../../components/PythonCode";
 
 export const metadata: Metadata = {
   title: "01. 벡터와 텐서",
@@ -80,9 +81,10 @@ export default function VectorsChapter() {
             <div className="margin-label">01 — VECTOR</div>
             <h2>숫자 두 개가 방향이 되는 순간</h2>
             <p>
-              벡터 <code>v = [3, 2]</code>는 단순히 숫자 두 개가 아닙니다. 원점에서
-              오른쪽으로 3, 위로 2만큼 이동하는 화살표입니다. 숫자의 개수가
-              늘어나면 눈으로 그릴 수 없을 뿐, 같은 규칙이 계속됩니다.
+              벡터 <PythonCode>v = [3, 2]</PythonCode>는 단순히 숫자 두 개가
+              아닙니다. 원점에서 오른쪽으로 3, 위로 2만큼 이동하는
+              화살표입니다. 숫자의 개수가 늘어나면 눈으로 그릴 수 없을 뿐,
+              같은 규칙이 계속됩니다.
             </p>
             <div className="equation-block" aria-label="벡터 크기 공식">
               <span>‖v‖</span>

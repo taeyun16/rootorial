@@ -45,6 +45,9 @@ test("renders the interactive vectors chapter", async () => {
   assert.match(html, /두 벡터를 움직여 보세요/);
   assert.match(html, /NumPy로 같은 계산 재현하기/);
   assert.match(html, /이 챕터 완료하기/);
+  assert.match(html, /data-language="python"/);
+  assert.match(html, /tok-variableName/);
+  assert.match(html, /tok-number/);
 });
 
 test("ships the browser Python worker and removes the starter preview", async () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PythonCode } from "./PythonCode";
 
 type Vector = [number, number];
 
@@ -135,12 +136,18 @@ export function VectorExplorer() {
       </div>
       <div className="vector-controls">
         <div className="control-group">
-          <div className="control-heading"><span className="vector-chip vector-chip-v">v</span><code>[{v.join(", ")}]</code></div>
+          <div className="control-heading">
+            <span className="vector-chip vector-chip-v">v</span>
+            <PythonCode>{`[${v.join(", ")}]`}</PythonCode>
+          </div>
           {slider("x", v[0], (value) => setV([value, v[1]]), "green")}
           {slider("y", v[1], (value) => setV([v[0], value]), "green")}
         </div>
         <div className="control-group">
-          <div className="control-heading"><span className="vector-chip vector-chip-w">w</span><code>[{w.join(", ")}]</code></div>
+          <div className="control-heading">
+            <span className="vector-chip vector-chip-w">w</span>
+            <PythonCode>{`[${w.join(", ")}]`}</PythonCode>
+          </div>
           {slider("x", w[0], (value) => setW([value, w[1]]), "indigo")}
           {slider("y", w[1], (value) => setW([w[0], value]), "indigo")}
         </div>
