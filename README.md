@@ -81,6 +81,18 @@ ROOTORIAL_ADMIN_USER_IDS=user_abc123,user_def456
 
 운영 환경에서는 실제 값을 Git에 넣지 말고 Cloudflare secret으로 등록합니다.
 
+첫 Worker 배포 전에는 아직 `wrangler secret put`을 사용할 대상이 없으므로 아래
+템플릿을 복사하고 Clerk production instance의 `pk_live_...`, `sk_live_...`와
+프로덕션 관리자 사용자 ID를 입력합니다. `.dev.vars.production`은 Git에서
+제외됩니다.
+
+```bash
+cp .dev.vars.production.example .dev.vars.production
+npm run deploy -- --secrets-file .dev.vars.production
+```
+
+첫 배포 이후 키를 교체하거나 추가할 때는 다음 명령을 사용합니다.
+
 ```bash
 npx wrangler secret put CLERK_PUBLISHABLE_KEY
 npx wrangler secret put CLERK_SECRET_KEY
@@ -93,6 +105,7 @@ npx wrangler secret put ROOTORIAL_ADMIN_USER_IDS
 
 ```bash
 npm run build
+npm run deploy:check
 npm run deploy
 ```
 
@@ -118,7 +131,16 @@ Cloudflare에서 데이터베이스를 만든 뒤 출력된 `database_id`를 기
 
 ```bash
 npx wrangler d1 create rootorial
-npx wrangler d1 migrations apply DB --remote
+npm run db:migrate:remote
+```
+
+`npm run deploy:check`는 코드를 업로드하지 않고 Worker 번들, 정적 자산과 binding을
+검증합니다. 실제 배포는 원격 설정 충돌을 덮어쓰지 않도록 Wrangler strict mode로
+실행됩니다. 원격 D1과 secret 상태를 확인하려면 먼저 `npx wrangler login`으로
+Cloudflare 인증을 갱신한 뒤 아래 명령을 실행하세요.
+
+```bash
+npm run db:status:remote
 ```
 
 `DB` binding이 없으면 공개 학습과 코드 실행은 그대로 동작하고, 토론 패널에는
@@ -133,11 +155,14 @@ npm run dev        # Workers 로컬 런타임 + Vite HMR
 npm run check      # TypeScript 검사
 npm run build      # 프로덕션 client/SSR Worker 빌드
 npm test           # 빌드 후 홈·챕터 SSR 계약 테스트
+npm run deploy:check # 업로드 없이 Worker 배포 번들과 binding 검증
 npm run test:e2e   # Clerk 테스트 가입 + 로컬 D1 질문 저장 브라우저 E2E
 npm run db:migrate:local # 로컬 D1 migration 적용
 npm run db:seed:local    # 커뮤니티 UI 확인용 로컬 데모 데이터 적용
 npm run db:migrate:e2e   # 격리된 E2E D1 migration 적용
 npm run db:status:local  # 로컬 D1 migration 상태 확인
+npm run db:migrate:remote # 프로덕션 D1 migration 적용
+npm run db:status:remote # 프로덕션 D1 migration 상태 확인
 npm run deploy     # 검증 후 Cloudflare Workers 배포
 npm run cf-typegen # wrangler binding 타입 생성
 ```
