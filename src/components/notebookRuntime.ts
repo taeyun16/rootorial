@@ -11,6 +11,12 @@ export type NotebookExecutionResult = {
   elapsedMs: number;
 };
 
+export type NotebookExecutionErrorCode =
+  | "execution"
+  | "runtime"
+  | "stopped"
+  | "disposed";
+
 type WorkerReadyMessage = {
   type: "ready";
 };
@@ -49,6 +55,7 @@ type PendingRun = {
 };
 
 export class NotebookExecutionError extends Error {
+  readonly code: NotebookExecutionErrorCode;
   readonly output: string;
   readonly figures: string[];
   readonly executionCount?: number;
@@ -56,6 +63,7 @@ export class NotebookExecutionError extends Error {
   constructor(
     message: string,
     options: {
+      code?: NotebookExecutionErrorCode;
       output?: string;
       figures?: string[];
       executionCount?: number;
@@ -63,6 +71,7 @@ export class NotebookExecutionError extends Error {
   ) {
     super(message);
     this.name = "NotebookExecutionError";
+    this.code = options.code ?? "execution";
     this.output = options.output ?? "";
     this.figures = options.figures ?? [];
     this.executionCount = options.executionCount;
@@ -75,6 +84,10 @@ let resolveReady: (() => void) | null = null;
 let rejectReady: ((error: Error) => void) | null = null;
 let requestSequence = 0;
 const pendingRuns = new Map<string, PendingRun>();
+let activeConsumers = 0;
+let idleDisposeTimer: ReturnType<typeof setTimeout> | null = null;
+
+const IDLE_DISPOSE_DELAY_MS = 15_000;
 
 function nextRequestId() {
   requestSequence += 1;
@@ -88,22 +101,54 @@ function rejectPendingRuns(error: NotebookExecutionError) {
   pendingRuns.clear();
 }
 
-function discardWorker() {
-  worker?.terminate();
+function cancelIdleDispose() {
+  if (!idleDisposeTimer) return;
+  clearTimeout(idleDisposeTimer);
+  idleDisposeTimer = null;
+}
+
+function terminateRuntime(error: NotebookExecutionError) {
+  const activeWorker = worker;
+  const rejectInitialization = rejectReady;
+
   worker = null;
   readyPromise = null;
   resolveReady = null;
   rejectReady = null;
+  activeWorker?.terminate();
+  rejectInitialization?.(error);
+  rejectPendingRuns(error);
+}
+
+function scheduleIdleDispose() {
+  cancelIdleDispose();
+  if (!worker) return;
+
+  idleDisposeTimer = setTimeout(() => {
+    idleDisposeTimer = null;
+    if (activeConsumers > 0 || !worker) return;
+
+    terminateRuntime(
+      new NotebookExecutionError(
+        "사용하지 않는 Python 실행기를 정리했습니다. 다시 실행하면 새 커널을 시작합니다.",
+        { code: "disposed" },
+      ),
+    );
+  }, IDLE_DISPOSE_DELAY_MS);
 }
 
 function handleWorkerFailure(message: string) {
-  const error = new NotebookExecutionError(message);
-  rejectReady?.(error);
-  rejectPendingRuns(error);
-  discardWorker();
+  cancelIdleDispose();
+  terminateRuntime(
+    new NotebookExecutionError(message, { code: "runtime" }),
+  );
 }
 
-function handleWorkerMessage(event: MessageEvent<NotebookWorkerMessage>) {
+function handleWorkerMessage(
+  source: Worker,
+  event: MessageEvent<NotebookWorkerMessage>,
+) {
+  if (source !== worker) return;
   const message = event.data;
 
   if (message.type === "ready") {
@@ -139,6 +184,7 @@ function handleWorkerMessage(event: MessageEvent<NotebookWorkerMessage>) {
     pendingRuns.delete(message.requestId);
     pending.reject(
       new NotebookExecutionError(message.error, {
+        code: "execution",
         output: message.output,
         figures: message.figures,
         executionCount: message.executionCount,
@@ -158,13 +204,17 @@ function createWorker() {
   }
 
   const nextWorker = new Worker("/pyodide-worker.js");
-  nextWorker.addEventListener("message", handleWorkerMessage);
+  nextWorker.addEventListener("message", (event) => {
+    handleWorkerMessage(nextWorker, event);
+  });
   nextWorker.addEventListener("error", (event) => {
+    if (nextWorker !== worker) return;
     handleWorkerFailure(
       event.message || "Python 실행기를 불러오는 중 오류가 발생했습니다.",
     );
   });
   nextWorker.addEventListener("messageerror", () => {
+    if (nextWorker !== worker) return;
     handleWorkerFailure("Python 실행 결과를 읽지 못했습니다.");
   });
   worker = nextWorker;
@@ -172,6 +222,7 @@ function createWorker() {
 }
 
 async function ensureRuntime(onPhase?: (phase: NotebookRunPhase) => void) {
+  cancelIdleDispose();
   if (!readyPromise) {
     onPhase?.("loading-runtime");
     const activeWorker = worker ?? createWorker();
@@ -185,6 +236,34 @@ async function ensureRuntime(onPhase?: (phase: NotebookRunPhase) => void) {
   }
 
   await readyPromise;
+}
+
+/** Keep the shared kernel alive while at least one notebook cell is mounted. */
+export function retainNotebookRuntime() {
+  activeConsumers += 1;
+  cancelIdleDispose();
+  let released = false;
+
+  return () => {
+    if (released) return;
+    released = true;
+    activeConsumers = Math.max(0, activeConsumers - 1);
+    if (activeConsumers === 0) scheduleIdleDispose();
+  };
+}
+
+/**
+ * Stop the shared kernel and reject every queued or running request.
+ * A later runNotebookCode call lazily creates a clean interpreter.
+ */
+export function restartNotebookRuntime() {
+  cancelIdleDispose();
+  terminateRuntime(
+    new NotebookExecutionError(
+      "공유 Python 실행을 중지했습니다. 다시 실행하면 새 커널을 시작합니다.",
+      { code: "stopped" },
+    ),
+  );
 }
 
 /**
@@ -208,6 +287,29 @@ export async function runNotebookCode(
   const requestId = nextRequestId();
   return new Promise<NotebookExecutionResult>((resolve, reject) => {
     pendingRuns.set(requestId, { resolve, reject, onPhase });
-    activeWorker.postMessage({ type: "run", requestId, code });
+    try {
+      activeWorker.postMessage({ type: "run", requestId, code });
+    } catch (caughtError) {
+      pendingRuns.delete(requestId);
+      reject(
+        new NotebookExecutionError(
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Python 실행 요청을 보내지 못했습니다.",
+          { code: "runtime" },
+        ),
+      );
+    }
+  });
+}
+
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    cancelIdleDispose();
+    terminateRuntime(
+      new NotebookExecutionError("개발 서버 갱신으로 Python 실행기를 다시 시작합니다.", {
+        code: "disposed",
+      }),
+    );
   });
 }

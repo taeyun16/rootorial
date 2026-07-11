@@ -30,7 +30,7 @@ batch = np.stack([sequence, sequence * 0.5])
 print("token    [d_model]                =", token.shape)
 print("sequence [tokens, d_model]        =", sequence.shape)
 print("batch    [batch, tokens, d_model] =", batch.shape)
-print("rank:", batch.ndim, "dimensions:", batch.size)`;
+print("rank:", batch.ndim, "elements:", batch.size)`;
 
 export const broadcastingHeatmapCode = `import numpy as np
 import matplotlib.pyplot as plt

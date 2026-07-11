@@ -3,6 +3,8 @@ import type { ReactNode } from "react";
 import { NotebookCodeEditor } from "./NotebookCodeEditor";
 import {
   NotebookExecutionError,
+  restartNotebookRuntime,
+  retainNotebookRuntime,
   runNotebookCode,
 } from "./notebookRuntime";
 import type { NotebookRunPhase } from "./notebookRuntime";
@@ -13,6 +15,7 @@ type NotebookCellStatus =
   | "queued"
   | "running"
   | "done"
+  | "stopped"
   | "error";
 
 export type NotebookCellProps = {
@@ -32,6 +35,7 @@ const statusLabels: Record<NotebookCellStatus, string> = {
   queued: "실행 순서 대기 중",
   running: "코드 실행 중",
   done: "실행 완료",
+  stopped: "실행 중지",
   error: "실행 오류",
 };
 
@@ -71,23 +75,28 @@ export function NotebookCell({
   const [figures, setFigures] = useState<string[]>([]);
   const [executionCount, setExecutionCount] = useState<number | null>(null);
   const runVersionRef = useRef(0);
+  const inFlightRef = useRef(false);
   const mountedRef = useRef(true);
 
   useEffect(() => {
     mountedRef.current = true;
+    const releaseRuntime = retainNotebookRuntime();
     return () => {
       mountedRef.current = false;
+      inFlightRef.current = false;
       runVersionRef.current += 1;
+      releaseRuntime();
     };
   }, []);
 
   const busy = status === "loading" || status === "queued" || status === "running";
   const changed = code !== initialCode;
-  const hasResult = status === "done" || status === "error";
+  const hasResult = status === "done" || status === "stopped" || status === "error";
   const resolvedAriaLabel = ariaLabel ?? `${title}에 실행할 Python 코드`;
 
   async function runCode() {
-    if (busy) return;
+    if (inFlightRef.current) return;
+    inFlightRef.current = true;
 
     const runVersion = runVersionRef.current + 1;
     runVersionRef.current = runVersion;
@@ -116,6 +125,11 @@ export function NotebookCell({
         setOutput(caughtError.output);
         setFigures(caughtError.figures);
         setExecutionCount(caughtError.executionCount ?? null);
+        if (caughtError.code === "stopped" || caughtError.code === "disposed") {
+          setError("");
+          setStatus("stopped");
+          return;
+        }
         setError(caughtError.message);
       } else {
         setError(
@@ -125,11 +139,29 @@ export function NotebookCell({
         );
       }
       setStatus("error");
+    } finally {
+      if (runVersionRef.current === runVersion) {
+        inFlightRef.current = false;
+      }
     }
+  }
+
+  function stopCode() {
+    if (!inFlightRef.current) return;
+
+    runVersionRef.current += 1;
+    inFlightRef.current = false;
+    restartNotebookRuntime();
+    setStatus("stopped");
+    setOutput("");
+    setError("");
+    setFigures([]);
+    setExecutionCount(null);
   }
 
   function resetCell() {
     runVersionRef.current += 1;
+    inFlightRef.current = false;
     setCode(initialCode);
     setStatus("idle");
     setOutput("");
@@ -155,7 +187,12 @@ export function NotebookCell({
     .join(" ");
 
   return (
-    <section className={rootClassName} data-status={status} aria-labelledby={titleId}>
+    <section
+      className={rootClassName}
+      data-status={status}
+      aria-labelledby={titleId}
+      aria-busy={busy}
+    >
       <div className="notebook-cell-prompt" aria-hidden="true">
         {executionPrompt(status, executionCount)}
       </div>
@@ -178,13 +215,12 @@ export function NotebookCell({
             <button
               type="button"
               className="notebook-cell-run"
-              onClick={runCode}
-              disabled={busy}
+              onClick={busy ? stopCode : runCode}
               aria-describedby={statusId}
               aria-controls={outputId}
+              aria-label={busy ? `${title} 실행 중지` : `${title} 실행`}
             >
-              <span aria-hidden="true">{busy ? "◌" : "▶"}</span>
-              {busy ? "실행 중" : "실행"}
+              {busy ? "중지" : "실행"}
             </button>
           </div>
         </div>
@@ -207,7 +243,7 @@ export function NotebookCell({
           {statusLabels[status]}
         </span>
 
-        <div className="notebook-cell-output" id={outputId} aria-live="polite">
+        <div className="notebook-cell-output" id={outputId}>
           {hasResult ? (
             <>
               <div className="notebook-cell-output-heading">
@@ -219,6 +255,10 @@ export function NotebookCell({
 
               {output ? (
                 <pre className="notebook-cell-output-text">{output}</pre>
+              ) : status === "stopped" ? (
+                <p className="notebook-cell-empty-output">
+                  실행을 중지했습니다. 다시 실행하면 새 Python 커널을 시작합니다.
+                </p>
               ) : status === "done" && figures.length === 0 ? (
                 <p className="notebook-cell-empty-output">
                   실행을 마쳤습니다. 표시할 출력은 없습니다.
@@ -226,7 +266,7 @@ export function NotebookCell({
               ) : null}
 
               {error ? (
-                <pre className="notebook-cell-error" role="alert">{error}</pre>
+                <pre className="notebook-cell-error">{error}</pre>
               ) : null}
 
               {figures.length > 0 ? (

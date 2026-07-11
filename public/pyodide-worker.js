@@ -39,37 +39,68 @@ del __rezero_sys
 }
 
 async function collectFigures(pyodide) {
-  const figureProxy = await pyodide.runPythonAsync(`
-import sys as __rezero_sys
-__rezero_figure_images = []
-if "matplotlib.pyplot" in __rezero_sys.modules:
-    import io as __rezero_io
-    import base64 as __rezero_base64
-    __rezero_plt = __rezero_sys.modules["matplotlib.pyplot"]
-    for __rezero_figure_number in __rezero_plt.get_fignums():
-        __rezero_figure = __rezero_plt.figure(__rezero_figure_number)
-        __rezero_buffer = __rezero_io.BytesIO()
-        __rezero_figure.savefig(
-            __rezero_buffer,
-            format="png",
-            dpi=130,
-            bbox_inches="tight",
-            facecolor=__rezero_figure.get_facecolor(),
-        )
-        __rezero_encoded = __rezero_base64.b64encode(
-            __rezero_buffer.getvalue()
-        ).decode("ascii")
-        __rezero_figure_images.append("data:image/png;base64," + __rezero_encoded)
-        __rezero_buffer.close()
-    __rezero_plt.close("all")
-__rezero_figure_images
-`);
+  let figureProxy;
 
   try {
-    const figures = figureProxy.toJs({ create_proxies: false });
+    figureProxy = await pyodide.runPythonAsync(`
+def __rezero_capture_figures():
+    import sys
+    import io
+    import base64
+
+    pyplot = sys.modules.get("matplotlib.pyplot")
+    images = []
+    if pyplot is None:
+        return images
+
+    try:
+        for figure_number in pyplot.get_fignums():
+            figure = pyplot.figure(figure_number)
+            buffer = io.BytesIO()
+            try:
+                figure.savefig(
+                    buffer,
+                    format="png",
+                    dpi=130,
+                    bbox_inches="tight",
+                    facecolor=figure.get_facecolor(),
+                )
+                encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+                images.append("data:image/png;base64," + encoded)
+            finally:
+                buffer.close()
+        return images
+    finally:
+        pyplot.close("all")
+
+try:
+    __rezero_capture_result = __rezero_capture_figures()
+finally:
+    del __rezero_capture_figures
+__rezero_capture_result
+`);
+    const figures = figureProxy.toJs({ create_pyproxies: false });
     return Array.from(figures, (figure) => String(figure));
   } finally {
-    figureProxy.destroy?.();
+    figureProxy?.destroy?.();
+    try {
+      await pyodide.runPythonAsync(
+        `globals().pop("__rezero_capture_result", None)`,
+      );
+    } catch {
+      // Do not mask the original execution or figure-capture error.
+    }
+  }
+}
+
+const discardOutput = () => {};
+
+function resetOutputHandlers(pyodide) {
+  try {
+    pyodide.setStdout({ batched: discardOutput });
+    pyodide.setStderr({ batched: discardOutput });
+  } catch {
+    // The worker may be terminating after a fatal interpreter error.
   }
 }
 
@@ -140,6 +171,7 @@ async function executeRun({ code, requestId }) {
     );
   } finally {
     result?.destroy?.();
+    if (pyodide) resetOutputHandlers(pyodide);
   }
 }
 
