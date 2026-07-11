@@ -1,0 +1,5 @@
+# Copy this file to `.dev.vars.production` for the first production deploy.
+# Never commit the copied file or real values.
+CLERK_PUBLISHABLE_KEY=pk_live_replace_me
+CLERK_SECRET_KEY=sk_live_replace_me
+ROOTORIAL_ADMIN_USER_IDS=user_replace_me

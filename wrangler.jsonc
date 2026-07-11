@@ -4,10 +4,27 @@
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2026-07-11",
   "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "preview_urls": true,
+  "routes": [
+    {
+      "pattern": "rootorial.com",
+      "custom_domain": true
+    }
+  ],
+  "secrets": {
+    "required": [
+      "CLERK_PUBLISHABLE_KEY",
+      "CLERK_SECRET_KEY",
+      "ROOTORIAL_ADMIN_USER_IDS"
+    ]
+  },
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "rootorial-local",
+      "database_name": "rootorial",
+      "database_id": "9ab93900-ff83-42ea-b98d-3aba65556672",
+      "preview_database_id": "rootorial-local",
       "migrations_dir": "drizzle"
     }
   ],
