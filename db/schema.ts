@@ -228,6 +228,12 @@ export const contentFeedback = sqliteTable("content_feedback", {
   message: text("message").notNull(),
   pagePath: text("page_path").notNull(),
   pageTitle: text("page_title").notNull(),
+  status: text("status", {
+    enum: ["pending", "reviewing", "resolved"],
+  }).notNull().default("pending"),
+  adminNote: text("admin_note"),
+  reviewedByUserId: text("reviewed_by_user_id"),
+  reviewedAt: integer("reviewed_at"),
   createdAt: integer("created_at").notNull(),
 }, (table) => [
   index("content_feedback_author_created_idx").on(
@@ -236,6 +242,10 @@ export const contentFeedback = sqliteTable("content_feedback", {
   ),
   index("content_feedback_page_created_idx").on(
     table.pagePath,
+    table.createdAt,
+  ),
+  index("content_feedback_status_created_idx").on(
+    table.status,
     table.createdAt,
   ),
   check(
@@ -253,5 +263,13 @@ export const contentFeedback = sqliteTable("content_feedback", {
   check(
     "content_feedback_page_title_length",
     sql`length(trim(${table.pageTitle})) between 1 and 200`,
+  ),
+  check(
+    "content_feedback_status_check",
+    sql`${table.status} in ('pending', 'reviewing', 'resolved')`,
+  ),
+  check(
+    "content_feedback_admin_note_length",
+    sql`${table.adminNote} is null or length(trim(${table.adminNote})) between 1 and 1000`,
   ),
 ]);
