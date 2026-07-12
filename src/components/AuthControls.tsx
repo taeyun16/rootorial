@@ -6,6 +6,7 @@ import {
 } from "@clerk/tanstack-react-start";
 import { useClerkEnabled } from "./ClerkBoundary";
 import { useLocale } from "../features/localization/localization";
+import { AdminLink } from "./AdminLink";
 
 export function AuthControls({ compact = false }: { compact?: boolean }) {
   const enabled = useClerkEnabled();
@@ -36,6 +37,7 @@ export function AuthControls({ compact = false }: { compact?: boolean }) {
         </SignUpButton>
       </Show>
       <Show when="signed-in">
+        <AdminLink />
         <UserButton />
       </Show>
     </div>

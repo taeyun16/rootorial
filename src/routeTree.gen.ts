@@ -9,11 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CurriculaCurriculumSlugRouteImport } from './routes/curricula.$curriculumSlug'
 import { Route as ChaptersVectorsRouteImport } from './routes/chapters.vectors'
 import { Route as CurriculaCurriculumSlugChaptersChapterSlugRouteImport } from './routes/curricula.$curriculumSlug_.chapters.$chapterSlug'
 
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -38,12 +44,14 @@ const CurriculaCurriculumSlugChaptersChapterSlugRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/chapters/vectors': typeof ChaptersVectorsRoute
   '/curricula/$curriculumSlug': typeof CurriculaCurriculumSlugRoute
   '/curricula/$curriculumSlug/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/chapters/vectors': typeof ChaptersVectorsRoute
   '/curricula/$curriculumSlug': typeof CurriculaCurriculumSlugRoute
   '/curricula/$curriculumSlug/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
@@ -51,6 +59,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/chapters/vectors': typeof ChaptersVectorsRoute
   '/curricula/$curriculumSlug': typeof CurriculaCurriculumSlugRoute
   '/curricula/$curriculumSlug_/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
@@ -59,18 +68,21 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/chapters/vectors'
     | '/curricula/$curriculumSlug'
     | '/curricula/$curriculumSlug/chapters/$chapterSlug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin'
     | '/chapters/vectors'
     | '/curricula/$curriculumSlug'
     | '/curricula/$curriculumSlug/chapters/$chapterSlug'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/chapters/vectors'
     | '/curricula/$curriculumSlug'
     | '/curricula/$curriculumSlug_/chapters/$chapterSlug'
@@ -78,6 +90,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   ChaptersVectorsRoute: typeof ChaptersVectorsRoute
   CurriculaCurriculumSlugRoute: typeof CurriculaCurriculumSlugRoute
   CurriculaCurriculumSlugChaptersChapterSlugRoute: typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
@@ -85,6 +98,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -118,6 +138,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   ChaptersVectorsRoute: ChaptersVectorsRoute,
   CurriculaCurriculumSlugRoute: CurriculaCurriculumSlugRoute,
   CurriculaCurriculumSlugChaptersChapterSlugRoute:

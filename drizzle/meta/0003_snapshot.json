@@ -1,0 +1,864 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "c8b8d4b0-74cd-43a6-90da-34c0b4e4c396",
+  "prevId": "1649cc9e-e8c2-4bc6-8f06-99fa8d9dda9b",
+  "tables": {
+    "content_feedback": {
+      "name": "content_feedback",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "author_user_id": {
+          "name": "author_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "page_path": {
+          "name": "page_path",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "page_title": {
+          "name": "page_title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'pending'"
+        },
+        "admin_note": {
+          "name": "admin_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reviewed_by_user_id": {
+          "name": "reviewed_by_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "reviewed_at": {
+          "name": "reviewed_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "content_feedback_author_created_idx": {
+          "name": "content_feedback_author_created_idx",
+          "columns": [
+            "author_user_id",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "content_feedback_page_created_idx": {
+          "name": "content_feedback_page_created_idx",
+          "columns": [
+            "page_path",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "content_feedback_status_created_idx": {
+          "name": "content_feedback_status_created_idx",
+          "columns": [
+            "status",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "content_feedback_kind_check": {
+          "name": "content_feedback_kind_check",
+          "value": "\"content_feedback\".\"kind\" in ('incorrect', 'confusing', 'suggestion')"
+        },
+        "content_feedback_message_length": {
+          "name": "content_feedback_message_length",
+          "value": "length(trim(\"content_feedback\".\"message\")) between 1 and 2000"
+        },
+        "content_feedback_page_path_length": {
+          "name": "content_feedback_page_path_length",
+          "value": "length(\"content_feedback\".\"page_path\") between 1 and 500"
+        },
+        "content_feedback_page_title_length": {
+          "name": "content_feedback_page_title_length",
+          "value": "length(trim(\"content_feedback\".\"page_title\")) between 1 and 200"
+        },
+        "content_feedback_status_check": {
+          "name": "content_feedback_status_check",
+          "value": "\"content_feedback\".\"status\" in ('pending', 'reviewing', 'resolved')"
+        },
+        "content_feedback_admin_note_length": {
+          "name": "content_feedback_admin_note_length",
+          "value": "\"content_feedback\".\"admin_note\" is null or length(trim(\"content_feedback\".\"admin_note\")) between 1 and 1000"
+        }
+      }
+    },
+    "discussion_answer_likes": {
+      "name": "discussion_answer_likes",
+      "columns": {
+        "answer_id": {
+          "name": "answer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "discussion_answer_likes_user_answer_idx": {
+          "name": "discussion_answer_likes_user_answer_idx",
+          "columns": [
+            "user_id",
+            "answer_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "discussion_answer_likes_answer_id_discussion_answers_id_fk": {
+          "name": "discussion_answer_likes_answer_id_discussion_answers_id_fk",
+          "tableFrom": "discussion_answer_likes",
+          "tableTo": "discussion_answers",
+          "columnsFrom": [
+            "answer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "discussion_answer_likes_user_id_discussion_profiles_user_id_fk": {
+          "name": "discussion_answer_likes_user_id_discussion_profiles_user_id_fk",
+          "tableFrom": "discussion_answer_likes",
+          "tableTo": "discussion_profiles",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "discussion_answer_likes_answer_id_user_id_pk": {
+          "columns": [
+            "answer_id",
+            "user_id"
+          ],
+          "name": "discussion_answer_likes_answer_id_user_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "discussion_answers": {
+      "name": "discussion_answers",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "question_id": {
+          "name": "question_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "author_user_id": {
+          "name": "author_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "kind": {
+          "name": "kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'community'"
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'visible'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "moderated_by_user_id": {
+          "name": "moderated_by_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "moderated_at": {
+          "name": "moderated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "moderation_reason": {
+          "name": "moderation_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "discussion_answers_question_state_created_idx": {
+          "name": "discussion_answers_question_state_created_idx",
+          "columns": [
+            "question_id",
+            "state",
+            "created_at",
+            "id"
+          ],
+          "isUnique": false
+        },
+        "discussion_answers_author_created_idx": {
+          "name": "discussion_answers_author_created_idx",
+          "columns": [
+            "author_user_id",
+            "created_at",
+            "id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "discussion_answers_question_id_discussion_questions_id_fk": {
+          "name": "discussion_answers_question_id_discussion_questions_id_fk",
+          "tableFrom": "discussion_answers",
+          "tableTo": "discussion_questions",
+          "columnsFrom": [
+            "question_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "discussion_answers_author_user_id_discussion_profiles_user_id_fk": {
+          "name": "discussion_answers_author_user_id_discussion_profiles_user_id_fk",
+          "tableFrom": "discussion_answers",
+          "tableTo": "discussion_profiles",
+          "columnsFrom": [
+            "author_user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "discussion_answers_moderated_by_user_id_discussion_profiles_user_id_fk": {
+          "name": "discussion_answers_moderated_by_user_id_discussion_profiles_user_id_fk",
+          "tableFrom": "discussion_answers",
+          "tableTo": "discussion_profiles",
+          "columnsFrom": [
+            "moderated_by_user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "discussion_answers_kind_check": {
+          "name": "discussion_answers_kind_check",
+          "value": "\"discussion_answers\".\"kind\" in ('community', 'official')"
+        },
+        "discussion_answers_state_check": {
+          "name": "discussion_answers_state_check",
+          "value": "\"discussion_answers\".\"state\" in ('visible', 'hidden', 'deleted')"
+        },
+        "discussion_answers_body_check": {
+          "name": "discussion_answers_body_check",
+          "value": "\"discussion_answers\".\"state\" = 'deleted' or length(trim(\"discussion_answers\".\"body\")) between 1 and 4000"
+        },
+        "discussion_answers_moderation_check": {
+          "name": "discussion_answers_moderation_check",
+          "value": "\"discussion_answers\".\"state\" != 'hidden' or (\"discussion_answers\".\"moderated_by_user_id\" is not null and \"discussion_answers\".\"moderated_at\" is not null and length(trim(\"discussion_answers\".\"moderation_reason\")) between 1 and 500)"
+        }
+      }
+    },
+    "discussion_moderation_events": {
+      "name": "discussion_moderation_events",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "actor_user_id": {
+          "name": "actor_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "target_type": {
+          "name": "target_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "target_id": {
+          "name": "target_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "reason": {
+          "name": "reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "discussion_moderation_events_target_created_idx": {
+          "name": "discussion_moderation_events_target_created_idx",
+          "columns": [
+            "target_type",
+            "target_id",
+            "created_at"
+          ],
+          "isUnique": false
+        },
+        "discussion_moderation_events_actor_created_idx": {
+          "name": "discussion_moderation_events_actor_created_idx",
+          "columns": [
+            "actor_user_id",
+            "created_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "discussion_moderation_events_actor_user_id_discussion_profiles_user_id_fk": {
+          "name": "discussion_moderation_events_actor_user_id_discussion_profiles_user_id_fk",
+          "tableFrom": "discussion_moderation_events",
+          "tableTo": "discussion_profiles",
+          "columnsFrom": [
+            "actor_user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "discussion_moderation_events_target_type_check": {
+          "name": "discussion_moderation_events_target_type_check",
+          "value": "\"discussion_moderation_events\".\"target_type\" in ('question', 'answer')"
+        },
+        "discussion_moderation_events_action_check": {
+          "name": "discussion_moderation_events_action_check",
+          "value": "\"discussion_moderation_events\".\"action\" in ('hide', 'restore')"
+        },
+        "discussion_moderation_events_reason_length": {
+          "name": "discussion_moderation_events_reason_length",
+          "value": "length(trim(\"discussion_moderation_events\".\"reason\")) between 1 and 500"
+        }
+      }
+    },
+    "discussion_profiles": {
+      "name": "discussion_profiles",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "image_url": {
+          "name": "image_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "discussion_profiles_display_name_length": {
+          "name": "discussion_profiles_display_name_length",
+          "value": "length(trim(\"discussion_profiles\".\"display_name\")) between 1 and 80"
+        }
+      }
+    },
+    "discussion_questions": {
+      "name": "discussion_questions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "scope_id": {
+          "name": "scope_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "author_user_id": {
+          "name": "author_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "body": {
+          "name": "body",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "state": {
+          "name": "state",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'visible'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "moderated_by_user_id": {
+          "name": "moderated_by_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "moderated_at": {
+          "name": "moderated_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "moderation_reason": {
+          "name": "moderation_reason",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "discussion_questions_scope_state_created_idx": {
+          "name": "discussion_questions_scope_state_created_idx",
+          "columns": [
+            "scope_id",
+            "state",
+            "created_at",
+            "id"
+          ],
+          "isUnique": false
+        },
+        "discussion_questions_author_created_idx": {
+          "name": "discussion_questions_author_created_idx",
+          "columns": [
+            "author_user_id",
+            "created_at",
+            "id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "discussion_questions_author_user_id_discussion_profiles_user_id_fk": {
+          "name": "discussion_questions_author_user_id_discussion_profiles_user_id_fk",
+          "tableFrom": "discussion_questions",
+          "tableTo": "discussion_profiles",
+          "columnsFrom": [
+            "author_user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "discussion_questions_moderated_by_user_id_discussion_profiles_user_id_fk": {
+          "name": "discussion_questions_moderated_by_user_id_discussion_profiles_user_id_fk",
+          "tableFrom": "discussion_questions",
+          "tableTo": "discussion_profiles",
+          "columnsFrom": [
+            "moderated_by_user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "discussion_questions_scope_length": {
+          "name": "discussion_questions_scope_length",
+          "value": "length(\"discussion_questions\".\"scope_id\") between 3 and 120"
+        },
+        "discussion_questions_state_check": {
+          "name": "discussion_questions_state_check",
+          "value": "\"discussion_questions\".\"state\" in ('visible', 'hidden', 'deleted')"
+        },
+        "discussion_questions_body_check": {
+          "name": "discussion_questions_body_check",
+          "value": "\"discussion_questions\".\"state\" = 'deleted' or length(trim(\"discussion_questions\".\"body\")) between 1 and 2000"
+        },
+        "discussion_questions_moderation_check": {
+          "name": "discussion_questions_moderation_check",
+          "value": "\"discussion_questions\".\"state\" != 'hidden' or (\"discussion_questions\".\"moderated_by_user_id\" is not null and \"discussion_questions\".\"moderated_at\" is not null and length(trim(\"discussion_questions\".\"moderation_reason\")) between 1 and 500)"
+        }
+      }
+    },
+    "discussion_rate_limits": {
+      "name": "discussion_rate_limits",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "action": {
+          "name": "action",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "window_kind": {
+          "name": "window_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "window_start": {
+          "name": "window_start",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        }
+      },
+      "indexes": {
+        "discussion_rate_limits_window_start_idx": {
+          "name": "discussion_rate_limits_window_start_idx",
+          "columns": [
+            "window_start"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "discussion_rate_limits_user_id_discussion_profiles_user_id_fk": {
+          "name": "discussion_rate_limits_user_id_discussion_profiles_user_id_fk",
+          "tableFrom": "discussion_rate_limits",
+          "tableTo": "discussion_profiles",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "discussion_rate_limits_action_check": {
+          "name": "discussion_rate_limits_action_check",
+          "value": "\"discussion_rate_limits\".\"action\" in ('question', 'answer', 'social')"
+        },
+        "discussion_rate_limits_window_kind_check": {
+          "name": "discussion_rate_limits_window_kind_check",
+          "value": "\"discussion_rate_limits\".\"window_kind\" in ('burst', 'daily')"
+        },
+        "discussion_rate_limits_count_check": {
+          "name": "discussion_rate_limits_count_check",
+          "value": "\"discussion_rate_limits\".\"count\" > 0"
+        }
+      }
+    },
+    "discussion_user_blocks": {
+      "name": "discussion_user_blocks",
+      "columns": {
+        "blocker_user_id": {
+          "name": "blocker_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "blocked_user_id": {
+          "name": "blocked_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "discussion_user_blocks_blocked_blocker_idx": {
+          "name": "discussion_user_blocks_blocked_blocker_idx",
+          "columns": [
+            "blocked_user_id",
+            "blocker_user_id"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "discussion_user_blocks_blocker_user_id_discussion_profiles_user_id_fk": {
+          "name": "discussion_user_blocks_blocker_user_id_discussion_profiles_user_id_fk",
+          "tableFrom": "discussion_user_blocks",
+          "tableTo": "discussion_profiles",
+          "columnsFrom": [
+            "blocker_user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "discussion_user_blocks_blocked_user_id_discussion_profiles_user_id_fk": {
+          "name": "discussion_user_blocks_blocked_user_id_discussion_profiles_user_id_fk",
+          "tableFrom": "discussion_user_blocks",
+          "tableTo": "discussion_profiles",
+          "columnsFrom": [
+            "blocked_user_id"
+          ],
+          "columnsTo": [
+            "user_id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "discussion_user_blocks_blocker_user_id_blocked_user_id_pk": {
+          "columns": [
+            "blocker_user_id",
+            "blocked_user_id"
+          ],
+          "name": "discussion_user_blocks_blocker_user_id_blocked_user_id_pk"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "discussion_user_blocks_not_self": {
+          "name": "discussion_user_blocks_not_self",
+          "value": "\"discussion_user_blocks\".\"blocker_user_id\" != \"discussion_user_blocks\".\"blocked_user_id\""
+        }
+      }
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}

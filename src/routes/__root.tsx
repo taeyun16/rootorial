@@ -43,6 +43,7 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   const search = useRouterState({ select: (state) => state.location.searchStr });
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const documentLocale = localeFromSearch(search) ?? "ko";
 
   return (
@@ -55,7 +56,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <ClerkBoundary>
             <ProgressProvider>
               {children}
-              <ContentFeedback />
+              {pathname !== "/admin" && <ContentFeedback />}
             </ProgressProvider>
           </ClerkBoundary>
         </LocalizationProvider>
