@@ -1,7 +1,10 @@
 import { and, eq } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { notificationDeliveries, systemEvents } from "../../../db/schema";
-import { discordMessageForEvent } from "./system-event-format";
+import {
+  discordMessageForEvent,
+  discordThreadIdForEvent,
+} from "./system-event-format";
 
 export { discordMessageForEvent, systemEventRows } from "./system-event-format";
 export type { SystemEventPayload, SystemEventType } from "./system-event-format";
@@ -54,13 +57,14 @@ function queueBody(value: unknown): SystemEventQueueBody | null {
     : null;
 }
 
-function discordWebhookUrl(value: string | undefined) {
-  if (!value) return null;
+function discordWebhookUrl(value: string | undefined, threadId: string | undefined) {
+  if (!value || !threadId || !/^\d{17,20}$/.test(threadId)) return null;
   try {
     const url = new URL(value);
     if (url.protocol !== "https:" || url.hostname !== "discord.com") return null;
     if (!/^\/api\/webhooks\/[^/]+\/[^/]+$/.test(url.pathname)) return null;
     url.searchParams.set("wait", "true");
+    url.searchParams.set("thread_id", threadId);
     return url;
   } catch {
     return null;
@@ -116,10 +120,14 @@ async function deliverMessage(
     return;
   }
 
-  const webhook = discordWebhookUrl(env.DISCORD_WEBHOOK_URL);
+  const threadId = discordThreadIdForEvent(event.type, env);
+  const webhook = discordWebhookUrl(env.DISCORD_WEBHOOK_URL, threadId);
   if (!webhook) {
-    await markDead(env.DB, body.eventId, "discord_webhook_invalid");
-    console.error("[system-events:consume] Discord webhook is unavailable", { eventId: body.eventId });
+    const errorCode = threadId && /^\d{17,20}$/.test(threadId)
+      ? "discord_webhook_invalid"
+      : "discord_thread_invalid";
+    await markDead(env.DB, body.eventId, errorCode);
+    console.error("[system-events:consume] Discord routing is unavailable", { eventId: body.eventId });
     message.ack();
     return;
   }
