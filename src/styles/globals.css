@@ -3687,15 +3687,23 @@ textarea:focus-visible {
 .discussion-markdown pre {
   padding: 13px 14px;
   overflow-x: auto;
-  border: 1px solid #303834;
-  background: var(--code);
-  color: #d7e0da;
+  border: 1px solid var(--code-border);
+  background: var(--code-bg);
+  color: var(--code-text);
   font-size: 10px;
   line-height: 1.65;
 }
 
-.discussion-markdown pre code {
+.discussion-markdown pre > code {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
   font-family: var(--mono);
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .discussion-markdown table {
