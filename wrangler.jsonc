@@ -12,6 +12,9 @@
       "custom_domain": true
     }
   ],
+  "triggers": {
+    "crons": ["*/2 * * * *"]
+  },
   "secrets": {
     "required": [
       "CLERK_PUBLISHABLE_KEY",
@@ -28,6 +31,30 @@
       "migrations_dir": "drizzle"
     }
   ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "SYSTEM_EVENTS_QUEUE",
+        "queue": "rootorial-system-events"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "rootorial-system-events",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 5,
+        "dead_letter_queue": "rootorial-system-events-dlq",
+        "retry_delay": 30
+      },
+      {
+        "queue": "rootorial-system-events-dlq",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 1
+      }
+    ]
+  },
   "durable_objects": {
     "bindings": [
       {

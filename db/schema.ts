@@ -274,6 +274,62 @@ export const contentFeedback = sqliteTable("content_feedback", {
   ),
 ]);
 
+export const systemEvents = sqliteTable("system_events", {
+  id: text("id").primaryKey(),
+  type: text("type", {
+    enum: ["feedback.created", "discussion.question.created", "user.created"],
+  }).notNull(),
+  actorUserId: text("actor_user_id"),
+  entityId: text("entity_id").notNull(),
+  payloadJson: text("payload_json").notNull(),
+  status: text("status", {
+    enum: ["pending", "queued", "delivered", "dead"],
+  }).notNull().default("pending"),
+  attemptCount: integer("attempt_count").notNull().default(0),
+  lastErrorCode: text("last_error_code"),
+  createdAt: integer("created_at").notNull(),
+  queuedAt: integer("queued_at"),
+  deliveredAt: integer("delivered_at"),
+}, (table) => [
+  index("system_events_status_created_idx").on(table.status, table.createdAt),
+  index("system_events_type_created_idx").on(table.type, table.createdAt),
+  check(
+    "system_events_type_check",
+    sql`${table.type} in ('feedback.created', 'discussion.question.created', 'user.created')`,
+  ),
+  check(
+    "system_events_status_check",
+    sql`${table.status} in ('pending', 'queued', 'delivered', 'dead')`,
+  ),
+  check("system_events_attempt_count_check", sql`${table.attemptCount} >= 0`),
+]);
+
+export const notificationDeliveries = sqliteTable("notification_deliveries", {
+  eventId: text("event_id")
+    .notNull()
+    .references(() => systemEvents.id, { onDelete: "cascade" }),
+  channel: text("channel", { enum: ["discord"] }).notNull(),
+  status: text("status", { enum: ["pending", "sent", "failed"] })
+    .notNull()
+    .default("pending"),
+  attempts: integer("attempts").notNull().default(0),
+  lastAttemptAt: integer("last_attempt_at"),
+  externalMessageId: text("external_message_id"),
+  deliveredAt: integer("delivered_at"),
+}, (table) => [
+  primaryKey({ columns: [table.eventId, table.channel] }),
+  index("notification_deliveries_status_attempt_idx").on(
+    table.status,
+    table.lastAttemptAt,
+  ),
+  check("notification_deliveries_channel_check", sql`${table.channel} = 'discord'`),
+  check(
+    "notification_deliveries_status_check",
+    sql`${table.status} in ('pending', 'sent', 'failed')`,
+  ),
+  check("notification_deliveries_attempts_check", sql`${table.attempts} >= 0`),
+]);
+
 export const learningSessions = sqliteTable("learning_sessions", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull(),

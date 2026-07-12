@@ -3,13 +3,17 @@ import { createServerFn } from "@tanstack/react-start";
 import { env } from "cloudflare:workers";
 import { and, eq, gte, sql } from "drizzle-orm";
 import { getDb } from "../../../db";
-import { contentFeedback } from "../../../db/schema";
+import { contentFeedback, notificationDeliveries, systemEvents } from "../../../db/schema";
+import { enqueueSystemEvent, systemEventRows, type SystemEventQueueBody } from "../system-events/system-events";
 import {
   type SubmitFeedbackResult,
   validateSubmitFeedbackInput,
 } from "./feedback";
 
-type FeedbackBindings = { DB?: D1Database };
+type FeedbackBindings = {
+  DB?: D1Database;
+  SYSTEM_EVENTS_QUEUE?: Queue<SystemEventQueueBody>;
+};
 
 const DAILY_FEEDBACK_LIMIT = 10;
 
@@ -60,15 +64,32 @@ export const submitContentFeedback = createServerFn({ method: "POST" })
       }
 
       const feedbackId = crypto.randomUUID();
-      await db.insert(contentFeedback).values({
+      const now = Date.now();
+      const systemEvent = systemEventRows({
+        type: "feedback.created",
+        actorUserId: userId,
+        entityId: feedbackId,
+        payload: {
+          kind: data.kind,
+          pagePath: data.pagePath.split(/[?#]/, 1)[0] || "/",
+          pageTitle: data.pageTitle,
+        },
+        createdAt: now,
+      });
+      await db.batch([db.insert(contentFeedback).values({
         id: feedbackId,
         authorUserId: userId,
         kind: data.kind,
         message: data.message,
         pagePath: data.pagePath,
         pageTitle: data.pageTitle,
-        createdAt: Date.now(),
-      });
+        createdAt: now,
+      }), db.insert(systemEvents).values(systemEvent.event), db.insert(notificationDeliveries).values(systemEvent.delivery)]);
+      await enqueueSystemEvent(
+        database,
+        (env as unknown as FeedbackBindings).SYSTEM_EVENTS_QUEUE,
+        systemEvent.event.id,
+      );
 
       return { ok: true, feedbackId };
     } catch {

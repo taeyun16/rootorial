@@ -2,9 +2,9 @@ import { auth } from "@clerk/tanstack-react-start/server";
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseHeader } from "@tanstack/react-start/server";
 import { env } from "cloudflare:workers";
-import { desc, eq, gte, sql } from "drizzle-orm";
+import { desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { getDb } from "../../../db";
-import { contentFeedback, discussionAnswers, discussionProfiles, discussionQuestions } from "../../../db/schema";
+import { contentFeedback, discussionAnswers, discussionProfiles, discussionQuestions, systemEvents } from "../../../db/schema";
 import { isDiscussionAdmin } from "../discussion/discussion";
 import type { LearningPresence } from "../../durable-objects/LearningPresence";
 import {
@@ -81,7 +81,7 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
     const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     const learningSince = Date.now() - 30 * 24 * 60 * 60 * 1000;
     const count = sql<number>`count(*)`.mapWith(Number);
-    const [learners, questions, answers, feedbackTotal, feedbackPending, recentQuestions, recentAnswers, recentFeedback] = await Promise.all([
+    const [learners, questions, answers, feedbackTotal, feedbackPending, recentQuestions, recentAnswers, recentFeedback, notificationPending, notificationDead] = await Promise.all([
       db.select({ value: count }).from(discussionProfiles),
       db.select({ value: count }).from(discussionQuestions),
       db.select({ value: count }).from(discussionAnswers),
@@ -90,9 +90,11 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
       db.select({ value: count }).from(discussionQuestions).where(gte(discussionQuestions.createdAt, weekAgo)),
       db.select({ value: count }).from(discussionAnswers).where(gte(discussionAnswers.createdAt, weekAgo)),
       db.select({ value: count }).from(contentFeedback).where(gte(contentFeedback.createdAt, weekAgo)),
+      db.select({ value: count }).from(systemEvents).where(inArray(systemEvents.status, ["pending", "queued"])),
+      db.select({ value: count }).from(systemEvents).where(eq(systemEvents.status, "dead")),
     ]);
 
-    const [kindRows, questionDays, answerDays, feedbackDays, feedbackRows, learningSessionsResult, learningAttemptsResult, learningMasteryResult, learningQuestionsResult, courseVisitorsResult, contentReachResult, onlineLearners] = await Promise.all([
+    const [kindRows, questionDays, answerDays, feedbackDays, feedbackRows, learningSessionsResult, learningAttemptsResult, learningMasteryResult, learningQuestionsResult, courseVisitorsResult, contentReachResult, onlineLearners, recentSystemEvents] = await Promise.all([
       db.select({ kind: contentFeedback.kind, value: count }).from(contentFeedback).groupBy(contentFeedback.kind),
       db.select({ date: sql<string>`date(${discussionQuestions.createdAt} / 1000, 'unixepoch')`, value: count }).from(discussionQuestions).where(gte(discussionQuestions.createdAt, weekAgo)).groupBy(sql`date(${discussionQuestions.createdAt} / 1000, 'unixepoch')`),
       db.select({ date: sql<string>`date(${discussionAnswers.createdAt} / 1000, 'unixepoch')`, value: count }).from(discussionAnswers).where(gte(discussionAnswers.createdAt, weekAgo)).groupBy(sql`date(${discussionAnswers.createdAt} / 1000, 'unixepoch')`),
@@ -157,6 +159,16 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
         views: number; signed_in_views: number; learners: number;
       }>(),
       onlineLearnerCount().catch(() => 0),
+      db.select({
+        id: systemEvents.id,
+        type: systemEvents.type,
+        entityId: systemEvents.entityId,
+        status: systemEvents.status,
+        attemptCount: systemEvents.attemptCount,
+        lastErrorCode: systemEvents.lastErrorCode,
+        createdAt: systemEvents.createdAt,
+        deliveredAt: systemEvents.deliveredAt,
+      }).from(systemEvents).orderBy(desc(systemEvents.createdAt)).limit(50),
     ]);
 
     const dayMap = new Map<string, { date: string; questions: number; answers: number; feedback: number }>();
@@ -187,6 +199,7 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
         learners: value(learners), questions: value(questions), answers: value(answers),
         feedbackTotal: value(feedbackTotal), feedbackPending: value(feedbackPending),
         activity7d: value(recentQuestions) + value(recentAnswers) + value(recentFeedback),
+        notificationPending: value(notificationPending), notificationDead: value(notificationDead),
       },
       feedbackByKind: byKind,
       dailyActivity: [...dayMap.values()],
@@ -222,6 +235,7 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
           };
         }),
       },
+      systemEvents: recentSystemEvents,
       feedback: feedbackRows,
     };
   } catch {
