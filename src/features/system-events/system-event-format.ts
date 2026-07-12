@@ -8,6 +8,21 @@ export type SystemEventPayload =
   | { scopeId: string }
   | { source: "clerk" };
 
+export type DiscordThreadBindings = {
+  DISCORD_SIGNUP_THREAD_ID?: string;
+  DISCORD_QUESTION_THREAD_ID?: string;
+  DISCORD_FEEDBACK_THREAD_ID?: string;
+};
+
+export function discordThreadIdForEvent(
+  type: SystemEventType,
+  bindings: DiscordThreadBindings,
+) {
+  if (type === "feedback.created") return bindings.DISCORD_FEEDBACK_THREAD_ID;
+  if (type === "discussion.question.created") return bindings.DISCORD_QUESTION_THREAD_ID;
+  return bindings.DISCORD_SIGNUP_THREAD_ID;
+}
+
 export function systemEventRows(input: {
   id?: string;
   type: SystemEventType;

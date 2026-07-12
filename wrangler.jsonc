@@ -15,6 +15,11 @@
   "triggers": {
     "crons": ["*/2 * * * *"]
   },
+  "vars": {
+    "DISCORD_SIGNUP_THREAD_ID": "1525745562568098033",
+    "DISCORD_QUESTION_THREAD_ID": "1525745503965413527",
+    "DISCORD_FEEDBACK_THREAD_ID": "1525745415079596122"
+  },
   "secrets": {
     "required": [
       "CLERK_PUBLISHABLE_KEY",

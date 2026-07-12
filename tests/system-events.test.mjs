@@ -3,8 +3,30 @@ import { readFileSync, readdirSync } from "node:fs";
 import test from "node:test";
 import {
   discordMessageForEvent,
+  discordThreadIdForEvent,
   systemEventRows,
 } from "../src/features/system-events/system-event-format.ts";
+
+const threadIds = {
+  DISCORD_SIGNUP_THREAD_ID: "1525745562568098033",
+  DISCORD_QUESTION_THREAD_ID: "1525745503965413527",
+  DISCORD_FEEDBACK_THREAD_ID: "1525745415079596122",
+};
+
+test("routes each event type to its fixed Discord thread", () => {
+  assert.equal(
+    discordThreadIdForEvent("feedback.created", threadIds),
+    "1525745415079596122",
+  );
+  assert.equal(
+    discordThreadIdForEvent("discussion.question.created", threadIds),
+    "1525745503965413527",
+  );
+  assert.equal(
+    discordThreadIdForEvent("user.created", threadIds),
+    "1525745562568098033",
+  );
+});
 
 test("creates a privacy-minimized feedback outbox event", () => {
   const rows = systemEventRows({
@@ -75,6 +97,10 @@ test("configures the D1 outbox, Queue retry policy, DLQ, and Clerk webhook", () 
   assert.match(migrations, /CREATE TABLE `notification_deliveries`/);
   assert.match(wrangler, /"queue": "rootorial-system-events"/);
   assert.match(wrangler, /"dead_letter_queue": "rootorial-system-events-dlq"/);
+  assert.match(wrangler, /"DISCORD_SIGNUP_THREAD_ID": "1525745562568098033"/);
+  assert.match(wrangler, /"DISCORD_QUESTION_THREAD_ID": "1525745503965413527"/);
+  assert.match(wrangler, /"DISCORD_FEEDBACK_THREAD_ID": "1525745415079596122"/);
+  assert.match(readFileSync(new URL("../src/features/system-events/system-events.ts", import.meta.url), "utf8"), /searchParams\.set\("thread_id", threadId\)/);
   assert.match(server, /async queue\(/);
   assert.match(server, /async scheduled\(/);
   assert.match(webhook, /verifyWebhook/);
