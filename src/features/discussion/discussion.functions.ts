@@ -22,7 +22,10 @@ import {
   discussionQuestions,
   discussionRateLimits,
   discussionUserBlocks,
+  notificationDeliveries,
+  systemEvents,
 } from "../../../db/schema";
+import { enqueueSystemEvent, systemEventRows, type SystemEventQueueBody } from "../system-events/system-events";
 import {
   DISCUSSION_PAGE_SIZE,
   answerKindForUser,
@@ -48,6 +51,7 @@ import {
 type DiscussionBindings = {
   DB?: D1Database;
   ROOTORIAL_ADMIN_USER_IDS?: string;
+  SYSTEM_EVENTS_QUEUE?: Queue<SystemEventQueueBody>;
 };
 
 type DiscussionDb = ReturnType<typeof getDb>;
@@ -645,7 +649,14 @@ export const createQuestion = createServerFn({ method: "POST" })
       }
       const id = crypto.randomUUID();
       const now = Date.now();
-      await db.insert(discussionQuestions).values({
+      const systemEvent = systemEventRows({
+        type: "discussion.question.created",
+        actorUserId: userId,
+        entityId: id,
+        payload: { scopeId: data.scopeId },
+        createdAt: now,
+      });
+      await db.batch([db.insert(discussionQuestions).values({
         id,
         scopeId: data.scopeId,
         authorUserId: userId,
@@ -653,7 +664,12 @@ export const createQuestion = createServerFn({ method: "POST" })
         state: "visible",
         createdAt: now,
         updatedAt: now,
-      });
+      }), db.insert(systemEvents).values(systemEvent.event), db.insert(notificationDeliveries).values(systemEvent.delivery)]);
+      await enqueueSystemEvent(
+        getBindings().DB!,
+        getBindings().SYSTEM_EVENTS_QUEUE,
+        systemEvent.event.id,
+      );
       await cleanupPostingWindows(db);
 
       return { ok: true as const, questionId: id };

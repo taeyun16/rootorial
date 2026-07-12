@@ -150,7 +150,7 @@ textarea:focus-visible {
 .admin-title-row h1 { margin: 5px 0 8px; font: 600 clamp(40px, 6vw, 68px)/1.05 var(--display); letter-spacing: -.05em; }
 .admin-title-row p:last-child { margin: 0; color: var(--muted); }
 .admin-title-row time { color: var(--quiet); font-size: 12px; white-space: nowrap; }
-.admin-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; margin-bottom: 20px; border: 1px solid var(--line); background: var(--line); }
+.admin-metrics { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px; margin-bottom: 20px; border: 1px solid var(--line); background: var(--line); }
 .admin-metrics article { min-width: 0; padding: 24px; background: var(--paper-raised); }
 .admin-metrics span, .admin-metrics small { display: block; color: var(--muted); }
 .admin-metrics span { font-size: 13px; font-weight: 700; }
@@ -179,6 +179,13 @@ textarea:focus-visible {
 .admin-kind-row i { display: block; height: 100%; background: var(--accent); }
 .admin-kind-row small { color: var(--quiet); font: 10px var(--mono); }
 .admin-feedback-section { padding: 30px; }
+.admin-event-section { margin-bottom: 20px; padding: 30px; }
+.admin-event-section .admin-question-header { align-items: flex-end; }
+.admin-event-table { min-width: 760px; }
+.admin-event-table code { max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.admin-event-status { display: inline-flex; padding: 4px 8px; border-radius: 20px; background: var(--paper-pressed); color: var(--muted); font-size: 10px; font-weight: 800; }
+.admin-event-status.is-delivered { background: var(--success-bg); color: var(--success-fg); }
+.admin-event-status.is-dead { background: var(--danger-bg); color: var(--danger-fg); }
 .admin-learning-section { margin-bottom: 20px; padding: 30px; }
 .admin-learning-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 28px; }
 .admin-learning-heading > div > p:last-child { max-width: 700px; margin: 10px 0 0; color: var(--muted); font-size: 14px; }

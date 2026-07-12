@@ -12,6 +12,8 @@ export type AdminDashboard =
         feedbackTotal: number;
         feedbackPending: number;
         activity7d: number;
+        notificationPending: number;
+        notificationDead: number;
       };
       feedbackByKind: Record<"incorrect" | "confusing" | "suggestion", number>;
       dailyActivity: Array<{ date: string; questions: number; answers: number; feedback: number }>;
@@ -44,6 +46,16 @@ export type AdminDashboard =
           overallAccuracy: number;
         }>;
       };
+      systemEvents: Array<{
+        id: string;
+        type: "feedback.created" | "discussion.question.created" | "user.created";
+        entityId: string;
+        status: "pending" | "queued" | "delivered" | "dead";
+        attemptCount: number;
+        lastErrorCode: string | null;
+        createdAt: number;
+        deliveredAt: number | null;
+      }>;
       feedback: Array<{
         id: string;
         authorUserId: string;

@@ -10,6 +10,12 @@ const statusLabels: Record<FeedbackStatus, string> = {
   resolved: "해결",
 };
 const kindLabels = { incorrect: "내용 오류", confusing: "이해가 어려움", suggestion: "개선 제안" } as const;
+const eventLabels = {
+  "feedback.created": "새 피드백",
+  "discussion.question.created": "새 질문",
+  "user.created": "새 사용자",
+} as const;
+const eventStatusLabels = { pending: "대기", queued: "전송 중", delivered: "전달됨", dead: "실패" } as const;
 
 function formatDuration(seconds: number) {
   if (seconds < 60) return `${seconds}초`;
@@ -100,6 +106,7 @@ export function AdminDashboard({ initialData }: { initialData: Dashboard }) {
             ["답변", data.metrics.answers, "누적 등록"],
             ["미검토 피드백", data.metrics.feedbackPending, `전체 ${data.metrics.feedbackTotal}건`],
             ["7일 활동", data.metrics.activity7d, "질문 · 답변 · 피드백"],
+            ["알림 미전달", data.metrics.notificationPending, data.metrics.notificationDead ? `실패 ${data.metrics.notificationDead}건` : "Discord Queue"],
           ].map(([label, value, detail]) => <article key={label}><span>{label}</span><strong>{Number(value).toLocaleString("ko-KR")}</strong><small>{detail}</small></article>)}
         </section>
 
@@ -185,6 +192,29 @@ export function AdminDashboard({ initialData }: { initialData: Dashboard }) {
               </div>
             ) : <div className="admin-empty"><strong>아직 학습 데이터가 없습니다.</strong><span>로그인 사용자가 챕터를 학습하면 세션과 문제 풀이가 집계됩니다.</span></div>}
           </div>
+        </section>
+
+        <section className="admin-panel admin-event-section" aria-labelledby="system-events-title">
+          <div className="admin-question-header">
+            <div><p className="eyebrow">SYSTEM EVENTS</p><h2 id="system-events-title">Discord 알림 전달 현황</h2></div>
+            <span>최근 50건 · 실패 이벤트는 본문 없이 안전한 코드만 표시</span>
+          </div>
+          {data.systemEvents.length ? (
+            <div className="admin-question-table-wrap">
+              <table className="admin-question-table admin-event-table">
+                <thead><tr><th>이벤트</th><th>상태</th><th>시도</th><th>발생 시각</th><th>오류</th></tr></thead>
+                <tbody>{data.systemEvents.map((event) => (
+                  <tr key={event.id}>
+                    <th scope="row"><strong>{eventLabels[event.type]}</strong><code>{event.entityId}</code></th>
+                    <td><span className={`admin-event-status is-${event.status}`}>{eventStatusLabels[event.status]}</span></td>
+                    <td>{event.attemptCount}</td>
+                    <td><time>{new Date(event.createdAt).toLocaleString("ko-KR")}</time></td>
+                    <td><code>{event.lastErrorCode ?? "—"}</code></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+            </div>
+          ) : <div className="admin-empty"><strong>아직 시스템 이벤트가 없습니다.</strong><span>새 가입·질문·피드백이 발생하면 전달 상태가 이곳에 표시됩니다.</span></div>}
         </section>
 
         <section className="admin-panel admin-feedback-section">
