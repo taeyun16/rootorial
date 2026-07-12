@@ -15,6 +15,27 @@ export type AdminDashboard =
       };
       feedbackByKind: Record<"incorrect" | "confusing" | "suggestion", number>;
       dailyActivity: Array<{ date: string; questions: number; answers: number; feedback: number }>;
+      learning: {
+        windowDays: number;
+        onlineLearners: number;
+        courseVisitors: number;
+        courseVisitors30d: number;
+        sessions: number;
+        learners: number;
+        averageDwellSeconds: number;
+        averageActiveSeconds: number;
+        activeRatio: number;
+        firstAttemptAccuracy: number;
+        eventualMasteryRate: number;
+        questionStats: Array<{
+          questionId: string;
+          label: string;
+          attempts: number;
+          learners: number;
+          firstAttemptAccuracy: number;
+          overallAccuracy: number;
+        }>;
+      };
       feedback: Array<{
         id: string;
         authorUserId: string;

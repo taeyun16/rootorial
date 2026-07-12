@@ -6,9 +6,18 @@ import { desc, eq, gte, sql } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { contentFeedback, discussionAnswers, discussionProfiles, discussionQuestions } from "../../../db/schema";
 import { isDiscussionAdmin } from "../discussion/discussion";
+import type { LearningPresence } from "../../durable-objects/LearningPresence";
+import {
+  conceptQuestionRegistry,
+  LEARNING_PRESENCE_SHARD_COUNT,
+} from "../learning-analytics/learning-analytics";
 import { type AdminDashboard, validateUpdateFeedbackInput } from "./admin";
 
-type AdminBindings = { DB?: D1Database; ROOTORIAL_ADMIN_USER_IDS?: string };
+type AdminBindings = {
+  DB?: D1Database;
+  LEARNING_PRESENCE?: DurableObjectNamespace<LearningPresence>;
+  ROOTORIAL_ADMIN_USER_IDS?: string;
+};
 
 function bindings() {
   return env as unknown as AdminBindings;
@@ -31,10 +40,32 @@ function privateResponse() {
   setResponseHeader("Cache-Control", "private, no-store");
 }
 
+async function onlineLearnerCount() {
+  const namespace = bindings().LEARNING_PRESENCE;
+  if (!namespace) return 0;
+  const now = Date.now();
+  const counts = await Promise.all(Array.from({ length: LEARNING_PRESENCE_SHARD_COUNT }, (_, shard) =>
+    namespace.getByName(`learning-presence-${shard}`).count(now),
+  ));
+  return counts.reduce((total, count) => total + count, 0);
+}
+
 export const getAdminAccess = createServerFn({ method: "GET" }).handler(async () => {
   privateResponse();
   const viewer = await currentAdmin();
   return { signedIn: Boolean(viewer.userId), isAdmin: viewer.isAdmin };
+});
+
+export const getOnlineLearnerCount = createServerFn({ method: "GET" }).handler(async () => {
+  privateResponse();
+  const viewer = await currentAdmin();
+  if (!viewer.userId || !viewer.isAdmin) return { ok: false as const };
+  try {
+    return { ok: true as const, count: await onlineLearnerCount(), updatedAt: Date.now() };
+  } catch {
+    console.error("[admin:presence] count failed");
+    return { ok: false as const };
+  }
 });
 
 export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async (): Promise<AdminDashboard> => {
@@ -45,8 +76,10 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
   if (!bindings().DB) return { available: false, reason: "unavailable", message: "관리자 데이터베이스가 연결되지 않았습니다." };
 
   try {
-    const db = getDb(bindings().DB!);
+    const database = bindings().DB!;
+    const db = getDb(database);
     const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const learningSince = Date.now() - 30 * 24 * 60 * 60 * 1000;
     const count = sql<number>`count(*)`.mapWith(Number);
     const [learners, questions, answers, feedbackTotal, feedbackPending, recentQuestions, recentAnswers, recentFeedback] = await Promise.all([
       db.select({ value: count }).from(discussionProfiles),
@@ -59,12 +92,59 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
       db.select({ value: count }).from(contentFeedback).where(gte(contentFeedback.createdAt, weekAgo)),
     ]);
 
-    const [kindRows, questionDays, answerDays, feedbackDays, feedbackRows] = await Promise.all([
+    const [kindRows, questionDays, answerDays, feedbackDays, feedbackRows, learningSessionsResult, learningAttemptsResult, learningMasteryResult, learningQuestionsResult, courseVisitorsResult, onlineLearners] = await Promise.all([
       db.select({ kind: contentFeedback.kind, value: count }).from(contentFeedback).groupBy(contentFeedback.kind),
       db.select({ date: sql<string>`date(${discussionQuestions.createdAt} / 1000, 'unixepoch')`, value: count }).from(discussionQuestions).where(gte(discussionQuestions.createdAt, weekAgo)).groupBy(sql`date(${discussionQuestions.createdAt} / 1000, 'unixepoch')`),
       db.select({ date: sql<string>`date(${discussionAnswers.createdAt} / 1000, 'unixepoch')`, value: count }).from(discussionAnswers).where(gte(discussionAnswers.createdAt, weekAgo)).groupBy(sql`date(${discussionAnswers.createdAt} / 1000, 'unixepoch')`),
       db.select({ date: sql<string>`date(${contentFeedback.createdAt} / 1000, 'unixepoch')`, value: count }).from(contentFeedback).where(gte(contentFeedback.createdAt, weekAgo)).groupBy(sql`date(${contentFeedback.createdAt} / 1000, 'unixepoch')`),
       db.select().from(contentFeedback).orderBy(desc(contentFeedback.createdAt)).limit(100),
+      database.prepare(`
+        SELECT count(*) AS sessions,
+               count(DISTINCT user_id) AS learners,
+               coalesce(avg(dwell_seconds), 0) AS average_dwell_seconds,
+               coalesce(avg(active_seconds), 0) AS average_active_seconds,
+               coalesce(sum(active_seconds), 0) AS active_seconds,
+               coalesce(sum(dwell_seconds), 0) AS dwell_seconds
+        FROM learning_sessions WHERE started_at >= ?
+      `).bind(learningSince).first<{
+        sessions: number; learners: number; average_dwell_seconds: number;
+        average_active_seconds: number; active_seconds: number; dwell_seconds: number;
+      }>(),
+      database.prepare(`
+        SELECT count(*) AS attempts,
+               sum(CASE WHEN attempt_number = 1 THEN 1 ELSE 0 END) AS first_attempts,
+               sum(CASE WHEN attempt_number = 1 AND is_correct = 1 THEN 1 ELSE 0 END) AS first_correct
+        FROM learning_attempts WHERE submitted_at >= ?
+      `).bind(learningSince).first<{ attempts: number; first_attempts: number; first_correct: number }>(),
+      database.prepare(`
+        SELECT count(*) AS attempted_pairs,
+               sum(eventually_correct) AS mastered_pairs
+        FROM (
+          SELECT user_id, curriculum_slug, chapter_slug, question_id,
+                 max(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS eventually_correct
+          FROM learning_attempts WHERE submitted_at >= ?
+          GROUP BY user_id, curriculum_slug, chapter_slug, question_id
+        )
+      `).bind(learningSince).first<{ attempted_pairs: number; mastered_pairs: number }>(),
+      database.prepare(`
+        SELECT question_id,
+               count(*) AS attempts,
+               count(DISTINCT user_id) AS learners,
+               sum(CASE WHEN attempt_number = 1 THEN 1 ELSE 0 END) AS first_attempts,
+               sum(CASE WHEN attempt_number = 1 AND is_correct = 1 THEN 1 ELSE 0 END) AS first_correct,
+               sum(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
+        FROM learning_attempts WHERE submitted_at >= ?
+        GROUP BY question_id ORDER BY first_correct * 1.0 / nullif(first_attempts, 0) ASC, attempts DESC
+      `).bind(learningSince).all<{
+        question_id: string; attempts: number; learners: number;
+        first_attempts: number; first_correct: number; correct: number;
+      }>(),
+      database.prepare(`
+        SELECT count(*) AS visitors,
+               sum(CASE WHEN last_accessed_at >= ? THEN 1 ELSE 0 END) AS visitors_30d
+        FROM course_visitors WHERE curriculum_slug = ?
+      `).bind(learningSince, "transformer-from-zero").first<{ visitors: number; visitors_30d: number }>(),
+      onlineLearnerCount().catch(() => 0),
     ]);
 
     const dayMap = new Map<string, { date: string; questions: number; answers: number; feedback: number }>();
@@ -79,6 +159,15 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
     const byKind = { incorrect: 0, confusing: 0, suggestion: 0 };
     for (const row of kindRows) byKind[row.kind] = row.value;
     const value = (rows: Array<{ value: number }>) => rows[0]?.value ?? 0;
+    const ratio = (numerator: number | null | undefined, denominator: number | null | undefined) =>
+      denominator ? Math.round(((numerator ?? 0) / denominator) * 100) : 0;
+    const sessionMetrics = learningSessionsResult ?? {
+      sessions: 0, learners: 0, average_dwell_seconds: 0,
+      average_active_seconds: 0, active_seconds: 0, dwell_seconds: 0,
+    };
+    const attemptMetrics = learningAttemptsResult ?? { attempts: 0, first_attempts: 0, first_correct: 0 };
+    const masteryMetrics = learningMasteryResult ?? { attempted_pairs: 0, mastered_pairs: 0 };
+    const visitorMetrics = courseVisitorsResult ?? { visitors: 0, visitors_30d: 0 };
     return {
       available: true,
       generatedAt: Date.now(),
@@ -89,6 +178,30 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
       },
       feedbackByKind: byKind,
       dailyActivity: [...dayMap.values()],
+      learning: {
+        windowDays: 30,
+        onlineLearners,
+        courseVisitors: Number(visitorMetrics.visitors),
+        courseVisitors30d: Number(visitorMetrics.visitors_30d),
+        sessions: Number(sessionMetrics.sessions),
+        learners: Number(sessionMetrics.learners),
+        averageDwellSeconds: Math.round(Number(sessionMetrics.average_dwell_seconds)),
+        averageActiveSeconds: Math.round(Number(sessionMetrics.average_active_seconds)),
+        activeRatio: ratio(Number(sessionMetrics.active_seconds), Number(sessionMetrics.dwell_seconds)),
+        firstAttemptAccuracy: ratio(Number(attemptMetrics.first_correct), Number(attemptMetrics.first_attempts)),
+        eventualMasteryRate: ratio(Number(masteryMetrics.mastered_pairs), Number(masteryMetrics.attempted_pairs)),
+        questionStats: learningQuestionsResult.results.map((row) => {
+          const key = `transformer-from-zero/vectors/${row.question_id}` as keyof typeof conceptQuestionRegistry;
+          return {
+            questionId: row.question_id,
+            label: conceptQuestionRegistry[key]?.label ?? row.question_id,
+            attempts: Number(row.attempts),
+            learners: Number(row.learners),
+            firstAttemptAccuracy: ratio(Number(row.first_correct), Number(row.first_attempts)),
+            overallAccuracy: ratio(Number(row.correct), Number(row.attempts)),
+          };
+        }),
+      },
       feedback: feedbackRows,
     };
   } catch {

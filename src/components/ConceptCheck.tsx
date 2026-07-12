@@ -5,6 +5,7 @@ import {
 } from "./interactive/ConceptCheckRenderer";
 import { useLocale } from "../features/localization/localization";
 import { MathFormula } from "./MathFormula";
+import { useLearningAnalytics } from "./LearningAnalyticsProvider";
 
 type ConceptCheckProps = {
   onMasteryChange: (mastered: boolean) => void;
@@ -22,6 +23,7 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
   const { locale } = useLocale();
   const isKo = locale === "ko";
   const t = (ko: string, en: string) => isKo ? ko : en;
+  const { recordAnswers } = useLearningAnalytics();
 
   const questions: Array<ConceptQuestionSpec<QuestionId>> = [
     {
@@ -136,6 +138,7 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
     <ConceptCheckRenderer
       questions={questions}
       onMasteryChange={onMasteryChange}
+      onSubmitAttempt={recordAnswers}
       copy={{
         kicker: "PREDICT BEFORE YOU RUN",
         title: t("실행하지 않고 연산 결과와 shape를 먼저 예측하세요", "Predict each result and shape before running the code"),

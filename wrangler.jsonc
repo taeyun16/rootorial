@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "rootorial",
-  "main": "@tanstack/react-start/server-entry",
+  "main": "src/server.ts",
   "compatibility_date": "2026-07-11",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,
@@ -28,6 +28,24 @@
       "migrations_dir": "drizzle"
     }
   ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "LEARNING_SESSIONS",
+        "class_name": "LearningSession"
+      },
+      {
+        "name": "LEARNING_PRESENCE",
+        "class_name": "LearningPresence"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1-learning-sessions",
+      "new_sqlite_classes": ["LearningSession", "LearningPresence"]
+    }
+  ],
   "observability": {
     "enabled": true
   },
@@ -39,7 +57,19 @@
           "database_name": "rootorial-e2e-local",
           "migrations_dir": "drizzle"
         }
-      ]
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "LEARNING_SESSIONS",
+            "class_name": "LearningSession"
+          },
+          {
+            "name": "LEARNING_PRESENCE",
+            "class_name": "LearningPresence"
+          }
+        ]
+      }
     }
   }
 }

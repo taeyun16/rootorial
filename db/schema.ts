@@ -273,3 +273,75 @@ export const contentFeedback = sqliteTable("content_feedback", {
     sql`${table.adminNote} is null or length(trim(${table.adminNote})) between 1 and 1000`,
   ),
 ]);
+
+export const learningSessions = sqliteTable("learning_sessions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  curriculumSlug: text("curriculum_slug").notNull(),
+  chapterSlug: text("chapter_slug").notNull(),
+  locale: text("locale", { enum: ["ko", "en"] }).notNull(),
+  startedAt: integer("started_at").notNull(),
+  endedAt: integer("ended_at").notNull(),
+  elapsedSeconds: integer("elapsed_seconds").notNull(),
+  dwellSeconds: integer("dwell_seconds").notNull(),
+  activeSeconds: integer("active_seconds").notNull(),
+  heartbeatCount: integer("heartbeat_count").notNull(),
+  createdAt: integer("created_at").notNull(),
+  updatedAt: integer("updated_at").notNull(),
+}, (table) => [
+  index("learning_sessions_started_idx").on(table.startedAt),
+  index("learning_sessions_user_started_idx").on(table.userId, table.startedAt),
+  index("learning_sessions_chapter_started_idx").on(
+    table.curriculumSlug,
+    table.chapterSlug,
+    table.startedAt,
+  ),
+  check("learning_sessions_locale_check", sql`${table.locale} in ('ko', 'en')`),
+  check(
+    "learning_sessions_duration_check",
+    sql`${table.elapsedSeconds} >= 0 and ${table.dwellSeconds} >= 0 and ${table.activeSeconds} >= 0 and ${table.activeSeconds} <= ${table.dwellSeconds} and ${table.dwellSeconds} <= ${table.elapsedSeconds}`,
+  ),
+]);
+
+export const learningAttempts = sqliteTable("learning_attempts", {
+  id: text("id").primaryKey(),
+  submissionId: text("submission_id").notNull(),
+  sessionId: text("session_id").notNull(),
+  userId: text("user_id").notNull(),
+  curriculumSlug: text("curriculum_slug").notNull(),
+  chapterSlug: text("chapter_slug").notNull(),
+  questionId: text("question_id").notNull(),
+  questionVersion: integer("question_version").notNull(),
+  selectedAnswer: text("selected_answer").notNull(),
+  isCorrect: integer("is_correct", { mode: "boolean" }).notNull(),
+  attemptNumber: integer("attempt_number").notNull(),
+  submittedAt: integer("submitted_at").notNull(),
+}, (table) => [
+  index("learning_attempts_submitted_idx").on(table.submittedAt),
+  index("learning_attempts_user_submitted_idx").on(table.userId, table.submittedAt),
+  index("learning_attempts_question_submitted_idx").on(
+    table.curriculumSlug,
+    table.chapterSlug,
+    table.questionId,
+    table.submittedAt,
+  ),
+  index("learning_attempts_session_question_idx").on(
+    table.sessionId,
+    table.questionId,
+    table.attemptNumber,
+  ),
+  check("learning_attempts_version_check", sql`${table.questionVersion} > 0`),
+  check("learning_attempts_attempt_check", sql`${table.attemptNumber} > 0`),
+]);
+
+export const courseVisitors = sqliteTable("course_visitors", {
+  userId: text("user_id").notNull(),
+  curriculumSlug: text("curriculum_slug").notNull(),
+  firstAccessedAt: integer("first_accessed_at").notNull(),
+  lastAccessedAt: integer("last_accessed_at").notNull(),
+  accessCount: integer("access_count").notNull().default(1),
+}, (table) => [
+  primaryKey({ columns: [table.userId, table.curriculumSlug] }),
+  index("course_visitors_curriculum_last_idx").on(table.curriculumSlug, table.lastAccessedAt),
+  check("course_visitors_access_count_check", sql`${table.accessCount} > 0`),
+]);

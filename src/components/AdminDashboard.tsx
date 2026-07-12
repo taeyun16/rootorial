@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { AdminDashboard as Dashboard, FeedbackStatus } from "../features/admin/admin";
 import { AuthControls } from "./AuthControls";
 import { RootorialMark } from "./RootorialMark";
@@ -11,11 +11,40 @@ const statusLabels: Record<FeedbackStatus, string> = {
 };
 const kindLabels = { incorrect: "내용 오류", confusing: "이해가 어려움", suggestion: "개선 제안" } as const;
 
+function formatDuration(seconds: number) {
+  if (seconds < 60) return `${seconds}초`;
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return remainder ? `${minutes}분 ${remainder}초` : `${minutes}분`;
+}
+
 export function AdminDashboard({ initialData }: { initialData: Dashboard }) {
   const [data, setData] = useState(initialData);
   const [filter, setFilter] = useState<FeedbackStatus | "all">("pending");
   const [savingId, setSavingId] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
+  const [presenceUpdatedAt, setPresenceUpdatedAt] = useState(initialData.available ? initialData.generatedAt : 0);
+
+  useEffect(() => {
+    if (!initialData.available) return;
+    let cancelled = false;
+    const refreshPresence = async () => {
+      try {
+        const { getOnlineLearnerCount } = await import("../features/admin/admin.functions");
+        const result = await getOnlineLearnerCount();
+        if (!cancelled && result.ok) {
+          setPresenceUpdatedAt(result.updatedAt);
+          setData((current) => current.available
+            ? { ...current, learning: { ...current.learning, onlineLearners: result.count } }
+            : current);
+        }
+      } catch {
+        // Keep the last confirmed count when presence refresh is unavailable.
+      }
+    };
+    const interval = window.setInterval(() => void refreshPresence(), 20_000);
+    return () => { cancelled = true; window.clearInterval(interval); };
+  }, [initialData.available]);
 
   const filtered = useMemo(() => data.available
     ? data.feedback.filter((item) => filter === "all" || item.status === filter)
@@ -92,6 +121,52 @@ export function AdminDashboard({ initialData }: { initialData: Dashboard }) {
               return <div className="admin-kind-row" key={kind}><div><span>{kindLabels[kind]}</span><strong>{count}건</strong></div><div><i style={{ width: `${percent}%` }} /></div><small>{percent}%</small></div>;
             })}
           </article>
+        </section>
+
+        <section className="admin-panel admin-learning-section" aria-labelledby="learning-analytics-title">
+          <div className="admin-learning-heading">
+            <div>
+              <p className="eyebrow">LEARNING ANALYTICS · LAST {data.learning.windowDays} DAYS</p>
+              <h2 id="learning-analytics-title">학습 참여와 이해도</h2>
+              <p>로그인 학습자의 화면 체류와 실제 활동을 분리하고, 문제별 첫 시도와 최종 이해를 비교합니다.</p>
+            </div>
+            <span className="admin-learning-privacy">집계 데이터만 표시</span>
+          </div>
+          <div className="admin-reach" aria-label="학습 도달 범위">
+            <article><span>누적 코스 접근자</span><strong>{data.learning.courseVisitors.toLocaleString("ko-KR")}</strong><small>로그인 고유 사용자 · 전체 기간</small></article>
+            <article><span>최근 {data.learning.windowDays}일 접근자</span><strong>{data.learning.courseVisitors30d.toLocaleString("ko-KR")}</strong><small>코스 소개 또는 챕터 방문</small></article>
+            <article className="admin-presence-live">
+              <span><i aria-hidden="true" />현재 온라인</span>
+              <strong key={data.learning.onlineLearners}>{data.learning.onlineLearners.toLocaleString("ko-KR")}</strong>
+              <small>최근 60초 · {new Date(presenceUpdatedAt).toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit", second: "2-digit" })} 확인</small>
+            </article>
+          </div>
+          <div className="admin-learning-metrics">
+            <article><span>학습 세션</span><strong>{data.learning.sessions.toLocaleString("ko-KR")}</strong><small>{data.learning.learners}명 참여</small></article>
+            <article><span>평균 체류시간</span><strong>{formatDuration(data.learning.averageDwellSeconds)}</strong><small>화면이 보인 시간</small></article>
+            <article><span>평균 활성 학습</span><strong>{formatDuration(data.learning.averageActiveSeconds)}</strong><small>최근 조작이 있었던 시간</small></article>
+            <article><span>활성 비율</span><strong>{data.learning.activeRatio}%</strong><small>활성 시간 ÷ 체류시간</small></article>
+            <article><span>첫 시도 정답률</span><strong>{data.learning.firstAttemptAccuracy}%</strong><small>최초 제출 기준</small></article>
+            <article><span>최종 이해율</span><strong>{data.learning.eventualMasteryRate}%</strong><small>재시도 후 정답 포함</small></article>
+          </div>
+          <div className="admin-question-analysis">
+            <div className="admin-question-header"><h3>문제별 진단</h3><span>표본 수와 함께 해석하세요</span></div>
+            {data.learning.questionStats.length ? (
+              <div className="admin-question-table-wrap">
+                <table className="admin-question-table">
+                  <thead><tr><th>문제</th><th>학습자</th><th>시도</th><th>첫 시도 정답률</th><th>전체 정답률</th></tr></thead>
+                  <tbody>{data.learning.questionStats.map((question) => (
+                    <tr key={question.questionId}>
+                      <th scope="row"><strong>{question.label}</strong><code>{question.questionId}</code></th>
+                      <td>{question.learners}</td><td>{question.attempts}</td>
+                      <td><div className="admin-accuracy"><span><i style={{ width: `${question.firstAttemptAccuracy}%` }} /></span><strong>{question.firstAttemptAccuracy}%</strong></div></td>
+                      <td><div className="admin-accuracy is-overall"><span><i style={{ width: `${question.overallAccuracy}%` }} /></span><strong>{question.overallAccuracy}%</strong></div></td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+            ) : <div className="admin-empty"><strong>아직 학습 데이터가 없습니다.</strong><span>로그인 사용자가 챕터를 학습하면 세션과 문제 풀이가 집계됩니다.</span></div>}
+          </div>
         </section>
 
         <section className="admin-panel admin-feedback-section">

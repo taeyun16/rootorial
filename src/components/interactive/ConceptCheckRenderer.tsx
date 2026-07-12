@@ -28,12 +28,14 @@ type ConceptCheckRendererProps<QuestionId extends string> = {
   questions: Array<ConceptQuestionSpec<QuestionId>>;
   copy: ConceptCheckCopy;
   onMasteryChange: (mastered: boolean) => void;
+  onSubmitAttempt?: (answers: Record<QuestionId, string>) => void;
 };
 
 export function ConceptCheckRenderer<QuestionId extends string>({
   questions,
   copy,
   onMasteryChange,
+  onSubmitAttempt,
 }: ConceptCheckRendererProps<QuestionId>) {
   const [answers, setAnswers] = useState<Partial<Record<QuestionId, string>>>({});
   const [submitted, setSubmitted] = useState(false);
@@ -52,6 +54,7 @@ export function ConceptCheckRenderer<QuestionId extends string>({
     const passed = questions.every((question) => answers[question.id] === question.correctAnswer);
     setSubmitted(true);
     onMasteryChange(passed);
+    onSubmitAttempt?.(answers as Record<QuestionId, string>);
   }
 
   return (

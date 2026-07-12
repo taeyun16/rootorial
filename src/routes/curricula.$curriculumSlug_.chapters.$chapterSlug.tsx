@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { getCurriculum } from "../data/curriculum";
 import { VectorsChapter } from "../components/VectorsChapter";
+import { LearningAnalyticsProvider } from "../components/LearningAnalyticsProvider";
 
 export const Route = createFileRoute("/curricula/$curriculumSlug_/chapters/$chapterSlug")({
   beforeLoad: ({ params }) => {
@@ -25,7 +26,11 @@ export const Route = createFileRoute("/curricula/$curriculumSlug_/chapters/$chap
 function ChapterRoute() {
   const { curriculumSlug, chapterSlug } = Route.useParams();
   if (curriculumSlug === "transformer-from-zero" && chapterSlug === "vectors") {
-    return <VectorsChapter />;
+    return (
+      <LearningAnalyticsProvider curriculumSlug={curriculumSlug} chapterSlug={chapterSlug}>
+        <VectorsChapter />
+      </LearningAnalyticsProvider>
+    );
   }
   throw notFound();
 }
