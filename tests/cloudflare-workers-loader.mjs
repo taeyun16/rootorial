@@ -1,4 +1,5 @@
 const cloudflareWorkersStub = `
+  export const env = {};
   export class DurableObject {
     constructor(ctx, env) {
       this.ctx = ctx;

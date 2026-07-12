@@ -15,6 +15,7 @@ import { AttentionPipelineExplorer } from "./AttentionPipelineExplorer";
 import { MathFormula } from "./MathFormula";
 import { MatrixMultiplicationExplorer } from "./MatrixMultiplicationExplorer";
 import { AuthControls } from "./AuthControls";
+import { PublicLearningProof } from "./PublicLearningProof";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useLocale } from "../features/localization/localization";
 import { chaptersEn, chaptersKo } from "../data/curriculum";
@@ -97,7 +98,7 @@ function useChapterTopbarVisibility() {
   return [topbarHidden, setTopbarHidden] as const;
 }
 
-export function VectorsChapter() {
+export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) {
   const [mastered, setMastered] = useState(false);
   const { locale } = useLocale();
   const isKo = locale === "ko";
@@ -149,6 +150,7 @@ export function VectorsChapter() {
                 <>A sentence read by a Transformer is ultimately a collection of numbers. In this first chapter, you will move those numbers yourself to see how they gain <em>magnitude</em>, <em>direction</em>, and <em>relationships</em>.</>
               )}
             </p>
+            <PublicLearningProof count={learnerCount} locale={locale} scope="chapter" />
             <div className="lesson-objectives">
               <span>{isKo ? "학습 목표" : "LEARNING OBJECTIVES"}</span>
               {isKo ? (

@@ -1,7 +1,23 @@
+import { getCurriculum } from "../../data/curriculum.ts";
+
 export const LEARNING_HEARTBEAT_INTERVAL_MS = 20_000;
 export const LEARNING_ACTIVE_WINDOW_MS = 60_000;
 export const LEARNING_ONLINE_WINDOW_MS = 60_000;
 export const LEARNING_PRESENCE_SHARD_COUNT = 16;
+export const PUBLIC_SOCIAL_PROOF_MINIMUM = 10;
+
+export type PublicCurriculumReach = {
+  curriculumSlug: string;
+  learners: number;
+  views: number;
+  chapters: Record<string, { learners: number; views: number }>;
+};
+
+export type PublicPlatformReach = {
+  learners: number;
+  views: number;
+  curricula: Record<string, { learners: number; views: number }>;
+};
 
 export function learningPresenceShard(userId: string) {
   let hash = 2166136261;
@@ -92,8 +108,19 @@ export function validateStartSessionInput(value: unknown) {
 export function validateCourseAccessInput(value: unknown) {
   const input = record(value, "코스 접근 정보를 확인해 주세요.");
   const curriculumSlug = routePart(input.curriculumSlug, "커리큘럼");
-  if (curriculumSlug !== "transformer-from-zero") throw new Error("추적할 수 없는 커리큘럼입니다.");
-  return { curriculumSlug };
+  const curriculum = getCurriculum(curriculumSlug);
+  if (!curriculum || curriculum.status === "planned") throw new Error("추적할 수 없는 커리큘럼입니다.");
+  if (input.chapterSlug === undefined) {
+    return { curriculumSlug, chapterSlug: null, path: `/curricula/${curriculumSlug}` };
+  }
+  const chapterSlug = routePart(input.chapterSlug, "챕터");
+  const chapter = curriculum.chapters.ko.find((item) => item.slug === chapterSlug);
+  if (!chapter || chapter.status !== "available") throw new Error("추적할 수 없는 챕터입니다.");
+  return {
+    curriculumSlug,
+    chapterSlug,
+    path: `/curricula/${curriculumSlug}/chapters/${chapterSlug}`,
+  };
 }
 
 export function validateHeartbeatInput(value: unknown) {

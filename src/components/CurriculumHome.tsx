@@ -6,6 +6,8 @@ import { AuthControls } from "./AuthControls";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useProgress } from "./ProgressProvider";
 import { RootorialMark } from "./RootorialMark";
+import { PublicLearningProof } from "./PublicLearningProof";
+import type { PublicCurriculumReach } from "../features/learning-analytics/learning-analytics";
 
 const copy = {
   ko: {
@@ -44,7 +46,7 @@ const copy = {
   },
 } as const;
 
-export function CurriculumHome({ curriculumSlug = TRANSFORMER_CURRICULUM_SLUG }: { curriculumSlug?: string }) {
+export function CurriculumHome({ curriculumSlug = TRANSFORMER_CURRICULUM_SLUG, reach }: { curriculumSlug?: string; reach: PublicCurriculumReach }) {
   const { completed, retry, status } = useProgress();
   const { locale } = useLocale();
   const c = copy[locale];
@@ -87,6 +89,7 @@ export function CurriculumHome({ curriculumSlug = TRANSFORMER_CURRICULUM_SLUG }:
           <p className="hero-summary">
             {c.summary}
           </p>
+          <PublicLearningProof count={reach.learners} locale={locale} scope="curriculum" />
           <div className="hero-actions">
             <Link
               className="button button-primary"

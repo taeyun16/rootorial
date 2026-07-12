@@ -201,6 +201,9 @@ textarea:focus-visible {
 .admin-learning-metrics strong { display: block; margin: 7px 0 2px; font: 600 28px/1.15 var(--display); letter-spacing: -.03em; }
 .admin-learning-metrics small { font-size: 10px; }
 .admin-question-analysis { margin-top: 30px; }
+.admin-content-reach { margin-top: 30px; }
+.admin-content-reach-table { min-width: 640px; }
+.admin-content-reach-table a { color: var(--accent); font: 500 11px/1.5 var(--mono); overflow-wrap: anywhere; }
 .admin-question-header { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; margin-bottom: 12px; }
 .admin-question-header h3 { margin: 0; font-size: 16px; }
 .admin-question-header span { color: var(--quiet); font-size: 11px; }
@@ -758,6 +761,13 @@ textarea:focus-visible {
   line-height: 1.8;
   word-break: keep-all;
 }
+.section-heading-context > p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.8; word-break: keep-all; }
+.public-learning-proof { display: flex; align-items: center; gap: 9px; margin: 20px 0 0; color: var(--accent); font-size: 13px; font-weight: 700; }
+.public-learning-proof > span { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 5px color-mix(in srgb, currentColor 10%, transparent); animation: public-proof-in 420ms ease-out both; }
+.hero-copy > .public-learning-proof { margin-top: 22px; }
+.lesson-hero > .public-learning-proof { margin: 26px 0 0; }
+.section-heading-context .public-learning-proof { margin-top: 14px; }
+@keyframes public-proof-in { from { opacity: 0; transform: scale(.6); } }
 
 .chapter-list {
   border-top: 1px solid var(--ink);

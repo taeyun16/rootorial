@@ -149,6 +149,24 @@ export function AdminDashboard({ initialData }: { initialData: Dashboard }) {
             <article><span>첫 시도 정답률</span><strong>{data.learning.firstAttemptAccuracy}%</strong><small>최초 제출 기준</small></article>
             <article><span>최종 이해율</span><strong>{data.learning.eventualMasteryRate}%</strong><small>재시도 후 정답 포함</small></article>
           </div>
+          <div className="admin-content-reach">
+            <div className="admin-question-header"><h3>URL별 접근</h3><span>페이지 노출과 로그인 고유 학습자를 분리합니다</span></div>
+            {data.learning.contentReach.length ? (
+              <div className="admin-question-table-wrap">
+                <table className="admin-question-table admin-content-reach-table">
+                  <thead><tr><th>URL</th><th>전체 노출</th><th>로그인 노출</th><th>고유 학습자</th></tr></thead>
+                  <tbody>{data.learning.contentReach.map((item) => (
+                    <tr key={item.path}>
+                      <th scope="row"><a href={item.path} target="_blank" rel="noreferrer">{item.path}</a></th>
+                      <td>{item.views.toLocaleString("ko-KR")}</td>
+                      <td>{item.signedInViews.toLocaleString("ko-KR")}</td>
+                      <td><strong>{item.learners.toLocaleString("ko-KR")}명</strong></td>
+                    </tr>
+                  ))}</tbody>
+                </table>
+              </div>
+            ) : <div className="admin-empty"><strong>아직 URL 접근 데이터가 없습니다.</strong><span>배포 후 커리큘럼과 챕터 방문이 이곳에 집계됩니다.</span></div>}
+          </div>
           <div className="admin-question-analysis">
             <div className="admin-question-header"><h3>문제별 진단</h3><span>표본 수와 함께 해석하세요</span></div>
             {data.learning.questionStats.length ? (

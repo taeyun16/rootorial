@@ -1,19 +1,30 @@
 import { useAuth } from "@clerk/tanstack-react-start";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { recordCourseAccess } from "../features/learning-analytics/learning-analytics.functions";
 import { useClerkEnabled } from "./ClerkBoundary";
 
-export function CourseAccessTracker({ curriculumSlug, children }: { curriculumSlug: string; children: ReactNode }) {
+type TrackerProps = { curriculumSlug: string; chapterSlug?: string; children: ReactNode };
+
+export function CourseAccessTracker({ curriculumSlug, chapterSlug, children }: TrackerProps) {
   const clerkEnabled = useClerkEnabled();
-  if (!clerkEnabled) return children;
-  return <ClerkCourseAccessTracker curriculumSlug={curriculumSlug}>{children}</ClerkCourseAccessTracker>;
+  if (!clerkEnabled) return <AnonymousCourseAccessTracker curriculumSlug={curriculumSlug} chapterSlug={chapterSlug}>{children}</AnonymousCourseAccessTracker>;
+  return <ClerkCourseAccessTracker curriculumSlug={curriculumSlug} chapterSlug={chapterSlug}>{children}</ClerkCourseAccessTracker>;
 }
 
-function ClerkCourseAccessTracker({ curriculumSlug, children }: { curriculumSlug: string; children: ReactNode }) {
-  const { isLoaded, isSignedIn, userId } = useAuth();
+function AnonymousCourseAccessTracker({ curriculumSlug, chapterSlug, children }: TrackerProps) {
   useEffect(() => {
-    if (!isLoaded || !isSignedIn || !userId) return;
-    void recordCourseAccess({ data: { curriculumSlug } }).catch(() => undefined);
-  }, [curriculumSlug, isLoaded, isSignedIn, userId]);
+    void recordCourseAccess({ data: { curriculumSlug, chapterSlug } }).catch(() => undefined);
+  }, [chapterSlug, curriculumSlug]);
+  return children;
+}
+
+function ClerkCourseAccessTracker({ curriculumSlug, chapterSlug, children }: TrackerProps) {
+  const { isLoaded } = useAuth();
+  const recordedRef = useRef(false);
+  useEffect(() => {
+    if (!isLoaded || recordedRef.current) return;
+    recordedRef.current = true;
+    void recordCourseAccess({ data: { curriculumSlug, chapterSlug } }).catch(() => undefined);
+  }, [chapterSlug, curriculumSlug, isLoaded]);
   return children;
 }

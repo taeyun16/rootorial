@@ -92,7 +92,7 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
       db.select({ value: count }).from(contentFeedback).where(gte(contentFeedback.createdAt, weekAgo)),
     ]);
 
-    const [kindRows, questionDays, answerDays, feedbackDays, feedbackRows, learningSessionsResult, learningAttemptsResult, learningMasteryResult, learningQuestionsResult, courseVisitorsResult, onlineLearners] = await Promise.all([
+    const [kindRows, questionDays, answerDays, feedbackDays, feedbackRows, learningSessionsResult, learningAttemptsResult, learningMasteryResult, learningQuestionsResult, courseVisitorsResult, contentReachResult, onlineLearners] = await Promise.all([
       db.select({ kind: contentFeedback.kind, value: count }).from(contentFeedback).groupBy(contentFeedback.kind),
       db.select({ date: sql<string>`date(${discussionQuestions.createdAt} / 1000, 'unixepoch')`, value: count }).from(discussionQuestions).where(gte(discussionQuestions.createdAt, weekAgo)).groupBy(sql`date(${discussionQuestions.createdAt} / 1000, 'unixepoch')`),
       db.select({ date: sql<string>`date(${discussionAnswers.createdAt} / 1000, 'unixepoch')`, value: count }).from(discussionAnswers).where(gte(discussionAnswers.createdAt, weekAgo)).groupBy(sql`date(${discussionAnswers.createdAt} / 1000, 'unixepoch')`),
@@ -144,6 +144,18 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
                sum(CASE WHEN last_accessed_at >= ? THEN 1 ELSE 0 END) AS visitors_30d
         FROM course_visitors WHERE curriculum_slug = ?
       `).bind(learningSince, "transformer-from-zero").first<{ visitors: number; visitors_30d: number }>(),
+      database.prepare(`
+        SELECT i.path, i.curriculum_slug, i.chapter_slug,
+               i.view_count AS views, i.signed_in_view_count AS signed_in_views,
+               count(v.user_id) AS learners
+        FROM content_impressions i
+        LEFT JOIN content_visitors v ON v.path = i.path
+        GROUP BY i.path, i.curriculum_slug, i.chapter_slug, i.view_count, i.signed_in_view_count
+        ORDER BY i.view_count DESC, i.path ASC
+      `).all<{
+        path: string; curriculum_slug: string; chapter_slug: string | null;
+        views: number; signed_in_views: number; learners: number;
+      }>(),
       onlineLearnerCount().catch(() => 0),
     ]);
 
@@ -190,6 +202,14 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
         activeRatio: ratio(Number(sessionMetrics.active_seconds), Number(sessionMetrics.dwell_seconds)),
         firstAttemptAccuracy: ratio(Number(attemptMetrics.first_correct), Number(attemptMetrics.first_attempts)),
         eventualMasteryRate: ratio(Number(masteryMetrics.mastered_pairs), Number(masteryMetrics.attempted_pairs)),
+        contentReach: contentReachResult.results.map((row) => ({
+          path: row.path,
+          curriculumSlug: row.curriculum_slug,
+          chapterSlug: row.chapter_slug,
+          views: Number(row.views),
+          signedInViews: Number(row.signed_in_views),
+          learners: Number(row.learners),
+        })),
         questionStats: learningQuestionsResult.results.map((row) => {
           const key = `transformer-from-zero/vectors/${row.question_id}` as keyof typeof conceptQuestionRegistry;
           return {

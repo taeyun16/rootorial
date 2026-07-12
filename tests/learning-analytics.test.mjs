@@ -33,8 +33,16 @@ test("accepts only the known learning surface and locale", () => {
 test("accepts course access only for a known curriculum", () => {
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero" }), {
     curriculumSlug: "transformer-from-zero",
+    chapterSlug: null,
+    path: "/curricula/transformer-from-zero",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "vectors" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "vectors",
+    path: "/curricula/transformer-from-zero/chapters/vectors",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
+  assert.throws(() => validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "planned" }));
 });
 
 test("normalizes heartbeat activity so hidden tabs cannot be active", () => {
@@ -73,10 +81,13 @@ test("validates submitted answers against the versioned server registry", () => 
 test("ships D1 analytics tables and a SQLite Durable Object migration", async () => {
   const migration = await readFile(new URL("../drizzle/0004_workable_blockbuster.sql", import.meta.url), "utf8");
   const visitorMigration = await readFile(new URL("../drizzle/0005_smooth_chimera.sql", import.meta.url), "utf8");
+  const reachMigration = await readFile(new URL("../drizzle/0006_ambiguous_jasper_sitwell.sql", import.meta.url), "utf8");
   const wrangler = await readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8");
   assert.match(migration, /CREATE TABLE `learning_sessions`/);
   assert.match(migration, /CREATE TABLE `learning_attempts`/);
   assert.match(visitorMigration, /CREATE TABLE `course_visitors`/);
+  assert.match(reachMigration, /CREATE TABLE `content_impressions`/);
+  assert.match(reachMigration, /CREATE TABLE `content_visitors`/);
   assert.match(wrangler, /"new_sqlite_classes": \["LearningSession", "LearningPresence"\]/);
   assert.match(wrangler, /"name": "LEARNING_SESSIONS"/);
   assert.match(wrangler, /"name": "LEARNING_PRESENCE"/);
