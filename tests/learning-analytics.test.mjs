@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   conceptQuestionRegistry,
   learningPresenceShard,
+  publicLearningProofText,
   validateAttemptInput,
   validateCourseAccessInput,
   validateHeartbeatInput,
@@ -57,6 +58,22 @@ test("routes the same learner to a stable bounded presence shard", () => {
   const shard = learningPresenceShard("user_2abc123");
   assert.equal(shard, learningPresenceShard("user_2abc123"));
   assert.ok(shard >= 0 && shard < 16);
+});
+
+test("uses gentle social proof before showing established learner counts", () => {
+  assert.equal(publicLearningProofText(0, "ko", "curriculum"), null);
+  assert.equal(
+    publicLearningProofText(1, "ko", "curriculum"),
+    "새로운 학습자들이 이 학습 여정을 시작하고 있어요.",
+  );
+  assert.equal(
+    publicLearningProofText(9, "en", "chapter"),
+    "New learners are studying this chapter.",
+  );
+  assert.equal(
+    publicLearningProofText(10, "ko", "curriculum"),
+    "지금까지 10명이 이 학습 여정을 시작했어요.",
+  );
 });
 
 test("validates submitted answers against the versioned server registry", () => {

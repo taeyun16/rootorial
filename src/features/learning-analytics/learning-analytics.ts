@@ -6,6 +6,45 @@ export const LEARNING_ONLINE_WINDOW_MS = 60_000;
 export const LEARNING_PRESENCE_SHARD_COUNT = 16;
 export const PUBLIC_SOCIAL_PROOF_MINIMUM = 10;
 
+export type PublicLearningProofScope = "platform" | "curriculum" | "chapter";
+
+const earlyLearningProofCopy: Record<LearningLocale, Record<PublicLearningProofScope, string>> = {
+  ko: {
+    platform: "새로운 학습자들이 Rootorial에서 함께 배우기 시작했어요.",
+    curriculum: "새로운 학습자들이 이 학습 여정을 시작하고 있어요.",
+    chapter: "새로운 학습자들이 이 챕터를 학습하고 있어요.",
+  },
+  en: {
+    platform: "New learners are beginning to learn with Rootorial.",
+    curriculum: "New learners are starting this learning journey.",
+    chapter: "New learners are studying this chapter.",
+  },
+};
+
+const establishedLearningProofCopy: Record<LearningLocale, Record<PublicLearningProofScope, (count: string) => string>> = {
+  ko: {
+    platform: (count) => `Rootorial에서 ${count}명이 함께 배우고 있어요.`,
+    curriculum: (count) => `지금까지 ${count}명이 이 학습 여정을 시작했어요.`,
+    chapter: (count) => `${count}명의 학습자가 이 챕터를 학습했어요.`,
+  },
+  en: {
+    platform: (count) => `${count} learners are learning with Rootorial.`,
+    curriculum: (count) => `${count} learners have started this learning journey.`,
+    chapter: (count) => `${count} learners have studied this chapter.`,
+  },
+};
+
+export function publicLearningProofText(
+  count: number,
+  locale: LearningLocale,
+  scope: PublicLearningProofScope,
+) {
+  if (count <= 0) return null;
+  if (count < PUBLIC_SOCIAL_PROOF_MINIMUM) return earlyLearningProofCopy[locale][scope];
+  const formatted = count.toLocaleString(locale === "ko" ? "ko-KR" : "en-US");
+  return establishedLearningProofCopy[locale][scope](formatted);
+}
+
 export type PublicCurriculumReach = {
   curriculumSlug: string;
   learners: number;
