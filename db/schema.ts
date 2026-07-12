@@ -345,3 +345,35 @@ export const courseVisitors = sqliteTable("course_visitors", {
   index("course_visitors_curriculum_last_idx").on(table.curriculumSlug, table.lastAccessedAt),
   check("course_visitors_access_count_check", sql`${table.accessCount} > 0`),
 ]);
+
+export const contentImpressions = sqliteTable("content_impressions", {
+  path: text("path").primaryKey(),
+  curriculumSlug: text("curriculum_slug").notNull(),
+  chapterSlug: text("chapter_slug"),
+  viewCount: integer("view_count").notNull().default(0),
+  signedInViewCount: integer("signed_in_view_count").notNull().default(0),
+  createdAt: integer("created_at").notNull(),
+  updatedAt: integer("updated_at").notNull(),
+}, (table) => [
+  index("content_impressions_curriculum_idx").on(table.curriculumSlug),
+  index("content_impressions_chapter_idx").on(table.curriculumSlug, table.chapterSlug),
+  check(
+    "content_impressions_counts_check",
+    sql`${table.viewCount} >= 0 and ${table.signedInViewCount} >= 0 and ${table.signedInViewCount} <= ${table.viewCount}`,
+  ),
+]);
+
+export const contentVisitors = sqliteTable("content_visitors", {
+  userId: text("user_id").notNull(),
+  path: text("path").notNull(),
+  curriculumSlug: text("curriculum_slug").notNull(),
+  chapterSlug: text("chapter_slug"),
+  firstAccessedAt: integer("first_accessed_at").notNull(),
+  lastAccessedAt: integer("last_accessed_at").notNull(),
+  accessCount: integer("access_count").notNull().default(1),
+}, (table) => [
+  primaryKey({ columns: [table.userId, table.path] }),
+  index("content_visitors_path_idx").on(table.path),
+  index("content_visitors_curriculum_idx").on(table.curriculumSlug, table.chapterSlug),
+  check("content_visitors_access_count_check", sql`${table.accessCount} > 0`),
+]);

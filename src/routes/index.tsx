@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PlatformHome } from "../components/PlatformHome";
+import { getPlatformReach } from "../features/learning-analytics/learning-analytics.functions";
 
 export const Route = createFileRoute("/")({
+  loader: () => getPlatformReach(),
   head: ({ match }) => {
     const isEnglish = (match.search as { lang?: unknown }).lang === "en";
 
@@ -25,5 +27,5 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  return <PlatformHome />;
+  return <PlatformHome reach={Route.useLoaderData()} />;
 }

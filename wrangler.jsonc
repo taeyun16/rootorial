@@ -28,6 +28,12 @@
       "migrations_dir": "drizzle"
     }
   ],
+  "analytics_engine_datasets": [
+    {
+      "binding": "CONTENT_ANALYTICS",
+      "dataset": "rootorial_content_views"
+    }
+  ],
   "durable_objects": {
     "bindings": [
       {

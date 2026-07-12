@@ -5,6 +5,8 @@ import { AuthControls } from "./AuthControls";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useProgress } from "./ProgressProvider";
 import { RootorialMark } from "./RootorialMark";
+import { PublicLearningProof } from "./PublicLearningProof";
+import { PUBLIC_SOCIAL_PROOF_MINIMUM, type PublicPlatformReach } from "../features/learning-analytics/learning-analytics";
 
 const brand = {
   name: "Rootorial",
@@ -156,7 +158,7 @@ function SocialLink({
   );
 }
 
-export function PlatformHome() {
+export function PlatformHome({ reach }: { reach: PublicPlatformReach }) {
   const { locale } = useLocale();
   const { completed } = useProgress();
   const c = copy[locale];
@@ -237,7 +239,10 @@ export function PlatformHome() {
             <p className="section-index">{c.catalog}</p>
             <h2 id="catalog-title">{c.catalogTitle}</h2>
           </div>
-          <p>{c.catalogSummary}</p>
+          <div className="section-heading-context">
+            <p>{c.catalogSummary}</p>
+            <PublicLearningProof count={reach.learners} locale={locale} scope="platform" />
+          </div>
         </div>
         <div className="curriculum-grid">
           {curricula.filter((curriculum) => curriculum.status !== "planned").map((curriculum) => {
@@ -264,7 +269,11 @@ export function PlatformHome() {
                   <p id={summaryId}>{curriculum.summary[locale]}</p>
                 </div>
                 <div className="curriculum-card-footer">
-                  <span>{chapters.length} {c.chapters}</span>
+                  <span>
+                    {(reach.curricula[curriculum.slug]?.learners ?? 0) >= PUBLIC_SOCIAL_PROOF_MINIMUM
+                      ? <>{reach.curricula[curriculum.slug].learners.toLocaleString(locale === "ko" ? "ko-KR" : "en-US")} {locale === "ko" ? "명 학습 중" : "learners"}</>
+                      : <>{chapters.length} {c.chapters}</>}
+                  </span>
                   <strong>{c.open} ↗</strong>
                 </div>
               </Link>

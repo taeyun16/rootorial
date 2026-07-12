@@ -27,6 +27,14 @@ export type AdminDashboard =
         activeRatio: number;
         firstAttemptAccuracy: number;
         eventualMasteryRate: number;
+        contentReach: Array<{
+          path: string;
+          curriculumSlug: string;
+          chapterSlug: string | null;
+          views: number;
+          signedInViews: number;
+          learners: number;
+        }>;
         questionStats: Array<{
           questionId: string;
           label: string;
