@@ -1,5 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { CurriculumHome } from "../components/CurriculumHome";
+import { CourseAccessTracker } from "../components/CourseAccessTracker";
 import { getCurriculum } from "../data/curriculum";
 
 export const Route = createFileRoute("/curricula/$curriculumSlug")({
@@ -22,5 +23,5 @@ export const Route = createFileRoute("/curricula/$curriculumSlug")({
 
 function CurriculumRoute() {
   const { curriculumSlug } = Route.useParams();
-  return <CurriculumHome curriculumSlug={curriculumSlug} />;
+  return <CourseAccessTracker curriculumSlug={curriculumSlug}><CurriculumHome curriculumSlug={curriculumSlug} /></CourseAccessTracker>;
 }
