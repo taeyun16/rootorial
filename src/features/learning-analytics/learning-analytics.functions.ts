@@ -16,7 +16,6 @@ import {
 } from "./learning-analytics";
 
 type LearningBindings = {
-  CONTENT_ANALYTICS?: AnalyticsEngineDataset;
   DB?: D1Database;
   LEARNING_PRESENCE?: DurableObjectNamespace<LearningPresence>;
   LEARNING_SESSIONS?: DurableObjectNamespace<LearningSession>;
@@ -40,11 +39,6 @@ export const recordCourseAccess = createServerFn({ method: "POST" })
     privateResponse();
     const currentUserId = await userId();
     const database = bindings().DB;
-    bindings().CONTENT_ANALYTICS?.writeDataPoint({
-      blobs: [data.path, data.curriculumSlug, data.chapterSlug ?? "", currentUserId ? "signed-in" : "anonymous"],
-      doubles: [1],
-      indexes: [data.curriculumSlug],
-    });
     if (!database) return { ok: false as const };
     const now = Date.now();
     const statements = [database.prepare(`

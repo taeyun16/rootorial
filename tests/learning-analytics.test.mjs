@@ -91,5 +91,4 @@ test("ships D1 analytics tables and a SQLite Durable Object migration", async ()
   assert.match(wrangler, /"new_sqlite_classes": \["LearningSession", "LearningPresence"\]/);
   assert.match(wrangler, /"name": "LEARNING_SESSIONS"/);
   assert.match(wrangler, /"name": "LEARNING_PRESENCE"/);
-  assert.match(wrangler, /"binding": "CONTENT_ANALYTICS"/);
 });
