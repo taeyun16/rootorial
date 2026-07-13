@@ -307,7 +307,7 @@ export const recordConceptAttempt = createServerFn({ method: "POST" })
         chapterSlug: data.chapterSlug,
       },
     });
-    if (session.closed) return { ok: false as const };
+    if (session.closed || session.scopeMismatch) return { ok: false as const };
     await touchPresence(currentUserId, now);
     for (const answer of data.answers) {
       await database.prepare(`

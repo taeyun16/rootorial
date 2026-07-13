@@ -66,6 +66,30 @@ export const conceptQuestionHistory = {
       answers: ["3-4", "3-3", "4-4"],
     },
   },
+  "linux-systems/shell-and-filesystem/absolute-path": {
+    1: {
+      version: 1,
+      label: "절대 경로 시작점",
+      correctAnswer: "slash",
+      answers: ["slash", "dot", "tilde"],
+    },
+  },
+  "linux-systems/shell-and-filesystem/relative-path": {
+    1: {
+      version: 1,
+      label: "상대 경로 기준",
+      correctAnswer: "current-directory",
+      answers: ["current-directory", "root-directory", "etc-directory"],
+    },
+  },
+  "linux-systems/shell-and-filesystem/permission-error": {
+    1: {
+      version: 1,
+      label: "보호된 파일 쓰기 권한",
+      correctAnswer: "protected-file",
+      answers: ["protected-file", "missing-file", "invalid-echo"],
+    },
+  },
 } as const satisfies Record<
   string,
   Readonly<Record<number, ConceptQuestionVersionContract>>
@@ -98,6 +122,18 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/vectors/attention-context"][1],
     status: "retired",
   },
+  "linux-systems/shell-and-filesystem/absolute-path": {
+    ...conceptQuestionHistory["linux-systems/shell-and-filesystem/absolute-path"][1],
+    status: "active",
+  },
+  "linux-systems/shell-and-filesystem/relative-path": {
+    ...conceptQuestionHistory["linux-systems/shell-and-filesystem/relative-path"][1],
+    status: "active",
+  },
+  "linux-systems/shell-and-filesystem/permission-error": {
+    ...conceptQuestionHistory["linux-systems/shell-and-filesystem/permission-error"][1],
+    status: "active",
+  },
 } as const satisfies Record<string, ConceptQuestionContract>;
 
 export type ConceptQuestionKey = keyof typeof conceptQuestionRegistry;
@@ -110,6 +146,12 @@ const vectorQuestions = {
   "dot-product": conceptQuestionRegistry["transformer-from-zero/vectors/dot-product"],
 } as const;
 
+const linuxShellQuestions = {
+  "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
+  "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
+  "permission-error": conceptQuestionRegistry["linux-systems/shell-and-filesystem/permission-error"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -117,6 +159,9 @@ export type ChapterRegistration = {
 export const chapterRegistry = {
   "transformer-from-zero/vectors": {
     questions: vectorQuestions,
+  },
+  "linux-systems/shell-and-filesystem": {
+    questions: linuxShellQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

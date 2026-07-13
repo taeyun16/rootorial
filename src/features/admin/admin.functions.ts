@@ -129,10 +129,10 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
         first_attempts: number; first_correct: number; correct: number;
       }>(),
       database.prepare(`
-        SELECT count(*) AS visitors,
-               sum(CASE WHEN last_accessed_at >= ? THEN 1 ELSE 0 END) AS visitors_30d
-        FROM course_visitors WHERE curriculum_slug = ?
-      `).bind(learningSince, "transformer-from-zero").first<{ visitors: number; visitors_30d: number }>(),
+        SELECT count(DISTINCT user_id) AS visitors,
+               count(DISTINCT CASE WHEN last_accessed_at >= ? THEN user_id END) AS visitors_30d
+        FROM course_visitors
+      `).bind(learningSince).first<{ visitors: number; visitors_30d: number }>(),
       database.prepare(`
         SELECT i.path, i.curriculum_slug, i.chapter_slug,
                i.view_count AS views, i.signed_in_view_count AS signed_in_views,

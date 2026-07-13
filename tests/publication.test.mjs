@@ -22,6 +22,12 @@ const optimizationKey = chapterPublicationKey(
   "transformer-from-zero",
   "optimization",
 );
+const linuxKey = curriculumPublicationKey("linux-systems");
+const linuxShellKey = chapterPublicationKey(
+  "linux-systems",
+  "shell-and-filesystem",
+);
+const linuxBootKey = chapterPublicationKey("linux-systems", "boot-to-shell");
 
 function override(resourceKey, values = {}) {
   const chapter = resourceKey.startsWith("chapter:");
@@ -73,6 +79,35 @@ test("keeps editorial progress independent from chapter runtime readiness", () =
   assert.equal(vectors.developmentStatus, "in-progress");
   assert.equal(vectors.contentReady, true);
   assert.equal(vectors.effectivePublicationStatus, "published");
+});
+
+test("publishes the completed Linux sample while keeping planned chapters closed", () => {
+  const catalog = resolvePublicationCatalog([], 1_000);
+  const linux = catalog.resources[linuxKey];
+  const shell = catalog.resources[linuxShellKey];
+  const boot = catalog.resources[linuxBootKey];
+
+  assert.equal(linux.contentReady, true);
+  assert.equal(linux.effectivePublicationStatus, "published");
+  assert.equal(linux.listing, "listed");
+  assert.equal(isPublicationAccessible(catalog, linuxKey), true);
+
+  assert.equal(shell.developmentStatus, "complete");
+  assert.equal(shell.contentReady, true);
+  assert.equal(shell.effectivePublicationStatus, "published");
+  assert.equal(shell.listing, "listed");
+  assert.equal(isPublicationAccessible(catalog, linuxShellKey), true);
+
+  assert.equal(boot.developmentStatus, "planned");
+  assert.equal(boot.contentReady, false);
+  assert.equal(boot.effectivePublicationStatus, "draft");
+  assert.equal(boot.listing, "listed");
+  assert.equal(isPublicationAccessible(catalog, linuxBootKey), false);
+
+  const linuxCatalog = publicPublicationCatalog(catalog).curricula.find(
+    ({ curriculum }) => curriculum.slug === "linux-systems",
+  );
+  assert.equal(linuxCatalog?.chapters.length, 8);
 });
 
 test("fails closed when the durable publication store is unavailable", async () => {

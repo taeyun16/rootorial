@@ -81,9 +81,10 @@ export function chapterPublicationKey(
   return `chapter:${curriculumSlug}/${chapterSlug}`;
 }
 
-// These entries preserve the catalog that existed before durable publication
-// controls were introduced. New catalog resources intentionally default to a
-// hidden draft until an administrator chooses otherwise.
+// These entries preserve the catalog and completed feature branches that
+// existed before durable publication controls were introduced. New catalog
+// resources intentionally default to a hidden draft until an administrator
+// chooses otherwise.
 const announcedPublicationKeys = new Set([
   "curriculum:transformer-from-zero",
   "curriculum:linux-systems",
@@ -99,16 +100,29 @@ const announcedPublicationKeys = new Set([
   "chapter:transformer-from-zero/self-attention",
   "chapter:transformer-from-zero/transformer-block",
   "chapter:transformer-from-zero/mini-transformer",
+  "chapter:linux-systems/shell-and-filesystem",
+  "chapter:linux-systems/boot-to-shell",
+  "chapter:linux-systems/processes-and-signals",
+  "chapter:linux-systems/users-and-permissions",
+  "chapter:linux-systems/memory-and-virtual-addresses",
+  "chapter:linux-systems/storage-and-filesystems",
+  "chapter:linux-systems/networking-from-a-packet",
+  "chapter:linux-systems/assemble-a-tiny-linux",
 ]);
 
 const legacyPublishedKeys = new Set([
   "curriculum:transformer-from-zero",
   "chapter:transformer-from-zero/vectors",
+  "curriculum:linux-systems",
+  "chapter:linux-systems/shell-and-filesystem",
 ]);
 
 // CurriculumHome currently implements the Transformer learning journey. Add a
 // slug here only after its landing-page renderer is ready for public traffic.
-const registeredCurriculumPageSlugs = new Set(["transformer-from-zero"]);
+const registeredCurriculumPageSlugs = new Set([
+  "transformer-from-zero",
+  "linux-systems",
+]);
 
 function publicationDefaults(resourceKey: string) {
   return {

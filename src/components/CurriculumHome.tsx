@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
+import { LINUX_CURRICULUM_SLUG } from "../data/curriculum";
 import { useLocale } from "../features/localization/localization";
 import { AuthControls } from "./AuthControls";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -46,6 +47,53 @@ const copy = {
   },
 } as const;
 
+const linuxPresentation = {
+  ko: {
+    eyebrow: "INTERACTIVE LINUX SYSTEMS · SAMPLE",
+    runtime: "교육용 셸 + 실제 VM",
+    titleLead: "Linux 시스템을",
+    titleEm: "바닥부터",
+    titleTail: "이해하기",
+    summary: "명령을 외우는 데서 멈추지 않고, 경로와 파일에서 시작해 부팅, 프로세스, 메모리와 네트워크까지 시스템의 층을 직접 관찰합니다.",
+    start: "첫 샘플 챕터 시작하기",
+    journey: "전체 여정 보기",
+    overview: "Linux 시스템 커리큘럼 개요",
+    principle: "학습 방식",
+    principleTitle: "명령보다 먼저 시스템의 상태를 읽기",
+    principles: [
+      ["한 층씩 관찰", "프롬프트와 파일에서 시작해 커널과 네트워크까지 경계를 하나씩 확인합니다."],
+      ["직접 실행", "설치 없이 교육용 셸을 반복하고, 필요한 순간 실제 Linux VM과 비교합니다."],
+      ["오류를 단서로", "실패 메시지를 피하지 않고 권한, 경로와 프로세스 상태를 설명하는 증거로 읽습니다."],
+    ],
+    main: "LINUX SYSTEMS CURRICULUM",
+    road: "첫 명령에서 작은 Linux 조립까지",
+    structure: "첫 챕터는 완성된 샘플입니다. 후속 챕터는 셸에서 확인한 상태를 실제 커널의 각 층으로 확장합니다.",
+    orbitLabels: ["Path", "Process", "Memory", "Network"],
+  },
+  en: {
+    eyebrow: "INTERACTIVE LINUX SYSTEMS · SAMPLE",
+    runtime: "Teaching shell + real VM",
+    titleLead: "Understand Linux",
+    titleEm: "from the ground up",
+    titleTail: "",
+    summary: "Go beyond memorizing commands. Start with paths and files, then observe each system layer through boot, processes, memory, and networking.",
+    start: "Start the sample chapter",
+    journey: "See the full journey",
+    overview: "Linux systems curriculum overview",
+    principle: "HOW IT WORKS",
+    principleTitle: "Read system state before reaching for a command",
+    principles: [
+      ["Observe one layer", "Begin with prompts and files, then inspect each boundary through the kernel and network."],
+      ["Run it yourself", "Repeat quickly in the teaching shell and compare against a real Linux VM when the whole machine matters."],
+      ["Use errors as clues", "Treat failures as evidence about permissions, paths, and process state instead of avoiding them."],
+    ],
+    main: "LINUX SYSTEMS CURRICULUM",
+    road: "From your first command to a tiny Linux system",
+    structure: "The first chapter is a complete sample. Later chapters expand the same observable state into each layer of a real kernel.",
+    orbitLabels: ["Path", "Process", "Memory", "Network"],
+  },
+} as const;
+
 export function CurriculumHome({
   item,
   reach,
@@ -73,6 +121,30 @@ export function CurriculumHome({
           publication.effectivePublicationStatus === "published" &&
           publication.listing !== "hidden";
   });
+  const presentation = curriculum.slug === LINUX_CURRICULUM_SLUG
+    ? linuxPresentation[locale]
+    : {
+        eyebrow: "INTERACTIVE DEEP LEARNING TEXTBOOK",
+        runtime: c.runtime,
+        titleLead: c.titleLead,
+        titleEm: c.titleEm,
+        titleTail: c.titleTail,
+        summary: c.summary,
+        start: c.start,
+        journey: c.journey,
+        overview: c.overview,
+        principle: c.principle,
+        principleTitle: c.principleTitle,
+        principles: [
+          [c.intuition, c.intuitionBody],
+          [c.run, c.runBody],
+          [c.connection, c.connectionBody],
+        ] as const,
+        main: c.main,
+        road: c.road,
+        structure: c.structure,
+        orbitLabels: ["Vector", "Gradient", "Embedding", "Attention"] as const,
+      };
   const visibleChapterIds = new Set(chapters.map((chapter) => chapter.id));
   const completedInCurriculum = completed.filter((id) =>
     visibleChapterIds.has(id),
@@ -86,7 +158,7 @@ export function CurriculumHome({
   return (
     <main className="site-shell">
       <header className="topbar">
-        <Link className="wordmark" to="/" aria-label={c.home}>
+        <Link className="wordmark" to="/" search={locale === "en" ? { lang: "en" } : {}} aria-label={c.home}>
           <RootorialMark className="wordmark-mark" />
           <span className="wordmark-name">Rootorial</span>
         </Link>
@@ -94,7 +166,7 @@ export function CurriculumHome({
           <a href="#curriculum">{c.curriculum}</a>
           <a href="#how">{c.method}</a>
           <span className="runtime-status">
-            <span className="status-dot" aria-hidden="true" /> {c.runtime}
+            <span className="status-dot" aria-hidden="true" /> {presentation.runtime}
           </span>
           <LanguageSwitcher />
           <AuthControls />
@@ -103,14 +175,14 @@ export function CurriculumHome({
 
       <section className="hero-section">
         <div className="hero-copy">
-          <p className="eyebrow">INTERACTIVE DEEP LEARNING TEXTBOOK</p>
+          <p className="eyebrow">{presentation.eyebrow}</p>
           <h1>
-            {c.titleLead}
+            {presentation.titleLead}
             <br />
-            <em>{c.titleEm}</em> {c.titleTail}
+            <em>{presentation.titleEm}</em>{presentation.titleTail ? ` ${presentation.titleTail}` : ""}
           </h1>
           <p className="hero-summary">
-            {c.summary}
+            {presentation.summary}
           </p>
           <PublicLearningProof count={reach.learners} locale={locale} scope="curriculum" />
           <div className="hero-actions">
@@ -119,36 +191,46 @@ export function CurriculumHome({
                 className="button button-primary"
                 href={`/admin/preview/curricula/${curriculum.slug}/chapters/${firstOpenChapter.slug}`}
               >
-                {c.start} <span aria-hidden="true">→</span>
+                {presentation.start} <span aria-hidden="true">→</span>
               </a>
             ) : (
               <Link
-              className="button button-primary"
-              to="/curricula/$curriculumSlug/chapters/$chapterSlug"
-              params={{
-                curriculumSlug: curriculum.slug,
-                chapterSlug: firstOpenChapter.slug,
-              }}
-            >
-              {c.start} <span aria-hidden="true">→</span>
+                className="button button-primary"
+                to="/curricula/$curriculumSlug/chapters/$chapterSlug"
+                params={{
+                  curriculumSlug: curriculum.slug,
+                  chapterSlug: firstOpenChapter.slug,
+                }}
+                search={locale === "en" ? { lang: "en" } : {}}
+              >
+                {presentation.start} <span aria-hidden="true">→</span>
               </Link>
             ) : null}
             <a className="text-link" href="#curriculum">
-              {c.journey}
+              {presentation.journey}
             </a>
+            {curriculum.experiment ? (
+              <Link
+                className="text-link"
+                to={curriculum.experiment.href}
+                search={locale === "en" ? { lang: "en" } : {}}
+              >
+                {curriculum.experiment.label[locale]} ↗
+              </Link>
+            ) : null}
           </div>
         </div>
 
-        <div className="hero-visual" aria-label={c.overview}>
+        <div className="hero-visual" aria-label={presentation.overview}>
           <div className="concept-orbit">
             <div className="orbit-core">
-              <span>10</span>
+              <span>{chapters.length}</span>
               <small>{c.chapters}</small>
             </div>
-            <span className="orbit-label orbit-label-a">Vector</span>
-            <span className="orbit-label orbit-label-b">Gradient</span>
-            <span className="orbit-label orbit-label-c">Embedding</span>
-            <span className="orbit-label orbit-label-d">Attention</span>
+            <span className="orbit-label orbit-label-a">{presentation.orbitLabels[0]}</span>
+            <span className="orbit-label orbit-label-b">{presentation.orbitLabels[1]}</span>
+            <span className="orbit-label orbit-label-c">{presentation.orbitLabels[2]}</span>
+            <span className="orbit-label orbit-label-d">{presentation.orbitLabels[3]}</span>
           </div>
           <div className="progress-card">
             <div>
@@ -183,36 +265,28 @@ export function CurriculumHome({
 
       <section className="principles" id="how" aria-labelledby="how-title">
         <div>
-          <p className="section-index">{c.principle}</p>
-          <h2 id="how-title">{c.principleTitle}</h2>
+          <p className="section-index">{presentation.principle}</p>
+          <h2 id="how-title">{presentation.principleTitle}</h2>
         </div>
         <div className="principle-grid">
-          <article>
-            <span>01</span>
-            <h3>{c.intuition}</h3>
-            <p>{c.intuitionBody}</p>
-          </article>
-          <article>
-            <span>02</span>
-            <h3>{c.run}</h3>
-            <p>{c.runBody}</p>
-          </article>
-          <article>
-            <span>03</span>
-            <h3>{c.connection}</h3>
-            <p>{c.connectionBody}</p>
-          </article>
+          {presentation.principles.map(([title, body], index) => (
+            <article key={title}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <h3>{title}</h3>
+              <p>{body}</p>
+            </article>
+          ))}
         </div>
       </section>
 
       <section className="curriculum-section" id="curriculum" aria-labelledby="curriculum-title">
         <div className="section-heading">
           <div>
-            <p className="section-index">{c.main}</p>
-            <h2 id="curriculum-title">{c.road}</h2>
+            <p className="section-index">{presentation.main}</p>
+            <h2 id="curriculum-title">{presentation.road}</h2>
           </div>
           <p>
-            {c.structure}
+            {presentation.structure}
           </p>
         </div>
 
@@ -272,6 +346,7 @@ export function CurriculumHome({
                 className="chapter-row chapter-row-active"
                 to="/curricula/$curriculumSlug/chapters/$chapterSlug"
                 params={{ curriculumSlug: curriculum.slug, chapterSlug: chapter.slug }}
+                search={locale === "en" ? { lang: "en" } : {}}
                 key={chapter.slug}
               >
                 {content}

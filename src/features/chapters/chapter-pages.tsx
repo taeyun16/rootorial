@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { VectorsChapter } from "../../components/VectorsChapter";
 import { chapterId } from "../../data/curriculum";
 import {
@@ -16,8 +17,13 @@ function VectorsChapterPage({ learnerCount }: ChapterPageProps) {
   return <VectorsChapter learnerCount={learnerCount} />;
 }
 
+function LinuxShellChapterPage({ learnerCount }: ChapterPageProps) {
+  return <LinuxShellChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
+  "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(

@@ -35,15 +35,21 @@ export type Curriculum = {
   status: CurriculumStatus;
   accent: "violet" | "green" | "blue" | "orange";
   chapters: Record<Locale, CurriculumChapter[]>;
+  experiment?: {
+    href: "/experiments/linux";
+    label: LocalizedText;
+  };
 };
 
 export const TRANSFORMER_CURRICULUM_SLUG = "transformer-from-zero";
+export const LINUX_CURRICULUM_SLUG = "linux-systems";
 
 export function chapterId(curriculumSlug: string, chapterSlug: string) {
   return `${curriculumSlug}/${chapterSlug}`;
 }
 
 export const VECTOR_CHAPTER_ESTIMATED_MINUTES = 60;
+export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 
 export const chaptersKo: Chapter[] = [
   {
@@ -232,6 +238,206 @@ export const chaptersEn: Chapter[] = [
   },
 ];
 
+export const linuxChaptersKo: Chapter[] = [
+  {
+    number: 1,
+    slug: "shell-and-filesystem",
+    title: "셸에서 첫 파일까지",
+    subtitle: "명령, 경로와 파일이 만나는 가장 작은 Linux 작업 흐름",
+    description:
+      "프롬프트를 읽고 절대·상대 경로를 이동한 뒤, 디렉터리와 파일을 만들며 오류 메시지를 시스템의 단서로 해석합니다.",
+    runtime: "교육용 셸",
+    estimatedMinutes: LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["shell", "path", "filesystem"],
+  },
+  {
+    number: 2,
+    slug: "boot-to-shell",
+    title: "전원이 켜지고 셸이 뜨기까지",
+    subtitle: "BIOS, 커널과 init이 한 줄의 프롬프트를 만드는 과정",
+    description:
+      "v86으로 실제 Linux를 부팅하며 펌웨어에서 커널, init과 로그인 셸까지의 경계를 추적합니다.",
+    runtime: "v86 · Buildroot",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["BIOS", "kernel", "init"],
+  },
+  {
+    number: 3,
+    slug: "processes-and-signals",
+    title: "프로세스와 시그널",
+    subtitle: "실행 중인 프로그램은 어떻게 태어나고 끝나는가",
+    description:
+      "PID, 부모·자식 프로세스, 표준 스트림과 시그널을 관찰해 셸이 프로그램을 다루는 방식을 이해합니다.",
+    runtime: "Linux VM",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["PID", "stdio", "signal"],
+  },
+  {
+    number: 4,
+    slug: "users-and-permissions",
+    title: "사용자와 권한",
+    subtitle: "누가 어떤 파일을 읽고 바꿀 수 있는가",
+    description:
+      "사용자·그룹과 rwx 권한을 실제 접근 성공과 실패에 연결하고 최소 권한의 의미를 확인합니다.",
+    runtime: "Linux VM",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["uid", "group", "rwx"],
+  },
+  {
+    number: 5,
+    slug: "memory-and-virtual-addresses",
+    title: "메모리와 가상 주소",
+    subtitle: "각 프로세스가 자기만의 메모리를 가진 것처럼 보이는 이유",
+    description:
+      "스택, 힙, 페이지와 가상 메모리를 작은 프로그램의 주소 변화와 /proc 정보로 연결합니다.",
+    runtime: "C · Linux VM",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["stack", "heap", "page"],
+  },
+  {
+    number: 6,
+    slug: "storage-and-filesystems",
+    title: "저장장치와 파일시스템",
+    subtitle: "바이트 덩어리가 이름 있는 파일이 되는 구조",
+    description:
+      "블록 장치, inode, 디렉터리와 mount를 추적하며 파일 경로 아래의 저장 구조를 조립합니다.",
+    runtime: "Linux VM",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["block", "inode", "mount"],
+  },
+  {
+    number: 7,
+    slug: "networking-from-a-packet",
+    title: "패킷에서 소켓까지",
+    subtitle: "한 프로세스의 데이터가 다른 컴퓨터에 닿는 과정",
+    description:
+      "인터페이스, IP, 라우팅, TCP와 소켓을 하나의 요청이 이동하는 순서로 관찰합니다.",
+    runtime: "Linux VM",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["IP", "TCP", "socket"],
+  },
+  {
+    number: 8,
+    slug: "assemble-a-tiny-linux",
+    title: "작은 Linux 조립하기",
+    subtitle: "부팅부터 네트워크까지 배운 층을 하나의 시스템으로",
+    description:
+      "커널과 root filesystem을 구성하고 부팅 실패를 진단하며 최소 Linux 시스템을 완성합니다.",
+    runtime: "Buildroot · v86",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["kernel config", "rootfs", "debugging"],
+  },
+];
+
+export const linuxChaptersEn: Chapter[] = [
+  {
+    number: 1,
+    slug: "shell-and-filesystem",
+    title: "From the Shell to Your First File",
+    subtitle: "The smallest Linux workflow connecting commands, paths, and files",
+    description:
+      "Read the prompt, move through absolute and relative paths, create directories and files, and treat error messages as clues about system state.",
+    runtime: "Teaching shell",
+    estimatedMinutes: LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["shell", "path", "filesystem"],
+  },
+  {
+    number: 2,
+    slug: "boot-to-shell",
+    title: "From Power-On to a Shell",
+    subtitle: "How BIOS, the kernel, and init produce one command prompt",
+    description:
+      "Boot a real Linux system with v86 and trace the boundaries from firmware through the kernel, init, and the login shell.",
+    runtime: "v86 · Buildroot",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["BIOS", "kernel", "init"],
+  },
+  {
+    number: 3,
+    slug: "processes-and-signals",
+    title: "Processes and Signals",
+    subtitle: "How a running program begins and ends",
+    description:
+      "Observe PIDs, parent-child processes, standard streams, and signals to understand how a shell controls programs.",
+    runtime: "Linux VM",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["PID", "stdio", "signal"],
+  },
+  {
+    number: 4,
+    slug: "users-and-permissions",
+    title: "Users and Permissions",
+    subtitle: "Who can read or change each file",
+    description:
+      "Connect users, groups, and rwx permissions to real access successes and failures, then apply least privilege.",
+    runtime: "Linux VM",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["uid", "group", "rwx"],
+  },
+  {
+    number: 5,
+    slug: "memory-and-virtual-addresses",
+    title: "Memory and Virtual Addresses",
+    subtitle: "Why every process appears to have memory of its own",
+    description:
+      "Connect stacks, heaps, pages, and virtual memory to address changes in a small program and information from /proc.",
+    runtime: "C · Linux VM",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["stack", "heap", "page"],
+  },
+  {
+    number: 6,
+    slug: "storage-and-filesystems",
+    title: "Storage and Filesystems",
+    subtitle: "How blocks of bytes become named files",
+    description:
+      "Trace block devices, inodes, directories, and mounts to assemble the storage structure beneath a file path.",
+    runtime: "Linux VM",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["block", "inode", "mount"],
+  },
+  {
+    number: 7,
+    slug: "networking-from-a-packet",
+    title: "From Packets to Sockets",
+    subtitle: "How one process reaches another computer",
+    description:
+      "Observe interfaces, IP, routing, TCP, and sockets in the order that one request moves through them.",
+    runtime: "Linux VM",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["IP", "TCP", "socket"],
+  },
+  {
+    number: 8,
+    slug: "assemble-a-tiny-linux",
+    title: "Assemble a Tiny Linux System",
+    subtitle: "Combine every layer from boot to networking",
+    description:
+      "Configure a kernel and root filesystem, diagnose boot failures, and complete a minimal Linux system.",
+    runtime: "Buildroot · v86",
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["kernel config", "rootfs", "debugging"],
+  },
+];
+
 export const chapters = chaptersKo;
 
 export const availableChapterCount = chaptersKo.filter(
@@ -266,19 +472,26 @@ export const curricula: Curriculum[] = [
     },
   },
   {
-    id: "linux-systems",
-    slug: "linux-systems",
+    id: LINUX_CURRICULUM_SLUG,
+    slug: LINUX_CURRICULUM_SLUG,
     category: { ko: "시스템", en: "SYSTEMS" },
     title: { ko: "Linux 시스템을 바닥부터", en: "Linux Systems from the Ground Up" },
     summary: {
       ko: "프로세스, 메모리, 파일과 네트워크가 운영체제 안에서 만나는 과정을 추적합니다.",
       en: "Trace how processes, memory, files, and networks meet inside an operating system.",
     },
-    eyebrow: { ko: "준비 중", en: "PLANNED" },
+    eyebrow: { ko: "샘플 커리큘럼", en: "SAMPLE CURRICULUM" },
     level: "beginner",
-    status: "planned",
+    status: "in-progress",
     accent: "green",
-    chapters: { ko: [], en: [] },
+    chapters: {
+      ko: scopeChapters(LINUX_CURRICULUM_SLUG, linuxChaptersKo),
+      en: scopeChapters(LINUX_CURRICULUM_SLUG, linuxChaptersEn),
+    },
+    experiment: {
+      href: "/experiments/linux",
+      label: { ko: "Linux 실험 열기", en: "Open the Linux experiment" },
+    },
   },
   {
     id: "infrastructure-design",

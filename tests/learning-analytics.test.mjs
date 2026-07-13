@@ -64,6 +64,20 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "optimization",
     locale: "ko",
   }));
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+    locale: "en",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+    locale: "en",
+  });
+  assert.throws(() => validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "boot-to-shell",
+    locale: "ko",
+  }));
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -76,6 +90,16 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "vectors",
     path: "/curricula/transformer-from-zero/chapters/vectors",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: null,
+    path: "/curricula/linux-systems",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "shell-and-filesystem" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+    path: "/curricula/linux-systems/chapters/shell-and-filesystem",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "optimization" }));
@@ -128,16 +152,21 @@ test("uses gentle social proof before showing established learner counts", () =>
 });
 
 test("filters public analytics resources through publication and listing state", () => {
+  const linuxResources = [
+    { curriculumSlug: "linux-systems", chapterSlug: null },
+    { curriculumSlug: "linux-systems", chapterSlug: "shell-and-filesystem" },
+  ];
   const baseline = resolvePublicationCatalog([], 1_000);
   assert.deepEqual(publicAnalyticsResources(baseline), [
     { curriculumSlug: "transformer-from-zero", chapterSlug: null },
     { curriculumSlug: "transformer-from-zero", chapterSlug: "vectors" },
+    ...linuxResources,
   ]);
 
   const unlistedCurriculum = resolvePublicationCatalog([
     publicationOverride(transformerKey, { listing: "unlisted" }),
   ], 1_000);
-  assert.deepEqual(publicAnalyticsResources(unlistedCurriculum), []);
+  assert.deepEqual(publicAnalyticsResources(unlistedCurriculum), linuxResources);
   assert.deepEqual(
     publicAnalyticsResources(unlistedCurriculum, "transformer-from-zero"),
     [
@@ -154,7 +183,7 @@ test("filters public analytics resources through publication and listing state",
     const unavailable = resolvePublicationCatalog([
       publicationOverride(transformerKey, values),
     ], 1_000);
-    assert.deepEqual(publicAnalyticsResources(unavailable), []);
+    assert.deepEqual(publicAnalyticsResources(unavailable), linuxResources);
     assert.deepEqual(
       publicAnalyticsResources(unavailable, "transformer-from-zero"),
       [],
@@ -200,6 +229,26 @@ test("validates submitted answers against the versioned server registry", () => 
     conceptQuestionRegistry["transformer-from-zero/vectors/attention-context"].status,
     "retired",
   );
+
+  const linuxResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+    answers: {
+      "absolute-path": "slash",
+      "permission-error": "protected-file",
+    },
+  });
+  assert.equal(linuxResult.answers[0].key, "linux-systems/shell-and-filesystem/absolute-path");
+  assert.equal(conceptQuestionRegistry[linuxResult.answers[0].key].correctAnswer, "slash");
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+    answers: { "absolute-path": "client-says-correct" },
+  }));
 });
 
 test("ships D1 analytics tables and a SQLite Durable Object migration", async () => {

@@ -107,7 +107,7 @@ export class LearningSession extends DurableObject<LearningSessionEnv> {
       row.previous_active ? delta : 0,
     );
     await this.ctx.storage.setAlarm(input.now + SESSION_ALARM_DELAY_MS);
-    return { ok: true as const, closed: false as const };
+    return { ok: true as const, closed: false as const, scopeMismatch: false as const };
   }
 
   async alarm() {

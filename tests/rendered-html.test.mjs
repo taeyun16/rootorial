@@ -35,6 +35,8 @@ test("renders the Rootorial curriculum catalog", async () => {
   assert.match(html, /Transformer를/);
   assert.match(html, /바닥부터/);
   assert.match(html, /Linux 시스템을 바닥부터/);
+  assert.match(html, /href="\/curricula\/linux-systems"/);
+  assert.match(html, /샘플 커리큘럼/);
   assert.match(html, /인프라 설계를 바닥부터/);
   assert.match(html, /디자인 패턴을 바닥부터/);
   assert.match(html, /다음으로 준비하고 있어요/);
@@ -50,6 +52,30 @@ test("renders the Rootorial curriculum catalog", async () => {
   assert.match(html, /새로운 커리큘럼과 실험 기록/);
   assert.match(html, /href="\/favicon\.svg"/);
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|react-loading-skeleton/i);
+});
+
+test("renders the Linux browser runtime experiment", async () => {
+  const response = await render("/experiments/linux");
+  assert.equal(response.status, 200);
+
+  const html = await response.text();
+  assert.match(html, /LINUX SYSTEMS · RUNTIME EXPERIMENT 01/);
+  assert.match(html, /Linux를/);
+  assert.match(html, /브라우저 안에서/);
+  assert.match(html, /교육용 시뮬레이터 · 실제 Linux 아님/);
+  assert.match(html, /Rootorial shell simulator/);
+  assert.match(html, /실제 Linux 커널 부팅/);
+  assert.match(html, /v86가 32비트 x86 PC를 WebAssembly로 에뮬레이션/);
+  assert.match(html, /Linux 부팅 시작/);
+  assert.match(html, /브라우저 Linux 실험 · Rootorial/);
+  assert.match(html, /교육용 가상 파일시스템과 셸 명령을 실습합니다/);
+
+  const englishResponse = await render("/experiments/linux?lang=en");
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /Linux in the Browser Experiment · Rootorial/);
+  assert.match(englishHtml, /Teaching simulator · not real Linux/);
 });
 
 test("renders the English landing on the first server response", async () => {
@@ -76,6 +102,63 @@ test("renders the Transformer curriculum detail", async () => {
   assert.match(html, /Transformer를/);
   assert.match(html, /벡터와 텐서/);
   assert.match(html, /Mini Transformer/);
+});
+
+test("renders the Linux sample curriculum in both locales", async () => {
+  const response = await render("/curricula/linux-systems");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Linux 시스템을/);
+  assert.match(html, /첫 샘플 챕터 시작하기/);
+  assert.match(html, /셸에서 첫 파일까지/);
+  assert.match(html, /전원이 켜지고 셸이 뜨기까지/);
+  assert.match(html, /href="\/curricula\/linux-systems\/chapters\/shell-and-filesystem"/);
+  assert.match(html, /href="\/experiments\/linux"/);
+  assert.match(html, /Linux 실험 열기/);
+  assert.match(html, /Linux 시스템을 바닥부터 · Rootorial/);
+
+  const englishResponse = await render("/curricula/linux-systems?lang=en");
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /Linux Systems from the Ground Up · Rootorial/);
+  assert.match(englishHtml, /Start the sample chapter/);
+  assert.match(englishHtml, /From the Shell to Your First File/);
+});
+
+test("renders the interactive Linux shell and filesystem chapter", async () => {
+  const response = await render("/curricula/linux-systems/chapters/shell-and-filesystem");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /01\. 셸에서 첫 파일까지 · Rootorial/);
+  assert.match(html, /셸은 명령을 받아 프로그램과 파일시스템을 연결합니다/);
+  assert.match(html, /경로는 파일의 주소이자 탐색을 시작할 기준입니다/);
+  assert.match(html, /교육용 시뮬레이터 · 실제 Linux 아님/);
+  assert.match(html, /필수 실습/);
+  assert.match(html, /mkdir -p lab/);
+  assert.match(html, /리다이렉션이 출력을 화면 대신 상대 경로의 파일에 기록합니다/);
+  assert.match(html, /보호된 파일의 권한 오류 관찰/);
+  assert.match(html, /명령을 외우기보다 경로와 오류의 규칙을 설명해 보세요/);
+  assert.match(html, /실제 Linux 부팅 실험 열기/);
+  assert.match(html, /이 챕터 완료하기/);
+
+  const englishResponse = await render("/curricula/linux-systems/chapters/shell-and-filesystem?lang=en");
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /01\. From the Shell to Your First File · Rootorial/);
+  assert.match(englishHtml, /The shell connects your commands to programs and the filesystem/);
+  assert.match(englishHtml, /Teaching simulator · not real Linux/);
+});
+
+test("keeps planned and unknown Linux chapters unavailable", async () => {
+  const planned = await render("/curricula/linux-systems/chapters/boot-to-shell");
+  assert.equal(planned.status, 404);
+  await planned.text();
+
+  const unknown = await render("/curricula/linux-systems/chapters/not-a-chapter");
+  assert.equal(unknown.status, 404);
+  await unknown.text();
 });
 
 test("renders the interactive vectors chapter", async () => {

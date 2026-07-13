@@ -44,7 +44,7 @@ const copy = {
     summary: "직접 움직이고 실행하며, 어려운 기술을 이해 가능한 순서로 다시 조립합니다.",
     start: "첫 챕터 바로 시작",
     explore: "커리큘럼 살펴보기",
-    continue: "Transformer 이어서 학습",
+    continue: "학습 이어가기",
     social: "Taeyun Jang의 소셜 계정",
     madeBy: "만든 사람",
     opensNewTab: "새 탭에서 열기",
@@ -55,6 +55,7 @@ const copy = {
     available: "학습 가능",
     building: "제작 중",
     planned: "준비 중",
+    experiment: "실험 가능",
     chapters: "개 챕터",
     open: "커리큘럼 보기",
     roadmap: "NEXT ON THE ROADMAP",
@@ -79,7 +80,7 @@ const copy = {
     summary: "Move, run, and rebuild difficult technology into an order you can understand.",
     start: "Start the first chapter",
     explore: "Explore curricula",
-    continue: "Continue Transformers",
+    continue: "Continue learning",
     social: "Taeyun Jang's social accounts",
     madeBy: "Created by",
     opensNewTab: "opens in a new tab",
@@ -90,6 +91,7 @@ const copy = {
     available: "Available",
     building: "In progress",
     planned: "Planned",
+    experiment: "Experiment ready",
     chapters: "chapters",
     open: "View curriculum",
     roadmap: "NEXT ON THE ROADMAP",
@@ -187,11 +189,20 @@ export function PlatformHome({
       publication.effectivePublicationStatus === "published" &&
       publication.contentReady,
   );
+  const continueCurriculum = availableCurricula
+    .map((item) => ({
+      item,
+      completedCount: completed.filter((id) =>
+        id.startsWith(`${item.curriculum.slug}/`),
+      ).length,
+    }))
+    .sort((left, right) => right.completedCount - left.completedCount)
+    .find(({ completedCount }) => completedCount > 0)?.item ?? featured;
 
   return (
     <div className="site-shell platform-home">
       <header className="topbar">
-        <Link className="wordmark" to="/" aria-label={c.home}>
+        <Link className="wordmark" to="/" search={locale === "en" ? { lang: "en" } : {}} aria-label={c.home}>
           <RootorialMark className="wordmark-mark" />
           <span className="wordmark-name">{brand.name}</span>
         </Link>
@@ -219,11 +230,12 @@ export function PlatformHome({
           </div>
           <p className="hero-summary">{c.summary}</p>
           <div className="hero-actions">
-            {completed.length > 0 && featured ? (
+            {completed.length > 0 && continueCurriculum ? (
               <Link
                 className="button button-primary"
                 to="/curricula/$curriculumSlug"
-                params={{ curriculumSlug: featured.curriculum.slug }}
+                params={{ curriculumSlug: continueCurriculum.curriculum.slug }}
+                search={locale === "en" ? { lang: "en" } : {}}
               >
                 {c.continue} <span aria-hidden="true">↗</span>
               </Link>
@@ -235,6 +247,7 @@ export function PlatformHome({
                   curriculumSlug: featured.curriculum.slug,
                   chapterSlug: firstAvailableChapter.chapter.slug,
                 }}
+                search={locale === "en" ? { lang: "en" } : {}}
               >
                 {c.start} <span aria-hidden="true">↗</span>
               </Link>
@@ -294,6 +307,7 @@ export function PlatformHome({
                 className={`curriculum-card curriculum-card-${curriculum.accent}`}
                 to="/curricula/$curriculumSlug"
                 params={{ curriculumSlug: curriculum.slug }}
+                search={locale === "en" ? { lang: "en" } : {}}
                 aria-label={curriculum.title[locale]}
                 aria-describedby={summaryId}
                 key={curriculum.id}
@@ -330,16 +344,40 @@ export function PlatformHome({
           </div>
           <div className="roadmap-grid">
             {roadmapCurricula.map(({ curriculum }, index) => {
-              return (
-                <article className={`roadmap-card curriculum-card-${curriculum.accent}`} key={curriculum.id}>
+              const content = (
+                <>
                   <div className="curriculum-card-topline">
                     <span>{String(index + 1).padStart(2, "0")} · {curriculum.category[locale]}</span>
-                    <span className="curriculum-status status-planned">{c.planned}</span>
+                    <span className={`curriculum-status ${curriculum.experiment ? "status-experiment" : "status-planned"}`}>
+                      {curriculum.experiment ? c.experiment : c.planned}
+                    </span>
                   </div>
                   <div>
                     <h4>{curriculum.title[locale]}</h4>
                     <p>{curriculum.summary[locale]}</p>
                   </div>
+                  {curriculum.experiment ? (
+                    <strong className="roadmap-experiment-link">{curriculum.experiment.label[locale]} ↗</strong>
+                  ) : null}
+                </>
+              );
+
+              if (curriculum.experiment) {
+                return (
+                  <Link
+                    className={`roadmap-card roadmap-card-link curriculum-card-${curriculum.accent}`}
+                    to={curriculum.experiment.href}
+                    search={locale === "en" ? { lang: "en" } : {}}
+                    key={curriculum.id}
+                  >
+                    {content}
+                  </Link>
+                );
+              }
+
+              return (
+                <article className={`roadmap-card curriculum-card-${curriculum.accent}`} key={curriculum.id}>
+                  {content}
                 </article>
               );
             })}
