@@ -1,7 +1,10 @@
+import { ArrowUpRightIcon } from "@phosphor-icons/react";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { curricula } from "../data/curriculum";
 import { useLocale } from "../features/localization/localization";
 import { AuthControls } from "./AuthControls";
+import { ConceptLearningStage } from "./ConceptLearningStage";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useProgress } from "./ProgressProvider";
 import { RootorialMark } from "./RootorialMark";
@@ -40,8 +43,10 @@ const copy = {
     home: "Rootorial 홈",
     nav: "커리큘럼 탐색",
     method: "학습 방식",
-    eyebrow: "INTERACTIVE TECHNOLOGY CURRICULA",
+    eyebrow: "LIVE CONCEPT LAB · VECTOR 01 / 08",
     summary: "직접 움직이고 실행하며, 어려운 기술을 이해 가능한 순서로 다시 조립합니다.",
+    preview: "60초 학습 미리보기",
+    previewHint: "직접 움직여 보세요",
     start: "첫 챕터 바로 시작",
     explore: "커리큘럼 살펴보기",
     continue: "Transformer 이어서 학습",
@@ -75,8 +80,10 @@ const copy = {
     home: "Rootorial home",
     nav: "Explore curricula",
     method: "Learning method",
-    eyebrow: "INTERACTIVE TECHNOLOGY CURRICULA",
+    eyebrow: "LIVE CONCEPT LAB · VECTOR 01 / 08",
     summary: "Move, run, and rebuild difficult technology into an order you can understand.",
+    preview: "Try a 60-second lesson",
+    previewHint: "Move the vector yourself",
     start: "Start the first chapter",
     explore: "Explore curricula",
     continue: "Continue Transformers",
@@ -162,6 +169,7 @@ export function PlatformHome({ reach }: { reach: PublicPlatformReach }) {
   const { locale } = useLocale();
   const { completed } = useProgress();
   const c = copy[locale];
+  const [previewActivationId, setPreviewActivationId] = useState(0);
 
   return (
     <div className="site-shell platform-home">
@@ -194,42 +202,42 @@ export function PlatformHome({ reach }: { reach: PublicPlatformReach }) {
           </div>
           <p className="hero-summary">{c.summary}</p>
           <div className="hero-actions">
+            <div className="hero-preview-action">
+              <button
+                className="button button-primary"
+                type="button"
+                aria-controls="hero-learning-preview"
+                onClick={() => setPreviewActivationId((current) => current + 1)}
+              >
+                {c.preview} <ArrowUpRightIcon aria-hidden="true" />
+              </button>
+              <span>{c.previewHint}</span>
+            </div>
             {completed.length > 0 ? (
               <Link
-                className="button button-primary"
+                className="text-link"
                 to="/curricula/$curriculumSlug"
                 params={{ curriculumSlug: "transformer-from-zero" }}
               >
-                {c.continue} <span aria-hidden="true">↗</span>
+                {c.continue} <ArrowUpRightIcon aria-hidden="true" />
               </Link>
             ) : (
               <Link
-                className="button button-primary"
+                className="text-link"
                 to="/curricula/$curriculumSlug/chapters/$chapterSlug"
                 params={{ curriculumSlug: "transformer-from-zero", chapterSlug: "vectors" }}
               >
-                {c.start} <span aria-hidden="true">↗</span>
+                {c.start} <ArrowUpRightIcon aria-hidden="true" />
               </Link>
             )}
-            <a className="text-link" href="#curricula">{c.explore} <span aria-hidden="true">↓</span></a>
-          </div>
-          <div className="creator-presence">
-            <p className="creator-credit"><span>{c.madeBy}</span><strong>Taeyun Jang</strong></p>
-            <div className="hero-social-links" role="group" aria-label={c.social}>
-              {socialLinks.map((link) => <SocialLink key={link.href} link={link} opensNewTab={c.opensNewTab} />)}
-            </div>
           </div>
         </div>
-        <div className="platform-hero-visual" aria-hidden="true">
-          <div className="platform-hero-map">
-            <span className="map-sweep" />
-            <RootorialMark className="map-origin" />
-            <span className="map-node map-node-ai">AI</span>
-            <span className="map-node map-node-linux">Linux</span>
-            <span className="map-node map-node-infra">Infra</span>
-            <span className="map-node map-node-design">Patterns</span>
-          </div>
-          <p className="map-caption">{c.mapCaption}</p>
+        <div className="platform-hero-visual">
+          <ConceptLearningStage
+            locale={locale}
+            variant="hero"
+            activationId={previewActivationId}
+          />
         </div>
       </section>
 

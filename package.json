@@ -34,6 +34,7 @@
     "@codemirror/state": "^6.7.1",
     "@codemirror/view": "^6.43.6",
     "@lezer/highlight": "^1.2.3",
+    "@phosphor-icons/react": "^2.1.10",
     "@tanstack/react-router": "1.170.17",
     "@tanstack/react-start": "1.168.27",
     "codemirror": "^6.0.2",
@@ -43,7 +44,8 @@
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "react-markdown": "^10.1.0",
-    "remark-gfm": "^4.0.1"
+    "remark-gfm": "^4.0.1",
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@clerk/backend": "3.11.4",
@@ -54,6 +56,7 @@
     "@types/node": "22.19.19",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
+    "@types/three": "^0.185.1",
     "@vitejs/plugin-react": "6.0.3",
     "drizzle-kit": "0.31.10",
     "typescript": "5.9.3",

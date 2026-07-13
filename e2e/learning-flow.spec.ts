@@ -1,6 +1,28 @@
 import { clerk } from "@clerk/testing/playwright";
 import { expect, test } from "@playwright/test";
 
+test("starts the localized Three.js lesson preview from the landing page", async ({ page }) => {
+  await page.goto("/?lang=en");
+
+  const stage = page.getByTestId("rootorial-learning-scene").first();
+  const canvas = stage.locator("canvas");
+  await expect(page.getByRole("button", { name: "Try a 60-second lesson" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Start the first chapter" })).toHaveAttribute(
+    "href",
+    "/curricula/transformer-from-zero/chapters/vectors",
+  );
+  await expect(canvas).toHaveAttribute("data-ready", "true");
+
+  await page.getByRole("button", { name: "Try a 60-second lesson" }).click();
+  await expect(canvas).toBeFocused();
+
+  await page.getByRole("button", { name: "Pause motion" }).click();
+  const vectorValue = stage.locator(".concept-stage-metrics dd").first();
+  const before = await vectorValue.textContent();
+  await canvas.press("ArrowRight");
+  await expect(vectorValue).not.toHaveText(before ?? "");
+});
+
 test("keeps the English chapter free of untranslated Korean UI", async ({ page }) => {
   await page.goto("/?lang=en");
   await page.getByRole("link", { name: /View curriculum/ }).click();

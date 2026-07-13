@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { ChapterToc } from "./ChapterToc";
 import { CompleteChapter } from "./CompleteChapter";
 import { ConceptCheck } from "./ConceptCheck";
+import { ConceptLearningStage } from "./ConceptLearningStage";
 import { Discussable } from "./DiscussionPanel";
 import { NotebookCell } from "./NotebookCell";
 import { PythonCode } from "./PythonCode";
@@ -172,6 +173,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             <p>
               {isKo ? <>중요한 것은 숫자 하나하나의 이름보다 <strong>벡터 전체가 어떤 상태를 표현하는가</strong>입니다. 이미지의 픽셀, 사용자의 취향, 토큰의 의미처럼 서로 다른 대상을 같은 계산 규칙으로 다룰 수 있게 해 주는 공통 언어가 벡터입니다.</> : <>What matters is not the name of each number, but <strong>the state represented by the vector as a whole</strong>. Vectors are a common language that lets us apply the same computational rules to very different things: image pixels, user preferences, and token meanings.</>}
             </p>
+            <ConceptLearningStage locale={locale} variant="lesson" />
             <Discussable scopeId="transformer-from-zero.vectors.meaning" subjectLabel={t("벡터를 읽는 세 관점", "Three ways to read a vector")}>
               <div className="concept-definition-grid" aria-label={t("벡터를 읽는 세 관점", "Three ways to read a vector")}>
                 <article>
