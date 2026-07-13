@@ -6730,7 +6730,7 @@ textarea:focus-visible {
 
 .step-explorer {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--step-count, 5), minmax(0, 1fr));
   border-bottom: 1px solid var(--line);
 }
 .step-explorer button {
@@ -6952,7 +6952,7 @@ textarea:focus-visible {
   .interactive-lab-header h3 { font-size: 27px; }
   .attention-scenarios { display: grid; grid-template-columns: 1fr; }
   .attention-scenarios button { min-height: 44px; }
-  .step-explorer { overflow-x: auto; grid-template-columns: repeat(5, minmax(112px, 1fr)); }
+  .step-explorer { overflow-x: auto; grid-template-columns: repeat(var(--step-count, 5), minmax(112px, 1fr)); }
   .step-explorer button { min-height: 58px; }
   .attention-pipeline-workspace { display: block; }
   .attention-token-selector { border-right: 0; border-bottom: 1px solid var(--line); }
@@ -7919,5 +7919,617 @@ textarea:focus-visible {
   .map-sweep,
   .map-node {
     animation: none;
+  }
+}
+
+/* Reusable vector, matrix, and tensor diagrams -------------------------- */
+
+.array-diagram {
+  min-width: 0;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.array-diagram-caption,
+.tensor-diagram-caption {
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  color: var(--forest);
+  font-family: var(--mono);
+  font-size: var(--text-meta);
+  font-weight: 850;
+}
+
+.array-diagram-caption code,
+.tensor-diagram-caption code {
+  flex: none;
+  padding: 5px 7px;
+  background: var(--paper-pressed);
+  color: var(--ink);
+  font-size: var(--text-meta);
+}
+
+.array-diagram-axes {
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  list-style: none;
+}
+
+.array-diagram-axes li {
+  padding: 5px 7px;
+  border: 1px solid var(--line);
+  background: var(--paper-subtle);
+  color: var(--muted);
+  font-size: var(--text-meta);
+}
+
+.array-diagram-axes li span {
+  margin-right: 5px;
+  color: var(--quiet);
+  font-family: var(--mono);
+  font-size: 0.78em;
+}
+
+.array-diagram-axes li.is-active {
+  border-color: var(--annotation);
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.array-diagram-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.array-diagram table {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 5px;
+}
+
+.array-diagram th {
+  min-width: 38px;
+  height: 20px;
+  color: var(--quiet);
+  font-family: var(--mono);
+  font-size: var(--text-meta);
+  font-weight: 750;
+  text-align: center;
+}
+
+.array-diagram th.is-active {
+  color: var(--annotation);
+}
+
+.array-diagram td {
+  padding: 0;
+}
+
+.array-diagram td > span,
+.array-diagram td > button {
+  min-width: 52px;
+  height: 42px;
+  padding: 0 8px;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--forest) 18%, transparent);
+  background: color-mix(in srgb, var(--forest) 8%, var(--paper-raised));
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: var(--text-meta);
+  font-variant-numeric: tabular-nums;
+}
+
+.array-diagram-indigo td > span,
+.array-diagram-indigo td > button {
+  border-color: color-mix(in srgb, var(--indigo) 22%, transparent);
+  background: color-mix(in srgb, var(--indigo) 9%, var(--paper-raised));
+}
+
+.array-diagram-terra td > span,
+.array-diagram-terra td > button,
+.array-diagram td > .array-cell-negative {
+  border-color: color-mix(in srgb, var(--annotation) 28%, transparent);
+  background: color-mix(in srgb, var(--annotation) 9%, var(--paper-raised));
+}
+
+.array-diagram td > button {
+  cursor: pointer;
+}
+
+.array-diagram td > button:hover,
+.array-diagram td > button:focus-visible,
+.array-diagram td > .array-cell-active {
+  border-color: var(--annotation);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--annotation) 15%, transparent);
+}
+
+.array-diagram td > .array-cell-empty {
+  border-style: dashed;
+  background: transparent;
+  color: var(--quiet);
+}
+
+.array-diagram-axis-0 {
+  box-shadow: inset 3px 0 0 var(--annotation);
+}
+
+.array-diagram-axis-1 {
+  box-shadow: inset 0 3px 0 var(--annotation);
+}
+
+.array-diagram-compact {
+  padding: 12px;
+}
+
+.array-diagram-compact td > span,
+.array-diagram-compact td > button {
+  min-width: 44px;
+  height: 36px;
+}
+
+.array-diagram-heatmap {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.array-diagram-heatmap .array-diagram-caption {
+  justify-content: flex-start;
+}
+
+.array-diagram-heatmap.matrix-grid-forest td > button {
+  background: rgba(68, 82, 65, calc(0.06 + var(--matrix-intensity) * 0.72));
+}
+
+.array-diagram-heatmap.matrix-grid-indigo td > button {
+  background: rgba(76, 91, 100, calc(0.06 + var(--matrix-intensity) * 0.72));
+}
+
+.array-diagram-heatmap.matrix-grid-terra td > button,
+.array-diagram-heatmap td > button.array-cell-negative {
+  background: rgba(152, 82, 60, calc(0.06 + var(--matrix-intensity) * 0.67));
+}
+
+.tensor-diagram {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.tensor-diagram-slices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 12px;
+}
+
+.tensor-diagram-slices .array-diagram {
+  min-width: 0;
+  box-shadow: 8px 8px 0 color-mix(in srgb, var(--indigo) 6%, transparent);
+}
+
+.tensor-diagram-compact {
+  padding: 12px;
+}
+
+.tensor-visual .array-diagram,
+.tensor-visual .tensor-diagram {
+  border: 0;
+  background: transparent;
+}
+
+.tensor-visual .tensor-diagram-slices .array-diagram {
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+}
+
+/* Reshape Blocks -------------------------------------------------------- */
+
+.array-lab-source-count {
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  color: var(--forest);
+  font-size: var(--text-meta);
+}
+
+.array-transform-workspace {
+  min-height: 300px;
+  padding: 30px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 110px minmax(0, 1fr);
+  align-items: center;
+  gap: 22px;
+  background: var(--paper-subtle);
+}
+
+.array-transform-operator {
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.array-transform-operator span {
+  font-family: var(--mono);
+  font-size: var(--text-meta);
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+.array-transform-operator code {
+  color: var(--forest);
+  font-size: var(--text-code);
+}
+
+.array-transform-operator strong {
+  color: var(--annotation);
+  font-family: var(--serif);
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.array-prediction-panel {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.8fr) minmax(260px, 1fr) minmax(220px, 1fr);
+  border-top: 1px solid var(--line-strong);
+}
+
+.array-prediction-panel > div,
+.array-prediction-panel fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 20px;
+  border: 0;
+  border-right: 1px solid var(--line);
+}
+
+.array-prediction-panel > :last-child {
+  border-right: 0;
+}
+
+.array-prediction-panel > div:first-child span,
+.axis-builder-code span,
+.axis-builder-result > span {
+  display: block;
+  margin-bottom: 9px;
+  color: var(--quiet);
+  font-family: var(--mono);
+  font-size: var(--text-meta);
+  font-weight: 850;
+  letter-spacing: 0.08em;
+}
+
+.array-prediction-panel > div:first-child code,
+.axis-builder-code code {
+  overflow-wrap: anywhere;
+  color: var(--forest);
+  font-size: var(--text-code);
+}
+
+.array-prediction-panel legend,
+.axis-builder-prediction legend {
+  margin-bottom: 12px;
+  color: var(--ink);
+  font-size: var(--text-support);
+  font-weight: 800;
+}
+
+.array-prediction-panel label,
+.axis-builder-prediction label {
+  min-height: 38px;
+  padding: 7px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  cursor: pointer;
+  font-size: var(--text-ui);
+}
+
+.array-prediction-panel label + label {
+  margin-left: 6px;
+}
+
+.array-prediction-panel button,
+.axis-builder-prediction > button {
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid var(--forest);
+  background: var(--forest);
+  color: white;
+  cursor: pointer;
+  font-size: var(--text-ui);
+  font-weight: 800;
+}
+
+.array-prediction-panel fieldset button {
+  margin-top: 10px;
+  display: block;
+}
+
+.array-prediction-panel button:disabled,
+.axis-builder-prediction > button:disabled {
+  border-color: var(--line);
+  background: var(--paper-pressed);
+  color: var(--quiet);
+  cursor: not-allowed;
+}
+
+.array-prediction-feedback p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-support);
+  line-height: 1.65;
+}
+
+.array-prediction-feedback strong {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--forest);
+}
+
+.array-prediction-feedback.is-incorrect strong {
+  color: var(--rust);
+}
+
+.array-prediction-feedback code {
+  display: block;
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+  font-size: var(--text-meta);
+}
+
+/* Axis Builder ---------------------------------------------------------- */
+
+.axis-selector {
+  display: flex;
+  gap: 6px;
+}
+
+.axis-selector button {
+  min-height: 38px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: var(--text-meta);
+  font-weight: 800;
+}
+
+.axis-selector button[aria-pressed="true"] {
+  border-color: var(--forest);
+  background: var(--forest);
+  color: white;
+}
+
+.axis-builder-workspace {
+  min-height: 390px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+  background: var(--paper-subtle);
+}
+
+.axis-builder-input,
+.axis-builder-result {
+  min-width: 0;
+  padding: 28px;
+}
+
+.axis-builder-result {
+  border-left: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.axis-builder-vectors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.axis-builder-code {
+  margin-top: 20px;
+  padding: 18px;
+  border-left: 3px solid var(--annotation);
+  background: var(--paper-raised);
+}
+
+.axis-builder-code p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: var(--text-support);
+  line-height: 1.65;
+}
+
+.axis-builder-hidden-result,
+.axis-builder-error {
+  min-height: 220px;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  border: 1px dashed var(--line-strong);
+  color: var(--quiet);
+  text-align: center;
+}
+
+.axis-builder-hidden-result strong {
+  color: var(--annotation);
+  font-family: var(--serif);
+  font-size: 54px;
+  font-weight: 400;
+}
+
+.axis-builder-hidden-result p,
+.axis-builder-error p {
+  margin: 8px 0 0;
+  font-size: var(--text-support);
+}
+
+.axis-builder-error strong {
+  color: var(--rust);
+  font-family: var(--mono);
+}
+
+.axis-builder-prediction {
+  margin: 0;
+  padding: 20px 28px;
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(300px, auto) auto;
+  align-items: center;
+  gap: 16px;
+  border: 0;
+  border-top: 1px solid var(--line-strong);
+}
+
+.axis-builder-prediction legend {
+  float: left;
+  width: 100%;
+  margin: 0;
+}
+
+.axis-builder-prediction > div {
+  display: flex;
+  gap: 6px;
+}
+
+.axis-builder-prediction > p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-support);
+}
+
+.axis-builder-prediction > p.is-correct {
+  color: var(--forest);
+  font-weight: 750;
+}
+
+.axis-builder-prediction > p.is-incorrect {
+  color: var(--rust);
+  font-weight: 750;
+}
+
+@media (max-width: 900px) {
+  .array-transform-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .array-transform-operator {
+    grid-template-columns: auto auto auto;
+    justify-content: center;
+  }
+
+  .array-prediction-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .array-prediction-panel > div,
+  .array-prediction-panel fieldset {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .array-prediction-panel > :last-child {
+    border-bottom: 0;
+  }
+
+  .axis-builder-workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .axis-builder-result {
+    border-top: 1px solid var(--line-strong);
+    border-left: 0;
+  }
+
+  .axis-builder-prediction {
+    grid-template-columns: 1fr auto;
+  }
+
+  .axis-builder-prediction legend,
+  .axis-builder-prediction > p {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 620px) {
+  .array-diagram td > span,
+  .array-diagram td > button {
+    min-width: 40px;
+    height: 36px;
+    padding: 0 5px;
+  }
+
+  .array-transform-workspace,
+  .axis-builder-input,
+  .axis-builder-result {
+    padding: 18px 12px;
+  }
+
+  .array-prediction-panel label {
+    width: 100%;
+  }
+
+  .array-prediction-panel label + label {
+    margin: 6px 0 0;
+  }
+
+  .axis-selector {
+    width: 100%;
+  }
+
+  .axis-selector button {
+    flex: 1;
+    min-height: 44px;
+  }
+
+  .axis-builder-vectors {
+    grid-template-columns: 1fr;
+  }
+
+  .axis-builder-prediction {
+    padding: 18px 12px;
+    grid-template-columns: 1fr;
+  }
+
+  .axis-builder-prediction > div {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .axis-builder-prediction > button,
+  .axis-builder-prediction legend,
+  .axis-builder-prediction > p {
+    grid-column: 1;
+  }
+
+  .axis-builder-prediction label {
+    min-height: 44px;
+  }
+
+  .tensor-diagram-slices {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .array-diagram td > span,
+  .array-diagram td > button,
+  .axis-selector button {
+    transition: none;
   }
 }

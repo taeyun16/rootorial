@@ -103,6 +103,12 @@ test("renders the interactive vectors chapter", async () => {
   assert.ok((html.match(/data-latex=/g) ?? []).length >= 12);
   assert.match(html, /벡터 표기 짧은 확인/);
   assert.match(html, /SHAPE DETECTIVE/);
+  assert.match(html, /RESHAPE BLOCKS/);
+  assert.match(html, /값은 그대로 두고 shape만 다시 배치해 보세요/);
+  assert.match(html, /a\.reshape\(6\)/);
+  assert.match(html, /AXIS BUILDER/);
+  assert.match(html, /축을 만들고, 늘리고, 없애 보세요/);
+  assert.match(html, /np\.stack\(\[a, b\], axis=0\)/);
   assert.match(html, /전치했는데 왜 세로가 되지 않을까요/);
   assert.match(html, /벡터를 더했는데 표가 생겼습니다/);
   assert.match(html, /숫자보다 먼저 축의 의미를 읽어 보세요/);
@@ -116,6 +122,7 @@ test("renders the interactive vectors chapter", async () => {
   assert.match(html, /DISCUSSION/);
   assert.match(html, /벡터 크기 코드 셀/);
   assert.match(html, /텐서 shape 탐색기/);
+  assert.doesNotMatch(html, /토큰 벡터를 문장과 배치로 쌓기/);
   assert.match(html, /shape 이해 확인/);
   assert.match(html, /이해 확인: 계산 전에 구조를 예측하기/);
   assert.match(html, /다섯 문제를 모두 맞히면/);

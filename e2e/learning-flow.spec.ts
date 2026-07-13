@@ -49,11 +49,10 @@ test("runs Python and persists anonymous chapter progress", async ({ page }) => 
   await correctShapeAnswers.nth(0).check();
   await correctShapeAnswers.nth(1).check();
   await page.getByRole("radio", { name: "둘 다 0" }).check();
-  await page.getByRole("radio", { name: "[3, 4]", exact: true }).check();
   await page.getByRole("button", { name: "답 확인하기" }).click();
   await expect(page.getByText("이해 확인 완료 — 이제 챕터를 완료할 수 있습니다.")).toBeVisible();
-  await expect(page.locator(".answer-visual")).toHaveCount(6);
-  await expect(page.getByText("그림으로 확인")).toHaveCount(6);
+  await expect(page.locator(".answer-visual")).toHaveCount(5);
+  await expect(page.getByText("그림으로 확인")).toHaveCount(5);
 
   await page.getByRole("button", { name: /이 챕터 완료하기/ }).click();
   await expect(page.getByText("진도가 이 브라우저에 저장되었습니다.")).toBeVisible();

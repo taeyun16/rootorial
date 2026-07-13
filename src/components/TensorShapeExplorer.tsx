@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useLocale } from "../features/localization/localization";
 import { MathFormula } from "./MathFormula";
+import { TensorDiagram, type TensorValues } from "./interactive/TensorDiagram";
 
 type TensorStageId = "vector" | "sequence" | "batch";
 
@@ -56,52 +57,6 @@ const tokenValues = [
   [-0.5, 0.2, 0.6, 1.0],
 ];
 
-function TokenRow({ values, label }: { values: number[]; label: string }) {
-  return (
-    <div className="tensor-token-row">
-      <span className="tensor-token-label">{label}</span>
-      <div className="tensor-cells">
-        {values.map((value, index) => (
-          <span className="tensor-cell" key={`${label}-${index}`}>
-            {value.toFixed(1)}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function TensorVisual({ stage, isKo }: { stage: TensorStageId; isKo: boolean }) {
-  if (stage === "vector") {
-    return (
-      <div className="tensor-visual tensor-visual-vector" aria-hidden="true">
-        <TokenRow label="token" values={tokenValues[0]} />
-      </div>
-    );
-  }
-
-  const sentences = stage === "sequence" ? [tokenValues] : [tokenValues, tokenValues];
-
-  return (
-    <div className={`tensor-visual tensor-visual-${stage}`} aria-hidden="true">
-      {sentences.map((sentence, sentenceIndex) => (
-        <div className="tensor-sentence" key={`sentence-${sentenceIndex}`}>
-          {stage === "batch" ? (
-            <span className="tensor-sentence-label">{isKo ? "문장" : "sentence"} {sentenceIndex + 1}</span>
-          ) : null}
-          {sentence.map((values, tokenIndex) => (
-            <TokenRow
-              label={`token ${tokenIndex + 1}`}
-              values={sentenceIndex === 0 ? values : values.map((value) => value * 0.5)}
-              key={`sentence-${sentenceIndex}-token-${tokenIndex}`}
-            />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export function TensorShapeExplorer() {
   const { locale } = useLocale();
   const isKo = locale === "ko";
@@ -109,13 +64,25 @@ export function TensorShapeExplorer() {
   const [stageId, setStageId] = useState<TensorStageId>("vector");
   const [showBroadcast, setShowBroadcast] = useState(false);
   const stage = stages.find((candidate) => candidate.id === stageId) ?? stages[0];
+  const titleId = useId();
+  const panelId = useId();
+  const broadcastId = useId();
+  const tensorValues: TensorValues = stageId === "vector"
+    ? tokenValues[0]
+    : stageId === "sequence"
+      ? tokenValues
+      : [tokenValues, tokenValues.map((row) => row.map((value) => value * 0.5))];
+  const rowLabels = stageId === "vector"
+    ? ["token"]
+    : tokenValues.map((_, index) => `token ${index + 1}`);
+  const columnLabels = tokenValues[0].map((_, index) => `d${index + 1}`);
 
   return (
-    <section className="tensor-shape-explorer" aria-labelledby="tensor-explorer-title">
+    <section className="tensor-shape-explorer" aria-labelledby={titleId}>
       <div className="tensor-shape-header">
         <div>
           <p className="tensor-shape-kicker">SHAPE EXPLORER</p>
-          <h3 id="tensor-explorer-title">{isKo ? "텐서를 읽는 세 가지 축" : "The three axes of a tensor"}</h3>
+          <h3 id={titleId}>{isKo ? "텐서를 읽는 세 가지 축" : "The three axes of a tensor"}</h3>
         </div>
         <code className="tensor-current-shape" aria-label={`${isKo ? "현재 shape" : "Current shape"} ${stage.shape}`}>
           {stage.shape}
@@ -130,7 +97,7 @@ export function TensorShapeExplorer() {
               type="button"
               className={`tensor-stage-button${active ? " tensor-stage-button-active" : ""}`}
               aria-pressed={active}
-              aria-controls="tensor-stage-panel"
+              aria-controls={panelId}
               onClick={() => setStageId(candidate.id)}
               key={candidate.id}
             >
@@ -140,7 +107,7 @@ export function TensorShapeExplorer() {
         })}
       </div>
 
-      <div className="tensor-stage-panel" id="tensor-stage-panel" aria-live="polite">
+      <div className="tensor-stage-panel" id={panelId} aria-live="polite">
         <div className="tensor-stage-copy">
           <span>rank {stage.rank}</span>
           <h4>{stage.title}</h4>
@@ -154,7 +121,22 @@ export function TensorShapeExplorer() {
             ))}
           </dl>
         </div>
-        <TensorVisual stage={stage.id} isKo={isKo} />
+        <div className={`tensor-visual tensor-visual-${stage.id}`}>
+          <TensorDiagram
+            values={tensorValues}
+            shape={stage.id === "vector" ? [4] : stage.id === "sequence" ? [3, 4] : [2, 3, 4]}
+            label={stage.title}
+            axisLabels={stage.id === "vector"
+              ? [String.raw`d_model`]
+              : stage.id === "sequence"
+                ? [isKo ? "tokens" : "tokens", String.raw`d_model`]
+                : ["batch", "tokens", String.raw`d_model`]}
+            rowLabels={rowLabels}
+            columnLabels={columnLabels}
+            sliceLabels={stage.id === "batch" ? [isKo ? "문장 1" : "sentence 1", isKo ? "문장 2" : "sentence 2"] : undefined}
+            compact
+          />
+        </div>
       </div>
 
       <div className="tensor-broadcast-panel">
@@ -167,7 +149,7 @@ export function TensorShapeExplorer() {
             type="button"
             className="tensor-broadcast-toggle"
             aria-expanded={showBroadcast}
-            aria-controls="tensor-broadcast-explanation"
+            aria-controls={broadcastId}
             onClick={() => setShowBroadcast((visible) => !visible)}
           >
             {showBroadcast ? (isKo ? "설명 닫기" : "Hide explanation") : (isKo ? "왜 shape가 유지되나요?" : "Why does the shape stay the same?")}
@@ -184,7 +166,7 @@ export function TensorShapeExplorer() {
           <span><small>encoded tokens</small><code>[2, 3, 4]</code></span>
         </div>
         {showBroadcast ? (
-          <p className="tensor-broadcast-explanation" id="tensor-broadcast-explanation">
+          <p className="tensor-broadcast-explanation" id={broadcastId}>
             {isKo
               ? "NumPy는 빠진 batch 축을 자동으로 맞춰 같은 위치 행렬을 두 문장에 각각 더합니다. 값은 바뀌지만 batch, tokens, d_model 축의 크기는 그대로입니다."
               : "NumPy automatically aligns the missing batch axis and adds the same positional matrix to both sentences. The values change, but the batch, tokens, and d_model axis sizes stay the same."}

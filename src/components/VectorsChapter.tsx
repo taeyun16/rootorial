@@ -11,6 +11,8 @@ import { VectorExplorer } from "./VectorExplorer";
 import { VectorBasicsLab } from "./VectorBasicsLab";
 import { VectorNotationGuide } from "./VectorNotationGuide";
 import { ShapeDebuggingLab } from "./ShapeDebuggingLab";
+import { ReshapeBlocksLab } from "./ReshapeBlocksLab";
+import { AxisBuilderLab } from "./AxisBuilderLab";
 import { RootorialMark } from "./RootorialMark";
 import { MathFormula } from "./MathFormula";
 import { AuthControls } from "./AuthControls";
@@ -20,7 +22,6 @@ import { useLocale } from "../features/localization/localization";
 import { chaptersEn, chaptersKo } from "../data/curriculum";
 import {
   cosineCurveCode,
-  tensorShapeCode,
   vectorMagnitudeCode,
   vectorMagnitudeCodeEn,
 } from "../data/vectorNotebook";
@@ -144,8 +145,8 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                 <ul>
                   <li>벡터를 방향과 크기로 설명할 수 있다.</li>
                   <li>덧셈, 뺄셈, 스칼라 배와 정규화를 해석할 수 있다.</li>
-                  <li>NumPy의 rank-1 배열, 행벡터, 열벡터를 구분할 수 있다.</li>
-                  <li>batch, tokens, d_model 축으로 텐서 shape를 읽을 수 있다.</li>
+                  <li>NumPy의 rank-1 배열, 행·열벡터와 reshape를 구분할 수 있다.</li>
+                  <li>stack과 axis를 이용해 batch, tokens, d_model shape를 읽을 수 있다.</li>
                   <li>브로드캐스팅이 어느 축을 반복하는지 설명할 수 있다.</li>
                   <li>내적을 두 벡터의 정렬 정도로 해석할 수 있다.</li>
                 </ul>
@@ -153,8 +154,8 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                 <ul>
                   <li>Explain a vector in terms of direction and magnitude.</li>
                   <li>Interpret addition, subtraction, scalar multiplication, and normalization.</li>
-                  <li>Distinguish NumPy rank-1 arrays, row vectors, and column vectors.</li>
-                  <li>Read tensor shapes using batch, tokens, and d_model axes.</li>
+                  <li>Distinguish NumPy rank-1 arrays, row and column vectors, and reshape operations.</li>
+                  <li>Use stack and axis to read batch, tokens, and d_model shapes.</li>
                   <li>Explain which axes broadcasting repeats.</li>
                   <li>Interpret the dot product as the alignment between two vectors.</li>
                 </ul>
@@ -263,11 +264,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             <p>
               {isKo ? <>수학에서는 전치를 <MathFormula latex={String.raw`\mathbf{v}^{\mathsf{T}}`} />, “브이 전치”라고 읽습니다. 위 첨자 T는 값을 바꾸는 것이 아니라 행과 열의 방향을 바꾸라는 표시입니다.</> : <>In mathematics, the transpose is written <MathFormula latex={String.raw`\mathbf{v}^{\mathsf{T}}`} /> and read “v transpose.” The superscript T says to swap row and column orientation, not to change the values.</>}
             </p>
-            <div className="orientation-compare" aria-label={t("NumPy 벡터 shape 비교", "NumPy vector shape comparison")}>
-              <div><span>{t("rank-1 배열", "rank-1 array")}</span><code>[1, 2, 3]</code><strong>shape (3,)</strong><small>{t(".T도 (3,)", ".T is still (3,)")}</small></div>
-              <div><span>{t("행벡터", "row vector")}</span><code>[[1, 2, 3]]</code><strong>shape (1, 3)</strong><small>.T → (3, 1)</small></div>
-              <div><span>{t("열벡터", "column vector")}</span><code>[[1], [2], [3]]</code><strong>shape (3, 1)</strong><small>.T → (1, 3)</small></div>
-            </div>
+            <ReshapeBlocksLab />
             <div className="concept-callout misconception-callout">
               <span className="callout-mark">!</span>
               <div>
@@ -300,29 +297,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             >
               <TensorShapeExplorer />
             </Discussable>
-            <div className="notebook-stack">
-              <Discussable
-                scopeId="transformer-from-zero.vectors.notebook.tensor-shape"
-                subjectLabel={t("텐서 shape 코드 셀", "Tensor shape code cell")}
-                variant="code-cell"
-              >
-                <NotebookCell
-                  title={t("토큰 벡터를 문장과 배치로 쌓기", "Stack token vectors into sentences and batches")}
-                  initialCode={tensorShapeCode}
-                  description={
-                    <p>
-                      {t("같은 숫자도 쌓는 순서에 따라 rank와 shape가 달라집니다. 출력의 각 축을 소리 내어 읽어 보세요.", "The same numbers can have different ranks and shapes depending on how they are stacked. Read each output axis aloud.")}
-                    </p>
-                  }
-                  hint={
-                    <p>
-                      {isKo ? <>토큰을 하나 더 추가해 <PythonCode>[2, 4, 4]</PythonCode>를 만들고 어떤 축이 바뀌었는지 확인해 보세요.</> : <>Add one more token to create <PythonCode>[2, 4, 4]</PythonCode>, then identify which axis changed.</>}
-                    </p>
-                  }
-                  editorMinHeight={260}
-                />
-              </Discussable>
-            </div>
+            <AxisBuilderLab />
           </section>
 
           <section className="article-section full-bleed-section" id="dot-product">
@@ -396,8 +371,8 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             <h2>{isKo ? "이제 숫자의 모양과 관계를 먼저 읽을 수 있습니다." : "You can now read shape and relationships before values."}</h2>
             <p>
               {isKo
-                ? "벡터의 방향과 크기를 설명하고, NumPy shape와 batch, tokens, d_model 축을 추적하며, 내적의 부호를 예측할 수 있다면 첫 챕터의 목표를 달성했습니다."
-                : "If you can explain vector direction and magnitude, trace NumPy shapes and batch, tokens, d_model axes, and predict the sign of a dot product, you have reached this chapter's goal."}
+                ? "벡터의 방향과 크기를 설명하고, reshape와 axis를 이용해 batch, tokens, d_model shape를 추적하며, 내적의 부호를 예측할 수 있다면 첫 챕터의 목표를 달성했습니다."
+                : "If you can explain vector direction and magnitude, use reshape and axis to trace batch, tokens, d_model shapes, and predict the sign of a dot product, you have reached this chapter's goal."}
             </p>
             <CompleteChapter
               slug="vectors"

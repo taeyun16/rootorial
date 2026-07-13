@@ -11,33 +11,7 @@ type ConceptVisualExplanationProps = {
 };
 import { useLocale } from "../features/localization/localization";
 import { MathFormula } from "./MathFormula";
-
-function Matrix({
-  rows,
-  columns,
-  label,
-  tone = "green",
-  values,
-}: {
-  rows: number;
-  columns: number;
-  label: string;
-  tone?: "green" | "indigo" | "terra";
-  values?: Array<number | string>;
-}) {
-  return (
-    <div className="answer-matrix-wrap">
-      <div
-        className={`answer-matrix answer-matrix-${tone}${values ? " answer-matrix-valued" : ""}`}
-        style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
-        aria-hidden="true"
-      >
-        {Array.from({ length: rows * columns }, (_, index) => <i key={index}>{values?.[index]}</i>)}
-      </div>
-      <code>{label}</code>
-    </div>
-  );
-}
+import { MatrixGlyph } from "./interactive/MatrixGlyph";
 
 export function ConceptVisualExplanation({ kind }: ConceptVisualExplanationProps) {
   const { locale } = useLocale();
@@ -48,11 +22,11 @@ export function ConceptVisualExplanation({ kind }: ConceptVisualExplanationProps
       <figure className="answer-visual" role="img" aria-label={t("행벡터 1, 2, 3과 열벡터 10, 20, 30이 두 축으로 펼쳐져 11부터 33까지의 3행 3열 행렬이 되는 브로드캐스팅 그림", "Broadcasting diagram where row vector 1, 2, 3 and column vector 10, 20, 30 expand into a 3 by 3 matrix from 11 to 33")}>
         <figcaption><span>{t("그림으로 확인", "SEE IT VISUALLY")}</span> {t("서로 비어 있는 축이 각각 3칸으로 펼쳐집니다.", "Each missing axis expands to three positions.")}</figcaption>
         <div className="answer-visual-equation" aria-hidden="true">
-          <Matrix rows={1} columns={3} label="(1, 3)" values={[1, 2, 3]} />
+          <MatrixGlyph rows={1} columns={3} label="(1, 3)" values={[1, 2, 3]} />
           <strong>+</strong>
-          <Matrix rows={3} columns={1} label="(3, 1)" tone="indigo" values={[10, 20, 30]} />
+          <MatrixGlyph rows={3} columns={1} label="(3, 1)" tone="indigo" values={[10, 20, 30]} />
           <strong>→</strong>
-          <Matrix rows={3} columns={3} label="(3, 3)" tone="terra" values={[11, 12, 13, 21, 22, 23, 31, 32, 33]} />
+          <MatrixGlyph rows={3} columns={3} label="(3, 3)" tone="terra" values={[11, 12, 13, 21, 22, 23, 31, 32, 33]} />
         </div>
       </figure>
     );
@@ -133,11 +107,11 @@ export function ConceptVisualExplanation({ kind }: ConceptVisualExplanationProps
     <figure className="answer-visual" role="img" aria-label={t("3행 3열 Attention 가중치와 3행 4열 값 벡터를 곱해 3행 4열 컨텍스트 벡터가 되는 그림", "Diagram multiplying 3 by 3 Attention weights by 3 by 4 value vectors to produce 3 by 4 context vectors")}>
       <figcaption><span>{t("그림으로 확인", "SEE IT VISUALLY")}</span> {t("맞닿는 3은 사라지고 바깥의 3과 4가 남습니다.", "The matching inner 3 contracts, leaving the outer 3 and 4.")}</figcaption>
       <div className="answer-visual-equation attention-shape-visual" aria-hidden="true">
-        <Matrix rows={3} columns={3} label="weights [3, 3]" />
+        <MatrixGlyph rows={3} columns={3} label="weights [3, 3]" />
         <strong>@</strong>
-        <Matrix rows={3} columns={4} label="values [3, 4]" tone="indigo" />
+        <MatrixGlyph rows={3} columns={4} label="values [3, 4]" tone="indigo" />
         <strong>→</strong>
-        <Matrix rows={3} columns={4} label="context [3, 4]" tone="terra" />
+        <MatrixGlyph rows={3} columns={4} label="context [3, 4]" tone="terra" />
       </div>
     </figure>
   );

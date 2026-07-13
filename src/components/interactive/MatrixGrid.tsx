@@ -1,5 +1,5 @@
-import type { CSSProperties } from "react";
-import { matrixExtent, type NumericMatrix } from "../../features/interactive/math";
+import type { NumericMatrix } from "../../features/interactive/math";
+import { ArrayDiagram } from "./ArrayDiagram";
 
 type MatrixGridProps = {
   values: NumericMatrix;
@@ -24,52 +24,20 @@ export function MatrixGrid({
   tone = "forest",
   onSelectCell,
 }: MatrixGridProps) {
-  const extent = matrixExtent(values);
-
   return (
-    <figure className={`matrix-grid matrix-grid-${tone}`}>
-      <figcaption>{label}</figcaption>
-      <div className="matrix-grid-scroll">
-        <table>
-          {columnLabels ? (
-            <thead>
-              <tr>
-                <th aria-hidden="true" />
-                {columnLabels.map((column, index) => <th scope="col" key={`${column}-${index}`}>{column}</th>)}
-              </tr>
-            </thead>
-          ) : null}
-          <tbody>
-            {values.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                {rowLabels ? <th scope="row">{rowLabels[rowIndex]}</th> : null}
-                {row.map((value, columnIndex) => {
-                  const intensity = Math.min(1, Math.abs(value) / extent);
-                  const active = rowIndex === selectedRow || columnIndex === selectedColumn;
-                  const cellClassName = [
-                    active ? "matrix-cell-active" : "",
-                    value < 0 ? "matrix-cell-negative" : "",
-                  ].filter(Boolean).join(" ") || undefined;
-                  return (
-                    <td key={columnIndex}>
-                      <button
-                        type="button"
-                        className={cellClassName}
-                        style={{ "--matrix-intensity": intensity } as CSSProperties}
-                        aria-label={`${label}, ${rowLabels?.[rowIndex] ?? `row ${rowIndex + 1}`}, ${columnLabels?.[columnIndex] ?? `column ${columnIndex + 1}`}: ${formatValue(value)}`}
-                        onClick={() => onSelectCell?.(rowIndex, columnIndex)}
-                        disabled={!onSelectCell}
-                      >
-                        {formatValue(value)}
-                      </button>
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </figure>
+    <ArrayDiagram
+      values={values}
+      shape={[values.length, values[0]?.length ?? 0]}
+      label={label}
+      rowLabels={rowLabels}
+      columnLabels={columnLabels}
+      selectedRow={selectedRow}
+      selectedColumn={selectedColumn}
+      formatValue={(value) => typeof value === "number" ? formatValue(value) : ""}
+      tone={tone}
+      variant="heatmap"
+      showShape={false}
+      onSelectCell={onSelectCell}
+    />
   );
 }
