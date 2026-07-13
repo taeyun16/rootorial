@@ -31,6 +31,7 @@ import {
   answerKindForUser,
   canBlockAuthor,
   canLikeAnswer,
+  canReplyToDiscussionQuestion,
   getDiscussionCapabilities,
   isDiscussionAdmin,
   type DiscussionBlockList,
@@ -701,14 +702,17 @@ export const createAnswer = createServerFn({ method: "POST" })
         return mutationFailure("rate_limited", limitMessage);
       }
       const [question] = await db
-        .select({ state: discussionQuestions.state })
+        .select({
+          scopeId: discussionQuestions.scopeId,
+          state: discussionQuestions.state,
+        })
         .from(discussionQuestions)
         .where(eq(discussionQuestions.id, data.questionId))
         .limit(1);
       if (!question) {
         return mutationFailure("not_found", "질문을 찾을 수 없습니다.");
       }
-      if (question.state !== "visible") {
+      if (!canReplyToDiscussionQuestion(question.scopeId, question.state)) {
         return mutationFailure(
           "conflict",
           "현재 이 질문에는 답변을 남길 수 없습니다.",

@@ -5,7 +5,6 @@ import { env } from "cloudflare:workers";
 import type { LearningPresence } from "../../durable-objects/LearningPresence";
 import type { LearningSession } from "../../durable-objects/LearningSession";
 import {
-  conceptQuestionRegistry,
   learningPresenceShard,
   type PublicCurriculumReach,
   type PublicPlatformReach,
@@ -183,12 +182,18 @@ export const recordConceptAttempt = createServerFn({ method: "POST" })
     if (!currentUserId || !database || !namespace) return { ok: false as const };
     const now = Date.now();
     const session = await namespace.getByName(`${currentUserId}:${data.sessionId}`).heartbeat({
-      userId: currentUserId, now, visible: true, active: true,
+      userId: currentUserId,
+      now,
+      visible: true,
+      active: true,
+      context: {
+        curriculumSlug: data.curriculumSlug,
+        chapterSlug: data.chapterSlug,
+      },
     });
     if (session.closed) return { ok: false as const };
     await touchPresence(currentUserId, now);
     for (const answer of data.answers) {
-      const question = conceptQuestionRegistry[answer.key];
       await database.prepare(`
         INSERT INTO learning_attempts (
           id, submission_id, session_id, user_id, curriculum_slug, chapter_slug,
@@ -203,10 +208,10 @@ export const recordConceptAttempt = createServerFn({ method: "POST" })
       `).bind(
         `${data.submissionId}:${answer.questionId}`, data.submissionId, data.sessionId,
         currentUserId, data.curriculumSlug, data.chapterSlug, answer.questionId,
-        question.version, answer.selectedAnswer,
-        answer.selectedAnswer === question.correctAnswer ? 1 : 0, now,
+        answer.version, answer.selectedAnswer,
+        answer.selectedAnswer === answer.correctAnswer ? 1 : 0, now,
         currentUserId, data.curriculumSlug, data.chapterSlug, answer.questionId,
-        question.version,
+        answer.version,
       ).run();
     }
     return { ok: true as const };

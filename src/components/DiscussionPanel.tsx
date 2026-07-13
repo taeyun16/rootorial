@@ -13,7 +13,7 @@ import {
   useState,
 } from "react";
 import type { FormEvent, ReactNode } from "react";
-import type { DiscussionScopeId } from "../data/discussionScopes";
+import type { ActiveDiscussionScopeId } from "../data/discussionScopes";
 import type {
   DiscussionAnswerView,
   DiscussionAuthorView,
@@ -46,7 +46,7 @@ function loadDiscussionFunctions() {
 type AvailableDiscussionView = Extract<DiscussionView, { available: true }>;
 
 export type DiscussionPanelProps = {
-  scopeId: DiscussionScopeId;
+  scopeId: ActiveDiscussionScopeId;
   subjectLabel: string;
   variant?: "section" | "code-cell";
 };
@@ -639,6 +639,7 @@ function DiscussionPanelCore({
     <section
       ref={panelRef}
       className={`discussion-panel discussion-panel-${variant}`}
+      data-discussion-scope={scopeId}
       aria-label={`${subjectLabel} ${t("질문과 답변", "questions and answers")}`}
     >
       <button

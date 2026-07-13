@@ -1,5 +1,7 @@
 import {
+  isActiveDiscussionScopeId,
   isDiscussionScopeId,
+  type ActiveDiscussionScopeId,
   type DiscussionScopeId,
 } from "../../data/discussionScopes.ts";
 
@@ -176,6 +178,13 @@ export function validateDiscussionBody(
   return body;
 }
 
+export function canReplyToDiscussionQuestion(
+  scopeId: unknown,
+  state: DiscussionPostState,
+) {
+  return state === "visible" && isActiveDiscussionScopeId(scopeId);
+}
+
 export function validateModerationReason(value: unknown) {
   if (typeof value !== "string") {
     throw new DiscussionValidationError("조치 사유를 입력해 주세요.");
@@ -195,9 +204,17 @@ export function validateModerationReason(value: unknown) {
   return reason;
 }
 
-function validateScope(value: unknown): DiscussionScopeId {
+function validateKnownScope(value: unknown): DiscussionScopeId {
   if (!isDiscussionScopeId(value)) {
     throw new DiscussionValidationError("질문을 남길 학습 항목을 찾을 수 없습니다.");
+  }
+
+  return value;
+}
+
+function validateActiveScope(value: unknown): ActiveDiscussionScopeId {
+  if (!isActiveDiscussionScopeId(value)) {
+    throw new DiscussionValidationError("현재 질문을 남길 수 없는 학습 항목입니다.");
   }
 
   return value;
@@ -229,7 +246,7 @@ function validateCursor(value: unknown): DiscussionCursor | undefined {
 export function validateGetDiscussionInput(value: unknown) {
   const input = readRecord(value, "학습 항목이 필요합니다.");
   return {
-    scopeId: validateScope(input.scopeId),
+    scopeId: validateKnownScope(input.scopeId),
     cursor: validateCursor(input.cursor),
   };
 }
@@ -237,7 +254,7 @@ export function validateGetDiscussionInput(value: unknown) {
 export function validateCreateQuestionInput(value: unknown) {
   const input = readRecord(value, "질문 내용이 필요합니다.");
   return {
-    scopeId: validateScope(input.scopeId),
+    scopeId: validateActiveScope(input.scopeId),
     body: validateDiscussionBody(input.body, "질문"),
   };
 }

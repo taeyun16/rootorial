@@ -1,5 +1,9 @@
 import { DurableObject } from "cloudflare:workers";
 import type { LearningLocale } from "../features/learning-analytics/learning-analytics";
+import {
+  learningSessionContextMatches,
+  type LearningSessionContext,
+} from "../features/learning-analytics/session-context";
 
 type LearningSessionEnv = { DB: D1Database };
 type SessionRow = {
@@ -70,9 +74,21 @@ export class LearningSession extends DurableObject<LearningSessionEnv> {
     return { ok: true as const };
   }
 
-  async heartbeat(input: { userId: string; now: number; visible: boolean; active: boolean }) {
+  async heartbeat(input: {
+    userId: string;
+    now: number;
+    visible: boolean;
+    active: boolean;
+    context?: LearningSessionContext;
+  }) {
     const row = this.read();
     if (!row || row.user_id !== input.userId) throw new Error("Learning session identity mismatch");
+    if (input.context && !learningSessionContextMatches({
+      curriculumSlug: row.curriculum_slug,
+      chapterSlug: row.chapter_slug,
+    }, input.context)) {
+      throw new Error("Learning session context mismatch");
+    }
     if (row.finalized_at) return { ok: false as const, closed: true as const };
     const delta = Math.max(0, Math.min(input.now - row.last_seen_at, MAX_CREDITED_INTERVAL_MS));
     this.ctx.storage.sql.exec(

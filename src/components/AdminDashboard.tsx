@@ -181,8 +181,8 @@ export function AdminDashboard({ initialData }: { initialData: Dashboard }) {
                 <table className="admin-question-table">
                   <thead><tr><th>문제</th><th>학습자</th><th>시도</th><th>첫 시도 정답률</th><th>전체 정답률</th></tr></thead>
                   <tbody>{data.learning.questionStats.map((question) => (
-                    <tr key={question.questionId}>
-                      <th scope="row"><strong>{question.label}</strong><code>{question.questionId}</code></th>
+                    <tr key={`${question.curriculumSlug}/${question.chapterSlug}/${question.questionId}/v${question.questionVersion}`}>
+                      <th scope="row"><strong>{question.label}</strong><code>{question.curriculumSlug}/{question.chapterSlug}/{question.questionId} · v{question.questionVersion}</code></th>
                       <td>{question.learners}</td><td>{question.attempts}</td>
                       <td><div className="admin-accuracy"><span><i style={{ width: `${question.firstAttemptAccuracy}%` }} /></span><strong>{question.firstAttemptAccuracy}%</strong></div></td>
                       <td><div className="admin-accuracy is-overall"><span><i style={{ width: `${question.overallAccuracy}%` }} /></span><strong>{question.overallAccuracy}%</strong></div></td>

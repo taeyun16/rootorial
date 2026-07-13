@@ -6,17 +6,23 @@ import {
 import { useLocale } from "../features/localization/localization";
 import { MathFormula } from "./MathFormula";
 import { useLearningAnalytics } from "./LearningAnalyticsProvider";
+import { chapterRegistry } from "../features/chapters/chapter-registry";
+import type { ReactNode } from "react";
 
 type ConceptCheckProps = {
   onMasteryChange: (mastered: boolean) => void;
 };
 
-type QuestionId =
-  | "orientation"
-  | "normalization"
-  | "tensor-shape"
-  | "broadcast-shape"
-  | "dot-product";
+const questionContracts =
+  chapterRegistry["transformer-from-zero/vectors"].questions;
+type QuestionId = keyof typeof questionContracts;
+
+function questionOptions<Answer extends string>(
+  answers: readonly Answer[],
+  labels: Record<Answer, ReactNode>,
+) {
+  return answers.map((value) => ({ value, label: labels[value] }));
+}
 
 export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
   const { locale } = useLocale();
@@ -31,12 +37,12 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
       prompt: isKo
         ? <>NumPy의 행벡터 <code>(1, 3)</code>과 열벡터 <code>(3, 1)</code>을 더하면 shape는?</>
         : <>What shape results from adding a NumPy row vector <code>(1, 3)</code> and column vector <code>(3, 1)</code>?</>,
-      options: [
-        { value: "row-column", label: "(3, 3)" },
-        { value: "flat", label: "(3,)" },
-        { value: "error", label: t("항상 오류", "Always an error") },
-      ],
-      correctAnswer: "row-column",
+      options: questionOptions(questionContracts.orientation.answers, {
+        "row-column": "(3, 3)",
+        flat: "(3,)",
+        error: t("항상 오류", "Always an error"),
+      }),
+      correctAnswer: questionContracts.orientation.correctAnswer,
       answerLabel: <>{t("정답:", "Answer:")} <code>(3, 3)</code></>,
       correctFeedback: t("맞았습니다. 두 축으로 브로드캐스팅되어 3 × 3 행렬이 됩니다.", "Right. Broadcasting expands both axes into a 3 × 3 matrix."),
       incorrectFeedback: t("(1, 3)과 (3, 1)은 각 축이 확장되어 결과가 (3, 3)이 됩니다.", "The (1, 3) and (3, 1) shapes expand along their missing axes, producing (3, 3)."),
@@ -48,12 +54,12 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
       prompt: isKo
         ? <>영벡터 <MathFormula latex={String.raw`[0, 0]`} />을 단위벡터로 정규화하면?</>
         : <>What happens when the zero vector <MathFormula latex={String.raw`[0, 0]`} /> is normalized to a unit vector?</>,
-      options: [
-        { value: "zero", label: "[0, 0]" },
-        { value: "undefined", label: t("정의되지 않는다", "It is undefined") },
-        { value: "one", label: "[1, 1]" },
-      ],
-      correctAnswer: "undefined",
+      options: questionOptions(questionContracts.normalization.answers, {
+        zero: "[0, 0]",
+        undefined: t("정의되지 않는다", "It is undefined"),
+        one: "[1, 1]",
+      }),
+      correctAnswer: questionContracts.normalization.correctAnswer,
       answerLabel: t("정답: 정의되지 않는다", "Answer: it is undefined"),
       correctFeedback: isKo
         ? <>맞았습니다. <MathFormula latex={String.raw`\lVert [0, 0] \rVert_2 = 0`} />이므로 0으로 나눌 수 없습니다.</>
@@ -67,12 +73,12 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
       id: "tensor-shape",
       index: "03",
       prompt: t("두 문장에 각각 토큰 4개가 있고 임베딩 차원이 8이라면 입력 shape는?", "What is the input shape for two sentences with four tokens each and embedding dimension 8?"),
-      options: [
-        { value: "4-8", label: "[4, 8]" },
-        { value: "2-4-8", label: "[2, 4, 8]" },
-        { value: "8-4-2", label: "[8, 4, 2]" },
-      ],
-      correctAnswer: "2-4-8",
+      options: questionOptions(questionContracts["tensor-shape"].answers, {
+        "4-8": "[4, 8]",
+        "2-4-8": "[2, 4, 8]",
+        "8-4-2": "[8, 4, 2]",
+      }),
+      correctAnswer: questionContracts["tensor-shape"].correctAnswer,
       answerLabel: <>{t("정답:", "Answer:")} <code>[2, 4, 8]</code></>,
       correctFeedback: t("맞았습니다. batch 2, tokens 4, d_model 8 순서입니다.", "Right. The order is batch 2, tokens 4, d_model 8."),
       incorrectFeedback: t("첫 축은 batch 2, 둘째 축은 tokens 4, 마지막 축은 d_model 8입니다.", "The first axis is batch 2, the second is tokens 4, and the last is d_model 8."),
@@ -84,12 +90,12 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
       prompt: isKo
         ? <>텐서 <code>[2, 4, 8]</code>에 보정값 <code>[4, 8]</code>을 더한 결과 shape는?</>
         : <>What shape results from adding an offset <code>[4, 8]</code> to a tensor <code>[2, 4, 8]</code>?</>,
-      options: [
-        { value: "shape-kept", label: "[2, 4, 8]" },
-        { value: "shape-expanded", label: "[2, 8, 8]" },
-        { value: "cannot-add", label: t("shape가 달라 더할 수 없다", "Cannot add different shapes") },
-      ],
-      correctAnswer: "shape-kept",
+      options: questionOptions(questionContracts["broadcast-shape"].answers, {
+        "shape-kept": "[2, 4, 8]",
+        "shape-expanded": "[2, 8, 8]",
+        "cannot-add": t("shape가 달라 더할 수 없다", "Cannot add different shapes"),
+      }),
+      correctAnswer: questionContracts["broadcast-shape"].correctAnswer,
       answerLabel: <>{t("정답:", "Answer:")} <code>[2, 4, 8]</code></>,
       correctFeedback: t("맞았습니다. [4, 8]이 빠진 첫 축을 따라 두 번 반복되어 전체 shape는 유지됩니다.", "Right. [4, 8] repeats twice along the missing first axis, preserving the full shape."),
       incorrectFeedback: t("[4, 8] 보정값이 첫 축의 두 묶음에 각각 반복되므로 결과는 [2, 4, 8]입니다.", "The [4, 8] offset repeats across both items of the first axis, so the result remains [2, 4, 8]."),
@@ -99,12 +105,12 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
       id: "dot-product",
       index: "05",
       prompt: t("두 벡터가 직교하면 내적과 코사인 유사도는?", "When two vectors are perpendicular, what are their dot product and cosine similarity?"),
-      options: [
-        { value: "zero", label: t("둘 다 0", "Both are 0") },
-        { value: "one", label: t("둘 다 1", "Both are 1") },
-        { value: "negative", label: t("둘 다 음수", "Both are negative") },
-      ],
-      correctAnswer: "zero",
+      options: questionOptions(questionContracts["dot-product"].answers, {
+        zero: t("둘 다 0", "Both are 0"),
+        one: t("둘 다 1", "Both are 1"),
+        negative: t("둘 다 음수", "Both are negative"),
+      }),
+      correctAnswer: questionContracts["dot-product"].correctAnswer,
       answerLabel: t("정답: 둘 다 0", "Answer: both are 0"),
       correctFeedback: isKo
         ? <>맞았습니다. <MathFormula latex={String.raw`\cos 90^\circ = 0`} />이므로 내적도 0입니다.</>

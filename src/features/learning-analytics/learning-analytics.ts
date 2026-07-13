@@ -1,4 +1,17 @@
 import { getCurriculum } from "../../data/curriculum.ts";
+import {
+  conceptQuestionKey,
+  conceptQuestionRegistry,
+  getConceptQuestion,
+  getPublishedChapter,
+  type ConceptQuestionKey,
+} from "../chapters/chapter-registry.ts";
+
+export {
+  conceptQuestionKey,
+  conceptQuestionRegistry,
+  type ConceptQuestionKey,
+} from "../chapters/chapter-registry.ts";
 
 export const LEARNING_HEARTBEAT_INTERVAL_MS = 20_000;
 export const LEARNING_ACTIVE_WINDOW_MS = 60_000;
@@ -67,55 +80,7 @@ export function learningPresenceShard(userId: string) {
   return (hash >>> 0) % LEARNING_PRESENCE_SHARD_COUNT;
 }
 
-export const conceptQuestionRegistry = {
-  "transformer-from-zero/vectors/orientation": {
-    version: 1,
-    label: "브로드캐스팅 방향",
-    correctAnswer: "row-column",
-    answers: ["row-column", "flat", "error"],
-  },
-  "transformer-from-zero/vectors/normalization": {
-    version: 1,
-    label: "영벡터 정규화",
-    correctAnswer: "undefined",
-    answers: ["zero", "undefined", "one"],
-  },
-  "transformer-from-zero/vectors/tensor-shape": {
-    version: 1,
-    label: "텐서 입력 shape",
-    correctAnswer: "2-4-8",
-    answers: ["4-8", "2-4-8", "8-4-2"],
-  },
-  "transformer-from-zero/vectors/broadcast-shape": {
-    version: 1,
-    label: "위치 행렬 브로드캐스팅",
-    correctAnswer: "shape-kept",
-    answers: ["shape-kept", "shape-expanded", "cannot-add"],
-  },
-  "transformer-from-zero/vectors/dot-product": {
-    version: 1,
-    label: "직교 벡터 내적",
-    correctAnswer: "zero",
-    answers: ["zero", "one", "negative"],
-  },
-  "transformer-from-zero/vectors/attention-context": {
-    version: 1,
-    label: "Attention 컨텍스트 shape",
-    correctAnswer: "3-4",
-    answers: ["3-4", "3-3", "4-4"],
-  },
-} as const;
-
-export type ConceptQuestionKey = keyof typeof conceptQuestionRegistry;
 export type LearningLocale = "ko" | "en";
-
-export function conceptQuestionKey(
-  curriculumSlug: string,
-  chapterSlug: string,
-  questionId: string,
-) {
-  return `${curriculumSlug}/${chapterSlug}/${questionId}` as ConceptQuestionKey;
-}
 
 export function isUuid(value: unknown): value is string {
   return typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
@@ -137,7 +102,7 @@ export function validateStartSessionInput(value: unknown) {
   const input = record(value, "학습 세션 정보를 확인해 주세요.");
   const curriculumSlug = routePart(input.curriculumSlug, "커리큘럼");
   const chapterSlug = routePart(input.chapterSlug, "챕터");
-  if (`${curriculumSlug}/${chapterSlug}` !== "transformer-from-zero/vectors") {
+  if (!getPublishedChapter(curriculumSlug, chapterSlug)) {
     throw new Error("추적할 수 없는 학습 챕터입니다.");
   }
   if (input.locale !== "ko" && input.locale !== "en") throw new Error("언어 설정을 확인해 주세요.");
@@ -153,8 +118,9 @@ export function validateCourseAccessInput(value: unknown) {
     return { curriculumSlug, chapterSlug: null, path: `/curricula/${curriculumSlug}` };
   }
   const chapterSlug = routePart(input.chapterSlug, "챕터");
-  const chapter = curriculum.chapters.ko.find((item) => item.slug === chapterSlug);
-  if (!chapter || chapter.status !== "available") throw new Error("추적할 수 없는 챕터입니다.");
+  if (!getPublishedChapter(curriculumSlug, chapterSlug)) {
+    throw new Error("추적할 수 없는 챕터입니다.");
+  }
   return {
     curriculumSlug,
     chapterSlug,
@@ -176,16 +142,31 @@ export function validateAttemptInput(value: unknown) {
   if (!isUuid(input.sessionId) || !isUuid(input.submissionId)) throw new Error("문제 제출 세션을 확인해 주세요.");
   const curriculumSlug = routePart(input.curriculumSlug, "커리큘럼");
   const chapterSlug = routePart(input.chapterSlug, "챕터");
+  if (!getPublishedChapter(curriculumSlug, chapterSlug)) {
+    throw new Error("제출할 수 없는 학습 챕터입니다.");
+  }
   const answers = record(input.answers, "제출한 답안을 확인해 주세요.");
   if (Object.keys(answers).length > 20) throw new Error("제출한 답안이 너무 많습니다.");
-  const validated: Array<{ key: ConceptQuestionKey; questionId: string; selectedAnswer: string }> = [];
+  const validated: Array<{
+    key: ConceptQuestionKey;
+    questionId: string;
+    selectedAnswer: string;
+    version: number;
+    correctAnswer: string;
+  }> = [];
   for (const [questionId, selectedAnswer] of Object.entries(answers)) {
     const key = conceptQuestionKey(curriculumSlug, chapterSlug, questionId);
-    const question = conceptQuestionRegistry[key];
+    const question = getConceptQuestion(curriculumSlug, chapterSlug, questionId);
     if (!question || typeof selectedAnswer !== "string" || !(question.answers as readonly string[]).includes(selectedAnswer)) {
       throw new Error("제출한 답안 중 확인할 수 없는 항목이 있습니다.");
     }
-    validated.push({ key, questionId, selectedAnswer });
+    validated.push({
+      key: key as ConceptQuestionKey,
+      questionId,
+      selectedAnswer,
+      version: question.version,
+      correctAnswer: question.correctAnswer,
+    });
   }
   if (!validated.length) throw new Error("제출한 답안이 없습니다.");
   return { sessionId: input.sessionId, submissionId: input.submissionId, curriculumSlug, chapterSlug, answers: validated };
