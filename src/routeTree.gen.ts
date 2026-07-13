@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ExperimentsLinuxRouteImport } from './routes/experiments.linux'
 import { Route as CurriculaCurriculumSlugRouteImport } from './routes/curricula.$curriculumSlug'
 import { Route as ChaptersVectorsRouteImport } from './routes/chapters.vectors'
 import { Route as CurriculaCurriculumSlugChaptersChapterSlugRouteImport } from './routes/curricula.$curriculumSlug_.chapters.$chapterSlug'
@@ -23,6 +24,11 @@ const AdminRoute = AdminRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExperimentsLinuxRoute = ExperimentsLinuxRouteImport.update({
+  id: '/experiments/linux',
+  path: '/experiments/linux',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CurriculaCurriculumSlugRoute = CurriculaCurriculumSlugRouteImport.update({
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRoute
   '/chapters/vectors': typeof ChaptersVectorsRoute
   '/curricula/$curriculumSlug': typeof CurriculaCurriculumSlugRoute
+  '/experiments/linux': typeof ExperimentsLinuxRoute
   '/curricula/$curriculumSlug/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 export interface FileRoutesByTo {
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminRoute
   '/chapters/vectors': typeof ChaptersVectorsRoute
   '/curricula/$curriculumSlug': typeof CurriculaCurriculumSlugRoute
+  '/experiments/linux': typeof ExperimentsLinuxRoute
   '/curricula/$curriculumSlug/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 export interface FileRoutesById {
@@ -62,6 +70,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRoute
   '/chapters/vectors': typeof ChaptersVectorsRoute
   '/curricula/$curriculumSlug': typeof CurriculaCurriculumSlugRoute
+  '/experiments/linux': typeof ExperimentsLinuxRoute
   '/curricula/$curriculumSlug_/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 export interface FileRouteTypes {
@@ -71,6 +80,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/chapters/vectors'
     | '/curricula/$curriculumSlug'
+    | '/experiments/linux'
     | '/curricula/$curriculumSlug/chapters/$chapterSlug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -78,6 +88,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/chapters/vectors'
     | '/curricula/$curriculumSlug'
+    | '/experiments/linux'
     | '/curricula/$curriculumSlug/chapters/$chapterSlug'
   id:
     | '__root__'
@@ -85,6 +96,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/chapters/vectors'
     | '/curricula/$curriculumSlug'
+    | '/experiments/linux'
     | '/curricula/$curriculumSlug_/chapters/$chapterSlug'
   fileRoutesById: FileRoutesById
 }
@@ -93,6 +105,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRoute
   ChaptersVectorsRoute: typeof ChaptersVectorsRoute
   CurriculaCurriculumSlugRoute: typeof CurriculaCurriculumSlugRoute
+  ExperimentsLinuxRoute: typeof ExperimentsLinuxRoute
   CurriculaCurriculumSlugChaptersChapterSlugRoute: typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 
@@ -110,6 +123,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/experiments/linux': {
+      id: '/experiments/linux'
+      path: '/experiments/linux'
+      fullPath: '/experiments/linux'
+      preLoaderRoute: typeof ExperimentsLinuxRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/curricula/$curriculumSlug': {
@@ -141,6 +161,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRoute,
   ChaptersVectorsRoute: ChaptersVectorsRoute,
   CurriculaCurriculumSlugRoute: CurriculaCurriculumSlugRoute,
+  ExperimentsLinuxRoute: ExperimentsLinuxRoute,
   CurriculaCurriculumSlugChaptersChapterSlugRoute:
     CurriculaCurriculumSlugChaptersChapterSlugRoute,
 }

@@ -97,6 +97,30 @@ test("reads curriculum-aware v2 metadata", () => {
   assert.equal(readProgressVersion({ rootorial: { progressVersion: 2 } }), 2);
 });
 
+test("keeps Linux and Transformer progress in separate curriculum buckets", () => {
+  const completed = [
+    "linux-systems/shell-and-filesystem",
+    "transformer-from-zero/vectors",
+  ];
+  assert.deepEqual(validateCompletedSlugs(completed), [
+    "transformer-from-zero/vectors",
+    "linux-systems/shell-and-filesystem",
+  ]);
+  assert.deepEqual(buildProgressMetadata(completed), {
+    rootorial: {
+      progressVersion: 2,
+      curricula: {
+        "transformer-from-zero": {
+          completedChapters: { vectors: true },
+        },
+        "linux-systems": {
+          completedChapters: { "shell-and-filesystem": true },
+        },
+      },
+    },
+  });
+});
+
 test("uses an encoded, account-specific local fallback key", () => {
   assert.equal(
     accountProgressKey("user/demo@example.com"),

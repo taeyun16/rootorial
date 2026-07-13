@@ -1,5 +1,8 @@
 import { DurableObject } from "cloudflare:workers";
-import type { LearningLocale } from "../features/learning-analytics/learning-analytics";
+import {
+  learningSessionScopeMatches,
+  type LearningLocale,
+} from "../features/learning-analytics/learning-analytics";
 
 type LearningSessionEnv = { DB: D1Database };
 type SessionRow = {
@@ -70,10 +73,34 @@ export class LearningSession extends DurableObject<LearningSessionEnv> {
     return { ok: true as const };
   }
 
-  async heartbeat(input: { userId: string; now: number; visible: boolean; active: boolean }) {
+  async heartbeat(input: {
+    userId: string;
+    now: number;
+    visible: boolean;
+    active: boolean;
+    curriculumSlug?: string;
+    chapterSlug?: string;
+  }) {
     const row = this.read();
     if (!row || row.user_id !== input.userId) throw new Error("Learning session identity mismatch");
-    if (row.finalized_at) return { ok: false as const, closed: true as const };
+    if (row.finalized_at) {
+      return { ok: false as const, closed: true as const, scopeMismatch: false as const };
+    }
+    if (
+      input.curriculumSlug !== undefined ||
+      input.chapterSlug !== undefined
+    ) {
+      const completeScope = input.curriculumSlug !== undefined && input.chapterSlug !== undefined;
+      if (
+        !completeScope ||
+        !learningSessionScopeMatches(
+          { curriculumSlug: row.curriculum_slug, chapterSlug: row.chapter_slug },
+          { curriculumSlug: input.curriculumSlug!, chapterSlug: input.chapterSlug! },
+        )
+      ) {
+        return { ok: false as const, closed: false as const, scopeMismatch: true as const };
+      }
+    }
     const delta = Math.max(0, Math.min(input.now - row.last_seen_at, MAX_CREDITED_INTERVAL_MS));
     this.ctx.storage.sql.exec(
       `UPDATE session_state SET
@@ -91,7 +118,7 @@ export class LearningSession extends DurableObject<LearningSessionEnv> {
       row.previous_active ? delta : 0,
     );
     await this.ctx.storage.setAlarm(input.now + SESSION_ALARM_DELAY_MS);
-    return { ok: true as const, closed: false as const };
+    return { ok: true as const, closed: false as const, scopeMismatch: false as const };
   }
 
   async alarm() {

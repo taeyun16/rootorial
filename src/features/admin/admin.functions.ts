@@ -129,23 +129,25 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
         )
       `).bind(learningSince).first<{ attempted_pairs: number; mastered_pairs: number }>(),
       database.prepare(`
-        SELECT question_id,
+        SELECT curriculum_slug, chapter_slug, question_id,
                count(*) AS attempts,
                count(DISTINCT user_id) AS learners,
                sum(CASE WHEN attempt_number = 1 THEN 1 ELSE 0 END) AS first_attempts,
                sum(CASE WHEN attempt_number = 1 AND is_correct = 1 THEN 1 ELSE 0 END) AS first_correct,
                sum(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
         FROM learning_attempts WHERE submitted_at >= ?
-        GROUP BY question_id ORDER BY first_correct * 1.0 / nullif(first_attempts, 0) ASC, attempts DESC
+        GROUP BY curriculum_slug, chapter_slug, question_id
+        ORDER BY first_correct * 1.0 / nullif(first_attempts, 0) ASC, attempts DESC
       `).bind(learningSince).all<{
-        question_id: string; attempts: number; learners: number;
+        curriculum_slug: string; chapter_slug: string; question_id: string;
+        attempts: number; learners: number;
         first_attempts: number; first_correct: number; correct: number;
       }>(),
       database.prepare(`
-        SELECT count(*) AS visitors,
-               sum(CASE WHEN last_accessed_at >= ? THEN 1 ELSE 0 END) AS visitors_30d
-        FROM course_visitors WHERE curriculum_slug = ?
-      `).bind(learningSince, "transformer-from-zero").first<{ visitors: number; visitors_30d: number }>(),
+        SELECT count(DISTINCT user_id) AS visitors,
+               count(DISTINCT CASE WHEN last_accessed_at >= ? THEN user_id END) AS visitors_30d
+        FROM course_visitors
+      `).bind(learningSince).first<{ visitors: number; visitors_30d: number }>(),
       database.prepare(`
         SELECT i.path, i.curriculum_slug, i.chapter_slug,
                i.view_count AS views, i.signed_in_view_count AS signed_in_views,
@@ -224,8 +226,10 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
           learners: Number(row.learners),
         })),
         questionStats: learningQuestionsResult.results.map((row) => {
-          const key = `transformer-from-zero/vectors/${row.question_id}` as keyof typeof conceptQuestionRegistry;
+          const key = `${row.curriculum_slug}/${row.chapter_slug}/${row.question_id}` as keyof typeof conceptQuestionRegistry;
           return {
+            curriculumSlug: row.curriculum_slug,
+            chapterSlug: row.chapter_slug,
             questionId: row.question_id,
             label: conceptQuestionRegistry[key]?.label ?? row.question_id,
             attempts: Number(row.attempts),

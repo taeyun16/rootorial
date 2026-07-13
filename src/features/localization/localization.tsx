@@ -48,10 +48,25 @@ export function LocalizationProvider({ children }: { children: React.ReactNode }
     document.documentElement.lang = locale;
     const isVectorsChapter = pathname === "/chapters/vectors" || pathname.endsWith("/chapters/vectors");
     const isTransformerCurriculum = pathname === "/curricula/transformer-from-zero";
-    document.title = isVectorsChapter
+    const isLinuxChapter = pathname === "/curricula/linux-systems/chapters/shell-and-filesystem";
+    const isLinuxCurriculum = pathname === "/curricula/linux-systems";
+    const isLinuxExperiment = pathname === "/experiments/linux";
+    document.title = isLinuxExperiment
+      ? locale === "ko"
+        ? "브라우저 Linux 실험 · Rootorial"
+        : "Linux in the Browser Experiment · Rootorial"
+      : isLinuxChapter
+        ? locale === "ko"
+          ? "01. 셸에서 첫 파일까지 · Rootorial"
+          : "01. From the Shell to Your First File · Rootorial"
+      : isVectorsChapter
       ? locale === "ko"
         ? "01. 벡터와 텐서 · Rootorial"
         : "01. Vectors and Tensors · Rootorial"
+      : isLinuxCurriculum
+        ? locale === "ko"
+          ? "Linux 시스템을 바닥부터 · Rootorial"
+          : "Linux Systems from the Ground Up · Rootorial"
       : isTransformerCurriculum
         ? locale === "ko"
           ? "Transformer를 바닥부터 · Rootorial"
@@ -62,10 +77,22 @@ export function LocalizationProvider({ children }: { children: React.ReactNode }
 
     const description = document.querySelector<HTMLMetaElement>('meta[name="description"]');
     if (description) {
-      description.content = isVectorsChapter
+      description.content = isLinuxExperiment
+        ? locale === "ko"
+          ? "WebAssembly로 실제 Linux 커널을 부팅하고, 교육용 가상 파일시스템과 셸 명령을 실습합니다."
+          : "Boot a real Linux kernel with WebAssembly and practice shell commands in a clearly labeled teaching filesystem."
+        : isLinuxChapter
+          ? locale === "ko"
+            ? "프롬프트와 경로를 읽고 디렉터리와 파일을 만들며 Linux 파일시스템의 첫 작업 흐름을 익힙니다."
+            : "Read prompts and paths, create directories and files, and learn your first Linux filesystem workflow."
+        : isVectorsChapter
         ? locale === "ko"
           ? "벡터의 크기와 내적부터 텐서 shape와 브로드캐스팅까지 인터랙티브 시각화와 NumPy 코드로 이해합니다."
           : "Learn vector magnitude, dot products, tensor shapes, and broadcasting through interactive visualizations and NumPy code."
+        : isLinuxCurriculum
+          ? locale === "ko"
+            ? "경로와 파일에서 시작해 부팅, 프로세스, 메모리와 네트워크까지 Linux 시스템을 한 층씩 이해합니다."
+            : "Understand Linux one layer at a time, from paths and files through boot, processes, memory, and networking."
         : isTransformerCurriculum
           ? locale === "ko"
             ? "수학적 직관, 실행 가능한 코드, 인터랙티브 시각화로 Transformer를 바닥부터 이해합니다."

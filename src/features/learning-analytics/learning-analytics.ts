@@ -104,10 +104,36 @@ export const conceptQuestionRegistry = {
     correctAnswer: "3-4",
     answers: ["3-4", "3-3", "4-4"],
   },
+  "linux-systems/shell-and-filesystem/absolute-path": {
+    version: 1,
+    label: "절대 경로 시작점",
+    correctAnswer: "slash",
+    answers: ["slash", "dot", "tilde"],
+  },
+  "linux-systems/shell-and-filesystem/relative-path": {
+    version: 1,
+    label: "상대 경로 기준",
+    correctAnswer: "current-directory",
+    answers: ["current-directory", "root-directory", "etc-directory"],
+  },
+  "linux-systems/shell-and-filesystem/permission-error": {
+    version: 1,
+    label: "보호된 파일 쓰기 권한",
+    correctAnswer: "protected-file",
+    answers: ["protected-file", "missing-file", "invalid-echo"],
+  },
 } as const;
 
 export type ConceptQuestionKey = keyof typeof conceptQuestionRegistry;
 export type LearningLocale = "ko" | "en";
+
+export function learningSessionScopeMatches(
+  session: { curriculumSlug: string; chapterSlug: string },
+  attempt: { curriculumSlug: string; chapterSlug: string },
+) {
+  return session.curriculumSlug === attempt.curriculumSlug &&
+    session.chapterSlug === attempt.chapterSlug;
+}
 
 export function conceptQuestionKey(
   curriculumSlug: string,
@@ -137,7 +163,9 @@ export function validateStartSessionInput(value: unknown) {
   const input = record(value, "학습 세션 정보를 확인해 주세요.");
   const curriculumSlug = routePart(input.curriculumSlug, "커리큘럼");
   const chapterSlug = routePart(input.chapterSlug, "챕터");
-  if (`${curriculumSlug}/${chapterSlug}` !== "transformer-from-zero/vectors") {
+  const curriculum = getCurriculum(curriculumSlug);
+  const chapter = curriculum?.chapters.ko.find((item) => item.slug === chapterSlug);
+  if (!curriculum || curriculum.status === "planned" || !chapter || chapter.status !== "available") {
     throw new Error("추적할 수 없는 학습 챕터입니다.");
   }
   if (input.locale !== "ko" && input.locale !== "en") throw new Error("언어 설정을 확인해 주세요.");

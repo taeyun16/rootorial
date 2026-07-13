@@ -183,9 +183,14 @@ export const recordConceptAttempt = createServerFn({ method: "POST" })
     if (!currentUserId || !database || !namespace) return { ok: false as const };
     const now = Date.now();
     const session = await namespace.getByName(`${currentUserId}:${data.sessionId}`).heartbeat({
-      userId: currentUserId, now, visible: true, active: true,
+      userId: currentUserId,
+      now,
+      visible: true,
+      active: true,
+      curriculumSlug: data.curriculumSlug,
+      chapterSlug: data.chapterSlug,
     });
-    if (session.closed) return { ok: false as const };
+    if (session.closed || session.scopeMismatch) return { ok: false as const };
     await touchPresence(currentUserId, now);
     for (const answer of data.answers) {
       const question = conceptQuestionRegistry[answer.key];

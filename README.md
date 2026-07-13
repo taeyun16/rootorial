@@ -167,6 +167,48 @@ npm run deploy     # 검증 후 Cloudflare Workers 배포
 npm run cf-typegen # wrangler binding 타입 생성
 ```
 
+## Linux systems sample curriculum
+
+`/curricula/linux-systems`는 “Linux 시스템을 바닥부터”의 8개 챕터 로드맵과
+완성된 첫 샘플 챕터를 제공합니다. `/curricula/linux-systems/chapters/shell-and-filesystem`의
+완료 조건은 다음 두 가지입니다.
+
+- 교육용 셸에서 현재 위치, 배포판 정보, 디렉터리·메모 생성과 보호된 파일의
+  권한 오류까지 다섯 과제를 실제 상태로 확인
+- 절대·상대 경로와 쓰기 권한에 관한 이해 확인 세 문제 통과
+
+필수 경로는 외부 VM 자산을 내려받지 않습니다. 실제 커널 부팅은 샘플 챕터의
+선택 심화 링크에서 `/experiments/linux#real-linux`로 분리했습니다.
+
+```bash
+npx playwright test e2e/linux-curriculum.spec.ts --project=chromium --no-deps
+```
+
+## Linux browser runtime experiment
+
+`/experiments/linux`는 Linux 시스템 커리큘럼을 정식 챕터로 승격하기 전에 실행
+환경을 검증하는 실험 페이지입니다. 두 런타임을 의도적으로 구분합니다.
+
+- 교육용 셸: 인메모리 파일시스템 위에서 `pwd`, `ls`, `cd`, `cat`, `mkdir`,
+  `touch`, `echo >`, `rm`, `tree`를 즉시 실행하고 파일 트리와 과제 상태를 함께
+  보여줍니다. 실제 Linux 커널은 아닙니다.
+- 실제 커널: 사용자가 시작 버튼을 누를 때만 BSD-2-Clause의
+  [`v86`](https://github.com/copy/v86)을 동적 로드하고, 32비트 x86 PC와
+  Buildroot Linux를 직렬 콘솔까지 부팅합니다.
+
+v86 WASM, SeaBIOS와 Buildroot 이미지는 allowlist된 동일 출처 Worker 경로를
+통해 공식 upstream에서 실험용으로 전달합니다. 정식 커리큘럼으로 전환하기 전에는
+재현 가능한 자체 Buildroot 이미지, 체크섬 고정, R2 또는 정적 자산 호스팅,
+SeaBIOS/Linux/BusyBox의 라이선스 고지와 대응 소스 제공 방식을 결정해야 합니다.
+
+빠른 브라우저 셸 E2E는 외부 커널을 받지 않습니다. 실제 부팅 E2E는 약 14MB의
+외부 자산을 받으므로 명시적으로 opt-in합니다.
+
+```bash
+npx playwright test e2e/linux-experiment.spec.ts --project=chromium --no-deps
+RUN_V86_E2E=1 npx playwright test e2e/linux-experiment.spec.ts --project=chromium --no-deps --grep "boots Buildroot"
+```
+
 ## Source layout
 
 - `src/routes/`: TanStack file-based routes

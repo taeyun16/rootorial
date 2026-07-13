@@ -12,11 +12,12 @@ export const Route = createFileRoute("/curricula/$curriculumSlug")({
   },
   loader: ({ params }) => getCurriculumReach({ data: { curriculumSlug: params.curriculumSlug } }),
   head: ({ match }) => {
+    const locale = (match.search as { lang?: unknown }).lang === "en" ? "en" : "ko";
     const curriculum = getCurriculum(match.params.curriculumSlug);
     return {
       meta: [
-        { title: `${curriculum?.title.ko ?? "커리큘럼"} · Rootorial` },
-        { name: "description", content: curriculum?.summary.ko ?? "Rootorial 인터랙티브 커리큘럼" },
+        { title: `${curriculum?.title[locale] ?? (locale === "ko" ? "커리큘럼" : "Curriculum")} · Rootorial` },
+        { name: "description", content: curriculum?.summary[locale] ?? (locale === "ko" ? "Rootorial 인터랙티브 커리큘럼" : "Rootorial interactive curriculum") },
       ],
     };
   },

@@ -38,6 +38,8 @@ export type AdminDashboard =
           learners: number;
         }>;
         questionStats: Array<{
+          curriculumSlug: string;
+          chapterSlug: string;
           questionId: string;
           label: string;
           attempts: number;

@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   conceptQuestionRegistry,
+  learningSessionScopeMatches,
   learningPresenceShard,
   publicLearningProofText,
   validateAttemptInput,
@@ -29,6 +30,20 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "vectors",
     locale: "ko",
   }));
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+    locale: "en",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+    locale: "en",
+  });
+  assert.throws(() => validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "boot-to-shell",
+    locale: "ko",
+  }));
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -41,6 +56,16 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "vectors",
     path: "/curricula/transformer-from-zero/chapters/vectors",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: null,
+    path: "/curricula/linux-systems",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "shell-and-filesystem" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+    path: "/curricula/linux-systems/chapters/shell-and-filesystem",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "planned" }));
@@ -93,6 +118,38 @@ test("validates submitted answers against the versioned server registry", () => 
     chapterSlug: "vectors",
     answers: { orientation: "client-says-correct" },
   }));
+
+  const linuxResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+    answers: {
+      "absolute-path": "slash",
+      "permission-error": "protected-file",
+    },
+  });
+  assert.equal(linuxResult.answers[0].key, "linux-systems/shell-and-filesystem/absolute-path");
+  assert.equal(conceptQuestionRegistry[linuxResult.answers[0].key].correctAnswer, "slash");
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+    answers: { "absolute-path": "client-says-correct" },
+  }));
+});
+
+test("rejects concept attempts from a different curriculum session scope", () => {
+  const vectorsSession = {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "vectors",
+  };
+  assert.equal(learningSessionScopeMatches(vectorsSession, vectorsSession), true);
+  assert.equal(learningSessionScopeMatches(vectorsSession, {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "shell-and-filesystem",
+  }), false);
 });
 
 test("ships D1 analytics tables and a SQLite Durable Object migration", async () => {
