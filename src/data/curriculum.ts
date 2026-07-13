@@ -50,11 +50,11 @@ export const chaptersKo: Chapter[] = [
     title: "벡터와 텐서",
     subtitle: "숫자의 묶음이 어떻게 의미와 방향을 갖는가",
     description:
-      "벡터 연산, 내적, 크기, 투영과 브로드캐스팅을 그림과 NumPy 코드로 연결합니다.",
+      "벡터의 크기와 방향, NumPy shape, 브로드캐스팅과 내적을 예측·수정 실습으로 연결합니다.",
     runtime: "NumPy",
     estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES,
     status: "available",
-    concepts: ["shape", "내적", "투영"],
+    concepts: ["shape", "브로드캐스팅", "내적"],
   },
   {
     number: 2,
@@ -161,8 +161,8 @@ export const chaptersEn: Chapter[] = [
   {
     number: 1, slug: "vectors", title: "Vectors and Tensors",
     subtitle: "How collections of numbers gain meaning and direction",
-    description: "Connect vector operations, dot products, magnitude, projection, and broadcasting through diagrams and NumPy code.",
-    runtime: "NumPy", estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES, status: "available", concepts: ["shape", "dot product", "projection"],
+    description: "Connect vector magnitude and direction, NumPy shapes, broadcasting, and dot products through predict-and-repair practice.",
+    runtime: "NumPy", estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES, status: "available", concepts: ["shape", "broadcasting", "dot product"],
   },
   {
     number: 2, slug: "optimization", title: "Learning and Optimization",

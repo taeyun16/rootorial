@@ -10,26 +10,19 @@ import { TensorShapeExplorer } from "./TensorShapeExplorer";
 import { VectorExplorer } from "./VectorExplorer";
 import { VectorBasicsLab } from "./VectorBasicsLab";
 import { VectorNotationGuide } from "./VectorNotationGuide";
+import { ShapeDebuggingLab } from "./ShapeDebuggingLab";
 import { RootorialMark } from "./RootorialMark";
-import { AttentionPipelineExplorer } from "./AttentionPipelineExplorer";
 import { MathFormula } from "./MathFormula";
-import { MatrixMultiplicationExplorer } from "./MatrixMultiplicationExplorer";
 import { AuthControls } from "./AuthControls";
 import { PublicLearningProof } from "./PublicLearningProof";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useLocale } from "../features/localization/localization";
 import { chaptersEn, chaptersKo } from "../data/curriculum";
 import {
-  attentionPreviewCode,
-  broadcastingHeatmapCode,
-  broadcastingHeatmapCodeEn,
   cosineCurveCode,
-  projectionCode,
   tensorShapeCode,
   vectorMagnitudeCode,
   vectorMagnitudeCodeEn,
-  vectorOrientationCode,
-  vectorOrientationCodeEn,
 } from "../data/vectorNotebook";
 
 const tocItemsKo = [
@@ -38,9 +31,6 @@ const tocItemsKo = [
   { id: "orientation", label: "행·열과 전치" },
   { id: "tensor-shape", label: "텐서 shape" },
   { id: "dot-product", label: "내적" },
-  { id: "projection", label: "투영" },
-  { id: "matrix-product", label: "행렬곱" },
-  { id: "lab", label: "Attention 미리보기" },
   { id: "check", label: "이해 확인" },
 ];
 
@@ -50,9 +40,6 @@ const tocItemsEn = [
   { id: "orientation", label: "Rows, columns, transpose" },
   { id: "tensor-shape", label: "Tensor shape" },
   { id: "dot-product", label: "Dot product" },
-  { id: "projection", label: "Projection" },
-  { id: "matrix-product", label: "Matrix multiplication" },
-  { id: "lab", label: "Attention preview" },
   { id: "check", label: "Concept check" },
 ];
 
@@ -161,8 +148,6 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                   <li>batch, tokens, d_model 축으로 텐서 shape를 읽을 수 있다.</li>
                   <li>브로드캐스팅이 어느 축을 반복하는지 설명할 수 있다.</li>
                   <li>내적을 두 벡터의 정렬 정도로 해석할 수 있다.</li>
-                  <li>투영이 Attention과 어떤 직관으로 이어지는지 안다.</li>
-                  <li>행렬곱의 각 원소를 행과 열의 내적으로 계산할 수 있다.</li>
                 </ul>
               ) : (
                 <ul>
@@ -172,8 +157,6 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                   <li>Read tensor shapes using batch, tokens, and d_model axes.</li>
                   <li>Explain which axes broadcasting repeats.</li>
                   <li>Interpret the dot product as the alignment between two vectors.</li>
-                  <li>Connect the intuition of projection to Attention.</li>
-                  <li>Calculate each matrix-product entry as a row-column dot product.</li>
                 </ul>
               )}
             </div>
@@ -294,15 +277,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                 </p>
               </div>
             </div>
-            <div className="notebook-stack notebook-stack-inset">
-              <NotebookCell
-                title={t("배열·행벡터·열벡터의 shape와 전치 비교하기", "Compare shapes and transposes of arrays, row vectors, and column vectors")}
-                initialCode={isKo ? vectorOrientationCode : vectorOrientationCodeEn}
-                description={<p>{t("원본 벡터 노트북의 네 가지 생성 방식과 브로드캐스팅 예제를 작게 재구성했습니다.", "This compact example reconstructs four creation methods and a broadcasting case from the original vector notebook.")}</p>}
-                hint={<p>{isKo ? <><PythonCode>as_array.reshape(-1, 1)</PythonCode>을 추가해 명시적으로 열벡터를 만들어 보세요.</> : <>Add <PythonCode>as_array.reshape(-1, 1)</PythonCode> to create an explicit column vector.</>}</p>}
-                editorMinHeight={320}
-              />
-            </div>
+            <ShapeDebuggingLab />
           </section>
 
           <section className="article-section full-bleed-section tensor-shape-section" id="tensor-shape">
@@ -347,28 +322,6 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                   editorMinHeight={260}
                 />
               </Discussable>
-              <Discussable
-                scopeId="transformer-from-zero.vectors.notebook.broadcasting"
-                subjectLabel={t("브로드캐스팅 코드 셀", "Broadcasting code cell")}
-                variant="code-cell"
-              >
-                <NotebookCell
-                  title={t("브로드캐스팅 전후 값을 heatmap으로 비교하기", "Compare values before and after broadcasting with heatmaps")}
-                  initialCode={isKo ? broadcastingHeatmapCode : broadcastingHeatmapCodeEn}
-                  description={
-                    <p>
-                      {isKo ? <>위치 행렬 <PythonCode>[tokens, d_model]</PythonCode>이 batch 축을 따라 반복되면서도 최종 shape는 유지되는 과정을 봅니다.</> : <>See how the positional matrix <PythonCode>[tokens, d_model]</PythonCode> repeats across the batch axis while preserving the final shape.</>}
-                    </p>
-                  }
-                  hint={
-                    <p>
-                      {isKo ? <><PythonCode>positions</PythonCode>의 첫 번째 행을 크게 바꾸고 두 heatmap에서 어느 토큰 행만 달라지는지 찾아보세요.</> : <>Change the first row of <PythonCode>positions</PythonCode> substantially and find which token row changes between the two heatmaps.</>}
-                    </p>
-                  }
-                  editorMinHeight={360}
-                  figureAlt={t("토큰 임베딩과 위치 값이 더해진 결과를 비교한 heatmap", "Heatmaps comparing token embeddings before and after positional values are added")}
-                />
-              </Discussable>
             </div>
           </section>
 
@@ -378,7 +331,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
               <div>
                 <h2>{t("두 벡터를 움직여 보세요", "Move the two vectors")}</h2>
                 <p>
-                  {isKo ? <>슬라이더로 <strong>v</strong>와 <strong>w</strong>를 바꾸면 내적, 각도, 투영이 함께 변합니다. 같은 방향일수록 내적은 커지고, 직각이면 0이 됩니다.</> : <>Use the sliders to change <strong>v</strong> and <strong>w</strong>; the dot product, angle, and projection change together. The dot product grows when the vectors point in the same direction and becomes zero when they are perpendicular.</>}
+                  {isKo ? <>슬라이더로 <strong>v</strong>와 <strong>w</strong>를 바꾸면 내적, 각도, 코사인 유사도가 함께 변합니다. 먼저 내적의 부호를 예측한 뒤 벡터를 움직여 확인해 보세요.</> : <>Use the sliders to change <strong>v</strong> and <strong>w</strong>; the dot product, angle, and cosine similarity change together. Predict the sign of the dot product before moving the vectors to check.</>}
                 </p>
                 <p>
                   {t("내적은 크기와 방향을 동시에 포함합니다. 크기의 영향을 제거한 코사인 유사도는 두 벡터가 같은 방향인지에만 집중하며, 임베딩 검색과 Attention 점수의 직관으로 이어집니다.", "The dot product combines magnitude and direction. Cosine similarity removes the magnitude effect and focuses only on whether two vectors point the same way, providing intuition for embedding search and Attention scores.")}
@@ -416,123 +369,17 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                 />
               </Discussable>
             </div>
-          </section>
-
-          <section className="article-section" id="projection">
-            <div className="margin-label">06 — PROJECTION</div>
-            <h2>{t("투영은 “얼마나 같은 방향인가”를 남긴다", "Projection keeps the part that points the same way")}</h2>
-            <p>
-              {isKo ? <><strong>w를 v에 투영</strong>한다는 것은 w에서 v와 같은 방향의 성분만 남기는 일입니다. 내적이 투영의 길이를 결정합니다.</> : <><strong>Projecting w onto v</strong> means keeping only the component of w that points in the direction of v. The dot product determines the projection&apos;s length.</>}
-            </p>
-            <p>
-              {isKo ? <>남은 차이는 v와 직각인 성분입니다. 따라서 w는 <PythonCode>평행 성분 + 직교 성분</PythonCode>으로 정확히 복원됩니다. 이 분해를 이해하면 모델이 특정 방향의 특징을 얼마나 포함하는지 읽을 수 있습니다.</> : <>The remainder is perpendicular to v. Therefore, w is reconstructed exactly as <PythonCode>parallel component + perpendicular component</PythonCode>. This decomposition helps you read how strongly a model contains a feature along a particular direction.</>}
-            </p>
-            <div className="equation-block equation-block-compact" aria-label={t("벡터의 평행 성분과 직교 성분 분해", "Decomposition into parallel and perpendicular vector components")}>
-              <MathFormula
-                latex={String.raw`\mathbf{w} = \operatorname{proj}_{\mathbf{v}}(\mathbf{w}) + \left(\mathbf{w} - \operatorname{proj}_{\mathbf{v}}(\mathbf{w})\right)`}
-                ariaLabel={t("w는 v 방향의 투영 성분과 그에 직교하는 나머지 성분의 합", "w equals its projection onto v plus the remaining perpendicular component")}
-                display
-              />
-            </div>
-            <Discussable scopeId="transformer-from-zero.vectors.projection" subjectLabel={t("벡터 투영의 의미", "Meaning of vector projection")}>
-              <div className="concept-callout">
-                <span className="callout-mark">→</span>
-                <div>
-                  <strong>{t("Transformer로 이어지는 다리", "Bridge to Transformers")}</strong>
-                  <p>
-                    {t("Attention에서도 Query와 Key의 내적으로 “얼마나 참고할지”를 정합니다. 지금 배우는 내적은 7장에서 그대로 다시 등장합니다.", "Attention also uses the dot product of a Query and Key to decide how much information to use. The dot product you are learning now returns unchanged in Chapter 7.")}
-                  </p>
-                </div>
-              </div>
-            </Discussable>
-            <div className="notebook-stack notebook-stack-inset">
-              <Discussable
-                scopeId="transformer-from-zero.vectors.notebook.projection"
-                subjectLabel={t("벡터 투영 코드 셀", "Vector projection code cell")}
-                variant="code-cell"
-              >
-                <NotebookCell
-                  title={t("평행 성분과 직교 성분을 분리하기", "Separate parallel and perpendicular components")}
-                  initialCode={projectionCode}
-                  description={
-                    <p>
-                      {isKo ? <>투영 벡터를 계산하고, 남은 직교 성분과 다시 더해 원래 <PythonCode>w</PythonCode>가 복원되는지 검증합니다.</> : <>Calculate the projection vector, add it back to the remaining perpendicular component, and verify that the original <PythonCode>w</PythonCode> is reconstructed.</>}
-                    </p>
-                  }
-                  hint={
-                    <p>
-                      {isKo ? <><PythonCode>w</PythonCode>를 v와 완전히 같은 방향으로 바꾸면 직교 성분과 점선이 어떻게 달라지는지 확인해 보세요.</> : <>Point <PythonCode>w</PythonCode> in exactly the same direction as v and observe what happens to the perpendicular component and dashed line.</>}
-                    </p>
-                  }
-                  editorMinHeight={390}
-                  figureAlt={t("벡터 w의 투영과 직교 성분을 나타낸 차트", "Chart showing the projection and perpendicular component of vector w")}
-                />
-              </Discussable>
-            </div>
-          </section>
-
-          <section className="article-section full-bleed-section matrix-product-section" id="matrix-product">
-            <div className="margin-label">07 — MATRIX PRODUCT</div>
-            <div className="section-intro">
+            <div className="concept-callout">
+              <span className="callout-mark">→</span>
               <div>
-                <h2>{t("행렬곱은 내적을 표 전체로 확장합니다", "Matrix multiplication expands the dot product across a table")}</h2>
-                <p>
-                  {isKo ? <>결과 행렬의 한 칸은 왼쪽 행렬의 <strong>한 행</strong>과 오른쪽 행렬의 <strong>한 열</strong>을 내적한 값입니다. 결과 셀을 선택하면 계산에 참여하는 행과 열이 함께 표시됩니다.</> : <>Each result cell is the dot product of <strong>one row</strong> from the left matrix and <strong>one column</strong> from the right matrix. Select a result cell to highlight the row and column used in its calculation.</>}
-                </p>
+                <strong>{t("다음 챕터들을 위한 한 문장", "One sentence for later chapters")}</strong>
+                <p>{t("두 벡터의 내적은 관계를 하나의 점수로 바꿉니다. Attention에서는 이 점수를 어떻게 만들고 사용할지 7장과 8장에서 단계별로 배웁니다.", "A dot product turns the relationship between two vectors into one score. Chapters 7 and 8 will build and use those scores step by step in Attention.")}</p>
               </div>
-              <span className="live-badge"><span /> LIVE</span>
-            </div>
-            <Discussable
-              scopeId="transformer-from-zero.vectors.matrix-product.explorer"
-              subjectLabel={t("행렬곱 탐색기", "Matrix multiplication explorer")}
-            >
-              <MatrixMultiplicationExplorer />
-            </Discussable>
-          </section>
-
-          <section className="article-section full-bleed-section" id="lab">
-            <div className="margin-label">08 — ATTENTION BRIDGE</div>
-            <div className="section-intro">
-              <div>
-                <h2>{t("내적을 Attention 행렬로 확장하기", "Expand the dot product into an Attention matrix")}</h2>
-                <p>
-                  {t("지금까지 두 벡터 사이에서 계산한 내적을 모든 토큰 쌍에 적용하면 정사각형 유사도 행렬이 됩니다. 각 행을 확률로 바꾸면 한 토큰이 다른 토큰을 얼마나 참고할지 나타내는 Attention 가중치가 됩니다.", "Apply the dot product to every pair of tokens and you get a square similarity matrix. Convert each row to probabilities and it becomes Attention weights describing how much one token should use information from another.")}
-                </p>
-                <p>
-                  {isKo ? <>아래 셀은 아직 Query, Key, Value를 따로 학습하지 않은 단순화된 미리보기입니다. 그래도 <PythonCode>X @ X.T</PythonCode>가 토큰 간 관계를 한 번에 만들고, <PythonCode>weights @ X</PythonCode>가 참고할 토큰을 섞은 컨텍스트 벡터를 만든다는 핵심 구조를 볼 수 있습니다.</> : <>The cell below is a simplified preview without separately learned Query, Key, and Value projections. Even so, it reveals the core structure: <PythonCode>X @ X.T</PythonCode> creates all token relationships at once, and <PythonCode>weights @ X</PythonCode> mixes referenced tokens into context vectors.</>}
-                </p>
-              </div>
-              <span className="runtime-pill">Python · WASM</span>
-            </div>
-            <AttentionPipelineExplorer />
-            <div className="notebook-stack">
-              <Discussable
-                scopeId="transformer-from-zero.vectors.notebook.attention-preview"
-                subjectLabel={t("Attention 미리보기 코드 셀", "Attention preview code cell")}
-                variant="code-cell"
-              >
-                <NotebookCell
-                  title={t("작은 Self-Attention heatmap 만들기", "Build a small Self-Attention heatmap")}
-                  initialCode={attentionPreviewCode}
-                  description={
-                    <p>
-                      {t("토큰 세 개의 유사도 점수를 계산하고 softmax로 정규화합니다. 각 행의 합이 1인지 확인한 뒤, 가중합으로 만들어진 컨텍스트 벡터의 shape까지 추적하세요.", "Calculate similarity scores for three tokens and normalize them with softmax. Check that each row sums to 1, then trace the shape of the weighted context vectors.")}
-                    </p>
-                  }
-                  hint={
-                    <p>
-                      {t("첫 번째와 두 번째 토큰을 똑같이 만든 뒤 Attention 가중치가 어떻게 달라지는지 실행해 보세요.", "Make the first and second tokens identical, then run the cell and observe how the Attention weights change.")}
-                    </p>
-                  }
-                  editorMinHeight={390}
-                  figureAlt={t("세 토큰 사이의 Self-Attention 가중치 heatmap", "Heatmap of Self-Attention weights among three tokens")}
-                />
-              </Discussable>
             </div>
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">09 — CHECK</div>
+            <div className="margin-label">06 — CHECK</div>
             <h2>{isKo ? "이해 확인: 계산 전에 구조를 예측하기" : "Concept check: predict the structure before calculating"}</h2>
             <p>
               {isKo
@@ -546,18 +393,18 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
 
           <section className="chapter-finish">
             <p className="eyebrow">CHECKPOINT</p>
-            <h2>{isKo ? "이제 Attention의 가장 작은 부품을 갖췄습니다." : "You now have the smallest building blocks of Attention."}</h2>
+            <h2>{isKo ? "이제 숫자의 모양과 관계를 먼저 읽을 수 있습니다." : "You can now read shape and relationships before values."}</h2>
             <p>
               {isKo
-                ? "벡터를 관계의 점수로 읽고, 텐서를 batch, tokens, d_model 축으로 설명할 수 있다면 첫 챕터의 목표를 달성했습니다."
-                : "If you can read vectors as relationship scores and explain tensors using batch, tokens, and d_model axes, you have reached this chapter's goal."}
+                ? "벡터의 방향과 크기를 설명하고, NumPy shape와 batch, tokens, d_model 축을 추적하며, 내적의 부호를 예측할 수 있다면 첫 챕터의 목표를 달성했습니다."
+                : "If you can explain vector direction and magnitude, trace NumPy shapes and batch, tokens, d_model axes, and predict the sign of a dot product, you have reached this chapter's goal."}
             </p>
             <CompleteChapter
               slug="vectors"
               canComplete={mastered}
               lockedMessage={isKo
-                ? "이해 확인 여섯 문제를 맞히면 완료할 수 있습니다."
-                : "Answer all six concept-check questions correctly to complete the chapter."}
+                ? "이해 확인 다섯 문제를 맞히면 완료할 수 있습니다."
+                : "Answer all five concept-check questions correctly to complete the chapter."}
             />
           </section>
 

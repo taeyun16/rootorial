@@ -54,9 +54,7 @@ export function VectorExplorer() {
     const angle = cosine === null
       ? null
       : Math.acos(Math.max(-1, Math.min(1, cosine))) * (180 / Math.PI);
-    const projectionScale = normV ? dot / (normV * normV) : 0;
-    const projection: Vector = [v[0] * projectionScale, v[1] * projectionScale];
-    return { dot, normV, normW, cosine, angle, projection };
+    return { dot, normV, normW, cosine, angle };
   }, [v, w]);
 
   useEffect(() => {
@@ -101,10 +99,9 @@ export function VectorExplorer() {
     context.lineTo(origin.x, height);
     context.stroke();
 
-    drawArrow(context, origin, metrics.projection, scale, "#8f4f3c", "projᵥ(w)", true);
     drawArrow(context, origin, v, scale, "#365548", "v");
     drawArrow(context, origin, w, scale, "#465d6a", "w");
-  }, [metrics.projection, v, w]);
+  }, [v, w]);
 
   function slider(
     vectorName: "v" | "w",
@@ -137,13 +134,12 @@ export function VectorExplorer() {
           ref={canvasRef}
           className="vector-canvas"
           role="img"
-          aria-label={isKo ? "벡터 v, w와 투영을 보여주는 좌표 평면" : "Coordinate plane showing vectors v and w and their projection"}
+          aria-label={isKo ? "벡터 v와 w의 방향을 비교하는 좌표 평면" : "Coordinate plane comparing the directions of vectors v and w"}
           aria-describedby="vector-explorer-description"
         />
         <div className="canvas-legend" aria-hidden="true">
           <span><i className="legend-v" /> v</span>
           <span><i className="legend-w" /> w</span>
-          <span><i className="legend-p" /> {isKo ? "투영" : "projection"}</span>
         </div>
       </div>
       <div className="vector-controls">

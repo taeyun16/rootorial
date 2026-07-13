@@ -28,6 +28,7 @@ export function VectorBasicsLab() {
   const [v, setV] = useState<Vector>([1, 2]);
   const [w, setW] = useState<Vector>([5, -4]);
   const [scalar, setScalar] = useState(2);
+  const [revealed, setRevealed] = useState(false);
 
   const calculation = useMemo(() => {
     const norm = Math.hypot(...v);
@@ -92,6 +93,7 @@ export function VectorBasicsLab() {
           value={value}
           onChange={(event) => {
             const next = Number(event.target.value);
+            setRevealed(false);
             setVector(index === 0 ? [next, vector[1]] : [vector[0], next]);
           }}
         />
@@ -107,8 +109,10 @@ export function VectorBasicsLab() {
           <h3 id="vector-basics-title">{isKo ? "연산을 바꾸고 결과를 예측하세요" : "Change the operation and predict the result"}</h3>
         </div>
         <span className="vector-basics-norm">
-          {isKo ? "결과 크기" : "Result magnitude"}{" "}
-          <MathFormula latex={String.raw`\lVert \mathbf{r} \rVert_2 = ${formatNumber(calculation.resultNorm)}`} />
+          {revealed ? <>
+            {isKo ? "결과 크기" : "Result magnitude"}{" "}
+            <MathFormula latex={String.raw`\lVert \mathbf{r} \rVert_2 = ${formatNumber(calculation.resultNorm)}`} />
+          </> : (isKo ? "결과를 먼저 예측하세요" : "Predict before revealing")}
         </span>
       </div>
 
@@ -120,7 +124,10 @@ export function VectorBasicsLab() {
             aria-pressed={operation === candidate.id}
             aria-label={candidate.label}
             className={operation === candidate.id ? "vector-basics-tab-active" : ""}
-            onClick={() => setOperation(candidate.id)}
+            onClick={() => {
+              setOperation(candidate.id);
+              setRevealed(false);
+            }}
           >
             <MathFormula latex={candidate.latex} />
           </button>
@@ -154,7 +161,10 @@ export function VectorBasicsLab() {
                 max="3"
                 step="0.5"
                 value={scalar}
-                onChange={(event) => setScalar(Number(event.target.value))}
+                onChange={(event) => {
+                  setScalar(Number(event.target.value));
+                  setRevealed(false);
+                }}
               />
               <output>{formatNumber(scalar)}</output>
             </label>
@@ -164,23 +174,32 @@ export function VectorBasicsLab() {
         <div className="vector-basics-result" aria-live="polite">
           <span className="vector-basics-result-label">{isKo ? "계산" : "CALCULATION"}</span>
           <MathFormula latex={calculation.expressionLatex} display className="vector-basics-expression" />
-          {operation === "normalize" && calculation.norm === 0
-            ? <strong>{isKo ? "정의되지 않음" : "Undefined"}</strong>
-            : <MathFormula latex={`= ${formatVectorLatex(calculation.result)}`} className="vector-basics-answer" />}
-          <p>{calculation.insight}</p>
-          {operation === "normalize" && calculation.norm !== 0 ? (
-            <UnitVectorPlot vector={calculation.result} sourceVector={v} locale={locale} />
-          ) : null}
+          {revealed ? <>
+            {operation === "normalize" && calculation.norm === 0
+              ? <strong>{isKo ? "정의되지 않음" : "Undefined"}</strong>
+              : <MathFormula latex={`= ${formatVectorLatex(calculation.result)}`} className="vector-basics-answer" />}
+            <p>{calculation.insight}</p>
+            {operation === "normalize" && calculation.norm !== 0 ? (
+              <UnitVectorPlot vector={calculation.result} sourceVector={v} locale={locale} />
+            ) : null}
+          </> : (
+            <div className="vector-basics-reveal">
+              <p>{isKo ? "각 좌표의 결과와 방향 변화를 머릿속이나 종이에 먼저 적어 보세요." : "Write down the resulting coordinates and direction change before revealing the answer."}</p>
+              <button type="button" onClick={() => setRevealed(true)}>
+                {isKo ? "예측 완료 · 결과 보기" : "Prediction ready · reveal result"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
       <div className="vector-missions" aria-label={isKo ? "추천 실험" : "Suggested experiments"}>
         <strong>{isKo ? "추천 실험" : "Suggested experiments"}</strong>
         <ol>
-          <li><button type="button" onClick={() => { setOperation("add"); setV([1, 2]); setW([5, -4]); }}><MathFormula latex={String.raw`\mathbf{v} + \mathbf{w}`} />{isKo ? "를 먼저 눈으로 예측한 뒤 확인" : " — predict visually, then check"}</button></li>
-          <li><button type="button" onClick={() => { setOperation("scale"); setV([3, 2]); setScalar(-1); }}><MathFormula latex={String.raw`\lambda = -1`} />{isKo ? "로 방향이 뒤집히는지 확인" : " — watch the direction reverse"}</button></li>
-          <li><button type="button" onClick={() => { setOperation("normalize"); setV([3, 4]); }}>{isKo ? "[3, 4]를 길이 1로 정규화" : "Normalize [3, 4] to length 1"}</button></li>
-          <li><button type="button" onClick={() => { setOperation("normalize"); setV([0, 0]); }}>{isKo ? "영벡터를 정규화할 수 없는 이유 확인" : "See why the zero vector cannot be normalized"}</button></li>
+          <li><button type="button" onClick={() => { setOperation("add"); setV([1, 2]); setW([5, -4]); setRevealed(false); }}><MathFormula latex={String.raw`\mathbf{v} + \mathbf{w}`} />{isKo ? "를 먼저 눈으로 예측한 뒤 확인" : " — predict visually, then check"}</button></li>
+          <li><button type="button" onClick={() => { setOperation("scale"); setV([3, 2]); setScalar(-1); setRevealed(false); }}><MathFormula latex={String.raw`\lambda = -1`} />{isKo ? "로 방향이 뒤집히는지 확인" : " — watch the direction reverse"}</button></li>
+          <li><button type="button" onClick={() => { setOperation("normalize"); setV([3, 4]); setRevealed(false); }}>{isKo ? "[3, 4]를 길이 1로 정규화" : "Normalize [3, 4] to length 1"}</button></li>
+          <li><button type="button" onClick={() => { setOperation("normalize"); setV([0, 0]); setRevealed(false); }}>{isKo ? "영벡터를 정규화할 수 없는 이유 확인" : "See why the zero vector cannot be normalized"}</button></li>
         </ol>
       </div>
     </section>

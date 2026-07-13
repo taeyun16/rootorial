@@ -16,8 +16,7 @@ type QuestionId =
   | "normalization"
   | "tensor-shape"
   | "broadcast-shape"
-  | "dot-product"
-  | "attention-context";
+  | "dot-product";
 
 export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
   const { locale } = useLocale();
@@ -83,8 +82,8 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
       id: "broadcast-shape",
       index: "04",
       prompt: isKo
-        ? <>임베딩 <code>[2, 4, 8]</code>에 위치 행렬 <code>[4, 8]</code>을 더한 결과 shape는?</>
-        : <>What shape results from adding a positional matrix <code>[4, 8]</code> to embeddings <code>[2, 4, 8]</code>?</>,
+        ? <>텐서 <code>[2, 4, 8]</code>에 보정값 <code>[4, 8]</code>을 더한 결과 shape는?</>
+        : <>What shape results from adding an offset <code>[4, 8]</code> to a tensor <code>[2, 4, 8]</code>?</>,
       options: [
         { value: "shape-kept", label: "[2, 4, 8]" },
         { value: "shape-expanded", label: "[2, 8, 8]" },
@@ -92,8 +91,8 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
       ],
       correctAnswer: "shape-kept",
       answerLabel: <>{t("정답:", "Answer:")} <code>[2, 4, 8]</code></>,
-      correctFeedback: t("맞았습니다. [4, 8]이 batch 축으로 브로드캐스팅되어 전체 shape는 유지됩니다.", "Right. [4, 8] broadcasts across the batch axis, preserving the full shape."),
-      incorrectFeedback: t("[4, 8] 위치 행렬을 batch의 각 문장에 반복해서 더하므로 결과는 [2, 4, 8]입니다.", "The [4, 8] positional matrix is added to every sentence in the batch, so the result remains [2, 4, 8]."),
+      correctFeedback: t("맞았습니다. [4, 8]이 빠진 첫 축을 따라 두 번 반복되어 전체 shape는 유지됩니다.", "Right. [4, 8] repeats twice along the missing first axis, preserving the full shape."),
+      incorrectFeedback: t("[4, 8] 보정값이 첫 축의 두 묶음에 각각 반복되므로 결과는 [2, 4, 8]입니다.", "The [4, 8] offset repeats across both items of the first axis, so the result remains [2, 4, 8]."),
       visual: <ConceptVisualExplanation kind="broadcast" />,
     },
     {
@@ -115,23 +114,6 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
         : <><MathFormula latex={String.raw`\mathbf{a}\cdot\mathbf{b}=\lVert\mathbf{a}\rVert_2\lVert\mathbf{b}\rVert_2\cos 90^\circ`} />, and <MathFormula latex={String.raw`\cos 90^\circ = 0`} />.</>,
       visual: <ConceptVisualExplanation kind="dot-product" />,
     },
-    {
-      id: "attention-context",
-      index: "06",
-      prompt: isKo
-        ? <>Attention 가중치 <code>[3, 3]</code>과 값 벡터 <code>[3, 4]</code>를 곱한 컨텍스트 shape는?</>
-        : <>What is the context shape after multiplying Attention weights <code>[3, 3]</code> by value vectors <code>[3, 4]</code>?</>,
-      options: [
-        { value: "3-4", label: "[3, 4]" },
-        { value: "3-3", label: "[3, 3]" },
-        { value: "4-4", label: "[4, 4]" },
-      ],
-      correctAnswer: "3-4",
-      answerLabel: <>{t("정답:", "Answer:")} <code>[3, 4]</code></>,
-      correctFeedback: t("맞았습니다. 각 토큰이 네 차원 값 벡터의 가중합을 하나씩 얻습니다.", "Right. Each token receives one weighted sum of four-dimensional value vectors."),
-      incorrectFeedback: t("[3, 3] @ [3, 4]에서 안쪽 3이 사라지고 바깥 [3, 4]가 남습니다.", "In [3, 3] @ [3, 4], the inner 3 contracts and the outer [3, 4] remains."),
-      visual: <ConceptVisualExplanation kind="attention-context" />,
-    },
   ];
 
   return (
@@ -142,13 +124,13 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
       copy={{
         kicker: "PREDICT BEFORE YOU RUN",
         title: t("실행하지 않고 연산 결과와 shape를 먼저 예측하세요", "Predict each result and shape before running the code"),
-        description: t("여섯 문제를 모두 맞히면 이 챕터를 완료할 수 있습니다.", "Answer all six questions correctly to complete this chapter."),
+        description: t("다섯 문제를 모두 맞히면 이 챕터를 완료할 수 있습니다.", "Answer all five questions correctly to complete this chapter."),
         correct: t("정답이에요", "Correct"),
         incorrect: t("다시 살펴봐요", "Take another look"),
         checkAnswers: t("답 확인하기", "Check answers"),
         completed: t("이해 확인 완료 — 이제 챕터를 완료할 수 있습니다.", "Concept check complete — you can now finish the chapter."),
         retry: t("아직 확인할 축이 있습니다. 설명을 읽고 다시 답해 보세요.", "Some axes still need attention. Read the explanations and try again."),
-        idle: t("여섯 답을 고른 뒤 확인해 보세요.", "Choose all six answers, then check your work."),
+        idle: t("다섯 답을 고른 뒤 확인해 보세요.", "Choose all five answers, then check your work."),
       }}
     />
   );
