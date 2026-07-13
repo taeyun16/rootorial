@@ -1,9 +1,31 @@
 import { clerk } from "@clerk/testing/playwright";
 import { expect, test } from "@playwright/test";
 
+test("starts the localized Three.js lesson preview from the landing page", async ({ page }) => {
+  await page.goto("/?lang=en");
+
+  const stage = page.getByTestId("rootorial-learning-scene").first();
+  const canvas = stage.locator("canvas");
+  await expect(page.getByRole("button", { name: "Try a 60-second lesson" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Start the first chapter" })).toHaveAttribute(
+    "href",
+    "/curricula/transformer-from-zero/chapters/vectors?lang=en",
+  );
+  await expect(canvas).toHaveAttribute("data-ready", "true");
+
+  await page.getByRole("button", { name: "Try a 60-second lesson" }).click();
+  await expect(canvas).toBeFocused();
+
+  await page.getByRole("button", { name: "Pause motion" }).click();
+  const vectorValue = stage.locator(".concept-stage-metrics dd").first();
+  const before = await vectorValue.textContent();
+  await canvas.press("ArrowRight");
+  await expect(vectorValue).not.toHaveText(before ?? "");
+});
+
 test("keeps the English chapter free of untranslated Korean UI", async ({ page }) => {
   await page.goto("/?lang=en");
-  await page.getByRole("link", { name: /View curriculum/ }).click();
+  await page.getByRole("link", { name: "Transformers from the Ground Up" }).click();
   await page.getByRole("link", { name: "Start chapter one" }).click();
   await expect(page.getByRole("heading", { name: "Vectors and Tensors" })).toBeVisible();
   await expect(page).toHaveTitle("01. Vectors and Tensors · Rootorial");

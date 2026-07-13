@@ -43,7 +43,10 @@ test("renders the Rootorial curriculum catalog", async () => {
   assert.match(html, /로그인 준비 중/);
   assert.match(html, /한국어로 보기/);
   assert.match(html, /View in English/);
+  assert.match(html, /60초 학습 미리보기/);
   assert.match(html, /첫 챕터 바로 시작/);
+  assert.match(html, /data-testid="rootorial-learning-scene"/);
+  assert.match(html, /aria-controls="hero-learning-preview"/);
   assert.match(html, /href="https:\/\/x\.com\/taeyun16_"/);
   assert.match(html, /href="https:\/\/github\.com\/taeyun16"/);
   assert.match(html, /href="https:\/\/www\.linkedin\.com\/in\/taeyun16\/"/);
@@ -87,11 +90,13 @@ test("renders the English landing on the first server response", async () => {
   assert.match(html, /Rootorial/);
   assert.match(html, /Technology, understood from the root\./);
   assert.doesNotMatch(html, /복잡한 기술을 바닥부터\./);
+  assert.match(html, /Try a 60-second lesson/);
   assert.match(html, /Start the first chapter/);
   assert.match(html, /Taeyun Jang&#x27;s social accounts/);
   assert.match(html, /What we&#x27;re preparing next/);
   assert.match(html, /Rootorial — Technology, understood from the root\./);
   assert.doesNotMatch(html, /첫 챕터 바로 시작/);
+  assert.doesNotMatch(html, /60초 학습 미리보기/);
 });
 
 test("renders the Transformer curriculum detail", async () => {
@@ -172,6 +177,8 @@ test("renders the interactive vectors chapter", async () => {
   assert.match(html, /batch, tokens, d_model/);
   assert.match(html, /브로드캐스팅/);
   assert.match(html, /두 벡터를 움직여 보세요/);
+  assert.match(html, /LIVE CONCEPT LAB/);
+  assert.match(html, /끝점을 드래그하거나 방향키로 움직여 보세요/);
   assert.match(html, /원소별로 곱하고 모두 더하기/);
   assert.match(html, /연산을 바꾸고 결과를 예측하세요/);
   assert.match(html, /예측 완료 · 결과 보기/);
