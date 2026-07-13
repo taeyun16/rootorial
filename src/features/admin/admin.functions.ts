@@ -1,41 +1,27 @@
-import { auth } from "@clerk/tanstack-react-start/server";
 import { createServerFn } from "@tanstack/react-start";
-import { setResponseHeader } from "@tanstack/react-start/server";
 import { env } from "cloudflare:workers";
 import { desc, eq, gte, inArray, sql } from "drizzle-orm";
 import { getDb } from "../../../db";
 import { contentFeedback, discussionAnswers, discussionProfiles, discussionQuestions, systemEvents } from "../../../db/schema";
-import { isDiscussionAdmin } from "../discussion/discussion";
 import type { LearningPresence } from "../../durable-objects/LearningPresence";
 import { getConceptQuestionLabel } from "../chapters/chapter-registry";
 import { LEARNING_PRESENCE_SHARD_COUNT } from "../learning-analytics/learning-analytics";
 import { type AdminDashboard, validateUpdateFeedbackInput } from "./admin";
+import { currentAdmin, privateResponse } from "./admin-auth.server";
+import { curricula } from "../../data/curriculum";
+import {
+  chapterPublicationKey,
+  curriculumPublicationKey,
+} from "../publication/publication";
+import { loadPublicationCatalog } from "../publication/publication.server";
 
 type AdminBindings = {
   DB?: D1Database;
   LEARNING_PRESENCE?: DurableObjectNamespace<LearningPresence>;
-  ROOTORIAL_ADMIN_USER_IDS?: string;
 };
 
 function bindings() {
   return env as unknown as AdminBindings;
-}
-
-function configuredAdmins() {
-  return bindings().ROOTORIAL_ADMIN_USER_IDS ?? process.env.ROOTORIAL_ADMIN_USER_IDS;
-}
-
-async function currentAdmin() {
-  try {
-    const userId = (await auth()).userId;
-    return { userId, isAdmin: isDiscussionAdmin(userId, configuredAdmins()) };
-  } catch {
-    return { userId: null, isAdmin: false };
-  }
-}
-
-function privateResponse() {
-  setResponseHeader("Cache-Control", "private, no-store");
 }
 
 async function onlineLearnerCount() {
@@ -92,7 +78,7 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
       db.select({ value: count }).from(systemEvents).where(eq(systemEvents.status, "dead")),
     ]);
 
-    const [kindRows, questionDays, answerDays, feedbackDays, feedbackRows, learningSessionsResult, learningAttemptsResult, learningMasteryResult, learningQuestionsResult, courseVisitorsResult, contentReachResult, onlineLearners, recentSystemEvents] = await Promise.all([
+    const [kindRows, questionDays, answerDays, feedbackDays, feedbackRows, learningSessionsResult, learningAttemptsResult, learningMasteryResult, learningQuestionsResult, courseVisitorsResult, contentReachResult, onlineLearners, recentSystemEvents, publicationCatalog] = await Promise.all([
       db.select({ kind: contentFeedback.kind, value: count }).from(contentFeedback).groupBy(contentFeedback.kind),
       db.select({ date: sql<string>`date(${discussionQuestions.createdAt} / 1000, 'unixepoch')`, value: count }).from(discussionQuestions).where(gte(discussionQuestions.createdAt, weekAgo)).groupBy(sql`date(${discussionQuestions.createdAt} / 1000, 'unixepoch')`),
       db.select({ date: sql<string>`date(${discussionAnswers.createdAt} / 1000, 'unixepoch')`, value: count }).from(discussionAnswers).where(gte(discussionAnswers.createdAt, weekAgo)).groupBy(sql`date(${discussionAnswers.createdAt} / 1000, 'unixepoch')`),
@@ -170,6 +156,7 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
         createdAt: systemEvents.createdAt,
         deliveredAt: systemEvents.deliveredAt,
       }).from(systemEvents).orderBy(desc(systemEvents.createdAt)).limit(50),
+      loadPublicationCatalog(database),
     ]);
 
     const dayMap = new Map<string, { date: string; questions: number; answers: number; feedback: number }>();
@@ -196,6 +183,25 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
     return {
       available: true,
       generatedAt: Date.now(),
+      publication: publicationCatalog
+        ? {
+            available: true,
+            curricula: curricula.map((curriculum) => ({
+              item: publicationCatalog.resources[
+                curriculumPublicationKey(curriculum.slug)
+              ],
+              chapters: curriculum.chapters.ko.map(
+                (chapter) =>
+                  publicationCatalog.resources[
+                    chapterPublicationKey(curriculum.slug, chapter.slug)
+                  ],
+              ),
+            })),
+          }
+        : {
+            available: false,
+            message: "게시 상태 저장소를 불러오지 못했습니다.",
+          },
       metrics: {
         learners: value(learners), questions: value(questions), answers: value(answers),
         feedbackTotal: value(feedbackTotal), feedbackPending: value(feedbackPending),

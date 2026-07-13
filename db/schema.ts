@@ -437,3 +437,61 @@ export const contentVisitors = sqliteTable("content_visitors", {
   index("content_visitors_curriculum_idx").on(table.curriculumSlug, table.chapterSlug),
   check("content_visitors_access_count_check", sql`${table.accessCount} > 0`),
 ]);
+
+export const contentPublicationOverrides = sqliteTable("content_publication_overrides", {
+  resourceKey: text("resource_key").primaryKey(),
+  resourceKind: text("resource_kind", {
+    enum: ["curriculum", "chapter"],
+  }).notNull(),
+  curriculumSlug: text("curriculum_slug").notNull(),
+  chapterSlug: text("chapter_slug"),
+  publicationStatus: text("publication_status", {
+    enum: ["draft", "published", "archived"],
+  }).notNull(),
+  listing: text("listing", {
+    enum: ["hidden", "listed", "unlisted"],
+  }).notNull(),
+  scheduledAt: integer("scheduled_at"),
+  publishedAt: integer("published_at"),
+  version: integer("version").notNull().default(1),
+  updatedByUserId: text("updated_by_user_id").notNull(),
+  createdAt: integer("created_at").notNull(),
+  updatedAt: integer("updated_at").notNull(),
+}, (table) => [
+  index("content_publication_overrides_curriculum_idx").on(
+    table.curriculumSlug,
+    table.chapterSlug,
+  ),
+  index("content_publication_overrides_schedule_idx").on(
+    table.publicationStatus,
+    table.scheduledAt,
+  ),
+  check(
+    "content_publication_overrides_resource_kind_check",
+    sql`${table.resourceKind} in ('curriculum', 'chapter')`,
+  ),
+  check(
+    "content_publication_overrides_resource_identity_check",
+    sql`(${table.resourceKind} = 'curriculum' and ${table.chapterSlug} is null and ${table.resourceKey} = 'curriculum:' || ${table.curriculumSlug}) or (${table.resourceKind} = 'chapter' and ${table.chapterSlug} is not null and ${table.resourceKey} = 'chapter:' || ${table.curriculumSlug} || '/' || ${table.chapterSlug})`,
+  ),
+  check(
+    "content_publication_overrides_status_check",
+    sql`${table.publicationStatus} in ('draft', 'published', 'archived')`,
+  ),
+  check(
+    "content_publication_overrides_listing_check",
+    sql`${table.listing} in ('hidden', 'listed', 'unlisted')`,
+  ),
+  check(
+    "content_publication_overrides_schedule_check",
+    sql`${table.publicationStatus} = 'draft' or ${table.scheduledAt} is null`,
+  ),
+  check(
+    "content_publication_overrides_published_at_check",
+    sql`${table.publicationStatus} = 'draft' or ${table.publishedAt} is not null`,
+  ),
+  check(
+    "content_publication_overrides_version_check",
+    sql`${table.version} > 0`,
+  ),
+]);

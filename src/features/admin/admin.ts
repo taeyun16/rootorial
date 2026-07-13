@@ -1,10 +1,23 @@
+import type { ResolvedPublication } from "../publication/publication";
+
 export type FeedbackStatus = "pending" | "reviewing" | "resolved";
+
+export type AdminPublicationCatalog =
+  | { available: false; message: string }
+  | {
+      available: true;
+      curricula: Array<{
+        item: ResolvedPublication;
+        chapters: ResolvedPublication[];
+      }>;
+    };
 
 export type AdminDashboard =
   | { available: false; reason: "unauthorized" | "forbidden" | "unavailable"; message: string }
   | {
       available: true;
       generatedAt: number;
+      publication: AdminPublicationCatalog;
       metrics: {
         learners: number;
         questions: number;

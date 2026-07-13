@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { access, readFile } from "node:fs/promises";
 import { register } from "node:module";
 import test from "node:test";
+import { workerTestEnv } from "./worker-test-env.mjs";
 
 register("./cloudflare-workers-loader.mjs", import.meta.url);
 
@@ -14,11 +15,7 @@ async function render(pathname = "/") {
     new Request(`http://localhost${pathname}`, {
       headers: { accept: "text/html" },
     }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
+    workerTestEnv(),
     {
       waitUntil() {},
       passThroughOnException() {},

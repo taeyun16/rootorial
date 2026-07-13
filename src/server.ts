@@ -5,6 +5,7 @@ import {
   dispatchPendingSystemEvents,
   type SystemEventBindings,
 } from "./features/system-events/system-events";
+import { publishDueContent } from "./features/publication/publication.server";
 
 export { LearningSession } from "./durable-objects/LearningSession";
 export { LearningPresence } from "./durable-objects/LearningPresence";
@@ -25,5 +26,6 @@ export default {
     context: ExecutionContext,
   ) {
     context.waitUntil(dispatchPendingSystemEvents(env));
+    context.waitUntil(publishDueContent(env.DB));
   },
 } satisfies ExportedHandler<SystemEventBindings>;

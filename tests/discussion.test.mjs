@@ -27,9 +27,36 @@ import {
   isActiveDiscussionScopeId,
   isDiscussionScopeId,
 } from "../src/data/discussionScopes.ts";
+import {
+  isDiscussionPublicationAllowed,
+} from "../src/features/discussion/discussion-publication.ts";
+import {
+  chapterPublicationKey,
+  resolvePublicationCatalog,
+} from "../src/features/publication/publication.ts";
 
 const QUESTION_ID = "018f0f47-3d6f-7d0a-8b5e-516d1f1ad333";
 const ANSWER_ID = "76f68414-2c6d-44f8-a8af-5b7d1fe32ae0";
+const VECTOR_SCOPE = "transformer-from-zero.vectors.meaning";
+const VECTOR_KEY = chapterPublicationKey("transformer-from-zero", "vectors");
+
+function publicationOverride(values) {
+  return {
+    resourceKey: VECTOR_KEY,
+    resourceKind: "chapter",
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "vectors",
+    publicationStatus: "published",
+    listing: "listed",
+    scheduledAt: null,
+    publishedAt: 500,
+    version: 1,
+    updatedByUserId: "user_admin",
+    createdAt: 500,
+    updatedAt: 500,
+    ...values,
+  };
+}
 
 test("keeps discussion scopes finite, typed, and stable", () => {
   assert.ok(discussionScopeIds.includes("transformer-from-zero.vectors.meaning"));
@@ -52,6 +79,63 @@ test("keeps discussion scopes finite, typed, and stable", () => {
     () => validateGetDiscussionInput({ scopeId: "toString" }),
     /학습 항목/,
   );
+});
+
+test("applies chapter publication state to discussion reads and writes", () => {
+  const published = resolvePublicationCatalog([], 1_000);
+  assert.equal(
+    isDiscussionPublicationAllowed(published, VECTOR_SCOPE, "read"),
+    true,
+  );
+  assert.equal(
+    isDiscussionPublicationAllowed(published, VECTOR_SCOPE, "write"),
+    true,
+  );
+
+  for (const override of [
+    publicationOverride({ publicationStatus: "draft", publishedAt: null }),
+    publicationOverride({ listing: "hidden" }),
+    publicationOverride({ publicationStatus: "archived" }),
+  ]) {
+    const unavailable = resolvePublicationCatalog([override], 1_000);
+    assert.equal(
+      isDiscussionPublicationAllowed(unavailable, VECTOR_SCOPE, "read"),
+      false,
+    );
+    assert.equal(
+      isDiscussionPublicationAllowed(unavailable, VECTOR_SCOPE, "write"),
+      false,
+    );
+  }
+
+  assert.equal(
+    isDiscussionPublicationAllowed(null, VECTOR_SCOPE, "read", true),
+    true,
+  );
+  assert.equal(
+    isDiscussionPublicationAllowed(null, VECTOR_SCOPE, "moderate", true),
+    true,
+  );
+  assert.equal(
+    isDiscussionPublicationAllowed(null, VECTOR_SCOPE, "write", true),
+    false,
+  );
+});
+
+test("wires the publication guard into discussion RPC read and interaction paths", () => {
+  const source = readFileSync(
+    new URL(
+      "../src/features/discussion/discussion.functions.ts",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(source, /data\.scopeId,\s*"read"/);
+  assert.match(source, /data\.scopeId,\s*"write"/);
+  assert.match(source, /question\.scopeId,\s*"write"/);
+  assert.match(source, /target\.scopeId,\s*"write"/);
+  assert.match(source, /answer\.scopeId,\s*"write"/);
+  assert.match(source, /source\.scopeId,\s*"write"/);
 });
 
 test("normalizes question and answer inputs without trusting client identity", () => {

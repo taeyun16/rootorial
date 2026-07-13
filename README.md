@@ -104,17 +104,17 @@ npx wrangler secret put ROOTORIAL_ADMIN_USER_IDS
 현재 [`wrangler.jsonc`](./wrangler.jsonc)가 Workers 설정의 단일 원본입니다.
 
 ```bash
-npm run build
 npm run deploy:check
+npm run db:status:remote
 npm run deploy
 ```
 
 배포가 만들어지면 `wrangler.jsonc`에 선언된 `rootorial.com` custom domain이
 Worker에 연결됩니다.
 
-D1은 질문·답변, 좋아요, 사용자별 차단, 관리자 감사 기록을 저장합니다. 현재
-저장소에는 토론·관리·rate limit용 7개 테이블의 Drizzle migration이 포함되어
-있습니다. 로컬용 `DB` binding은 이미 구성되어 있습니다. 배포 전에는
+D1은 커리큘럼·챕터 공개 상태와 예약 발행, 질문·답변, 좋아요, 사용자별 차단,
+관리자 감사 기록을 저장합니다. 현재 저장소에는 이 상태를 구성하는 Drizzle
+migration이 포함되어 있습니다. 로컬용 `DB` binding은 이미 구성되어 있습니다. 배포 전에는
 Cloudflare에서 데이터베이스를 만든 뒤 출력된 `database_id`를 기존 binding에
 추가하고 이름을 운영 데이터베이스에 맞게 바꿔야 합니다.
 
@@ -136,17 +136,22 @@ npm run db:migrate:remote
 
 `npm run deploy:check`는 코드를 업로드하지 않고 Worker 번들, 정적 자산과 binding을
 검증합니다. 실제 배포는 원격 설정 충돌을 덮어쓰지 않도록 Wrangler strict mode로
-실행됩니다. 원격 D1과 secret 상태를 확인하려면 먼저 `npx wrangler login`으로
-Cloudflare 인증을 갱신한 뒤 아래 명령을 실행하세요.
+실행되며, `build -> 원격 D1 migration -> Worker deploy` 순서를 자동으로 강제합니다.
+공개 상태 조회는 fail-closed이므로 `DB` binding이나 최신 publication migration이
+없으면 공개 카탈로그는 비고 커리큘럼·챕터 상세 URL은 404가 됩니다. 따라서
+`wrangler deploy`를 직접 실행해 migration 단계를 건너뛰지 마세요. 원격 D1과
+secret 상태를 확인하려면 먼저 `npx wrangler login`으로 Cloudflare 인증을 갱신한
+뒤 아래 명령을 실행하세요.
 
 ```bash
 npm run db:status:remote
 ```
 
-`DB` binding이 없으면 공개 학습과 코드 실행은 그대로 동작하고, 토론 패널에는
-연결 안내가 표시됩니다. Clerk `userId`와 관리자 여부는 항상 서버에서만
-확정합니다. Durable Objects는 실시간 presence나 질문방 WebSocket이 실제로
-필요해질 때 추가합니다.
+`DB` binding이나 publication migration이 없으면 비공개 상태가 장애 중 다시
+노출되지 않도록 공개 학습 접근도 차단됩니다. 토론 패널과 학습 분석 역시 D1이
+필요합니다. 로컬 개발에서도 서버를 시작하기 전에 migration을 적용하세요. Clerk
+`userId`와 관리자 여부는 항상 서버에서만 확정합니다. Durable Objects는 실시간
+presence나 질문방 WebSocket이 실제로 필요해질 때 추가합니다.
 
 ## Commands
 
@@ -163,7 +168,7 @@ npm run db:migrate:e2e   # 격리된 E2E D1 migration 적용
 npm run db:status:local  # 로컬 D1 migration 상태 확인
 npm run db:migrate:remote # 프로덕션 D1 migration 적용
 npm run db:status:remote # 프로덕션 D1 migration 상태 확인
-npm run deploy     # 검증 후 Cloudflare Workers 배포
+npm run deploy     # 빌드 + 원격 D1 migration + strict Workers 배포
 npm run cf-typegen # wrangler binding 타입 생성
 ```
 

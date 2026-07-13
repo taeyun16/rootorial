@@ -26,6 +26,7 @@ import type {
 } from "../features/discussion/discussion";
 import { useClerkEnabled } from "./ClerkBoundary";
 import { useLocale } from "../features/localization/localization";
+import { usePublicationPreview } from "./PublicationPreview";
 
 const LazyDiscussionMarkdown = lazy(() =>
   import("./DiscussionMarkdown").then((module) => ({
@@ -175,6 +176,14 @@ export function Discussable({
   subjectLabel,
   variant = "section",
 }: DiscussionPanelProps & { children: ReactNode }) {
+  const preview = usePublicationPreview();
+  if (preview) {
+    return (
+      <div className={`discussable discussable-${variant} is-preview-readonly`}>
+        {children}
+      </div>
+    );
+  }
   return (
     <div className={`discussable discussable-${variant}`}>
       <DiscussionPanel

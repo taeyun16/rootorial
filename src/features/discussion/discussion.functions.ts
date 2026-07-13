@@ -26,6 +26,11 @@ import {
   systemEvents,
 } from "../../../db/schema";
 import { enqueueSystemEvent, systemEventRows, type SystemEventQueueBody } from "../system-events/system-events";
+import { loadPublicationCatalog } from "../publication/publication.server";
+import {
+  isDiscussionPublicationAllowed,
+  type DiscussionPublicationAction,
+} from "./discussion-publication";
 import {
   DISCUSSION_PAGE_SIZE,
   answerKindForUser,
@@ -60,6 +65,8 @@ type DiscussionDb = ReturnType<typeof getDb>;
 
 const DISCUSSION_UNAVAILABLE_MESSAGE =
   "토론 데이터베이스가 아직 연결되지 않았습니다.";
+const DISCUSSION_CONTENT_UNAVAILABLE_MESSAGE =
+  "현재 공개된 학습 콘텐츠에서만 토론을 이용할 수 있습니다.";
 const PROFILE_REFRESH_INTERVAL_MS = 24 * 60 * 60 * 1_000;
 const DISCUSSION_ANSWER_PAGE_LIMIT = 400;
 
@@ -90,6 +97,14 @@ function unavailableView(
     available: false,
     reason,
     message: DISCUSSION_UNAVAILABLE_MESSAGE,
+  };
+}
+
+function contentUnavailableView(): DiscussionView {
+  return {
+    available: false,
+    reason: "content_unavailable",
+    message: DISCUSSION_CONTENT_UNAVAILABLE_MESSAGE,
   };
 }
 
@@ -126,6 +141,25 @@ async function getOptionalUserId() {
     // Clerk is intentionally optional for local content-only development.
     return null;
   }
+}
+
+async function hasDiscussionPublicationAccess(
+  scopeId: unknown,
+  action: DiscussionPublicationAction,
+  viewerIsAdmin = false,
+) {
+  if (
+    isDiscussionPublicationAllowed(null, scopeId, action, viewerIsAdmin)
+  ) {
+    return true;
+  }
+  const catalog = await loadPublicationCatalog(getBindings().DB);
+  return isDiscussionPublicationAllowed(
+    catalog,
+    scopeId,
+    action,
+    viewerIsAdmin,
+  );
 }
 
 function normalizeDisplayName(
@@ -313,14 +347,21 @@ export const getDiscussion = createServerFn({ method: "GET" })
 
     try {
       const viewerUserId = await getOptionalUserId();
-      const viewerProfile = viewerUserId
-        ? await ensureDiscussionProfile(db, viewerUserId)
-        : null;
       const configuredAdminUserIds = getConfiguredAdminUserIds();
       const viewerIsAdmin = isDiscussionAdmin(
         viewerUserId,
         configuredAdminUserIds,
       );
+      if (!await hasDiscussionPublicationAccess(
+        data.scopeId,
+        "read",
+        viewerIsAdmin,
+      )) {
+        return contentUnavailableView();
+      }
+      const viewerProfile = viewerUserId
+        ? await ensureDiscussionProfile(db, viewerUserId)
+        : null;
 
       const blockedUserIds = new Set<string>();
       if (viewerUserId && !viewerIsAdmin) {
@@ -729,6 +770,12 @@ export const createQuestion = createServerFn({ method: "POST" })
     if (!userId) {
       return mutationFailure("unauthorized", "로그인이 필요합니다.");
     }
+    if (!await hasDiscussionPublicationAccess(data.scopeId, "write")) {
+      return mutationFailure(
+        "unavailable",
+        DISCUSSION_CONTENT_UNAVAILABLE_MESSAGE,
+      );
+    }
 
     try {
       const profile = await ensureDiscussionProfile(db, userId);
@@ -790,17 +837,6 @@ export const createAnswer = createServerFn({ method: "POST" })
     }
 
     try {
-      const profile = await ensureDiscussionProfile(db, userId);
-      if (profile.configuredAt == null) {
-        return mutationFailure(
-          "profile_required",
-          "답변을 등록하기 전에 공개 프로필을 설정해 주세요.",
-        );
-      }
-      const limitMessage = await checkPostingLimit(db, userId, "answer");
-      if (limitMessage) {
-        return mutationFailure("rate_limited", limitMessage);
-      }
       const [question] = await db
         .select({
           scopeId: discussionQuestions.scopeId,
@@ -812,11 +848,28 @@ export const createAnswer = createServerFn({ method: "POST" })
       if (!question) {
         return mutationFailure("not_found", "질문을 찾을 수 없습니다.");
       }
+      if (!await hasDiscussionPublicationAccess(question.scopeId, "write")) {
+        return mutationFailure(
+          "unavailable",
+          DISCUSSION_CONTENT_UNAVAILABLE_MESSAGE,
+        );
+      }
       if (!canReplyToDiscussionQuestion(question.scopeId, question.state)) {
         return mutationFailure(
           "conflict",
           "현재 이 질문에는 답변을 남길 수 없습니다.",
         );
+      }
+      const profile = await ensureDiscussionProfile(db, userId);
+      if (profile.configuredAt == null) {
+        return mutationFailure(
+          "profile_required",
+          "답변을 등록하기 전에 공개 프로필을 설정해 주세요.",
+        );
+      }
+      const limitMessage = await checkPostingLimit(db, userId, "answer");
+      if (limitMessage) {
+        return mutationFailure("rate_limited", limitMessage);
       }
 
       const id = crypto.randomUUID();
@@ -861,6 +914,7 @@ export const updatePost = createServerFn({ method: "POST" })
             .select({
               authorUserId: discussionQuestions.authorUserId,
               state: discussionQuestions.state,
+              scopeId: discussionQuestions.scopeId,
             })
             .from(discussionQuestions)
             .where(eq(discussionQuestions.id, data.targetId))
@@ -869,12 +923,23 @@ export const updatePost = createServerFn({ method: "POST" })
             .select({
               authorUserId: discussionAnswers.authorUserId,
               state: discussionAnswers.state,
+              scopeId: discussionQuestions.scopeId,
             })
             .from(discussionAnswers)
+            .innerJoin(
+              discussionQuestions,
+              eq(discussionAnswers.questionId, discussionQuestions.id),
+            )
             .where(eq(discussionAnswers.id, data.targetId))
             .limit(1);
 
       if (!target) return mutationFailure("not_found", "글을 찾을 수 없습니다.");
+      if (!await hasDiscussionPublicationAccess(target.scopeId, "write")) {
+        return mutationFailure(
+          "unavailable",
+          DISCUSSION_CONTENT_UNAVAILABLE_MESSAGE,
+        );
+      }
       if (target.authorUserId !== userId) {
         return mutationFailure("forbidden", "내가 작성한 글만 수정할 수 있습니다.");
       }
@@ -987,21 +1052,27 @@ export const setAnswerLike = createServerFn({ method: "POST" })
     }
 
     try {
-      await ensureDiscussionProfile(db, userId);
-      const limitMessage = await checkPostingLimit(db, userId, "social");
-      if (limitMessage) {
-        return mutationFailure("rate_limited", limitMessage);
-      }
       const [answer] = await db
         .select({
           authorUserId: discussionAnswers.authorUserId,
           state: discussionAnswers.state,
+          scopeId: discussionQuestions.scopeId,
         })
         .from(discussionAnswers)
+        .innerJoin(
+          discussionQuestions,
+          eq(discussionAnswers.questionId, discussionQuestions.id),
+        )
         .where(eq(discussionAnswers.id, data.answerId))
         .limit(1);
       if (!answer) {
         return mutationFailure("not_found", "답변을 찾을 수 없습니다.");
+      }
+      if (!await hasDiscussionPublicationAccess(answer.scopeId, "write")) {
+        return mutationFailure(
+          "unavailable",
+          DISCUSSION_CONTENT_UNAVAILABLE_MESSAGE,
+        );
       }
       if (!canLikeAnswer(userId, answer.authorUserId, answer.state)) {
         return mutationFailure(
@@ -1010,6 +1081,11 @@ export const setAnswerLike = createServerFn({ method: "POST" })
             ? "내 답변에는 좋아요를 누를 수 없습니다."
             : "현재 이 답변에는 좋아요를 누를 수 없습니다.",
         );
+      }
+      await ensureDiscussionProfile(db, userId);
+      const limitMessage = await checkPostingLimit(db, userId, "social");
+      if (limitMessage) {
+        return mutationFailure("rate_limited", limitMessage);
       }
 
       const [existingLike] = await db
@@ -1091,11 +1167,6 @@ export const setAuthorBlock = createServerFn({ method: "POST" })
     }
 
     try {
-      await ensureDiscussionProfile(db, userId);
-      const limitMessage = await checkPostingLimit(db, userId, "social");
-      if (limitMessage) {
-        return mutationFailure("rate_limited", limitMessage);
-      }
       const sourceInput: { sourceType: DiscussionPostType; sourceId: string } =
         "blockToken" in data
           ? sourceFromBlockToken(data.blockToken as string)
@@ -1105,18 +1176,37 @@ export const setAuthorBlock = createServerFn({ method: "POST" })
             };
       const [source] = sourceInput.sourceType === "question"
         ? await db
-            .select({ authorUserId: discussionQuestions.authorUserId })
+            .select({
+              authorUserId: discussionQuestions.authorUserId,
+              scopeId: discussionQuestions.scopeId,
+            })
             .from(discussionQuestions)
             .where(eq(discussionQuestions.id, sourceInput.sourceId))
             .limit(1)
         : await db
-            .select({ authorUserId: discussionAnswers.authorUserId })
+            .select({
+              authorUserId: discussionAnswers.authorUserId,
+              scopeId: discussionQuestions.scopeId,
+            })
             .from(discussionAnswers)
+            .innerJoin(
+              discussionQuestions,
+              eq(discussionAnswers.questionId, discussionQuestions.id),
+            )
             .where(eq(discussionAnswers.id, sourceInput.sourceId))
             .limit(1);
 
       if (!source) {
         return mutationFailure("not_found", "작성자를 찾을 수 없습니다.");
+      }
+      if (
+        data.blocked &&
+        !await hasDiscussionPublicationAccess(source.scopeId, "write")
+      ) {
+        return mutationFailure(
+          "unavailable",
+          DISCUSSION_CONTENT_UNAVAILABLE_MESSAGE,
+        );
       }
       if (
         data.blocked &&
@@ -1132,6 +1222,11 @@ export const setAuthorBlock = createServerFn({ method: "POST" })
             ? "나 자신은 차단할 수 없습니다."
             : "관리자 답변은 차단할 수 없습니다.",
         );
+      }
+      await ensureDiscussionProfile(db, userId);
+      const limitMessage = await checkPostingLimit(db, userId, "social");
+      if (limitMessage) {
+        return mutationFailure("rate_limited", limitMessage);
       }
 
       const [existingBlock] = await db
