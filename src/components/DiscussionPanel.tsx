@@ -20,6 +20,7 @@ import type {
   DiscussionBlockList,
   DiscussionBlockView,
   DiscussionPostType,
+  DiscussionProfileView,
   DiscussionQuestionView,
   DiscussionView,
 } from "../features/discussion/discussion";
@@ -237,6 +238,9 @@ function DiscussionPanelCore({
   const [pendingAction, setPendingAction] = useState<string | null>(null);
   const [notice, setNotice] = useState("");
   const [questionBody, setQuestionBody] = useState("");
+  const [profileEditorOpen, setProfileEditorOpen] = useState(false);
+  const [profileDisplayName, setProfileDisplayName] = useState("");
+  const [profileImageVisible, setProfileImageVisible] = useState(false);
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyBody, setReplyBody] = useState("");
   const [blockTarget, setBlockTarget] = useState<BlockTarget | null>(null);
@@ -335,6 +339,13 @@ function DiscussionPanelCore({
     loadVersionRef.current += 1;
   }, []);
 
+  const viewerProfile = view?.available ? view.viewer.profile : null;
+  useEffect(() => {
+    if (!viewerProfile || profileEditorOpen) return;
+    setProfileDisplayName(viewerProfile.displayName);
+    setProfileImageVisible(viewerProfile.imageVisible);
+  }, [profileEditorOpen, viewerProfile]);
+
   useEffect(() => {
     if (blockTarget) blockConfirmButtonRef.current?.focus();
   }, [blockTarget]);
@@ -365,6 +376,7 @@ function DiscussionPanelCore({
       authState.isSignedIn &&
       availableView?.viewer.signedIn,
   );
+  const canPost = canWrite && Boolean(viewerProfile?.configured);
 
   const headerSummary = useMemo(() => {
     if (loading && view === null) return t("불러오는 중", "Loading");
@@ -401,6 +413,7 @@ function DiscussionPanelCore({
         data: { scopeId, body: questionBody },
       });
       if (!result.ok) {
+        if (result.code === "profile_required") setProfileEditorOpen(true);
         setNotice(result.message);
         return;
       }
@@ -429,6 +442,7 @@ function DiscussionPanelCore({
         data: { questionId, body: replyBody },
       });
       if (!result.ok) {
+        if (result.code === "profile_required") setProfileEditorOpen(true);
         setNotice(result.message);
         return;
       }
@@ -438,6 +452,42 @@ function DiscussionPanelCore({
         result.kind === "official"
           ? t("관리자 답변을 등록했습니다.", "Official answer posted.")
           : t("답변을 등록했습니다.", "Answer posted."),
+      );
+    } catch (error) {
+      setNotice(errorMessage(error));
+    } finally {
+      setPendingAction(null);
+    }
+  }
+
+  function openProfileEditor() {
+    if (!viewerProfile) return;
+    setProfileDisplayName(viewerProfile.displayName);
+    setProfileImageVisible(viewerProfile.imageVisible);
+    setProfileEditorOpen(true);
+  }
+
+  async function submitProfile(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!profileDisplayName.trim() || pendingAction) return;
+
+    setPendingAction("profile");
+    setNotice("");
+    try {
+      const { updateDiscussionProfile } = await loadDiscussionFunctions();
+      const result = await updateDiscussionProfile({
+        data: {
+          displayName: profileDisplayName,
+          imageVisible: profileImageVisible,
+        },
+      });
+      if (!result.ok) {
+        setNotice(result.message);
+        return;
+      }
+      setProfileEditorOpen(false);
+      await refreshAfterMutation(
+        t("공개 프로필을 저장했습니다.", "Public profile saved."),
       );
     } catch (error) {
       setNotice(errorMessage(error));
@@ -713,15 +763,34 @@ function DiscussionPanelCore({
           {availableView ? (
             <>
               <DiscussionCommunitySummary view={availableView} />
+              {canWrite && viewerProfile ? (
+                <DiscussionProfileSettings
+                  profile={viewerProfile}
+                  open={profileEditorOpen || !viewerProfile.configured}
+                  displayName={profileDisplayName}
+                  imageVisible={profileImageVisible}
+                  pending={pendingAction === "profile"}
+                  onDisplayNameChange={setProfileDisplayName}
+                  onImageVisibleChange={setProfileImageVisible}
+                  onSubmit={submitProfile}
+                  onCancel={
+                    viewerProfile.configured
+                      ? () => setProfileEditorOpen(false)
+                      : null
+                  }
+                />
+              ) : null}
               <DiscussionComposer
                 authState={authState}
                 canWrite={canWrite}
+                profile={viewerProfile}
                 isAdmin={availableView.viewer.isAdmin}
                 body={questionBody}
                 fieldId={questionFieldId}
                 pending={pendingAction === "question"}
                 onBodyChange={setQuestionBody}
                 onSubmit={submitQuestion}
+                onEditProfile={openProfileEditor}
               />
 
               {canWrite ? (
@@ -796,7 +865,8 @@ function DiscussionPanelCore({
                       key={question.id}
                       question={question}
                       isAdmin={availableView.viewer.isAdmin}
-                      canWrite={canWrite}
+                      canWrite={canPost}
+                      viewerProfile={viewerProfile}
                       pendingAction={pendingAction}
                       replying={replyingTo === question.id}
                       replyBody={replyingTo === question.id ? replyBody : ""}
@@ -889,21 +959,25 @@ function DiscussionPanelCore({
 function DiscussionComposer({
   authState,
   canWrite,
+  profile,
   isAdmin,
   body,
   fieldId,
   pending,
   onBodyChange,
   onSubmit,
+  onEditProfile,
 }: {
   authState: AuthState;
   canWrite: boolean;
+  profile: DiscussionProfileView | null;
   isAdmin: boolean;
   body: string;
   fieldId: string;
   pending: boolean;
   onBodyChange: (value: string) => void;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onEditProfile: () => void;
 }) {
   const { locale } = useLocale();
   const isKo = locale === "ko";
@@ -928,9 +1002,12 @@ function DiscussionComposer({
     );
   }
 
+  if (!profile?.configured) return null;
+
   return (
     <form className="discussion-composer" onSubmit={onSubmit}>
       <label htmlFor={fieldId}>{isKo ? "이 학습 항목에 질문하기" : "Ask about this learning item"}</label>
+      <PublicIdentityPreview profile={profile} onEdit={onEditProfile} />
       <MarkdownEditor
         id={fieldId}
         value={body}
@@ -947,6 +1024,134 @@ function DiscussionComposer({
       </div>
       {isAdmin ? <small>{isKo ? "답변을 남기면 관리자 답변으로 표시됩니다." : "Your answers will be marked as official."}</small> : null}
     </form>
+  );
+}
+
+function DiscussionProfileSettings({
+  profile,
+  open,
+  displayName,
+  imageVisible,
+  pending,
+  onDisplayNameChange,
+  onImageVisibleChange,
+  onSubmit,
+  onCancel,
+}: {
+  profile: DiscussionProfileView;
+  open: boolean;
+  displayName: string;
+  imageVisible: boolean;
+  pending: boolean;
+  onDisplayNameChange: (value: string) => void;
+  onImageVisibleChange: (value: boolean) => void;
+  onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  onCancel: (() => void) | null;
+}) {
+  const { locale } = useLocale();
+  const isKo = locale === "ko";
+  const displayNameId = useId();
+  if (!open) return null;
+
+  const previewName = displayName.trim() || (isKo ? "닉네임" : "Nickname");
+  const previewProfile = {
+    displayName: previewName,
+    imageUrl: imageVisible ? profile.imageUrl : null,
+  };
+
+  return (
+    <form className="discussion-profile-settings" onSubmit={onSubmit}>
+      <div className="discussion-profile-heading">
+        <div>
+          <span>{isKo ? "공개 프로필" : "PUBLIC PROFILE"}</span>
+          <strong>
+            {profile.configured
+              ? (isKo ? "프로필 변경" : "Edit your profile")
+              : (isKo ? "질문하기 전에 프로필을 설정해 주세요" : "Set up your profile before posting")}
+          </strong>
+        </div>
+        <UserAvatar author={previewProfile} />
+      </div>
+      <label htmlFor={displayNameId}>
+        {isKo ? "공개 닉네임" : "Public nickname"}
+      </label>
+      <input
+        id={displayNameId}
+        value={displayName}
+        onChange={(event) => onDisplayNameChange(event.target.value)}
+        minLength={2}
+        maxLength={24}
+        autoComplete="nickname"
+        required
+      />
+      <small>
+        {isKo
+          ? `${displayName.trim().length} / 24 · 실명 대신 질문과 답변에 표시됩니다.`
+          : `${displayName.trim().length} / 24 · Shown on questions and answers instead of your real name.`}
+      </small>
+      <label className="discussion-profile-image-option">
+        <input
+          type="checkbox"
+          checked={imageVisible}
+          disabled={!profile.imageUrl}
+          onChange={(event) => onImageVisibleChange(event.target.checked)}
+        />
+        <span>
+          {profile.imageUrl
+            ? (isKo ? "Clerk 프로필 이미지도 공개" : "Also show my Clerk profile image")
+            : (isKo ? "공개할 프로필 이미지가 없습니다" : "No profile image is available")}
+        </span>
+      </label>
+      <p>
+        {isKo
+          ? "현재 미리보기와 같은 모습으로 공개됩니다. 이 설정은 모든 질문과 답변에 적용됩니다."
+          : "This preview is public and applies to all your questions and answers."}
+      </p>
+      <div className="discussion-form-actions">
+        <button type="submit" disabled={pending || displayName.trim().length < 2}>
+          {pending
+            ? (isKo ? "저장 중" : "Saving")
+            : (isKo ? "이 프로필로 계속" : "Continue with this profile")}
+        </button>
+        {onCancel ? (
+          <button type="button" className="discussion-secondary-button" onClick={onCancel} disabled={pending}>
+            {isKo ? "취소" : "Cancel"}
+          </button>
+        ) : null}
+      </div>
+    </form>
+  );
+}
+
+function PublicIdentityPreview({
+  profile,
+  onEdit,
+}: {
+  profile: DiscussionProfileView;
+  onEdit?: () => void;
+}) {
+  const { locale } = useLocale();
+  const isKo = locale === "ko";
+  return (
+    <div className="discussion-public-identity">
+      <UserAvatar
+        author={{
+          displayName: profile.displayName,
+          imageUrl: profile.imageVisible ? profile.imageUrl : null,
+        }}
+        compact
+      />
+      <span>
+        {isKo
+          ? <><strong>{profile.displayName}</strong> 이름으로 공개됩니다.</>
+          : <>This will be public as <strong>{profile.displayName}</strong>.</>}
+      </span>
+      {onEdit ? (
+        <button type="button" onClick={onEdit}>
+          {isKo ? "프로필 변경" : "Edit profile"}
+        </button>
+      ) : null}
+    </div>
   );
 }
 
@@ -1199,6 +1404,7 @@ function QuestionThread({
   question,
   isAdmin,
   canWrite,
+  viewerProfile,
   pendingAction,
   replying,
   replyBody,
@@ -1228,6 +1434,7 @@ function QuestionThread({
   question: DiscussionQuestionView;
   isAdmin: boolean;
   canWrite: boolean;
+  viewerProfile: DiscussionProfileView | null;
   pendingAction: string | null;
   replying: boolean;
   replyBody: string;
@@ -1459,6 +1666,9 @@ function QuestionThread({
           <label htmlFor={`reply-${question.id}`}>
             {isAdmin ? (isKo ? "관리자 답변" : "Official answer") : (isKo ? "답변" : "Answer")}
           </label>
+          {viewerProfile?.configured ? (
+            <PublicIdentityPreview profile={viewerProfile} />
+          ) : null}
           <MarkdownEditor
             id={`reply-${question.id}`}
             value={replyBody}

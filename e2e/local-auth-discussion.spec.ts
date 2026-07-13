@@ -4,6 +4,7 @@ import {
   deleteTestUser,
   discussionToggleName,
   findUserByEmail,
+  setupDiscussionProfile,
 } from "./helpers";
 
 let createdEmail: string | null = null;
@@ -67,7 +68,9 @@ test("signs up a local test user and persists a discussion question in D1", asyn
       name: discussionToggleName,
     })
     .click();
+  await setupDiscussionProfile(page, "로컬 학습자");
   const composer = page.locator(".discussion-composer");
+  await expect(composer.getByText("로컬 학습자 이름으로 공개됩니다.")).toBeVisible();
   await composer
     .getByPlaceholder("어디에서 막혔는지, 어떤 실행 결과가 예상과 달랐는지 적어주세요.")
     .fill(question);

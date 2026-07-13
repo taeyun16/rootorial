@@ -34,6 +34,21 @@ export async function signInTestUser(page: Page, email: string) {
   await clerk.loaded({ page });
 }
 
+export async function setupDiscussionProfile(
+  page: Page,
+  displayName: string,
+  imageVisible = false,
+) {
+  const form = page.locator(".discussion-profile-settings");
+  await form.getByRole("textbox", { name: "공개 닉네임" }).fill(displayName);
+  const imageOption = form.getByRole("checkbox");
+  if (await imageOption.isEnabled()) {
+    await imageOption.setChecked(imageVisible);
+  }
+  await form.getByRole("button", { name: "이 프로필로 계속" }).click();
+  await form.waitFor({ state: "hidden" });
+}
+
 export function cleanupLocalDiscussion(userId: string) {
   const safeUserId = userId.replaceAll("'", "''");
   const sql = [

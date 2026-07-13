@@ -18,6 +18,7 @@ import {
   validateModeratePostInput,
   validateSetAnswerLikeInput,
   validateSetAuthorBlockInput,
+  validateUpdateDiscussionProfileInput,
   validateUpdatePostInput,
 } from "../src/features/discussion/discussion.ts";
 import {
@@ -115,6 +116,31 @@ test("normalizes question and answer inputs without trusting client identity", (
         body: "x".repeat(ANSWER_BODY_MAX_LENGTH + 1),
       }),
     /4,000자/,
+  );
+});
+
+test("validates a user-controlled public discussion profile", () => {
+  assert.deepEqual(
+    validateUpdateDiscussionProfileInput({
+      displayName: "  벡터   탐험가  ",
+      imageVisible: false,
+      userId: "user_spoofed",
+    }),
+    { displayName: "벡터 탐험가", imageVisible: false },
+  );
+  assert.throws(
+    () => validateUpdateDiscussionProfileInput({
+      displayName: "A",
+      imageVisible: false,
+    }),
+    /2~24자/,
+  );
+  assert.throws(
+    () => validateUpdateDiscussionProfileInput({
+      displayName: "벡터 탐험가",
+      imageVisible: "yes",
+    }),
+    /공개 설정/,
   );
 });
 
@@ -355,6 +381,9 @@ test("discussion writes use atomic rate windows and sanitized failure logs", () 
   assert.match(serverSource, /onConflictDoUpdate/);
   assert.match(serverSource, /setWhere: lt\(discussionRateLimits\.count/);
   assert.match(serverSource, /mutationFailure\("rate_limited"/);
+  assert.match(serverSource, /mutationFailure\(\s*"profile_required"/);
+  assert.match(serverSource, /answer\.authorConfiguredAt != null && answer\.authorImageVisible/);
+  assert.match(serverSource, /question\.authorConfiguredAt != null &&[\s\S]*question\.authorImageVisible/);
   assert.match(serverSource, /scopeId: discussionQuestions\.scopeId/);
   assert.match(serverSource, /canReplyToDiscussionQuestion\(question\.scopeId, question\.state\)/);
   assert.doesNotMatch(serverSource, /console\.(?:error|warn)\([^\n]*,\s*error/);

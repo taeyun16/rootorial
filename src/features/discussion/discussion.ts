@@ -8,6 +8,8 @@ import {
 export const QUESTION_BODY_MAX_LENGTH = 2_000;
 export const ANSWER_BODY_MAX_LENGTH = 4_000;
 export const MODERATION_REASON_MAX_LENGTH = 500;
+export const DISPLAY_NAME_MIN_LENGTH = 2;
+export const DISPLAY_NAME_MAX_LENGTH = 24;
 export const DISCUSSION_PAGE_SIZE = 20;
 
 export type DiscussionPostState = "visible" | "hidden" | "deleted";
@@ -19,6 +21,11 @@ export type DiscussionUnavailableReason = "not_configured" | "temporary";
 export type DiscussionAuthorView = {
   displayName: string;
   imageUrl: string | null;
+};
+
+export type DiscussionProfileView = DiscussionAuthorView & {
+  configured: boolean;
+  imageVisible: boolean;
 };
 
 export type DiscussionCapabilities = {
@@ -68,6 +75,7 @@ export type DiscussionView =
       viewer: {
         signedIn: boolean;
         isAdmin: boolean;
+        profile: DiscussionProfileView | null;
       };
       questions: DiscussionQuestionView[];
       answersTruncated: boolean;
@@ -94,6 +102,7 @@ export type DiscussionBlockList =
 export type DiscussionMutationErrorCode =
   | "unavailable"
   | "unauthorized"
+  | "profile_required"
   | "forbidden"
   | "not_found"
   | "conflict"
@@ -130,6 +139,38 @@ function readBoolean(value: unknown, message: string) {
   }
 
   return value;
+}
+
+export function validateDisplayName(value: unknown) {
+  if (typeof value !== "string") {
+    throw new DiscussionValidationError("공개 닉네임을 입력해 주세요.");
+  }
+
+  const displayName = value.trim().replace(/\s+/g, " ");
+  if (
+    displayName.length < DISPLAY_NAME_MIN_LENGTH ||
+    displayName.length > DISPLAY_NAME_MAX_LENGTH
+  ) {
+    throw new DiscussionValidationError(
+      `공개 닉네임은 ${DISPLAY_NAME_MIN_LENGTH}~${DISPLAY_NAME_MAX_LENGTH}자로 입력해 주세요.`,
+    );
+  }
+  if (/\p{Cc}/u.test(displayName)) {
+    throw new DiscussionValidationError("공개 닉네임에 제어 문자를 사용할 수 없습니다.");
+  }
+
+  return displayName;
+}
+
+export function validateUpdateDiscussionProfileInput(value: unknown) {
+  const input = readRecord(value, "공개 프로필 정보가 필요합니다.");
+  return {
+    displayName: validateDisplayName(input.displayName),
+    imageVisible: readBoolean(
+      input.imageVisible,
+      "프로필 이미지 공개 설정이 올바르지 않습니다.",
+    ),
+  };
 }
 
 function readPostType(value: unknown): DiscussionPostType {

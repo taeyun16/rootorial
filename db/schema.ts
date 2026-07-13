@@ -12,6 +12,10 @@ export const discussionProfiles = sqliteTable("discussion_profiles", {
   userId: text("user_id").primaryKey(),
   displayName: text("display_name").notNull(),
   imageUrl: text("image_url"),
+  imageVisible: integer("image_visible", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  configuredAt: integer("configured_at"),
   createdAt: integer("created_at").notNull(),
   updatedAt: integer("updated_at").notNull(),
 }, (table) => [

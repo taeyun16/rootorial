@@ -3529,6 +3529,7 @@ textarea:focus-visible {
 }
 
 .discussion-auth-message button,
+.discussion-profile-settings button,
 .discussion-composer button,
 .discussion-reply-form button,
 .discussion-moderation-form button,
@@ -3547,6 +3548,7 @@ textarea:focus-visible {
 }
 
 .discussion-auth-message button:disabled,
+.discussion-profile-settings button:disabled,
 .discussion-composer button:disabled,
 .discussion-reply-form button:disabled,
 .discussion-moderation-form button:disabled,
@@ -3556,6 +3558,128 @@ textarea:focus-visible {
 .discussion-load-more:disabled {
   cursor: wait;
   opacity: 0.52;
+}
+
+.discussion-profile-settings {
+  margin-bottom: 12px;
+  padding: 18px 20px;
+  border: 1px solid var(--forest);
+  background: rgba(68, 82, 65, 0.065);
+}
+
+.discussion-profile-heading {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.discussion-profile-heading > div {
+  display: grid;
+  gap: 3px;
+}
+
+.discussion-profile-heading span {
+  color: var(--forest);
+  font-family: var(--mono);
+  font-size: 7px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+}
+
+.discussion-profile-heading strong {
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 550;
+}
+
+.discussion-profile-settings > label:not(.discussion-profile-image-option) {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.discussion-profile-settings > input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--white);
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.discussion-profile-settings > small {
+  margin-top: 6px;
+  display: block;
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.discussion-profile-image-option {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.discussion-profile-image-option input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--forest);
+}
+
+.discussion-profile-settings > p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.6;
+}
+
+.discussion-profile-settings .discussion-secondary-button {
+  border-color: var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+
+.discussion-public-identity {
+  margin-top: 9px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(68, 82, 65, 0.18);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.discussion-public-identity span {
+  min-width: 0;
+  flex: 1;
+}
+
+.discussion-public-identity strong {
+  color: var(--ink);
+}
+
+.discussion-public-identity button {
+  min-height: auto;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: var(--forest);
+  white-space: nowrap;
 }
 
 .discussion-composer {
