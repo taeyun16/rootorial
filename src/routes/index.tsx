@@ -1,13 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PlatformHome } from "../components/PlatformHome";
 import { getPlatformReach } from "../features/learning-analytics/learning-analytics.functions";
+import { getPublicPublicationCatalog } from "../features/publication/publication.functions";
 import {
   localeFromLanguage,
   platformPageMetadata,
 } from "../features/localization/page-metadata";
 
 export const Route = createFileRoute("/")({
-  loader: () => getPlatformReach(),
+  loader: async () => {
+    const [reach, catalog] = await Promise.all([
+      getPlatformReach(),
+      getPublicPublicationCatalog(),
+    ]);
+    return { reach, catalog };
+  },
   head: ({ match }) => {
     const metadata = platformPageMetadata(
       localeFromLanguage((match.search as { lang?: unknown }).lang),
@@ -24,5 +31,6 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  return <PlatformHome reach={Route.useLoaderData()} />;
+  const { reach, catalog } = Route.useLoaderData();
+  return <PlatformHome reach={reach} catalog={catalog} />;
 }

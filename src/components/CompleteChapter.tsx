@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useProgress } from "./ProgressProvider";
 import { useLocale } from "../features/localization/localization";
 import { chapterId, TRANSFORMER_CURRICULUM_SLUG } from "../data/curriculum";
+import { usePublicationPreview } from "./PublicationPreview";
 
 type CompleteChapterProps = {
   slug: string;
@@ -18,9 +19,29 @@ export function CompleteChapter({
 }: CompleteChapterProps) {
   const { completed, markComplete, retry, status } = useProgress();
   const { locale } = useLocale();
+  const preview = usePublicationPreview();
   const isKo = locale === "ko";
   const progressId = chapterId(curriculumSlug, slug);
   const isCompleted = completed.includes(progressId);
+
+  if (preview) {
+    return (
+      <div>
+        <button
+          type="button"
+          className="button button-primary complete-button"
+          disabled
+        >
+          {isKo ? "미리보기에서는 완료할 수 없습니다" : "Completion is disabled in preview"}
+        </button>
+        <p role="status">
+          {isKo
+            ? "공개 전 진도 데이터가 저장되지 않도록 비활성화했습니다."
+            : "Disabled so preview activity cannot change learner progress."}
+        </p>
+      </div>
+    );
+  }
 
   if (isCompleted) {
     const message =

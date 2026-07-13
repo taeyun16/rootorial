@@ -8,6 +8,8 @@ export type Chapter = {
   /** Short, user-facing label for the primary learning environment. */
   runtime: string;
   estimatedMinutes?: number;
+  /** Editorial progress. Kept separate from runtime/public access readiness. */
+  developmentStatus: "planned" | "in-progress" | "complete";
   status: "available" | "planned";
   concepts: string[];
 };
@@ -53,6 +55,7 @@ export const chaptersKo: Chapter[] = [
       "벡터의 크기와 방향, NumPy reshape와 axis, 브로드캐스팅과 내적을 예측·수정 실습으로 연결합니다.",
     runtime: "NumPy",
     estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "in-progress",
     status: "available",
     concepts: ["reshape", "axis", "내적"],
   },
@@ -64,6 +67,7 @@ export const chaptersKo: Chapter[] = [
     description:
       "손실함수, 미분과 경사하강법을 직접 움직이며 학습률의 의미를 확인합니다.",
     runtime: "NumPy",
+    developmentStatus: "planned",
     status: "planned",
     concepts: ["loss", "gradient", "learning rate"],
   },
@@ -75,6 +79,7 @@ export const chaptersKo: Chapter[] = [
     description:
       "로지스틱 회귀에서 시작해 활성함수와 다층 퍼셉트론으로 XOR 문제를 해결합니다.",
     runtime: "NumPy + WebGPU",
+    developmentStatus: "planned",
     status: "planned",
     concepts: ["sigmoid", "BCE", "MLP"],
   },
@@ -86,6 +91,7 @@ export const chaptersKo: Chapter[] = [
     description:
       "Mini-batch, Adam, Softmax, Cross Entropy, Dropout을 하나의 작은 분류기에 연결합니다.",
     runtime: "WebGPU",
+    developmentStatus: "planned",
     status: "planned",
     concepts: ["mini-batch", "Adam", "Dropout"],
   },
@@ -97,6 +103,7 @@ export const chaptersKo: Chapter[] = [
     description:
       "토큰화, one-hot, embedding lookup과 의미 유사도를 연결하고 실제 문장 임베딩을 비교합니다.",
     runtime: "Workers AI + NumPy",
+    developmentStatus: "planned",
     status: "planned",
     concepts: ["token", "embedding", "cosine"],
   },
@@ -108,6 +115,7 @@ export const chaptersKo: Chapter[] = [
     description:
       "Hidden state, 장기 의존성, 기울기 소실과 LSTM의 게이트를 시퀀스 위에서 관찰합니다.",
     runtime: "NumPy + WebGPU",
+    developmentStatus: "planned",
     status: "planned",
     concepts: ["hidden state", "RNN", "LSTM"],
   },
@@ -119,6 +127,7 @@ export const chaptersKo: Chapter[] = [
     description:
       "Query, Key, Value의 유사도에서 문맥 벡터가 만들어지는 전 과정을 단계별로 계산합니다.",
     runtime: "NumPy",
+    developmentStatus: "planned",
     status: "planned",
     concepts: ["Query", "Key", "Value"],
   },
@@ -130,6 +139,7 @@ export const chaptersKo: Chapter[] = [
     description:
       "Scaled dot-product, causal mask와 multi-head attention을 토큰별 heatmap으로 분해합니다.",
     runtime: "NumPy + WebGPU",
+    developmentStatus: "planned",
     status: "planned",
     concepts: ["scaled dot-product", "mask", "multi-head"],
   },
@@ -141,6 +151,7 @@ export const chaptersKo: Chapter[] = [
     description:
       "Positional encoding, residual, layer normalization과 FFN을 하나의 블록으로 조립합니다.",
     runtime: "WebGPU",
+    developmentStatus: "planned",
     status: "planned",
     concepts: ["position", "residual", "FFN"],
   },
@@ -152,6 +163,7 @@ export const chaptersKo: Chapter[] = [
     description:
       "Tokenizer부터 logits까지 연결하고 작은 next-token 모델이 학습되는 과정을 관찰합니다.",
     runtime: "WebGPU",
+    developmentStatus: "planned",
     status: "planned",
     concepts: ["tokenizer", "block", "logits"],
   },
@@ -162,61 +174,61 @@ export const chaptersEn: Chapter[] = [
     number: 1, slug: "vectors", title: "Vectors and Tensors",
     subtitle: "How collections of numbers gain meaning and direction",
     description: "Connect vector magnitude and direction, NumPy reshape and axes, broadcasting, and dot products through predict-and-repair practice.",
-    runtime: "NumPy", estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES, status: "available", concepts: ["reshape", "axis", "dot product"],
+    runtime: "NumPy", estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "in-progress", status: "available", concepts: ["reshape", "axis", "dot product"],
   },
   {
     number: 2, slug: "optimization", title: "Learning and Optimization",
     subtitle: "How a model moves closer to the right answer",
     description: "Move through loss functions, derivatives, and gradient descent to understand what the learning rate controls.",
-    runtime: "NumPy", status: "planned", concepts: ["loss", "gradient", "learning rate"],
+    runtime: "NumPy", developmentStatus: "planned", status: "planned", concepts: ["loss", "gradient", "learning rate"],
   },
   {
     number: 3, slug: "neural-networks", title: "Classification and Neural Networks",
     subtitle: "Building complex boundaries from simple lines",
     description: "Start with logistic regression, then use activation functions and a multilayer perceptron to solve XOR.",
-    runtime: "NumPy + WebGPU", status: "planned", concepts: ["sigmoid", "BCE", "MLP"],
+    runtime: "NumPy + WebGPU", developmentStatus: "planned", status: "planned", concepts: ["sigmoid", "BCE", "MLP"],
   },
   {
     number: 4, slug: "training", title: "Deep Learning Training",
     subtitle: "How small batches train deep models",
     description: "Connect mini-batches, Adam, Softmax, cross entropy, and dropout in one small classifier.",
-    runtime: "WebGPU", status: "planned", concepts: ["mini-batch", "Adam", "Dropout"],
+    runtime: "WebGPU", developmentStatus: "planned", status: "planned", concepts: ["mini-batch", "Adam", "Dropout"],
   },
   {
     number: 5, slug: "embeddings", title: "Tokens and Embeddings",
     subtitle: "Placing words in a space we can compute with",
     description: "Connect tokenization, one-hot vectors, embedding lookup, and semantic similarity, then compare real sentence embeddings.",
-    runtime: "Workers AI + NumPy", status: "planned", concepts: ["token", "embedding", "cosine"],
+    runtime: "Workers AI + NumPy", developmentStatus: "planned", status: "planned", concepts: ["token", "embedding", "cosine"],
   },
   {
     number: 6, slug: "sequences", title: "Sequential Data",
     subtitle: "What an RNN remembers and forgets",
     description: "Observe hidden state, long-range dependencies, vanishing gradients, and LSTM gates across a sequence.",
-    runtime: "NumPy + WebGPU", status: "planned", concepts: ["hidden state", "RNN", "LSTM"],
+    runtime: "NumPy + WebGPU", developmentStatus: "planned", status: "planned", concepts: ["hidden state", "RNN", "LSTM"],
   },
   {
     number: 7, slug: "attention", title: "Attention",
     subtitle: "Finding the information that matters directly",
     description: "Calculate every step from Query-Key-Value similarity to the resulting context vectors.",
-    runtime: "NumPy", status: "planned", concepts: ["Query", "Key", "Value"],
+    runtime: "NumPy", developmentStatus: "planned", status: "planned", concepts: ["Query", "Key", "Value"],
   },
   {
     number: 8, slug: "self-attention", title: "Self-Attention",
     subtitle: "Letting words in a sentence read one another",
     description: "Break scaled dot-product, causal masking, and multi-head attention into token-level heatmaps.",
-    runtime: "NumPy + WebGPU", status: "planned", concepts: ["scaled dot-product", "mask", "multi-head"],
+    runtime: "NumPy + WebGPU", developmentStatus: "planned", status: "planned", concepts: ["scaled dot-product", "mask", "multi-head"],
   },
   {
     number: 9, slug: "transformer-block", title: "The Transformer Block",
     subtitle: "Why attention alone is not enough",
     description: "Assemble positional encoding, residual connections, layer normalization, and an FFN into one block.",
-    runtime: "WebGPU", status: "planned", concepts: ["position", "residual", "FFN"],
+    runtime: "WebGPU", developmentStatus: "planned", status: "planned", concepts: ["position", "residual", "FFN"],
   },
   {
     number: 10, slug: "mini-transformer", title: "Mini Transformer",
     subtitle: "Combining the pieces into a working model",
     description: "Connect the tokenizer to logits and watch a small next-token model learn.",
-    runtime: "WebGPU", status: "planned", concepts: ["tokenizer", "block", "logits"],
+    runtime: "WebGPU", developmentStatus: "planned", status: "planned", concepts: ["tokenizer", "block", "logits"],
   },
 ];
 

@@ -1,5 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { curricula } from "../data/curriculum";
 import { useLocale } from "../features/localization/localization";
 import { AuthControls } from "./AuthControls";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -7,6 +6,7 @@ import { useProgress } from "./ProgressProvider";
 import { RootorialMark } from "./RootorialMark";
 import { PublicLearningProof } from "./PublicLearningProof";
 import { PUBLIC_SOCIAL_PROOF_MINIMUM, type PublicPlatformReach } from "../features/learning-analytics/learning-analytics";
+import type { PublicPublicationCatalog } from "../features/publication/publication";
 
 const brand = {
   name: "Rootorial",
@@ -158,10 +158,35 @@ function SocialLink({
   );
 }
 
-export function PlatformHome({ reach }: { reach: PublicPlatformReach }) {
+export function PlatformHome({
+  reach,
+  catalog,
+}: {
+  reach: PublicPlatformReach;
+  catalog: PublicPublicationCatalog;
+}) {
   const { locale } = useLocale();
   const { completed } = useProgress();
   const c = copy[locale];
+  const availableCurricula = catalog.curricula.filter(
+    ({ publication }) =>
+      publication.effectivePublicationStatus === "published" &&
+      publication.contentReady,
+  );
+  const roadmapCurricula = catalog.curricula.filter(
+    ({ publication }) =>
+      publication.effectivePublicationStatus !== "published" ||
+      !publication.contentReady,
+  );
+  const featured =
+    availableCurricula.find(
+      ({ curriculum }) => curriculum.slug === "transformer-from-zero",
+    ) ?? availableCurricula[0];
+  const firstAvailableChapter = featured?.chapters.find(
+    ({ publication }) =>
+      publication.effectivePublicationStatus === "published" &&
+      publication.contentReady,
+  );
 
   return (
     <div className="site-shell platform-home">
@@ -194,22 +219,37 @@ export function PlatformHome({ reach }: { reach: PublicPlatformReach }) {
           </div>
           <p className="hero-summary">{c.summary}</p>
           <div className="hero-actions">
-            {completed.length > 0 ? (
+            {completed.length > 0 && featured ? (
               <Link
                 className="button button-primary"
                 to="/curricula/$curriculumSlug"
-                params={{ curriculumSlug: "transformer-from-zero" }}
+                params={{ curriculumSlug: featured.curriculum.slug }}
               >
                 {c.continue} <span aria-hidden="true">↗</span>
               </Link>
-            ) : (
+            ) : firstAvailableChapter && featured ? (
               <Link
                 className="button button-primary"
                 to="/curricula/$curriculumSlug/chapters/$chapterSlug"
-                params={{ curriculumSlug: "transformer-from-zero", chapterSlug: "vectors" }}
+                params={{
+                  curriculumSlug: featured.curriculum.slug,
+                  chapterSlug: firstAvailableChapter.chapter.slug,
+                }}
               >
                 {c.start} <span aria-hidden="true">↗</span>
               </Link>
+            ) : featured ? (
+              <Link
+                className="button button-primary"
+                to="/curricula/$curriculumSlug"
+                params={{ curriculumSlug: featured.curriculum.slug }}
+              >
+                {c.open} <span aria-hidden="true">↗</span>
+              </Link>
+            ) : (
+              <a className="button button-primary" href="#curricula">
+                {c.explore} <span aria-hidden="true">↓</span>
+              </a>
             )}
             <a className="text-link" href="#curricula">{c.explore} <span aria-hidden="true">↓</span></a>
           </div>
@@ -245,8 +285,7 @@ export function PlatformHome({ reach }: { reach: PublicPlatformReach }) {
           </div>
         </div>
         <div className="curriculum-grid">
-          {curricula.filter((curriculum) => curriculum.status !== "planned").map((curriculum) => {
-            const index = curricula.indexOf(curriculum);
+          {availableCurricula.map(({ curriculum }, index) => {
             const chapters = curriculum.chapters[locale];
             const status = curriculum.status === "in-progress" ? c.building : c.available;
             const summaryId = `curriculum-${curriculum.id}-summary`;
@@ -281,7 +320,7 @@ export function PlatformHome({ reach }: { reach: PublicPlatformReach }) {
           })}
         </div>
 
-        <section className="curriculum-roadmap" aria-labelledby="curriculum-roadmap-title">
+        {roadmapCurricula.length ? <section className="curriculum-roadmap" aria-labelledby="curriculum-roadmap-title">
           <div className="curriculum-roadmap-heading">
             <div>
               <p className="section-index">{c.roadmap}</p>
@@ -290,8 +329,7 @@ export function PlatformHome({ reach }: { reach: PublicPlatformReach }) {
             <p>{c.roadmapSummary}</p>
           </div>
           <div className="roadmap-grid">
-            {curricula.filter((curriculum) => curriculum.status === "planned").map((curriculum) => {
-              const index = curricula.indexOf(curriculum);
+            {roadmapCurricula.map(({ curriculum }, index) => {
               return (
                 <article className={`roadmap-card curriculum-card-${curriculum.accent}`} key={curriculum.id}>
                   <div className="curriculum-card-topline">
@@ -306,7 +344,7 @@ export function PlatformHome({ reach }: { reach: PublicPlatformReach }) {
               );
             })}
           </div>
-        </section>
+        </section> : null}
       </section>
 
       <section className="platform-method" id="method" aria-labelledby="method-title">

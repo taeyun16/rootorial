@@ -3,6 +3,7 @@ import { register } from "node:module";
 import test from "node:test";
 import { chapterRegistry } from "../src/features/chapters/chapter-registry.ts";
 import { getActiveDiscussionScopeIds } from "../src/data/discussionScopes.ts";
+import { workerTestEnv } from "./worker-test-env.mjs";
 
 register("./cloudflare-workers-loader.mjs", import.meta.url);
 
@@ -15,11 +16,7 @@ async function render(pathname) {
     new Request(`http://localhost${pathname}`, {
       headers: { accept: "text/html" },
     }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
+    workerTestEnv(),
     {
       waitUntil() {},
       passThroughOnException() {},
@@ -57,6 +54,16 @@ test("keeps planned and unknown chapters behind the publication boundary", async
   assert.equal(planned.status, 404);
   assert.equal(unknown.status, 404);
   await Promise.all([planned.text(), unknown.text()]);
+});
+
+test("returns not found instead of a server error for malformed route slugs", async () => {
+  const malformedCurriculum = await render("/curricula/INVALID_SLUG");
+  const malformedChapter = await render(
+    "/curricula/transformer-from-zero/chapters/INVALID_SLUG",
+  );
+  assert.equal(malformedCurriculum.status, 404);
+  assert.equal(malformedChapter.status, 404);
+  await Promise.all([malformedCurriculum.text(), malformedChapter.text()]);
 });
 
 test("keeps the rendered concept checks aligned with the active registry", async () => {

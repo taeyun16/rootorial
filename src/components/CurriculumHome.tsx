@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { getCurriculum, TRANSFORMER_CURRICULUM_SLUG } from "../data/curriculum";
 import { useLocale } from "../features/localization/localization";
 import { AuthControls } from "./AuthControls";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -8,6 +7,7 @@ import { useProgress } from "./ProgressProvider";
 import { RootorialMark } from "./RootorialMark";
 import { PublicLearningProof } from "./PublicLearningProof";
 import type { PublicCurriculumReach } from "../features/learning-analytics/learning-analytics";
+import type { PublicCurriculumCatalogItem } from "../features/publication/publication";
 
 const copy = {
   ko: {
@@ -46,14 +46,37 @@ const copy = {
   },
 } as const;
 
-export function CurriculumHome({ curriculumSlug = TRANSFORMER_CURRICULUM_SLUG, reach }: { curriculumSlug?: string; reach: PublicCurriculumReach }) {
+export function CurriculumHome({
+  item,
+  reach,
+  preview = false,
+}: {
+  item: PublicCurriculumCatalogItem;
+  reach: PublicCurriculumReach;
+  preview?: boolean;
+}) {
   const { completed, retry, status } = useProgress();
   const { locale } = useLocale();
   const c = copy[locale];
-  const curriculum = getCurriculum(curriculumSlug);
-  if (!curriculum) return null;
-  const chapters = curriculum.chapters[locale];
-  const completedInCurriculum = completed.filter((id) => id.startsWith(`${curriculum.slug}/`));
+  const curriculum = item.curriculum;
+  const publicationByChapter = new Map(
+    item.chapters.map(({ chapter, publication }) => [chapter.slug, publication]),
+  );
+  const chapters = curriculum.chapters[locale].filter((chapter) =>
+    publicationByChapter.has(chapter.slug),
+  );
+  const firstOpenChapter = chapters.find((chapter) => {
+    const publication = publicationByChapter.get(chapter.slug)!;
+    return preview
+      ? publication.contentReady
+      : publication.contentReady &&
+          publication.effectivePublicationStatus === "published" &&
+          publication.listing !== "hidden";
+  });
+  const visibleChapterIds = new Set(chapters.map((chapter) => chapter.id));
+  const completedInCurriculum = completed.filter((id) =>
+    visibleChapterIds.has(id),
+  );
 
   const progress = useMemo(
     () => chapters.length ? Math.round((completedInCurriculum.length / chapters.length) * 100) : 0,
@@ -91,13 +114,25 @@ export function CurriculumHome({ curriculumSlug = TRANSFORMER_CURRICULUM_SLUG, r
           </p>
           <PublicLearningProof count={reach.learners} locale={locale} scope="curriculum" />
           <div className="hero-actions">
-            <Link
+            {firstOpenChapter ? preview ? (
+              <a
+                className="button button-primary"
+                href={`/admin/preview/curricula/${curriculum.slug}/chapters/${firstOpenChapter.slug}`}
+              >
+                {c.start} <span aria-hidden="true">→</span>
+              </a>
+            ) : (
+              <Link
               className="button button-primary"
               to="/curricula/$curriculumSlug/chapters/$chapterSlug"
-              params={{ curriculumSlug: curriculum.slug, chapterSlug: "vectors" }}
+              params={{
+                curriculumSlug: curriculum.slug,
+                chapterSlug: firstOpenChapter.slug,
+              }}
             >
               {c.start} <span aria-hidden="true">→</span>
-            </Link>
+              </Link>
+            ) : null}
             <a className="text-link" href="#curriculum">
               {c.journey}
             </a>
@@ -184,6 +219,12 @@ export function CurriculumHome({ curriculumSlug = TRANSFORMER_CURRICULUM_SLUG, r
         <div className="chapter-list">
           {chapters.map((chapter) => {
             const isCompleted = completed.includes(chapter.id);
+            const publication = publicationByChapter.get(chapter.slug)!;
+            const canOpen = preview
+              ? publication.contentReady
+              : publication.contentReady &&
+                publication.effectivePublicationStatus === "published" &&
+                publication.listing !== "hidden";
             const content = (
               <>
                 <div className="chapter-number">
@@ -208,7 +249,7 @@ export function CurriculumHome({ curriculumSlug = TRANSFORMER_CURRICULUM_SLUG, r
                 <div className="chapter-action">
                   {isCompleted ? (
                     <span className="completion-badge">{c.complete}</span>
-                  ) : chapter.status === "available" ? (
+                  ) : canOpen ? (
                     <span className="enter-mark" aria-hidden="true">↗</span>
                   ) : (
                     <span className="planned-badge">{c.planned}</span>
@@ -217,7 +258,16 @@ export function CurriculumHome({ curriculumSlug = TRANSFORMER_CURRICULUM_SLUG, r
               </>
             );
 
-            return chapter.status === "available" ? (
+            return canOpen ? (
+              preview ? (
+                <a
+                  className="chapter-row chapter-row-active"
+                  href={`/admin/preview/curricula/${curriculum.slug}/chapters/${chapter.slug}`}
+                  key={chapter.slug}
+                >
+                  {content}
+                </a>
+              ) : (
               <Link
                 className="chapter-row chapter-row-active"
                 to="/curricula/$curriculumSlug/chapters/$chapterSlug"
@@ -226,6 +276,7 @@ export function CurriculumHome({ curriculumSlug = TRANSFORMER_CURRICULUM_SLUG, r
               >
                 {content}
               </Link>
+              )
             ) : (
               <article className="chapter-row" key={chapter.slug} aria-label={`${chapter.title}, ${c.planned}`}>
                 {content}

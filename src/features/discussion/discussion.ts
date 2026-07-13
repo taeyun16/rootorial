@@ -16,7 +16,10 @@ export type DiscussionPostState = "visible" | "hidden" | "deleted";
 export type DiscussionPostType = "question" | "answer";
 export type DiscussionAnswerKind = "community" | "official";
 export type DiscussionModerationAction = "hide" | "restore";
-export type DiscussionUnavailableReason = "not_configured" | "temporary";
+export type DiscussionUnavailableReason =
+  | "not_configured"
+  | "temporary"
+  | "content_unavailable";
 
 export type DiscussionAuthorView = {
   displayName: string;

@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import { useRouterState } from "@tanstack/react-router";
-import { pageMetadataForPath } from "./page-metadata";
+import { platformPageMetadata } from "./page-metadata";
 
 export type Locale = "ko" | "en";
 
@@ -47,8 +47,8 @@ export function LocalizationProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     document.documentElement.lang = locale;
-    const metadata = pageMetadataForPath(pathname, locale);
-    if (!metadata) return;
+    if (pathname !== "/") return;
+    const metadata = platformPageMetadata(locale);
 
     document.title = metadata.title;
 

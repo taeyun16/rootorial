@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   conceptQuestionRegistry,
   learningPresenceShard,
+  publicAnalyticsResources,
   publicLearningProofText,
   validateAttemptInput,
   validateCourseAccessInput,
@@ -11,11 +12,37 @@ import {
   validateStartSessionInput,
 } from "../src/features/learning-analytics/learning-analytics.ts";
 import {
+  chapterPublicationKey,
+  curriculumPublicationKey,
+  resolvePublicationCatalog,
+} from "../src/features/publication/publication.ts";
+import {
   learningSessionContextMatches,
 } from "../src/features/learning-analytics/session-context.ts";
 
 const sessionId = "123e4567-e89b-42d3-a456-426614174000";
 const submissionId = "123e4567-e89b-42d3-a456-426614174001";
+const transformerKey = curriculumPublicationKey("transformer-from-zero");
+const vectorsKey = chapterPublicationKey("transformer-from-zero", "vectors");
+
+function publicationOverride(resourceKey, values = {}) {
+  const isChapter = resourceKey.startsWith("chapter:");
+  return {
+    resourceKey,
+    resourceKind: isChapter ? "chapter" : "curriculum",
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: isChapter ? "vectors" : null,
+    publicationStatus: "published",
+    listing: "listed",
+    scheduledAt: null,
+    publishedAt: 500,
+    version: 1,
+    updatedByUserId: "user_admin",
+    createdAt: 500,
+    updatedAt: 500,
+    ...values,
+  };
+}
 
 test("accepts only the known learning surface and locale", () => {
   assert.deepEqual(validateStartSessionInput({
@@ -97,6 +124,49 @@ test("uses gentle social proof before showing established learner counts", () =>
   assert.equal(
     publicLearningProofText(10, "ko", "curriculum"),
     "지금까지 10명이 이 학습 여정을 시작했어요.",
+  );
+});
+
+test("filters public analytics resources through publication and listing state", () => {
+  const baseline = resolvePublicationCatalog([], 1_000);
+  assert.deepEqual(publicAnalyticsResources(baseline), [
+    { curriculumSlug: "transformer-from-zero", chapterSlug: null },
+    { curriculumSlug: "transformer-from-zero", chapterSlug: "vectors" },
+  ]);
+
+  const unlistedCurriculum = resolvePublicationCatalog([
+    publicationOverride(transformerKey, { listing: "unlisted" }),
+  ], 1_000);
+  assert.deepEqual(publicAnalyticsResources(unlistedCurriculum), []);
+  assert.deepEqual(
+    publicAnalyticsResources(unlistedCurriculum, "transformer-from-zero"),
+    [
+      { curriculumSlug: "transformer-from-zero", chapterSlug: null },
+      { curriculumSlug: "transformer-from-zero", chapterSlug: "vectors" },
+    ],
+  );
+
+  for (const values of [
+    { publicationStatus: "draft", publishedAt: null },
+    { publicationStatus: "archived" },
+    { listing: "hidden" },
+  ]) {
+    const unavailable = resolvePublicationCatalog([
+      publicationOverride(transformerKey, values),
+    ], 1_000);
+    assert.deepEqual(publicAnalyticsResources(unavailable), []);
+    assert.deepEqual(
+      publicAnalyticsResources(unavailable, "transformer-from-zero"),
+      [],
+    );
+  }
+
+  const hiddenChapter = resolvePublicationCatalog([
+    publicationOverride(vectorsKey, { listing: "hidden" }),
+  ], 1_000);
+  assert.deepEqual(
+    publicAnalyticsResources(hiddenChapter, "transformer-from-zero"),
+    [{ curriculumSlug: "transformer-from-zero", chapterSlug: null }],
   );
 });
 

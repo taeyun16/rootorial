@@ -9,6 +9,7 @@ import appCss from "../styles/globals.css?url";
 import { ClerkBoundary } from "../components/ClerkBoundary";
 import { ContentFeedback } from "../components/ContentFeedback";
 import { ProgressProvider } from "../components/ProgressProvider";
+import { PageMetadataSync } from "../components/PageMetadataSync";
 import {
   LocalizationProvider,
   localeFromSearch,
@@ -56,7 +57,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <ClerkBoundary>
             <ProgressProvider>
               {children}
-              {pathname !== "/admin" && <ContentFeedback />}
+              {!pathname.startsWith("/admin") && <ContentFeedback />}
             </ProgressProvider>
           </ClerkBoundary>
         </LocalizationProvider>
@@ -69,12 +70,26 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 function NotFound() {
   const { locale } = useLocale();
   return (
-    <main className="not-found">
-      <p className="eyebrow">404 · PAGE NOT FOUND</p>
-      <h1>{locale === "ko" ? "아직 준비되지 않은 페이지입니다." : "This page is not ready yet."}</h1>
-      <Link className="button button-primary" to="/">
-        {locale === "ko" ? "커리큘럼 홈으로" : "Back to curricula"}
-      </Link>
-    </main>
+    <>
+      <PageMetadataSync
+        metadata={{
+          ko: {
+            title: "페이지를 찾을 수 없음 · Rootorial",
+            description: "요청한 Rootorial 페이지를 찾을 수 없습니다.",
+          },
+          en: {
+            title: "Page not found · Rootorial",
+            description: "The requested Rootorial page could not be found.",
+          },
+        }}
+      />
+      <main className="not-found">
+        <p className="eyebrow">404 · PAGE NOT FOUND</p>
+        <h1>{locale === "ko" ? "아직 준비되지 않은 페이지입니다." : "This page is not ready yet."}</h1>
+        <Link className="button button-primary" to="/">
+          {locale === "ko" ? "커리큘럼 홈으로" : "Back to curricula"}
+        </Link>
+      </main>
+    </>
   );
 }

@@ -6,6 +6,11 @@ import {
   getPublishedChapter,
   type ConceptQuestionKey,
 } from "../chapters/chapter-registry.ts";
+import {
+  isPublicationAccessible,
+  isPublicationListed,
+  type PublicationCatalog,
+} from "../publication/publication.ts";
 
 export {
   conceptQuestionKey,
@@ -70,6 +75,58 @@ export type PublicPlatformReach = {
   views: number;
   curricula: Record<string, { learners: number; views: number }>;
 };
+
+export type PublicAnalyticsResource = {
+  curriculumSlug: string;
+  chapterSlug: string | null;
+};
+
+/**
+ * Returns only resources whose aggregate metrics may cross the public RPC
+ * boundary. Platform totals include listed, accessible content only. A direct
+ * curriculum request may include an unlisted curriculum, but its chapter map
+ * still contains only chapters visible on that curriculum page.
+ */
+export function publicAnalyticsResources(
+  catalog: PublicationCatalog,
+  curriculumSlug: string | null = null,
+): PublicAnalyticsResource[] {
+  const resources = Object.values(catalog.resources);
+  const selected: PublicAnalyticsResource[] = [];
+
+  for (const curriculum of resources) {
+    if (
+      curriculum.resourceKind !== "curriculum" ||
+      (curriculumSlug !== null && curriculum.curriculumSlug !== curriculumSlug) ||
+      !isPublicationAccessible(catalog, curriculum.resourceKey) ||
+      (curriculumSlug === null &&
+        !isPublicationListed(catalog, curriculum.resourceKey))
+    ) {
+      continue;
+    }
+
+    selected.push({
+      curriculumSlug: curriculum.curriculumSlug,
+      chapterSlug: null,
+    });
+    for (const chapter of resources) {
+      if (
+        chapter.resourceKind === "chapter" &&
+        chapter.curriculumSlug === curriculum.curriculumSlug &&
+        chapter.chapterSlug !== null &&
+        isPublicationAccessible(catalog, chapter.resourceKey) &&
+        isPublicationListed(catalog, chapter.resourceKey)
+      ) {
+        selected.push({
+          curriculumSlug: chapter.curriculumSlug,
+          chapterSlug: chapter.chapterSlug,
+        });
+      }
+    }
+  }
+
+  return selected;
+}
 
 export function learningPresenceShard(userId: string) {
   let hash = 2166136261;

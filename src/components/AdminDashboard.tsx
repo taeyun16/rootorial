@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { AdminDashboard as Dashboard, FeedbackStatus } from "../features/admin/admin";
 import { AuthControls } from "./AuthControls";
 import { RootorialMark } from "./RootorialMark";
+import { AdminPublicationManager } from "./AdminPublicationManager";
 
 const statusLabels: Record<FeedbackStatus, string> = {
   pending: "미검토",
@@ -70,14 +71,21 @@ export function AdminDashboard({ initialData }: { initialData: Dashboard }) {
 
   const maxDay = Math.max(1, ...data.dailyActivity.map((day) => day.questions + day.answers + day.feedback));
 
+  async function reloadDashboard() {
+    const { getAdminDashboard } = await import(
+      "../features/admin/admin.functions"
+    );
+    setData(await getAdminDashboard());
+  }
+
   async function saveReview(id: string, status: FeedbackStatus, adminNote: string) {
     setSavingId(id);
     setNotice("");
     try {
-      const { getAdminDashboard, updateFeedbackReview } = await import("../features/admin/admin.functions");
+      const { updateFeedbackReview } = await import("../features/admin/admin.functions");
       const result = await updateFeedbackReview({ data: { id, status, adminNote } });
       if (!result.ok) { setNotice(result.message); return; }
-      setData(await getAdminDashboard());
+      await reloadDashboard();
       setNotice("피드백 처리 상태를 저장했습니다.");
     } catch {
       setNotice("처리 상태를 저장하지 못했습니다.");
@@ -98,6 +106,11 @@ export function AdminDashboard({ initialData }: { initialData: Dashboard }) {
           <div><p className="eyebrow">OPERATIONS OVERVIEW</p><h1>관리자 콘솔</h1><p>학습 커뮤니티의 활동과 콘텐츠 피드백을 한곳에서 검토합니다.</p></div>
           <time>업데이트 {new Date(data.generatedAt).toLocaleString("ko-KR")}</time>
         </section>
+
+        <AdminPublicationManager
+          catalog={data.publication}
+          onReload={reloadDashboard}
+        />
 
         <section className="admin-metrics" aria-label="주요 지표">
           {[

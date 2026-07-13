@@ -1,29 +1,43 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { CurriculumHome } from "../components/CurriculumHome";
 import { CourseAccessTracker } from "../components/CourseAccessTracker";
-import { getCurriculum } from "../data/curriculum";
+import { PageMetadataSync } from "../components/PageMetadataSync";
 import { getCurriculumReach } from "../features/learning-analytics/learning-analytics.functions";
-import {
-  curriculumPageMetadata,
-  localeFromLanguage,
-} from "../features/localization/page-metadata";
+import { localeFromLanguage } from "../features/localization/page-metadata";
+import { getPublicCurriculumPublication } from "../features/publication/publication.functions";
 
 export const Route = createFileRoute("/curricula/$curriculumSlug")({
-  beforeLoad: ({ params }) => {
-    const curriculum = getCurriculum(params.curriculumSlug);
-    if (!curriculum || curriculum.status === "planned") throw notFound();
-    return { curriculum };
+  loader: async ({ params }) => {
+    const item = await getPublicCurriculumPublication({
+      data: { curriculumSlug: params.curriculumSlug },
+    });
+    if (!item) throw notFound();
+    const reach = await getCurriculumReach({
+      data: { curriculumSlug: params.curriculumSlug },
+    });
+    return { item, reach };
   },
-  loader: ({ params }) => getCurriculumReach({ data: { curriculumSlug: params.curriculumSlug } }),
-  head: ({ match }) => {
-    const metadata = curriculumPageMetadata(
-      match.params.curriculumSlug,
-      localeFromLanguage((match.search as { lang?: unknown }).lang),
+  head: ({ loaderData, match }) => {
+    const locale = localeFromLanguage(
+      (match.search as { lang?: unknown }).lang,
     );
+    const curriculum = loaderData?.item.curriculum;
+    const noindex = loaderData?.item.publication.listing === "unlisted";
     return {
       meta: [
-        { title: metadata?.title ?? "Rootorial" },
-        { name: "description", content: metadata?.description ?? "Rootorial interactive curriculum" },
+        {
+          title: curriculum
+            ? `${curriculum.title[locale]} · Rootorial`
+            : "Rootorial",
+        },
+        {
+          name: "description",
+          content:
+            curriculum?.summary[locale] ?? "Rootorial interactive curriculum",
+        },
+        ...(noindex
+          ? [{ name: "robots", content: "noindex, follow" }]
+          : []),
       ],
     };
   },
@@ -32,5 +46,23 @@ export const Route = createFileRoute("/curricula/$curriculumSlug")({
 
 function CurriculumRoute() {
   const { curriculumSlug } = Route.useParams();
-  return <CourseAccessTracker curriculumSlug={curriculumSlug}><CurriculumHome curriculumSlug={curriculumSlug} reach={Route.useLoaderData()} /></CourseAccessTracker>;
+  const { item, reach } = Route.useLoaderData();
+  const metadata = {
+    ko: {
+      title: `${item.curriculum.title.ko} · Rootorial`,
+      description: item.curriculum.summary.ko,
+    },
+    en: {
+      title: `${item.curriculum.title.en} · Rootorial`,
+      description: item.curriculum.summary.en,
+    },
+  };
+  return (
+    <>
+      <PageMetadataSync metadata={metadata} />
+      <CourseAccessTracker curriculumSlug={curriculumSlug}>
+        <CurriculumHome item={item} reach={reach} />
+      </CourseAccessTracker>
+    </>
+  );
 }
