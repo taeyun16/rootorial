@@ -2,6 +2,9 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "rootorial",
   "main": "src/server.ts",
+  "assets": {
+    "run_worker_first": ["/llms.txt"]
+  },
   "compatibility_date": "2026-07-11",
   "compatibility_flags": ["nodejs_compat"],
   "workers_dev": true,

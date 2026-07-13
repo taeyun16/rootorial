@@ -157,6 +157,8 @@ presence나 질문방 WebSocket이 실제로 필요해질 때 추가합니다.
 
 ```bash
 npm run dev        # Workers 로컬 런타임 + Vite HMR
+npm run generate:llms # 코드 기본 게시 상태에서 public/llms.txt 스냅샷 생성
+npm run check:llms # 커밋된 llms.txt 스냅샷이 최신인지 검사
 npm run check      # TypeScript 검사
 npm run build      # 프로덕션 client/SSR Worker 빌드
 npm test           # 빌드 후 홈·챕터 SSR 계약 테스트
@@ -213,6 +215,25 @@ SeaBIOS/Linux/BusyBox의 라이선스 고지와 대응 소스 제공 방식을 �
 npx playwright test e2e/linux-experiment.spec.ts --project=chromium --no-deps
 RUN_V86_E2E=1 npx playwright test e2e/linux-experiment.spec.ts --project=chromium --no-deps --grep "boots Buildroot"
 ```
+
+## `llms.txt` maintenance
+
+Production requests to `/llms.txt` run through the Worker first. The Worker
+loads the live D1 publication catalog and includes a curriculum or chapter link
+only when that resource is both publicly accessible and listed. Hidden,
+unlisted, draft, archived, and renderer-incomplete content is never emitted as
+current public content. If the publication store is unavailable, the endpoint
+fails closed with a `503` response and no curriculum or chapter links.
+
+Do not edit `public/llms.txt` directly. It is the deterministic build snapshot
+generated from `src/data/curriculum.ts`, the chapter registry, and the
+code-defined publication defaults. `npm run build` regenerates it, while
+`npm run check:llms` fails when the committed snapshot is stale.
+
+When curriculum metadata, renderer registration, publication defaults, the
+canonical URL, creator contact, attribution policy, or the output structure
+changes, update the corresponding source and commit the regenerated
+`public/llms.txt` in the same change.
 
 ## Source layout
 
