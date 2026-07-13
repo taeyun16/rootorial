@@ -10,6 +10,9 @@ import {
   validateHeartbeatInput,
   validateStartSessionInput,
 } from "../src/features/learning-analytics/learning-analytics.ts";
+import {
+  learningSessionContextMatches,
+} from "../src/features/learning-analytics/session-context.ts";
 
 const sessionId = "123e4567-e89b-42d3-a456-426614174000";
 const submissionId = "123e4567-e89b-42d3-a456-426614174001";
@@ -29,6 +32,11 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "vectors",
     locale: "ko",
   }));
+  assert.throws(() => validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "optimization",
+    locale: "ko",
+  }));
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -43,7 +51,7 @@ test("accepts course access only for a known curriculum", () => {
     path: "/curricula/transformer-from-zero/chapters/vectors",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
-  assert.throws(() => validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "planned" }));
+  assert.throws(() => validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "optimization" }));
 });
 
 test("normalizes heartbeat activity so hidden tabs cannot be active", () => {
@@ -52,6 +60,22 @@ test("normalizes heartbeat activity so hidden tabs cannot be active", () => {
     visible: false,
     active: false,
   });
+});
+
+test("binds concept attempts to the chapter that created the session", () => {
+  const vectors = {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "vectors",
+  };
+  assert.equal(learningSessionContextMatches(vectors, vectors), true);
+  assert.equal(learningSessionContextMatches(vectors, {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "optimization",
+  }), false);
+  assert.equal(learningSessionContextMatches(vectors, {
+    curriculumSlug: "another-curriculum",
+    chapterSlug: "vectors",
+  }), false);
 });
 
 test("routes the same learner to a stable bounded presence shard", () => {
@@ -85,6 +109,8 @@ test("validates submitted answers against the versioned server registry", () => 
     answers: { orientation: "row-column", normalization: "zero" },
   });
   assert.equal(result.answers[0].key, "transformer-from-zero/vectors/orientation");
+  assert.equal(result.answers[0].version, 1);
+  assert.equal(result.answers[0].correctAnswer, "row-column");
   assert.equal(conceptQuestionRegistry[result.answers[0].key].correctAnswer, "row-column");
   assert.throws(() => validateAttemptInput({
     sessionId,
@@ -93,6 +119,17 @@ test("validates submitted answers against the versioned server registry", () => 
     chapterSlug: "vectors",
     answers: { orientation: "client-says-correct" },
   }));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "vectors",
+    answers: { "attention-context": "3-4" },
+  }));
+  assert.equal(
+    conceptQuestionRegistry["transformer-from-zero/vectors/attention-context"].status,
+    "retired",
+  );
 });
 
 test("ships D1 analytics tables and a SQLite Durable Object migration", async () => {
@@ -100,6 +137,8 @@ test("ships D1 analytics tables and a SQLite Durable Object migration", async ()
   const visitorMigration = await readFile(new URL("../drizzle/0005_smooth_chimera.sql", import.meta.url), "utf8");
   const reachMigration = await readFile(new URL("../drizzle/0006_ambiguous_jasper_sitwell.sql", import.meta.url), "utf8");
   const wrangler = await readFile(new URL("../wrangler.jsonc", import.meta.url), "utf8");
+  const functions = await readFile(new URL("../src/features/learning-analytics/learning-analytics.functions.ts", import.meta.url), "utf8");
+  const session = await readFile(new URL("../src/durable-objects/LearningSession.ts", import.meta.url), "utf8");
   assert.match(migration, /CREATE TABLE `learning_sessions`/);
   assert.match(migration, /CREATE TABLE `learning_attempts`/);
   assert.match(visitorMigration, /CREATE TABLE `course_visitors`/);
@@ -108,4 +147,6 @@ test("ships D1 analytics tables and a SQLite Durable Object migration", async ()
   assert.match(wrangler, /"new_sqlite_classes": \["LearningSession", "LearningPresence"\]/);
   assert.match(wrangler, /"name": "LEARNING_SESSIONS"/);
   assert.match(wrangler, /"name": "LEARNING_PRESENCE"/);
+  assert.match(functions, /context:\s*\{\s*curriculumSlug: data\.curriculumSlug,\s*chapterSlug: data\.chapterSlug/);
+  assert.match(session, /Learning session context mismatch/);
 });

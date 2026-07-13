@@ -4,6 +4,7 @@ import {
   createTestUser,
   deleteTestUser,
   discussionToggleName,
+  setupDiscussionProfile,
   signInTestUser,
 } from "./helpers";
 
@@ -32,6 +33,7 @@ test("supports replies, likes, blocking, and unblocking across two users", async
 
   await signInTestUser(page, author.email);
   await page.getByRole("button", { name: discussionToggleName }).click();
+  await setupDiscussionProfile(page, "벡터 질문자");
   await page
     .getByPlaceholder("어디에서 막혔는지, 어떤 실행 결과가 예상과 달랐는지 적어주세요.")
     .fill(question);
@@ -42,6 +44,7 @@ test("supports replies, likes, blocking, and unblocking across two users", async
   const responderPage = await responderContext.newPage();
   await signInTestUser(responderPage, responder.email);
   await responderPage.getByRole("button", { name: discussionToggleName }).click();
+  await setupDiscussionProfile(responderPage, "벡터 답변자");
   const responderThread = responderPage.locator(".discussion-question", {
     hasText: question,
   });
@@ -63,8 +66,8 @@ test("supports replies, likes, blocking, and unblocking across two users", async
   await expect(communitySummary.getByLabel("질문 1개")).toBeVisible();
   await expect(communitySummary.getByLabel("답변 1개")).toBeVisible();
   await expect(communitySummary.getByLabel("참여자 2명")).toBeVisible();
-  await expect(communitySummary.getByRole("img", { name: "E2E Author 아바타" })).toBeVisible();
-  await expect(communitySummary.getByRole("img", { name: "E2E Responder 아바타" })).toBeVisible();
+  await expect(communitySummary.getByRole("img", { name: "벡터 질문자 아바타" })).toBeVisible();
+  await expect(communitySummary.getByRole("img", { name: "벡터 답변자 아바타" })).toBeVisible();
   await expect(responderThread.getByText("답변 1", { exact: true })).toBeVisible();
 
   const responderAnswer = responderPage.locator(".discussion-answer", {
@@ -107,7 +110,7 @@ test("supports replies, likes, blocking, and unblocking across two users", async
   await answerCard.getByRole("button", { name: "작성자 차단" }).click();
   await page.getByRole("button", { name: "차단하기" }).click();
   await expect(page.getByText(editedAnswer, { exact: true })).toHaveCount(0);
-  await expect(page.getByText("E2E Responder 님의 글을 숨겼습니다.")).toBeVisible();
+  await expect(page.getByText("벡터 답변자 님의 글을 숨겼습니다.")).toBeVisible();
 
   await page.getByRole("button", { name: "차단한 사용자 관리" }).click();
   await page.getByRole("region", { name: "차단한 사용자 관리" })

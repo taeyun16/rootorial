@@ -5,6 +5,7 @@ import {
   deleteTestUser,
   discussionToggleName,
   findUserByEmail,
+  setupDiscussionProfile,
   signInTestUser,
 } from "./helpers";
 
@@ -37,6 +38,7 @@ test("lets an allowlisted admin hide and restore a question", async ({
   const learnerPage = await learnerContext.newPage();
   await signInTestUser(learnerPage, learner.email);
   await learnerPage.getByRole("button", { name: discussionToggleName }).click();
+  await setupDiscussionProfile(learnerPage, "검토 대상 학습자");
   await learnerPage
     .getByPlaceholder("어디에서 막혔는지, 어떤 실행 결과가 예상과 달랐는지 적어주세요.")
     .fill(question);

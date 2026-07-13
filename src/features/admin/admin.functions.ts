@@ -7,10 +7,8 @@ import { getDb } from "../../../db";
 import { contentFeedback, discussionAnswers, discussionProfiles, discussionQuestions, systemEvents } from "../../../db/schema";
 import { isDiscussionAdmin } from "../discussion/discussion";
 import type { LearningPresence } from "../../durable-objects/LearningPresence";
-import {
-  conceptQuestionRegistry,
-  LEARNING_PRESENCE_SHARD_COUNT,
-} from "../learning-analytics/learning-analytics";
+import { getConceptQuestionLabel } from "../chapters/chapter-registry";
+import { LEARNING_PRESENCE_SHARD_COUNT } from "../learning-analytics/learning-analytics";
 import { type AdminDashboard, validateUpdateFeedbackInput } from "./admin";
 
 type AdminBindings = {
@@ -122,23 +120,26 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
         SELECT count(*) AS attempted_pairs,
                sum(eventually_correct) AS mastered_pairs
         FROM (
-          SELECT user_id, curriculum_slug, chapter_slug, question_id,
+          SELECT user_id, curriculum_slug, chapter_slug, question_id, question_version,
                  max(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS eventually_correct
           FROM learning_attempts WHERE submitted_at >= ?
-          GROUP BY user_id, curriculum_slug, chapter_slug, question_id
+          GROUP BY user_id, curriculum_slug, chapter_slug, question_id, question_version
         )
       `).bind(learningSince).first<{ attempted_pairs: number; mastered_pairs: number }>(),
       database.prepare(`
-        SELECT question_id,
+        SELECT curriculum_slug, chapter_slug, question_id, question_version,
                count(*) AS attempts,
                count(DISTINCT user_id) AS learners,
                sum(CASE WHEN attempt_number = 1 THEN 1 ELSE 0 END) AS first_attempts,
                sum(CASE WHEN attempt_number = 1 AND is_correct = 1 THEN 1 ELSE 0 END) AS first_correct,
                sum(CASE WHEN is_correct = 1 THEN 1 ELSE 0 END) AS correct
         FROM learning_attempts WHERE submitted_at >= ?
-        GROUP BY question_id ORDER BY first_correct * 1.0 / nullif(first_attempts, 0) ASC, attempts DESC
+        GROUP BY curriculum_slug, chapter_slug, question_id, question_version
+        ORDER BY first_correct * 1.0 / nullif(first_attempts, 0) ASC, attempts DESC
       `).bind(learningSince).all<{
-        question_id: string; attempts: number; learners: number;
+        curriculum_slug: string; chapter_slug: string;
+        question_id: string; question_version: number;
+        attempts: number; learners: number;
         first_attempts: number; first_correct: number; correct: number;
       }>(),
       database.prepare(`
@@ -223,17 +224,22 @@ export const getAdminDashboard = createServerFn({ method: "GET" }).handler(async
           signedInViews: Number(row.signed_in_views),
           learners: Number(row.learners),
         })),
-        questionStats: learningQuestionsResult.results.map((row) => {
-          const key = `transformer-from-zero/vectors/${row.question_id}` as keyof typeof conceptQuestionRegistry;
-          return {
-            questionId: row.question_id,
-            label: conceptQuestionRegistry[key]?.label ?? row.question_id,
-            attempts: Number(row.attempts),
-            learners: Number(row.learners),
-            firstAttemptAccuracy: ratio(Number(row.first_correct), Number(row.first_attempts)),
-            overallAccuracy: ratio(Number(row.correct), Number(row.attempts)),
-          };
-        }),
+        questionStats: learningQuestionsResult.results.map((row) => ({
+          curriculumSlug: row.curriculum_slug,
+          chapterSlug: row.chapter_slug,
+          questionId: row.question_id,
+          questionVersion: Number(row.question_version),
+          label: getConceptQuestionLabel(
+            row.curriculum_slug,
+            row.chapter_slug,
+            row.question_id,
+            Number(row.question_version),
+          ),
+          attempts: Number(row.attempts),
+          learners: Number(row.learners),
+          firstAttemptAccuracy: ratio(Number(row.first_correct), Number(row.first_attempts)),
+          overallAccuracy: ratio(Number(row.correct), Number(row.attempts)),
+        })),
       },
       systemEvents: recentSystemEvents,
       feedback: feedbackRows,

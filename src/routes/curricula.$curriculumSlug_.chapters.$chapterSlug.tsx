@@ -1,25 +1,33 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { getCurriculum } from "../data/curriculum";
-import { VectorsChapter } from "../components/VectorsChapter";
 import { LearningAnalyticsProvider } from "../components/LearningAnalyticsProvider";
 import { CourseAccessTracker } from "../components/CourseAccessTracker";
+import { getChapterPage } from "../features/chapters/chapter-pages";
+import { getPublishedChapter } from "../features/chapters/chapter-registry";
 import { getCurriculumReach } from "../features/learning-analytics/learning-analytics.functions";
+import {
+  chapterPageMetadata,
+  localeFromLanguage,
+} from "../features/localization/page-metadata";
 
 export const Route = createFileRoute("/curricula/$curriculumSlug_/chapters/$chapterSlug")({
   beforeLoad: ({ params }) => {
-    const curriculum = getCurriculum(params.curriculumSlug);
-    const chapter = curriculum?.chapters.ko.find(({ slug }) => slug === params.chapterSlug);
-    if (!curriculum || !chapter || chapter.status !== "available") throw notFound();
-    return { curriculum, chapter };
+    const published = getPublishedChapter(params.curriculumSlug, params.chapterSlug);
+    if (!published || !getChapterPage(params.curriculumSlug, params.chapterSlug)) {
+      throw notFound();
+    }
+    return published;
   },
   loader: ({ params }) => getCurriculumReach({ data: { curriculumSlug: params.curriculumSlug } }),
   head: ({ match }) => {
-    const curriculum = getCurriculum(match.params.curriculumSlug);
-    const chapter = curriculum?.chapters.ko.find(({ slug }) => slug === match.params.chapterSlug);
+    const metadata = chapterPageMetadata(
+      match.params.curriculumSlug,
+      match.params.chapterSlug,
+      localeFromLanguage((match.search as { lang?: unknown }).lang),
+    );
     return {
       meta: [
-        { title: chapter ? `${String(chapter.number).padStart(2, "0")}. ${chapter.title} · Rootorial` : "Rootorial" },
-        { name: "description", content: chapter?.description ?? curriculum?.summary.ko ?? "Rootorial 인터랙티브 챕터" },
+        { title: metadata?.title ?? "Rootorial" },
+        { name: "description", content: metadata?.description ?? "Rootorial interactive chapter" },
       ],
     };
   },
@@ -29,14 +37,18 @@ export const Route = createFileRoute("/curricula/$curriculumSlug_/chapters/$chap
 function ChapterRoute() {
   const { curriculumSlug, chapterSlug } = Route.useParams();
   const reach = Route.useLoaderData();
-  if (curriculumSlug === "transformer-from-zero" && chapterSlug === "vectors") {
-    return (
-      <CourseAccessTracker curriculumSlug={curriculumSlug} chapterSlug={chapterSlug}>
-        <LearningAnalyticsProvider curriculumSlug={curriculumSlug} chapterSlug={chapterSlug}>
-          <VectorsChapter learnerCount={reach.chapters[chapterSlug]?.learners ?? 0} />
-        </LearningAnalyticsProvider>
-      </CourseAccessTracker>
-    );
-  }
-  throw notFound();
+  const ChapterPage = getChapterPage(curriculumSlug, chapterSlug);
+  if (!ChapterPage) throw notFound();
+
+  return (
+    <CourseAccessTracker curriculumSlug={curriculumSlug} chapterSlug={chapterSlug}>
+      <LearningAnalyticsProvider curriculumSlug={curriculumSlug} chapterSlug={chapterSlug}>
+        <ChapterPage
+          curriculumSlug={curriculumSlug}
+          chapterSlug={chapterSlug}
+          learnerCount={reach.chapters[chapterSlug]?.learners ?? 0}
+        />
+      </LearningAnalyticsProvider>
+    </CourseAccessTracker>
+  );
 }

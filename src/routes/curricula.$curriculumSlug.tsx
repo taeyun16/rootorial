@@ -3,6 +3,10 @@ import { CurriculumHome } from "../components/CurriculumHome";
 import { CourseAccessTracker } from "../components/CourseAccessTracker";
 import { getCurriculum } from "../data/curriculum";
 import { getCurriculumReach } from "../features/learning-analytics/learning-analytics.functions";
+import {
+  curriculumPageMetadata,
+  localeFromLanguage,
+} from "../features/localization/page-metadata";
 
 export const Route = createFileRoute("/curricula/$curriculumSlug")({
   beforeLoad: ({ params }) => {
@@ -12,11 +16,14 @@ export const Route = createFileRoute("/curricula/$curriculumSlug")({
   },
   loader: ({ params }) => getCurriculumReach({ data: { curriculumSlug: params.curriculumSlug } }),
   head: ({ match }) => {
-    const curriculum = getCurriculum(match.params.curriculumSlug);
+    const metadata = curriculumPageMetadata(
+      match.params.curriculumSlug,
+      localeFromLanguage((match.search as { lang?: unknown }).lang),
+    );
     return {
       meta: [
-        { title: `${curriculum?.title.ko ?? "커리큘럼"} · Rootorial` },
-        { name: "description", content: curriculum?.summary.ko ?? "Rootorial 인터랙티브 커리큘럼" },
+        { title: metadata?.title ?? "Rootorial" },
+        { name: "description", content: metadata?.description ?? "Rootorial interactive curriculum" },
       ],
     };
   },

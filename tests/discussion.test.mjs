@@ -7,6 +7,7 @@ import {
   answerKindForUser,
   canBlockAuthor,
   canLikeAnswer,
+  canReplyToDiscussionQuestion,
   getDiscussionCapabilities,
   isDiscussionAdmin,
   parseAdminUserIds,
@@ -17,10 +18,13 @@ import {
   validateModeratePostInput,
   validateSetAnswerLikeInput,
   validateSetAuthorBlockInput,
+  validateUpdateDiscussionProfileInput,
   validateUpdatePostInput,
 } from "../src/features/discussion/discussion.ts";
 import {
+  activeDiscussionScopeIds,
   discussionScopeIds,
+  isActiveDiscussionScopeId,
   isDiscussionScopeId,
 } from "../src/data/discussionScopes.ts";
 
@@ -32,8 +36,22 @@ test("keeps discussion scopes finite, typed, and stable", () => {
   assert.ok(
     discussionScopeIds.includes("transformer-from-zero.vectors.notebook.attention-preview"),
   );
+  assert.ok(activeDiscussionScopeIds.includes("transformer-from-zero.vectors.meaning"));
+  assert.equal(
+    activeDiscussionScopeIds.includes("transformer-from-zero.vectors.notebook.attention-preview"),
+    false,
+  );
+  assert.equal(
+    isActiveDiscussionScopeId("transformer-from-zero.vectors.notebook.attention-preview"),
+    false,
+  );
   assert.equal(isDiscussionScopeId("transformer-from-zero.vectors.dot-product.explorer"), true);
   assert.equal(isDiscussionScopeId("transformer-from-zero.vectors.arbitrary-client-scope"), false);
+  assert.equal(isDiscussionScopeId("toString"), false);
+  assert.throws(
+    () => validateGetDiscussionInput({ scopeId: "toString" }),
+    /학습 항목/,
+  );
 });
 
 test("normalizes question and answer inputs without trusting client identity", () => {
@@ -72,6 +90,20 @@ test("normalizes question and answer inputs without trusting client identity", (
   assert.throws(
     () =>
       validateCreateQuestionInput({
+        scopeId: "transformer-from-zero.vectors.notebook.attention-preview",
+        body: "이전 섹션에 새 질문을 남깁니다.",
+      }),
+    /질문을 남길 수 없는/,
+  );
+  assert.equal(
+    validateGetDiscussionInput({
+      scopeId: "transformer-from-zero.vectors.notebook.attention-preview",
+    }).scopeId,
+    "transformer-from-zero.vectors.notebook.attention-preview",
+  );
+  assert.throws(
+    () =>
+      validateCreateQuestionInput({
         scopeId: "transformer-from-zero.vectors.meaning",
         body: "x".repeat(QUESTION_BODY_MAX_LENGTH + 1),
       }),
@@ -84,6 +116,31 @@ test("normalizes question and answer inputs without trusting client identity", (
         body: "x".repeat(ANSWER_BODY_MAX_LENGTH + 1),
       }),
     /4,000자/,
+  );
+});
+
+test("validates a user-controlled public discussion profile", () => {
+  assert.deepEqual(
+    validateUpdateDiscussionProfileInput({
+      displayName: "  벡터   탐험가  ",
+      imageVisible: false,
+      userId: "user_spoofed",
+    }),
+    { displayName: "벡터 탐험가", imageVisible: false },
+  );
+  assert.throws(
+    () => validateUpdateDiscussionProfileInput({
+      displayName: "A",
+      imageVisible: false,
+    }),
+    /2~24자/,
+  );
+  assert.throws(
+    () => validateUpdateDiscussionProfileInput({
+      displayName: "벡터 탐험가",
+      imageVisible: "yes",
+    }),
+    /공개 설정/,
   );
 });
 
@@ -217,6 +274,20 @@ test("ownership, likes, blocks, and moderation capabilities are server-derived",
   assert.equal(canLikeAnswer("user_author", "user_author", "visible"), false);
   assert.equal(canLikeAnswer("user_reader", "user_author", "hidden"), false);
   assert.equal(
+    canReplyToDiscussionQuestion(
+      "transformer-from-zero.vectors.meaning",
+      "visible",
+    ),
+    true,
+  );
+  assert.equal(
+    canReplyToDiscussionQuestion(
+      "transformer-from-zero.vectors.notebook.attention-preview",
+      "visible",
+    ),
+    false,
+  );
+  assert.equal(
     canBlockAuthor("user_reader", "user_author", "user_admin"),
     true,
   );
@@ -310,5 +381,10 @@ test("discussion writes use atomic rate windows and sanitized failure logs", () 
   assert.match(serverSource, /onConflictDoUpdate/);
   assert.match(serverSource, /setWhere: lt\(discussionRateLimits\.count/);
   assert.match(serverSource, /mutationFailure\("rate_limited"/);
+  assert.match(serverSource, /mutationFailure\(\s*"profile_required"/);
+  assert.match(serverSource, /answer\.authorConfiguredAt != null && answer\.authorImageVisible/);
+  assert.match(serverSource, /question\.authorConfiguredAt != null &&[\s\S]*question\.authorImageVisible/);
+  assert.match(serverSource, /scopeId: discussionQuestions\.scopeId/);
+  assert.match(serverSource, /canReplyToDiscussionQuestion\(question\.scopeId, question\.state\)/);
   assert.doesNotMatch(serverSource, /console\.(?:error|warn)\([^\n]*,\s*error/);
 });

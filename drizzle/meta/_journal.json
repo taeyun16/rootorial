@@ -57,6 +57,13 @@
       "when": 1783831725121,
       "tag": "0007_same_bloodstorm",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1783953576266,
+      "tag": "0008_chilly_terrax",
+      "breakpoints": true
     }
   ]
 }

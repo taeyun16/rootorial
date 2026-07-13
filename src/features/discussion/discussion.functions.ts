@@ -31,6 +31,7 @@ import {
   answerKindForUser,
   canBlockAuthor,
   canLikeAnswer,
+  canReplyToDiscussionQuestion,
   getDiscussionCapabilities,
   isDiscussionAdmin,
   type DiscussionBlockList,
@@ -45,6 +46,7 @@ import {
   validateModeratePostInput,
   validateSetAnswerLikeInput,
   validateSetAuthorBlockInput,
+  validateUpdateDiscussionProfileInput,
   validateUpdatePostInput,
 } from "./discussion";
 
@@ -150,15 +152,18 @@ async function ensureDiscussionProfile(db: DiscussionDb, userId: string) {
     return existing;
   }
 
+  const profileIsConfigured = existing?.configuredAt != null;
   let displayName = existing?.displayName ?? "학습자";
   let imageUrl = existing?.imageUrl ?? null;
 
   try {
     const user = await clerkClient().users.getUser(userId);
-    displayName = normalizeDisplayName(
-      [user.firstName, user.lastName],
-      user.username,
-    );
+    if (!profileIsConfigured) {
+      displayName = normalizeDisplayName(
+        [user.firstName, user.lastName],
+        user.username,
+      );
+    }
     imageUrl = user.imageUrl || null;
   } catch {
     if (existing) return existing;
@@ -171,6 +176,8 @@ async function ensureDiscussionProfile(db: DiscussionDb, userId: string) {
       userId,
       displayName,
       imageUrl,
+      imageVisible: existing?.imageVisible ?? false,
+      configuredAt: existing?.configuredAt ?? null,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
     })
@@ -183,8 +190,21 @@ async function ensureDiscussionProfile(db: DiscussionDb, userId: string) {
     userId,
     displayName,
     imageUrl,
+    imageVisible: existing?.imageVisible ?? false,
+    configuredAt: existing?.configuredAt ?? null,
     createdAt: existing?.createdAt ?? now,
     updatedAt: now,
+  };
+}
+
+function discussionProfileView(
+  profile: Awaited<ReturnType<typeof ensureDiscussionProfile>>,
+) {
+  return {
+    displayName: profile.displayName,
+    imageUrl: profile.imageUrl,
+    imageVisible: profile.imageVisible,
+    configured: profile.configuredAt != null,
   };
 }
 
@@ -293,6 +313,9 @@ export const getDiscussion = createServerFn({ method: "GET" })
 
     try {
       const viewerUserId = await getOptionalUserId();
+      const viewerProfile = viewerUserId
+        ? await ensureDiscussionProfile(db, viewerUserId)
+        : null;
       const configuredAdminUserIds = getConfiguredAdminUserIds();
       const viewerIsAdmin = isDiscussionAdmin(
         viewerUserId,
@@ -349,6 +372,8 @@ export const getDiscussion = createServerFn({ method: "GET" })
           authorUserId: discussionQuestions.authorUserId,
           authorDisplayName: discussionProfiles.displayName,
           authorImageUrl: discussionProfiles.imageUrl,
+          authorImageVisible: discussionProfiles.imageVisible,
+          authorConfiguredAt: discussionProfiles.configuredAt,
           createdAt: discussionQuestions.createdAt,
           updatedAt: discussionQuestions.updatedAt,
           moderationReason: discussionQuestions.moderationReason,
@@ -389,6 +414,8 @@ export const getDiscussion = createServerFn({ method: "GET" })
               authorUserId: discussionAnswers.authorUserId,
               authorDisplayName: discussionProfiles.displayName,
               authorImageUrl: discussionProfiles.imageUrl,
+              authorImageVisible: discussionProfiles.imageVisible,
+              authorConfiguredAt: discussionProfiles.configuredAt,
               createdAt: discussionAnswers.createdAt,
               updatedAt: discussionAnswers.updatedAt,
               moderationReason: discussionAnswers.moderationReason,
@@ -465,8 +492,14 @@ export const getDiscussion = createServerFn({ method: "GET" })
           updatedAt: answer.updatedAt,
           moderationReason: viewerIsAdmin ? answer.moderationReason : null,
           author: {
-            displayName: answer.authorDisplayName,
-            imageUrl: answer.authorImageUrl,
+            displayName:
+              answer.authorConfiguredAt == null
+                ? "학습자"
+                : answer.authorDisplayName,
+            imageUrl:
+              answer.authorConfiguredAt != null && answer.authorImageVisible
+                ? answer.authorImageUrl
+                : null,
           },
           capabilities: getDiscussionCapabilities(
             viewerUserId,
@@ -501,8 +534,15 @@ export const getDiscussion = createServerFn({ method: "GET" })
           updatedAt: question.updatedAt,
           moderationReason: viewerIsAdmin ? question.moderationReason : null,
           author: {
-            displayName: question.authorDisplayName,
-            imageUrl: question.authorImageUrl,
+            displayName:
+              question.authorConfiguredAt == null
+                ? "학습자"
+                : question.authorDisplayName,
+            imageUrl:
+              question.authorConfiguredAt != null &&
+              question.authorImageVisible
+                ? question.authorImageUrl
+                : null,
           },
           capabilities: getDiscussionCapabilities(
             viewerUserId,
@@ -531,6 +571,7 @@ export const getDiscussion = createServerFn({ method: "GET" })
         viewer: {
           signedIn: Boolean(viewerUserId),
           isAdmin: viewerIsAdmin,
+          profile: viewerProfile ? discussionProfileView(viewerProfile) : null,
         },
         questions,
         answersTruncated,
@@ -574,6 +615,8 @@ export const getMyDiscussionBlocks = createServerFn({ method: "GET" }).handler(
           createdAt: discussionUserBlocks.createdAt,
           displayName: discussionProfiles.displayName,
           imageUrl: discussionProfiles.imageUrl,
+          imageVisible: discussionProfiles.imageVisible,
+          configuredAt: discussionProfiles.configuredAt,
         })
         .from(discussionUserBlocks)
         .innerJoin(
@@ -607,8 +650,11 @@ export const getMyDiscussionBlocks = createServerFn({ method: "GET" }).handler(
         blocks.push({
           blockToken: blockToken(sourceType, sourceId),
           author: {
-            displayName: row.displayName,
-            imageUrl: row.imageUrl,
+            displayName: row.configuredAt == null ? "학습자" : row.displayName,
+            imageUrl:
+              row.configuredAt != null && row.imageVisible
+                ? row.imageUrl
+                : null,
           },
           createdAt: row.createdAt,
         });
@@ -626,6 +672,49 @@ export const getMyDiscussionBlocks = createServerFn({ method: "GET" }).handler(
   },
 );
 
+export const updateDiscussionProfile = createServerFn({ method: "POST" })
+  .validator(validateUpdateDiscussionProfileInput)
+  .handler(async ({ data }) => {
+    preventSharedCaching();
+
+    const db = getDiscussionDb();
+    if (!db) {
+      return mutationFailure("unavailable", DISCUSSION_UNAVAILABLE_MESSAGE);
+    }
+
+    const userId = await getOptionalUserId();
+    if (!userId) {
+      return mutationFailure("unauthorized", "로그인이 필요합니다.");
+    }
+
+    try {
+      const existing = await ensureDiscussionProfile(db, userId);
+      const now = Date.now();
+      await db
+        .update(discussionProfiles)
+        .set({
+          displayName: data.displayName,
+          imageVisible: data.imageVisible,
+          configuredAt: existing.configuredAt ?? now,
+          updatedAt: now,
+        })
+        .where(eq(discussionProfiles.userId, userId));
+
+      return {
+        ok: true as const,
+        profile: {
+          displayName: data.displayName,
+          imageUrl: existing.imageUrl,
+          imageVisible: data.imageVisible,
+          configured: true,
+        },
+      };
+    } catch (error) {
+      reportDatabaseFailure("update-profile", error);
+      return mutationFailure("unavailable", DISCUSSION_UNAVAILABLE_MESSAGE);
+    }
+  });
+
 export const createQuestion = createServerFn({ method: "POST" })
   .validator(validateCreateQuestionInput)
   .handler(async ({ data }) => {
@@ -642,7 +731,13 @@ export const createQuestion = createServerFn({ method: "POST" })
     }
 
     try {
-      await ensureDiscussionProfile(db, userId);
+      const profile = await ensureDiscussionProfile(db, userId);
+      if (profile.configuredAt == null) {
+        return mutationFailure(
+          "profile_required",
+          "질문을 등록하기 전에 공개 프로필을 설정해 주세요.",
+        );
+      }
       const limitMessage = await checkPostingLimit(db, userId, "question");
       if (limitMessage) {
         return mutationFailure("rate_limited", limitMessage);
@@ -695,20 +790,29 @@ export const createAnswer = createServerFn({ method: "POST" })
     }
 
     try {
-      await ensureDiscussionProfile(db, userId);
+      const profile = await ensureDiscussionProfile(db, userId);
+      if (profile.configuredAt == null) {
+        return mutationFailure(
+          "profile_required",
+          "답변을 등록하기 전에 공개 프로필을 설정해 주세요.",
+        );
+      }
       const limitMessage = await checkPostingLimit(db, userId, "answer");
       if (limitMessage) {
         return mutationFailure("rate_limited", limitMessage);
       }
       const [question] = await db
-        .select({ state: discussionQuestions.state })
+        .select({
+          scopeId: discussionQuestions.scopeId,
+          state: discussionQuestions.state,
+        })
         .from(discussionQuestions)
         .where(eq(discussionQuestions.id, data.questionId))
         .limit(1);
       if (!question) {
         return mutationFailure("not_found", "질문을 찾을 수 없습니다.");
       }
-      if (question.state !== "visible") {
+      if (!canReplyToDiscussionQuestion(question.scopeId, question.state)) {
         return mutationFailure(
           "conflict",
           "현재 이 질문에는 답변을 남길 수 없습니다.",
