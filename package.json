@@ -8,6 +8,9 @@
   "scripts": {
     "dev": "vite dev --port 3000",
     "dev:e2e": "vite dev --port 3100 --mode e2e",
+    "generate:llms": "node --experimental-strip-types scripts/generate-llms.ts",
+    "check:llms": "node --experimental-strip-types scripts/generate-llms.ts --check",
+    "prebuild": "npm run generate:llms",
     "build": "tsc --noEmit && vite build",
     "start": "vite preview --port 3000",
     "preview": "vite preview --port 3000",
@@ -20,7 +23,7 @@
     "db:status:local": "wrangler d1 migrations list DB --local",
     "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
     "db:status:remote": "wrangler d1 migrations list DB --remote",
-    "test": "npm run build && node --experimental-strip-types --test tests/*.test.mjs",
+    "test": "npm run check:llms && npm run build && node --experimental-strip-types --test tests/*.test.mjs",
     "test:e2e": "npm run db:migrate:e2e && node e2e/run-local-e2e.mjs",
     "check": "tsc --noEmit",
     "lint": "npm run check",
