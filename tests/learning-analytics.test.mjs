@@ -122,6 +122,15 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "users-and-permissions",
     locale: "ko",
   });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "memory-and-virtual-addresses",
+    locale: "en",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "memory-and-virtual-addresses",
+    locale: "en",
+  });
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -174,6 +183,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "linux-systems",
     chapterSlug: "users-and-permissions",
     path: "/curricula/linux-systems/chapters/users-and-permissions",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "memory-and-virtual-addresses" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "memory-and-virtual-addresses",
+    path: "/curricula/linux-systems/chapters/memory-and-virtual-addresses",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
 });
@@ -554,6 +568,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "linux-systems",
     chapterSlug: "users-and-permissions",
     answers: { "least-privilege": "client-says-correct" },
+  }));
+
+  const memoryResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "memory-and-virtual-addresses",
+    answers: {
+      "address-translation": "vpn-to-frame-offset-unchanged",
+      "process-isolation": "same-va-can-map-different-frames",
+      "page-fault": "tlb-miss-is-not-page-fault",
+      "region-lifetime": "maps-shows-vmas-not-residency",
+      "copy-on-write": "first-write-copies-that-page",
+    },
+  });
+  assert.deepEqual(
+    memoryResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/memory-and-virtual-addresses/address-translation",
+        correctAnswer: "vpn-to-frame-offset-unchanged",
+      },
+      {
+        key: "linux-systems/memory-and-virtual-addresses/process-isolation",
+        correctAnswer: "same-va-can-map-different-frames",
+      },
+      {
+        key: "linux-systems/memory-and-virtual-addresses/page-fault",
+        correctAnswer: "tlb-miss-is-not-page-fault",
+      },
+      {
+        key: "linux-systems/memory-and-virtual-addresses/region-lifetime",
+        correctAnswer: "maps-shows-vmas-not-residency",
+      },
+      {
+        key: "linux-systems/memory-and-virtual-addresses/copy-on-write",
+        correctAnswer: "first-write-copies-that-page",
+      },
+    ],
+  );
+  assert.ok(memoryResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "memory-and-virtual-addresses",
+    answers: { "copy-on-write": "client-says-correct" },
   }));
 });
 

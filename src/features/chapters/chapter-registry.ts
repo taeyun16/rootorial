@@ -330,6 +330,46 @@ export const conceptQuestionHistory = {
       answers: ["smallest-sufficient-grant", "chmod-777", "allow-then-audit-later"],
     },
   },
+  "linux-systems/memory-and-virtual-addresses/address-translation": {
+    1: {
+      version: 1,
+      label: "가상 주소 번역",
+      correctAnswer: "vpn-to-frame-offset-unchanged",
+      answers: ["vpn-to-frame-offset-unchanged", "whole-address-becomes-frame", "offset-selects-page-table"],
+    },
+  },
+  "linux-systems/memory-and-virtual-addresses/process-isolation": {
+    1: {
+      version: 1,
+      label: "프로세스별 주소 공간",
+      correctAnswer: "same-va-can-map-different-frames",
+      answers: ["same-va-can-map-different-frames", "same-va-means-same-frame", "pid-does-not-affect-mapping"],
+    },
+  },
+  "linux-systems/memory-and-virtual-addresses/page-fault": {
+    1: {
+      version: 1,
+      label: "TLB miss와 page fault",
+      correctAnswer: "tlb-miss-is-not-page-fault",
+      answers: ["tlb-miss-is-not-page-fault", "every-tlb-miss-is-page-fault", "page-fault-always-kills-process"],
+    },
+  },
+  "linux-systems/memory-and-virtual-addresses/region-lifetime": {
+    1: {
+      version: 1,
+      label: "/proc maps와 residency",
+      correctAnswer: "maps-shows-vmas-not-residency",
+      answers: ["maps-shows-vmas-not-residency", "maps-shows-only-resident-pages", "maps-is-physical-memory-layout"],
+    },
+  },
+  "linux-systems/memory-and-virtual-addresses/copy-on-write": {
+    1: {
+      version: 1,
+      label: "fork 뒤 copy-on-write",
+      correctAnswer: "first-write-copies-that-page",
+      answers: ["first-write-copies-that-page", "fork-copies-all-pages-eagerly", "write-changes-parent-page"],
+    },
+  },
 } as const satisfies Record<
   string,
   Readonly<Record<number, ConceptQuestionVersionContract>>
@@ -486,6 +526,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["linux-systems/users-and-permissions/least-privilege"][1],
     status: "active",
   },
+  "linux-systems/memory-and-virtual-addresses/address-translation": {
+    ...conceptQuestionHistory["linux-systems/memory-and-virtual-addresses/address-translation"][1],
+    status: "active",
+  },
+  "linux-systems/memory-and-virtual-addresses/process-isolation": {
+    ...conceptQuestionHistory["linux-systems/memory-and-virtual-addresses/process-isolation"][1],
+    status: "active",
+  },
+  "linux-systems/memory-and-virtual-addresses/page-fault": {
+    ...conceptQuestionHistory["linux-systems/memory-and-virtual-addresses/page-fault"][1],
+    status: "active",
+  },
+  "linux-systems/memory-and-virtual-addresses/region-lifetime": {
+    ...conceptQuestionHistory["linux-systems/memory-and-virtual-addresses/region-lifetime"][1],
+    status: "active",
+  },
+  "linux-systems/memory-and-virtual-addresses/copy-on-write": {
+    ...conceptQuestionHistory["linux-systems/memory-and-virtual-addresses/copy-on-write"][1],
+    status: "active",
+  },
 } as const satisfies Record<string, ConceptQuestionContract>;
 
 export type ConceptQuestionKey = keyof typeof conceptQuestionRegistry;
@@ -550,6 +610,14 @@ export const linuxPermissionQuestions = {
   "least-privilege": conceptQuestionRegistry["linux-systems/users-and-permissions/least-privilege"],
 } as const;
 
+export const linuxMemoryQuestions = {
+  "address-translation": conceptQuestionRegistry["linux-systems/memory-and-virtual-addresses/address-translation"],
+  "process-isolation": conceptQuestionRegistry["linux-systems/memory-and-virtual-addresses/process-isolation"],
+  "page-fault": conceptQuestionRegistry["linux-systems/memory-and-virtual-addresses/page-fault"],
+  "region-lifetime": conceptQuestionRegistry["linux-systems/memory-and-virtual-addresses/region-lifetime"],
+  "copy-on-write": conceptQuestionRegistry["linux-systems/memory-and-virtual-addresses/copy-on-write"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -578,6 +646,9 @@ export const chapterRegistry = {
   },
   "linux-systems/users-and-permissions": {
     questions: linuxPermissionQuestions,
+  },
+  "linux-systems/memory-and-virtual-addresses": {
+    questions: linuxMemoryQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

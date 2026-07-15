@@ -88,6 +88,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     "Users and Permissions",
   );
   assert.equal(
+    getPublishedChapter("linux-systems", "memory-and-virtual-addresses", "en")?.chapter.title,
+    "Memory and Virtual Addresses",
+  );
+  assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
     "Learning and Optimization",
   );
@@ -329,6 +333,45 @@ test("separates active question submissions from historical labels", () => {
     ),
     undefined,
   );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["linux-systems/memory-and-virtual-addresses"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "address-translation": "vpn-to-frame-offset-unchanged",
+      "process-isolation": "same-va-can-map-different-frames",
+      "page-fault": "tlb-miss-is-not-page-fault",
+      "region-lifetime": "maps-shows-vmas-not-residency",
+      "copy-on-write": "first-write-copies-that-page",
+    },
+  );
+  assert.equal(
+    getConceptQuestion(
+      "linux-systems",
+      "memory-and-virtual-addresses",
+      "copy-on-write",
+    )?.correctAnswer,
+    "first-write-copies-that-page",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "memory-and-virtual-addresses",
+      "address-translation",
+      1,
+    )?.correctAnswer,
+    "vpn-to-frame-offset-unchanged",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "memory-and-virtual-addresses",
+      "address-translation",
+      2,
+    ),
+    undefined,
+  );
 });
 
 test("derives localized metadata from the catalog without route-specific copies", () => {
@@ -414,6 +457,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "04. Users and Permissions · Rootorial",
       description:
         "Compare process credentials with file owner, group, and rwx bits, diagnose path traversal and deletion boundaries, and assemble a least-privilege policy.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/linux-systems/chapters/memory-and-virtual-addresses",
+      "ko",
+    ),
+    {
+      title: "05. 메모리와 가상 주소 · Rootorial",
+      description:
+        "프로세스별 VA를 VPN·offset과 PTE·frame으로 번역하고, TLB miss·page fault·COW와 /proc maps의 경계를 직접 실행하고 진단합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("linux-systems", "memory-and-virtual-addresses", "en"),
+    {
+      title: "05. Memory and Virtual Addresses · Rootorial",
+      description:
+        "Translate per-process VAs through VPNs, offsets, PTEs, and frames, then run and diagnose TLB misses, page faults, COW, and /proc maps boundaries.",
     },
   );
 });

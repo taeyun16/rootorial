@@ -88,7 +88,7 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
   assert.equal(linuxChaptersKo[0].slug, "shell-and-filesystem");
   assert.equal(linuxChaptersKo[0].status, "available");
   assert.deepEqual(
-    linuxChaptersKo.slice(0, 4).map(
+    linuxChaptersKo.slice(0, 5).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -121,6 +121,12 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 60,
       },
+      {
+        slug: "memory-and-virtual-addresses",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 65,
+      },
     ],
   );
   assert.deepEqual(
@@ -149,7 +155,33 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
       concepts: ["UID·GID", "rwx · path search", "least privilege"],
     },
   );
-  assert.ok(linuxChaptersKo.slice(4).every(({ status }) => status === "planned"));
+  assert.deepEqual(
+    {
+      runtime: linuxChaptersKo[4].runtime,
+      description: linuxChaptersKo[4].description,
+      concepts: linuxChaptersKo[4].concepts,
+    },
+    {
+      runtime: "주소 변환 모델 · 선택 Linux 관찰",
+      description:
+        "프로세스별 VA를 VPN·offset과 PTE·frame으로 번역하고, TLB miss·page fault·COW와 /proc maps의 경계를 직접 실행하고 진단합니다.",
+      concepts: ["virtual page · PTE", "TLB · page fault", "mmap · COW"],
+    },
+  );
+  assert.deepEqual(
+    {
+      runtime: linuxChaptersEn[4].runtime,
+      description: linuxChaptersEn[4].description,
+      concepts: linuxChaptersEn[4].concepts,
+    },
+    {
+      runtime: "Address translation model · optional Linux observation",
+      description:
+        "Translate per-process VAs through VPNs, offsets, PTEs, and frames, then run and diagnose TLB misses, page faults, COW, and /proc maps boundaries.",
+      concepts: ["virtual page · PTE", "TLB · page fault", "mmap · COW"],
+    },
+  );
+  assert.ok(linuxChaptersKo.slice(5).every(({ status }) => status === "planned"));
 });
 
 test("publishes Linux as an in-progress curriculum with a retained experiment", () => {

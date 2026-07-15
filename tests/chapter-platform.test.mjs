@@ -81,6 +81,7 @@ test("keeps registered completed Linux drafts behind the public boundary", async
   assert.ok(chapterRegistry["linux-systems/boot-to-shell"]);
   assert.ok(chapterRegistry["linux-systems/processes-and-signals"]);
   assert.ok(chapterRegistry["linux-systems/users-and-permissions"]);
+  assert.ok(chapterRegistry["linux-systems/memory-and-virtual-addresses"]);
   const boot = await render(
     "/curricula/linux-systems/chapters/boot-to-shell",
   );
@@ -93,15 +94,25 @@ test("keeps registered completed Linux drafts behind the public boundary", async
   const permissionsEnglish = await render(
     "/curricula/linux-systems/chapters/users-and-permissions?lang=en",
   );
+  const memory = await render(
+    "/curricula/linux-systems/chapters/memory-and-virtual-addresses",
+  );
+  const memoryEnglish = await render(
+    "/curricula/linux-systems/chapters/memory-and-virtual-addresses?lang=en",
+  );
   assert.equal(boot.status, 404);
   assert.equal(processes.status, 404);
   assert.equal(permissions.status, 404);
   assert.equal(permissionsEnglish.status, 404);
+  assert.equal(memory.status, 404);
+  assert.equal(memoryEnglish.status, 404);
   await Promise.all([
     boot.text(),
     processes.text(),
     permissions.text(),
     permissionsEnglish.text(),
+    memory.text(),
+    memoryEnglish.text(),
   ]);
 });
 
