@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import { AttentionChapter } from "../../components/attention/AttentionChapter";
 import { EmbeddingsChapter } from "../../components/embeddings/EmbeddingsChapter";
 import { LinuxBootChapter } from "../../components/linux/LinuxBootChapter";
 import { LinuxProcessesChapter } from "../../components/linux/LinuxProcessesChapter";
@@ -76,6 +77,10 @@ function SequencesChapterPage({ learnerCount }: ChapterPageProps) {
   return <SequencesChapter learnerCount={learnerCount} />;
 }
 
+function AttentionChapterPage({ learnerCount }: ChapterPageProps) {
+  return <AttentionChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
@@ -83,6 +88,7 @@ const chapterPages = {
   "transformer-from-zero/training": TrainingChapterPage,
   "transformer-from-zero/embeddings": EmbeddingsChapterPage,
   "transformer-from-zero/sequences": SequencesChapterPage,
+  "transformer-from-zero/attention": AttentionChapterPage,
   "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
   "linux-systems/boot-to-shell": LinuxBootChapterPage,
   "linux-systems/processes-and-signals": LinuxProcessesChapterPage,

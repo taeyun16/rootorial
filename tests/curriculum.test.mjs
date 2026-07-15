@@ -15,7 +15,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
     chaptersEn.map(({ number, slug, status }) => ({ number, slug, status })),
   );
   assert.deepEqual(
-    chaptersKo.slice(0, 6).map(
+    chaptersKo.slice(0, 7).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -60,7 +60,39 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 65,
       },
+      {
+        slug: "attention",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 65,
+      },
     ],
+  );
+  assert.deepEqual(
+    {
+      runtime: chaptersKo[6].runtime,
+      description: chaptersKo[6].description,
+      concepts: chaptersKo[6].concepts,
+    },
+    {
+      runtime: "TypeScript Attention 모델",
+      description:
+        "단일 query와 분리된 Key·Value로 점수를 계산하고, key축 Softmax와 value 가중합 문맥을 실행하며 잘못된 Attention 계약을 디버깅합니다.",
+      concepts: ["Query · Key 역할", "key축 Softmax", "Value · context"],
+    },
+  );
+  assert.deepEqual(
+    {
+      runtime: chaptersEn[6].runtime,
+      description: chaptersEn[6].description,
+      concepts: chaptersEn[6].concepts,
+    },
+    {
+      runtime: "TypeScript attention model",
+      description:
+        "Compute scores from a single query and separate keys and values, then run key-axis softmax and a weighted-value context while debugging broken Attention contracts.",
+      concepts: ["Query · Key roles", "key-axis Softmax", "Value · context"],
+    },
   );
   assert.deepEqual(
     {
@@ -140,7 +172,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       concepts: ["mini-batch · CE", "Adam state", "validation · dropout"],
     },
   );
-  assert.ok(chaptersKo.slice(6).every(({ status }) => status === "planned"));
+  assert.ok(chaptersKo.slice(7).every(({ status }) => status === "planned"));
 });
 
 test("keeps the bilingual Linux roadmap structurally aligned", () => {

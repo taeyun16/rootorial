@@ -54,6 +54,7 @@ export const NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES = 60;
 export const TRAINING_CHAPTER_ESTIMATED_MINUTES = 65;
 export const EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES = 65;
 export const SEQUENCES_CHAPTER_ESTIMATED_MINUTES = 65;
+export const ATTENTION_CHAPTER_ESTIMATED_MINUTES = 65;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
@@ -147,11 +148,12 @@ export const chaptersKo: Chapter[] = [
     title: "Attention",
     subtitle: "필요한 정보를 직접 찾아보는 방법",
     description:
-      "Query, Key, Value의 유사도에서 문맥 벡터가 만들어지는 전 과정을 단계별로 계산합니다.",
-    runtime: "NumPy",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["Query", "Key", "Value"],
+      "단일 query와 분리된 Key·Value로 점수를 계산하고, key축 Softmax와 value 가중합 문맥을 실행하며 잘못된 Attention 계약을 디버깅합니다.",
+    runtime: "TypeScript Attention 모델",
+    estimatedMinutes: ATTENTION_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["Query · Key 역할", "key축 Softmax", "Value · context"],
   },
   {
     number: 8,
@@ -231,8 +233,8 @@ export const chaptersEn: Chapter[] = [
   {
     number: 7, slug: "attention", title: "Attention",
     subtitle: "Finding the information that matters directly",
-    description: "Calculate every step from Query-Key-Value similarity to the resulting context vectors.",
-    runtime: "NumPy", developmentStatus: "planned", status: "planned", concepts: ["Query", "Key", "Value"],
+    description: "Compute scores from a single query and separate keys and values, then run key-axis softmax and a weighted-value context while debugging broken Attention contracts.",
+    runtime: "TypeScript attention model", estimatedMinutes: ATTENTION_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["Query · Key roles", "key-axis Softmax", "Value · context"],
   },
   {
     number: 8, slug: "self-attention", title: "Self-Attention",
