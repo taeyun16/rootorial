@@ -56,6 +56,7 @@ export const EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES = 65;
 export const SEQUENCES_CHAPTER_ESTIMATED_MINUTES = 65;
 export const ATTENTION_CHAPTER_ESTIMATED_MINUTES = 65;
 export const SELF_ATTENTION_CHAPTER_ESTIMATED_MINUTES = 75;
+export const TRANSFORMER_BLOCK_CHAPTER_ESTIMATED_MINUTES = 80;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
@@ -176,11 +177,12 @@ export const chaptersKo: Chapter[] = [
     title: "Transformer 블록",
     subtitle: "Attention만으로는 충분하지 않다",
     description:
-      "Positional encoding, residual, layer normalization과 FFN을 하나의 블록으로 조립합니다.",
-    runtime: "WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["position", "residual", "FFN"],
+      "결정적 absolute 위치 신호를 첫 블록 입력에 한 번 더하고, pre-LayerNorm causal Self-Attention과 position-wise FFN을 residual 경로로 감싸 [T,d_model]을 보존하는 decoder-only block을 실행·디버깅합니다.",
+    runtime: "TypeScript Transformer 블록 모델",
+    estimatedMinutes: TRANSFORMER_BLOCK_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["position · block input", "pre-LayerNorm · residual", "position-wise FFN · handoff"],
   },
   {
     number: 10,
@@ -248,8 +250,8 @@ export const chaptersEn: Chapter[] = [
   {
     number: 9, slug: "transformer-block", title: "The Transformer Block",
     subtitle: "Why attention alone is not enough",
-    description: "Assemble positional encoding, residual connections, layer normalization, and an FFN into one block.",
-    runtime: "WebGPU", developmentStatus: "planned", status: "planned", concepts: ["position", "residual", "FFN"],
+    description: "Add a deterministic absolute positional signal once before the first block, then execute and debug a decoder-only pre-LayerNorm block whose causal self-attention and position-wise FFN preserve [T,d_model] through residual paths.",
+    runtime: "TypeScript Transformer block model", estimatedMinutes: TRANSFORMER_BLOCK_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["position · block input", "pre-LayerNorm · residual", "position-wise FFN · handoff"],
   },
   {
     number: 10, slug: "mini-transformer", title: "Mini Transformer",

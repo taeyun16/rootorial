@@ -46,6 +46,10 @@ const selfAttentionKey = chapterPublicationKey(
   "transformer-from-zero",
   "self-attention",
 );
+const transformerBlockKey = chapterPublicationKey(
+  "transformer-from-zero",
+  "transformer-block",
+);
 const linuxKey = curriculumPublicationKey("linux-systems");
 const linuxShellKey = chapterPublicationKey(
   "linux-systems",
@@ -116,6 +120,8 @@ test("preserves the current public catalog when no overrides exist", () => {
   assert.equal(isPublicationListed(catalog, attentionKey), true);
   assert.equal(isPublicationAccessible(catalog, selfAttentionKey), false);
   assert.equal(isPublicationListed(catalog, selfAttentionKey), true);
+  assert.equal(isPublicationAccessible(catalog, transformerBlockKey), false);
+  assert.equal(isPublicationListed(catalog, transformerBlockKey), true);
   assert.equal(isPublicationAccessible(catalog, linuxPermissionsKey), false);
   assert.equal(isPublicationListed(catalog, linuxPermissionsKey), true);
   assert.equal(isPublicationAccessible(catalog, linuxMemoryKey), false);
@@ -232,6 +238,17 @@ test("keeps published vectors and completed Transformer drafts editorially indep
   assert.equal(selfAttention.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, selfAttentionKey), false);
 
+  const transformerBlock = catalog.resources[transformerBlockKey];
+  assert.equal(transformerBlock.developmentStatus, "complete");
+  assert.equal(transformerBlock.contentReady, true);
+  assert.equal(transformerBlock.source, "default");
+  assert.equal(transformerBlock.publicationStatus, "draft");
+  assert.equal(transformerBlock.effectivePublicationStatus, "draft");
+  assert.equal(transformerBlock.listing, "listed");
+  assert.equal(transformerBlock.scheduledAt, null);
+  assert.equal(transformerBlock.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, transformerBlockKey), false);
+
   const transformerCatalog = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "transformer-from-zero",
   );
@@ -240,7 +257,7 @@ test("keeps published vectors and completed Transformer drafts editorially indep
     transformerCatalog?.chapters.filter(
       ({ publication }) => publication.contentReady,
     ).length,
-    8,
+    9,
   );
 });
 

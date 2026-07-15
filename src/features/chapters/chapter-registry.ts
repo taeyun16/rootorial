@@ -354,6 +354,46 @@ export const conceptQuestionHistory = {
       answers: ["causal-mask-fully-encodes-position", "attention-output-needs-no-position", "mask-limits-visibility-position-next"],
     },
   },
+  "transformer-from-zero/transformer-block/position-input": {
+    1: {
+      version: 1,
+      label: "Transformer 블록의 위치 신호 입력",
+      correctAnswer: "add-sinusoidal-once-before-first-block",
+      answers: ["mask-alone-encodes-position", "add-sinusoidal-once-before-first-block", "add-position-after-logits"],
+    },
+  },
+  "transformer-from-zero/transformer-block/prenorm-residual": {
+    1: {
+      version: 1,
+      label: "Pre-norm residual 순서",
+      correctAnswer: "normalize-run-add-original",
+      answers: ["add-before-sublayer", "normalize-run-add-original", "normalize-token-axis"],
+    },
+  },
+  "transformer-from-zero/transformer-block/layernorm-axis": {
+    1: {
+      version: 1,
+      label: "LayerNorm 축",
+      correctAnswer: "features-within-token",
+      answers: ["tokens-within-feature", "features-within-token", "all-cells-global"],
+    },
+  },
+  "transformer-from-zero/transformer-block/positionwise-ffn": {
+    1: {
+      version: 1,
+      label: "Position-wise FFN 계약",
+      correctAnswer: "shared-mlp-each-token-row",
+      answers: ["shared-mlp-each-token-row", "mix-token-rows", "one-linear-no-activation"],
+    },
+  },
+  "transformer-from-zero/transformer-block/block-handoff": {
+    1: {
+      version: 1,
+      label: "Transformer 블록 출력 인계",
+      correctAnswer: "hidden-state-same-token-model-shape",
+      answers: ["flatten-token-axis", "hidden-state-same-token-model-shape", "block-emits-vocabulary-probabilities"],
+    },
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     1: {
       version: 1,
@@ -818,6 +858,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/self-attention/position-boundary"][1],
     status: "active",
   },
+  "transformer-from-zero/transformer-block/position-input": {
+    ...conceptQuestionHistory["transformer-from-zero/transformer-block/position-input"][1],
+    status: "active",
+  },
+  "transformer-from-zero/transformer-block/prenorm-residual": {
+    ...conceptQuestionHistory["transformer-from-zero/transformer-block/prenorm-residual"][1],
+    status: "active",
+  },
+  "transformer-from-zero/transformer-block/layernorm-axis": {
+    ...conceptQuestionHistory["transformer-from-zero/transformer-block/layernorm-axis"][1],
+    status: "active",
+  },
+  "transformer-from-zero/transformer-block/positionwise-ffn": {
+    ...conceptQuestionHistory["transformer-from-zero/transformer-block/positionwise-ffn"][1],
+    status: "active",
+  },
+  "transformer-from-zero/transformer-block/block-handoff": {
+    ...conceptQuestionHistory["transformer-from-zero/transformer-block/block-handoff"][1],
+    status: "active",
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/absolute-path"][1],
     status: "active",
@@ -1033,6 +1093,14 @@ export const selfAttentionQuestions = {
   "position-boundary": conceptQuestionRegistry["transformer-from-zero/self-attention/position-boundary"],
 } as const;
 
+export const transformerBlockQuestions = {
+  "position-input": conceptQuestionRegistry["transformer-from-zero/transformer-block/position-input"],
+  "prenorm-residual": conceptQuestionRegistry["transformer-from-zero/transformer-block/prenorm-residual"],
+  "layernorm-axis": conceptQuestionRegistry["transformer-from-zero/transformer-block/layernorm-axis"],
+  "positionwise-ffn": conceptQuestionRegistry["transformer-from-zero/transformer-block/positionwise-ffn"],
+  "block-handoff": conceptQuestionRegistry["transformer-from-zero/transformer-block/block-handoff"],
+} as const;
+
 const linuxShellQuestions = {
   "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
   "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
@@ -1122,6 +1190,9 @@ export const chapterRegistry = {
   },
   "transformer-from-zero/self-attention": {
     questions: selfAttentionQuestions,
+  },
+  "transformer-from-zero/transformer-block": {
+    questions: transformerBlockQuestions,
   },
   "linux-systems/shell-and-filesystem": {
     questions: linuxShellQuestions,

@@ -15,7 +15,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
     chaptersEn.map(({ number, slug, status }) => ({ number, slug, status })),
   );
   assert.deepEqual(
-    chaptersKo.slice(0, 8).map(
+    chaptersKo.slice(0, 9).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -72,7 +72,43 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 75,
       },
+      {
+        slug: "transformer-block",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 80,
+      },
     ],
+  );
+  assert.deepEqual(
+    {
+      subtitle: chaptersKo[8].subtitle,
+      runtime: chaptersKo[8].runtime,
+      description: chaptersKo[8].description,
+      concepts: chaptersKo[8].concepts,
+    },
+    {
+      subtitle: "Attention만으로는 충분하지 않다",
+      runtime: "TypeScript Transformer 블록 모델",
+      description:
+        "결정적 absolute 위치 신호를 첫 블록 입력에 한 번 더하고, pre-LayerNorm causal Self-Attention과 position-wise FFN을 residual 경로로 감싸 [T,d_model]을 보존하는 decoder-only block을 실행·디버깅합니다.",
+      concepts: ["position · block input", "pre-LayerNorm · residual", "position-wise FFN · handoff"],
+    },
+  );
+  assert.deepEqual(
+    {
+      subtitle: chaptersEn[8].subtitle,
+      runtime: chaptersEn[8].runtime,
+      description: chaptersEn[8].description,
+      concepts: chaptersEn[8].concepts,
+    },
+    {
+      subtitle: "Why attention alone is not enough",
+      runtime: "TypeScript Transformer block model",
+      description:
+        "Add a deterministic absolute positional signal once before the first block, then execute and debug a decoder-only pre-LayerNorm block whose causal self-attention and position-wise FFN preserve [T,d_model] through residual paths.",
+      concepts: ["position · block input", "pre-LayerNorm · residual", "position-wise FFN · handoff"],
+    },
   );
   assert.deepEqual(
     {
@@ -208,7 +244,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       concepts: ["mini-batch · CE", "Adam state", "validation · dropout"],
     },
   );
-  assert.ok(chaptersKo.slice(8).every(({ status }) => status === "planned"));
+  assert.ok(chaptersKo.slice(9).every(({ status }) => status === "planned"));
 });
 
 test("keeps the bilingual Linux roadmap structurally aligned", () => {

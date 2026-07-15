@@ -14,6 +14,7 @@ import {
 test("normalizes stored progress to known chapters in curriculum order", () => {
   assert.deepEqual(
     normalizeCompletedSlugs([
+      "transformer-block",
       "self-attention",
       "attention",
       "vectors",
@@ -25,6 +26,7 @@ test("normalizes stored progress to known chapters in curriculum order", () => {
       "transformer-from-zero/vectors",
       "transformer-from-zero/attention",
       "transformer-from-zero/self-attention",
+      "transformer-from-zero/transformer-block",
     ],
   );
   assert.deepEqual(parseStoredProgress("not-json"), []);
@@ -42,6 +44,7 @@ test("validates sync input and rejects unknown chapter slugs", () => {
       "sequences",
       "attention",
       "self-attention",
+      "transformer-block",
     ]),
     [
       "transformer-from-zero/vectors",
@@ -52,6 +55,7 @@ test("validates sync input and rejects unknown chapter slugs", () => {
       "transformer-from-zero/sequences",
       "transformer-from-zero/attention",
       "transformer-from-zero/self-attention",
+      "transformer-from-zero/transformer-block",
     ],
   );
   assert.throws(
@@ -91,6 +95,7 @@ test("converts Clerk private metadata without trusting unknown values", () => {
   const metadata = {
     rootorial: {
       completedChapters: {
+        "transformer-block": true,
         "self-attention": true,
         attention: true,
         vectors: true,
@@ -104,9 +109,10 @@ test("converts Clerk private metadata without trusting unknown values", () => {
     "transformer-from-zero/vectors",
     "transformer-from-zero/attention",
     "transformer-from-zero/self-attention",
+    "transformer-from-zero/transformer-block",
   ]);
   assert.deepEqual(
-    buildProgressMetadata(["self-attention", "attention", "vectors"]),
+    buildProgressMetadata(["transformer-block", "self-attention", "attention", "vectors"]),
     {
       rootorial: {
         progressVersion: 2,
@@ -116,6 +122,7 @@ test("converts Clerk private metadata without trusting unknown values", () => {
               vectors: true,
               attention: true,
               "self-attention": true,
+              "transformer-block": true,
             },
           },
         },
@@ -141,6 +148,7 @@ test("reads curriculum-aware v2 metadata", () => {
             sequences: true,
             attention: true,
             "self-attention": true,
+            "transformer-block": true,
           },
         },
       },
@@ -154,6 +162,7 @@ test("reads curriculum-aware v2 metadata", () => {
     "transformer-from-zero/sequences",
     "transformer-from-zero/attention",
     "transformer-from-zero/self-attention",
+    "transformer-from-zero/transformer-block",
   ]);
   assert.equal(readProgressVersion({ rootorial: { progressVersion: 2 } }), 2);
 });

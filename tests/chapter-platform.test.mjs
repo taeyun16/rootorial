@@ -52,6 +52,7 @@ test("keeps registered completed Transformer drafts and unknown chapters private
   assert.ok(chapterRegistry["transformer-from-zero/sequences"]);
   assert.ok(chapterRegistry["transformer-from-zero/attention"]);
   assert.ok(chapterRegistry["transformer-from-zero/self-attention"]);
+  assert.ok(chapterRegistry["transformer-from-zero/transformer-block"]);
   const optimization = await render(
     "/curricula/transformer-from-zero/chapters/optimization",
   );
@@ -88,6 +89,12 @@ test("keeps registered completed Transformer drafts and unknown chapters private
   const selfAttentionEnglish = await render(
     "/curricula/transformer-from-zero/chapters/self-attention?lang=en",
   );
+  const transformerBlock = await render(
+    "/curricula/transformer-from-zero/chapters/transformer-block",
+  );
+  const transformerBlockEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/transformer-block?lang=en",
+  );
   const unknown = await render(
     "/curricula/transformer-from-zero/chapters/not-a-chapter",
   );
@@ -103,6 +110,8 @@ test("keeps registered completed Transformer drafts and unknown chapters private
   assert.equal(attentionEnglish.status, 404);
   assert.equal(selfAttention.status, 404);
   assert.equal(selfAttentionEnglish.status, 404);
+  assert.equal(transformerBlock.status, 404);
+  assert.equal(transformerBlockEnglish.status, 404);
   assert.equal(unknown.status, 404);
   await Promise.all([
     optimization.text(),
@@ -117,6 +126,8 @@ test("keeps registered completed Transformer drafts and unknown chapters private
     attentionEnglish.text(),
     selfAttention.text(),
     selfAttentionEnglish.text(),
+    transformerBlock.text(),
+    transformerBlockEnglish.text(),
     unknown.text(),
   ]);
 });

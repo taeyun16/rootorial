@@ -283,6 +283,12 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   const selfAttentionEnglish = await render(
     "/curricula/transformer-from-zero/chapters/self-attention?lang=en",
   );
+  const transformerBlock = await render(
+    "/curricula/transformer-from-zero/chapters/transformer-block",
+  );
+  const transformerBlockEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/transformer-block?lang=en",
+  );
   assert.equal(optimization.status, 404);
   assert.equal(neuralNetworks.status, 404);
   assert.equal(training.status, 404);
@@ -295,6 +301,8 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   assert.equal(attentionEnglish.status, 404);
   assert.equal(selfAttention.status, 404);
   assert.equal(selfAttentionEnglish.status, 404);
+  assert.equal(transformerBlock.status, 404);
+  assert.equal(transformerBlockEnglish.status, 404);
   await Promise.all([
     optimization.text(),
     neuralNetworks.text(),
@@ -308,6 +316,8 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
     attentionEnglish.text(),
     selfAttention.text(),
     selfAttentionEnglish.text(),
+    transformerBlock.text(),
+    transformerBlockEnglish.text(),
   ]);
 });
 
@@ -352,6 +362,49 @@ test("SSR-renders the bilingual Self-Attention chapter with an explicit test-onl
     /Extend Attention from one query reading external memory into every row of one token sequence reading that sequence/,
   );
   assert.match(englishHtml, /07 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
+});
+
+test("SSR-renders the bilingual Transformer Block chapter with an explicit test-only publication override", async () => {
+  const rows = [
+    {
+      resource_key: "chapter:transformer-from-zero/transformer-block",
+      resource_kind: "chapter",
+      curriculum_slug: "transformer-from-zero",
+      chapter_slug: "transformer-block",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/transformer-from-zero/chapters/transformer-block",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(
+    html,
+    /직전 장의 causal multi-head routing을 완성된 decoder block으로 조립합니다/,
+  );
+  assert.match(html, /08 — BLOCK CONTRACT REPAIR CONSOLE/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/transformer-from-zero/chapters/transformer-block?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(
+    englishHtml,
+    /Assemble the prior chapter(?:'|&#x27;)s causal multi-head routing into a complete decoder block/,
+  );
+  assert.match(englishHtml, /08 — BLOCK CONTRACT REPAIR CONSOLE/);
 });
 
 test("renders the interactive vectors chapter", async () => {
