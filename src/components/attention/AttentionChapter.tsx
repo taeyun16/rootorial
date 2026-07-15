@@ -67,6 +67,7 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
     conceptsMastered,
   });
   const previousPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/sequences${isKo ? "" : "?lang=en"}`;
+  const nextPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/self-attention${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell attention-chapter-shell">
@@ -269,7 +270,9 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
             {preview
               ? <a href={previousPreviewHref}>← {t("이전: 순서가 있는 데이터", "Previous: Sequential Data")}</a>
               : <span>← {t("이전: 순서가 있는 데이터", "Previous: Sequential Data")}</span>}
-            <span>{t("다음: Self-Attention", "Next: Self-Attention")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview
+              ? <a href={nextPreviewHref}>{t("다음: Self-Attention", "Next: Self-Attention")} →</a>
+              : <span>{t("다음: Self-Attention", "Next: Self-Attention")}</span>}
           </nav>
         </article>
       </div>

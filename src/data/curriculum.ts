@@ -55,6 +55,7 @@ export const TRAINING_CHAPTER_ESTIMATED_MINUTES = 65;
 export const EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES = 65;
 export const SEQUENCES_CHAPTER_ESTIMATED_MINUTES = 65;
 export const ATTENTION_CHAPTER_ESTIMATED_MINUTES = 65;
+export const SELF_ATTENTION_CHAPTER_ESTIMATED_MINUTES = 75;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
@@ -160,13 +161,14 @@ export const chaptersKo: Chapter[] = [
     number: 8,
     slug: "self-attention",
     title: "Self-Attention",
-    subtitle: "문장 안의 단어들이 서로를 읽게 만들기",
+    subtitle: "같은 시퀀스의 토큰들이 서로를 읽는 법",
     description:
-      "Scaled dot-product, causal mask와 multi-head attention을 토큰별 heatmap으로 분해합니다.",
-    runtime: "NumPy + WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["scaled dot-product", "mask", "multi-head"],
+      "같은 입력에서 Q·K·V를 따로 투영해 모든 token row의 scaled dot-product를 계산하고, causal mask와 multi-head 분할·병합 계약을 실행하며 정보 누출과 shape 결함을 디버깅합니다.",
+    runtime: "TypeScript Self-Attention 모델",
+    estimatedMinutes: SELF_ATTENTION_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["Q/K/V 투영 · token row", "scaled score · causal mask", "multi-head split · concat"],
   },
   {
     number: 9,
@@ -239,9 +241,9 @@ export const chaptersEn: Chapter[] = [
   },
   {
     number: 8, slug: "self-attention", title: "Self-Attention",
-    subtitle: "Letting words in a sentence read one another",
-    description: "Break scaled dot-product, causal masking, and multi-head attention into token-level heatmaps.",
-    runtime: "NumPy + WebGPU", developmentStatus: "planned", status: "planned", concepts: ["scaled dot-product", "mask", "multi-head"],
+    subtitle: "Letting every token read the same sequence",
+    description: "Project Q, K, and V separately from the same input, compute scaled dot products for every token row, then execute causal-masking and multi-head split/merge contracts while debugging information leaks and shape defects.",
+    runtime: "TypeScript self-attention model", estimatedMinutes: SELF_ATTENTION_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["Q/K/V projections · token rows", "scaled scores · causal mask", "multi-head split · concatenate"],
   },
   {
     number: 9, slug: "transformer-block", title: "The Transformer Block",

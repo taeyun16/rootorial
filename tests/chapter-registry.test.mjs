@@ -127,6 +127,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     getPublishedChapter("transformer-from-zero", "attention", "en")?.chapter.title,
     "Attention",
   );
+  assert.equal(
+    getPublishedChapter("transformer-from-zero", "self-attention", "en")?.chapter.title,
+    "Self-Attention",
+  );
   assert.equal(getPublishedChapter("transformer-from-zero", "missing"), undefined);
 });
 
@@ -362,6 +366,50 @@ test("separates active question submissions from historical labels", () => {
       "transformer-from-zero",
       "attention",
       "attention-boundary",
+      2,
+    ),
+    undefined,
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["transformer-from-zero/self-attention"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "qkv-source": "same-x-separate-projections",
+      "scaled-score": "divide-by-sqrt-head-dimension",
+      "causal-mask": "block-future-logits-before-softmax",
+      "multi-head-contract": "split-features-run-heads-concat",
+      "position-boundary": "mask-limits-visibility-position-next",
+    },
+  );
+  assert.deepEqual(
+    Object.values(chapterRegistry["transformer-from-zero/self-attention"].questions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 2, 0, 1, 2],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "transformer-from-zero",
+      "self-attention",
+      "causal-mask",
+    )?.correctAnswer,
+    "block-future-logits-before-softmax",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "self-attention",
+      "position-boundary",
+      1,
+    )?.correctAnswer,
+    "mask-limits-visibility-position-next",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "self-attention",
+      "position-boundary",
       2,
     ),
     undefined,
@@ -747,6 +795,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "07. Attention · Rootorial",
       description:
         "Compute scores from a single query and separate keys and values, then run key-axis softmax and a weighted-value context while debugging broken Attention contracts.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/transformer-from-zero/chapters/self-attention",
+      "ko",
+    ),
+    {
+      title: "08. Self-Attention · Rootorial",
+      description:
+        "같은 입력에서 Q·K·V를 따로 투영해 모든 token row의 scaled dot-product를 계산하고, causal mask와 multi-head 분할·병합 계약을 실행하며 정보 누출과 shape 결함을 디버깅합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("transformer-from-zero", "self-attention", "en"),
+    {
+      title: "08. Self-Attention · Rootorial",
+      description:
+        "Project Q, K, and V separately from the same input, compute scaled dot products for every token row, then execute causal-masking and multi-head split/merge contracts while debugging information leaks and shape defects.",
     },
   );
   assert.deepEqual(
