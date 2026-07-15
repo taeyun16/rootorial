@@ -127,7 +127,7 @@ test("renders the Linux sample curriculum in both locales", async () => {
   assert.match(html, /href="\/curricula\/linux-systems\/chapters\/shell-and-filesystem"/);
   assert.doesNotMatch(
     html,
-    /href="\/curricula\/linux-systems\/chapters\/(?:boot-to-shell|processes-and-signals)"/,
+    /href="\/curricula\/linux-systems\/chapters\/(?:boot-to-shell|processes-and-signals|users-and-permissions)"/,
   );
   assert.match(html, /href="\/experiments\/linux"/);
   assert.match(html, /Linux 실험 열기/);
@@ -172,9 +172,22 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
   const processes = await render(
     "/curricula/linux-systems/chapters/processes-and-signals",
   );
+  const permissions = await render(
+    "/curricula/linux-systems/chapters/users-and-permissions",
+  );
+  const permissionsEnglish = await render(
+    "/curricula/linux-systems/chapters/users-and-permissions?lang=en",
+  );
   assert.equal(boot.status, 404);
   assert.equal(processes.status, 404);
-  await Promise.all([boot.text(), processes.text()]);
+  assert.equal(permissions.status, 404);
+  assert.equal(permissionsEnglish.status, 404);
+  await Promise.all([
+    boot.text(),
+    processes.text(),
+    permissions.text(),
+    permissionsEnglish.text(),
+  ]);
 
   const unknown = await render("/curricula/linux-systems/chapters/not-a-chapter");
   assert.equal(unknown.status, 404);

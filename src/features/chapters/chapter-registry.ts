@@ -250,6 +250,46 @@ export const conceptQuestionHistory = {
       answers: ["zombie-until-wait", "signal-reaps-zombie", "zombie-still-runs"],
     },
   },
+  "linux-systems/users-and-permissions/process-credentials": {
+    1: {
+      version: 1,
+      label: "접근 요청의 주체",
+      correctAnswer: "effective-uid-and-groups",
+      answers: ["effective-uid-and-groups", "terminal-owner", "process-id"],
+    },
+  },
+  "linux-systems/users-and-permissions/permission-class": {
+    1: {
+      version: 1,
+      label: "권한 클래스 선택 순서",
+      correctAnswer: "owner-then-group-then-other",
+      answers: ["owner-then-group-then-other", "combine-all-classes", "fallback-after-denial"],
+    },
+  },
+  "linux-systems/users-and-permissions/directory-search": {
+    1: {
+      version: 1,
+      label: "디렉터리 경로 탐색",
+      correctAnswer: "execute-allows-traversal",
+      answers: ["execute-allows-traversal", "read-alone-opens-path", "file-write-opens-parent"],
+    },
+  },
+  "linux-systems/users-and-permissions/delete-boundary": {
+    1: {
+      version: 1,
+      label: "파일 이름 삭제 경계",
+      correctAnswer: "parent-write-and-search",
+      answers: ["parent-write-and-search", "target-file-write", "target-file-read"],
+    },
+  },
+  "linux-systems/users-and-permissions/least-privilege": {
+    1: {
+      version: 1,
+      label: "최소 권한 정책",
+      correctAnswer: "smallest-sufficient-grant",
+      answers: ["smallest-sufficient-grant", "chmod-777", "allow-then-audit-later"],
+    },
+  },
 } as const satisfies Record<
   string,
   Readonly<Record<number, ConceptQuestionVersionContract>>
@@ -366,6 +406,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["linux-systems/processes-and-signals/wait-reaps-child"][1],
     status: "active",
   },
+  "linux-systems/users-and-permissions/process-credentials": {
+    ...conceptQuestionHistory["linux-systems/users-and-permissions/process-credentials"][1],
+    status: "active",
+  },
+  "linux-systems/users-and-permissions/permission-class": {
+    ...conceptQuestionHistory["linux-systems/users-and-permissions/permission-class"][1],
+    status: "active",
+  },
+  "linux-systems/users-and-permissions/directory-search": {
+    ...conceptQuestionHistory["linux-systems/users-and-permissions/directory-search"][1],
+    status: "active",
+  },
+  "linux-systems/users-and-permissions/delete-boundary": {
+    ...conceptQuestionHistory["linux-systems/users-and-permissions/delete-boundary"][1],
+    status: "active",
+  },
+  "linux-systems/users-and-permissions/least-privilege": {
+    ...conceptQuestionHistory["linux-systems/users-and-permissions/least-privilege"][1],
+    status: "active",
+  },
 } as const satisfies Record<string, ConceptQuestionContract>;
 
 export type ConceptQuestionKey = keyof typeof conceptQuestionRegistry;
@@ -414,6 +474,14 @@ export const linuxProcessQuestions = {
   "wait-reaps-child": conceptQuestionRegistry["linux-systems/processes-and-signals/wait-reaps-child"],
 } as const;
 
+export const linuxPermissionQuestions = {
+  "process-credentials": conceptQuestionRegistry["linux-systems/users-and-permissions/process-credentials"],
+  "permission-class": conceptQuestionRegistry["linux-systems/users-and-permissions/permission-class"],
+  "directory-search": conceptQuestionRegistry["linux-systems/users-and-permissions/directory-search"],
+  "delete-boundary": conceptQuestionRegistry["linux-systems/users-and-permissions/delete-boundary"],
+  "least-privilege": conceptQuestionRegistry["linux-systems/users-and-permissions/least-privilege"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -436,6 +504,9 @@ export const chapterRegistry = {
   },
   "linux-systems/processes-and-signals": {
     questions: linuxProcessQuestions,
+  },
+  "linux-systems/users-and-permissions": {
+    questions: linuxPermissionQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 
