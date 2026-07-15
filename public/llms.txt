@@ -43,7 +43,7 @@ The following topics are publicly listed but may not yet have complete lessons. 
 - Transformers from the Ground Up — Chapter 3: Classification and Neural Networks (sigmoid · BCE, hidden layer, XOR)
 - Transformers from the Ground Up — Chapter 4: Deep Learning Training (mini-batch · CE, Adam state, validation · dropout)
 - Transformers from the Ground Up — Chapter 5: Tokens and Embeddings (token ID · lookup, row gradient · cosine, masked mean)
-- Transformers from the Ground Up — Chapter 6: Sequential Data (hidden state, RNN, LSTM)
+- Transformers from the Ground Up — Chapter 6: Sequential Data (hidden state · recurrence, temporal gradient, LSTM · causal prefix)
 - Transformers from the Ground Up — Chapter 7: Attention (Query, Key, Value)
 - Transformers from the Ground Up — Chapter 8: Self-Attention (scaled dot-product, mask, multi-head)
 - Transformers from the Ground Up — Chapter 9: The Transformer Block (position, residual, FFN)

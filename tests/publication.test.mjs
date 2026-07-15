@@ -34,6 +34,10 @@ const embeddingsKey = chapterPublicationKey(
   "transformer-from-zero",
   "embeddings",
 );
+const sequencesKey = chapterPublicationKey(
+  "transformer-from-zero",
+  "sequences",
+);
 const linuxKey = curriculumPublicationKey("linux-systems");
 const linuxShellKey = chapterPublicationKey(
   "linux-systems",
@@ -90,6 +94,8 @@ test("preserves the current public catalog when no overrides exist", () => {
   assert.equal(isPublicationListed(catalog, trainingKey), true);
   assert.equal(isPublicationAccessible(catalog, embeddingsKey), false);
   assert.equal(isPublicationListed(catalog, embeddingsKey), true);
+  assert.equal(isPublicationAccessible(catalog, sequencesKey), false);
+  assert.equal(isPublicationListed(catalog, sequencesKey), true);
   assert.equal(isPublicationAccessible(catalog, linuxPermissionsKey), false);
   assert.equal(isPublicationListed(catalog, linuxPermissionsKey), true);
   assert.equal(isPublicationAccessible(catalog, linuxMemoryKey), false);
@@ -168,6 +174,17 @@ test("keeps published vectors and completed Transformer drafts editorially indep
   assert.equal(embeddings.scheduledAt, null);
   assert.equal(embeddings.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, embeddingsKey), false);
+
+  const sequences = catalog.resources[sequencesKey];
+  assert.equal(sequences.developmentStatus, "complete");
+  assert.equal(sequences.contentReady, true);
+  assert.equal(sequences.source, "default");
+  assert.equal(sequences.publicationStatus, "draft");
+  assert.equal(sequences.effectivePublicationStatus, "draft");
+  assert.equal(sequences.listing, "listed");
+  assert.equal(sequences.scheduledAt, null);
+  assert.equal(sequences.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, sequencesKey), false);
 });
 
 test("publishes the existing Linux sample while keeping completed later chapters draft", () => {

@@ -53,6 +53,7 @@ export const OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES = 55;
 export const NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES = 60;
 export const TRAINING_CHAPTER_ESTIMATED_MINUTES = 65;
 export const EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES = 65;
+export const SEQUENCES_CHAPTER_ESTIMATED_MINUTES = 65;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
@@ -132,11 +133,12 @@ export const chaptersKo: Chapter[] = [
     title: "순서가 있는 데이터",
     subtitle: "RNN은 무엇을 기억하고 무엇을 잊는가",
     description:
-      "Hidden state, 장기 의존성, 기울기 소실과 LSTM의 게이트를 시퀀스 위에서 관찰합니다.",
-    runtime: "NumPy + WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["hidden state", "RNN", "LSTM"],
+      "결정적 RNN unroll에서 hidden state와 공유 recurrence를 조작하고, 시간축 gradient와 LSTM cell update를 계산해 causal prefix를 디버깅합니다.",
+    runtime: "TypeScript 시퀀스 모델",
+    estimatedMinutes: SEQUENCES_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["hidden state · recurrence", "temporal gradient", "LSTM · causal prefix"],
   },
   {
     number: 7,
@@ -222,8 +224,8 @@ export const chaptersEn: Chapter[] = [
   {
     number: 6, slug: "sequences", title: "Sequential Data",
     subtitle: "What an RNN remembers and forgets",
-    description: "Observe hidden state, long-range dependencies, vanishing gradients, and LSTM gates across a sequence.",
-    runtime: "NumPy + WebGPU", developmentStatus: "planned", status: "planned", concepts: ["hidden state", "RNN", "LSTM"],
+    description: "Manipulate hidden state and shared recurrence in a deterministic RNN unroll, then compute temporal gradients and LSTM cell updates to debug causal prefixes.",
+    runtime: "TypeScript sequence model", estimatedMinutes: SEQUENCES_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["hidden state · recurrence", "temporal gradient", "LSTM · causal prefix"],
   },
   {
     number: 7, slug: "attention", title: "Attention",

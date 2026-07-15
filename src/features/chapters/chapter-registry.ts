@@ -234,6 +234,46 @@ export const conceptQuestionHistory = {
       answers: ["masked-mean-drops-pad-and-order", "mean-preserves-order", "pad-must-enter-denominator"],
     },
   },
+  "transformer-from-zero/sequences/hidden-shape": {
+    1: {
+      version: 1,
+      label: "Hidden state와 trace shape",
+      correctAnswer: "hidden-is-bh-trace-is-bth",
+      answers: ["hidden-keeps-entire-sequence", "hidden-is-bh-trace-is-bth", "hidden-is-vocabulary"],
+    },
+  },
+  "transformer-from-zero/sequences/shared-recurrence": {
+    1: {
+      version: 1,
+      label: "시간축 공유 recurrence",
+      correctAnswer: "same-cell-updates-ordered-state",
+      answers: ["mean-first-then-cell", "sort-before-recurrence", "same-cell-updates-ordered-state"],
+    },
+  },
+  "transformer-from-zero/sequences/temporal-gradient": {
+    1: {
+      version: 1,
+      label: "시간축 gradient 경로",
+      correctAnswer: "product-of-local-jacobians",
+      answers: ["product-of-local-jacobians", "one-direct-gradient", "forward-zero-means-gradient-zero"],
+    },
+  },
+  "transformer-from-zero/sequences/lstm-cell-update": {
+    1: {
+      version: 1,
+      label: "LSTM cell state update",
+      correctAnswer: "forget-carry-plus-input-candidate",
+      answers: ["output-overwrites-cell", "forget-carry-plus-input-candidate", "input-gate-copies-raw-input"],
+    },
+  },
+  "transformer-from-zero/sequences/causal-prefix": {
+    1: {
+      version: 1,
+      label: "Causal prefix 계약",
+      correctAnswer: "state-uses-current-and-past-only",
+      answers: ["state-reads-future-token", "attention-needs-no-position-or-mask", "state-uses-current-and-past-only"],
+    },
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     1: {
       version: 1,
@@ -558,6 +598,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/embeddings/pooling-order"][1],
     status: "active",
   },
+  "transformer-from-zero/sequences/hidden-shape": {
+    ...conceptQuestionHistory["transformer-from-zero/sequences/hidden-shape"][1],
+    status: "active",
+  },
+  "transformer-from-zero/sequences/shared-recurrence": {
+    ...conceptQuestionHistory["transformer-from-zero/sequences/shared-recurrence"][1],
+    status: "active",
+  },
+  "transformer-from-zero/sequences/temporal-gradient": {
+    ...conceptQuestionHistory["transformer-from-zero/sequences/temporal-gradient"][1],
+    status: "active",
+  },
+  "transformer-from-zero/sequences/lstm-cell-update": {
+    ...conceptQuestionHistory["transformer-from-zero/sequences/lstm-cell-update"][1],
+    status: "active",
+  },
+  "transformer-from-zero/sequences/causal-prefix": {
+    ...conceptQuestionHistory["transformer-from-zero/sequences/causal-prefix"][1],
+    status: "active",
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/absolute-path"][1],
     status: "active",
@@ -709,6 +769,14 @@ export const embeddingQuestions = {
   "pooling-order": conceptQuestionRegistry["transformer-from-zero/embeddings/pooling-order"],
 } as const;
 
+export const sequenceQuestions = {
+  "hidden-shape": conceptQuestionRegistry["transformer-from-zero/sequences/hidden-shape"],
+  "shared-recurrence": conceptQuestionRegistry["transformer-from-zero/sequences/shared-recurrence"],
+  "temporal-gradient": conceptQuestionRegistry["transformer-from-zero/sequences/temporal-gradient"],
+  "lstm-cell-update": conceptQuestionRegistry["transformer-from-zero/sequences/lstm-cell-update"],
+  "causal-prefix": conceptQuestionRegistry["transformer-from-zero/sequences/causal-prefix"],
+} as const;
+
 const linuxShellQuestions = {
   "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
   "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
@@ -773,6 +841,9 @@ export const chapterRegistry = {
   },
   "transformer-from-zero/embeddings": {
     questions: embeddingQuestions,
+  },
+  "transformer-from-zero/sequences": {
+    questions: sequenceQuestions,
   },
   "linux-systems/shell-and-filesystem": {
     questions: linuxShellQuestions,
