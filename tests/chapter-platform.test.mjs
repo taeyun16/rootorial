@@ -47,19 +47,34 @@ test("serves localized curriculum and chapter metadata in the first response", a
 test("keeps registered completed Transformer drafts and unknown chapters private", async () => {
   assert.ok(chapterRegistry["transformer-from-zero/optimization"]);
   assert.ok(chapterRegistry["transformer-from-zero/neural-networks"]);
+  assert.ok(chapterRegistry["transformer-from-zero/training"]);
   const optimization = await render(
     "/curricula/transformer-from-zero/chapters/optimization",
   );
   const neuralNetworks = await render(
     "/curricula/transformer-from-zero/chapters/neural-networks",
   );
+  const training = await render(
+    "/curricula/transformer-from-zero/chapters/training",
+  );
+  const trainingEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/training?lang=en",
+  );
   const unknown = await render(
     "/curricula/transformer-from-zero/chapters/not-a-chapter",
   );
   assert.equal(optimization.status, 404);
   assert.equal(neuralNetworks.status, 404);
+  assert.equal(training.status, 404);
+  assert.equal(trainingEnglish.status, 404);
   assert.equal(unknown.status, 404);
-  await Promise.all([optimization.text(), neuralNetworks.text(), unknown.text()]);
+  await Promise.all([
+    optimization.text(),
+    neuralNetworks.text(),
+    training.text(),
+    trainingEnglish.text(),
+    unknown.text(),
+  ]);
 });
 
 test("keeps registered completed Linux drafts behind the public boundary", async () => {

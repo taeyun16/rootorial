@@ -95,6 +95,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     getPublishedChapter("transformer-from-zero", "neural-networks", "en")?.chapter.title,
     "Classification and Neural Networks",
   );
+  assert.equal(
+    getPublishedChapter("transformer-from-zero", "training", "en")?.chapter.title,
+    "Deep Learning Training",
+  );
   assert.equal(getPublishedChapter("transformer-from-zero", "missing"), undefined);
 });
 
@@ -164,6 +168,45 @@ test("separates active question submissions from historical labels", () => {
       "transformer-from-zero",
       "neural-networks",
       "xor-hidden-features",
+      2,
+    ),
+    undefined,
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["transformer-from-zero/training"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "epoch-update-count": "ceil-samples-over-batch",
+      "softmax-axis": "classes-within-each-row",
+      "fused-cross-entropy": "raw-logits-true-label-mean",
+      "checkpoint-choice": "minimum-validation-loss",
+      "dropout-mode": "train-random-eval-off",
+    },
+  );
+  assert.equal(
+    getConceptQuestion(
+      "transformer-from-zero",
+      "training",
+      "fused-cross-entropy",
+    )?.correctAnswer,
+    "raw-logits-true-label-mean",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "training",
+      "dropout-mode",
+      1,
+    )?.correctAnswer,
+    "train-random-eval-off",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "training",
+      "dropout-mode",
       2,
     ),
     undefined,
@@ -317,6 +360,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "03. Classification and Neural Networks · Rootorial",
       description:
         "Read binary classification through sigmoid and BCE, then assemble hidden features and two matrix products to solve XOR and debug network failures.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/transformer-from-zero/chapters/training",
+      "ko",
+    ),
+    {
+      title: "04. 딥러닝 학습 구조 · Rootorial",
+      description:
+        "3-class logits의 Softmax·Cross Entropy를 mini-batch와 Adam update로 연결하고, validation·Dropout 경계를 실행하며 디버깅합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("transformer-from-zero", "training", "en"),
+    {
+      title: "04. Deep Learning Training · Rootorial",
+      description:
+        "Connect three-class Softmax and cross entropy to mini-batch Adam updates, then run and debug validation and dropout boundaries.",
     },
   );
   assert.deepEqual(

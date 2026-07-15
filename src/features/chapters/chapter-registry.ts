@@ -154,6 +154,46 @@ export const conceptQuestionHistory = {
       ],
     },
   },
+  "transformer-from-zero/training/epoch-update-count": {
+    1: {
+      version: 1,
+      label: "Epoch당 update 수",
+      correctAnswer: "ceil-samples-over-batch",
+      answers: ["ceil-samples-over-batch", "one-update-per-epoch", "floor-drop-tail"],
+    },
+  },
+  "transformer-from-zero/training/softmax-axis": {
+    1: {
+      version: 1,
+      label: "Softmax class 축",
+      correctAnswer: "classes-within-each-row",
+      answers: ["classes-within-each-row", "samples-down-each-column", "whole-batch-global"],
+    },
+  },
+  "transformer-from-zero/training/fused-cross-entropy": {
+    1: {
+      version: 1,
+      label: "Fused cross entropy 계약",
+      correctAnswer: "raw-logits-true-label-mean",
+      answers: ["raw-logits-true-label-mean", "probabilities-argmax-sum", "thresholded-classes"],
+    },
+  },
+  "transformer-from-zero/training/checkpoint-choice": {
+    1: {
+      version: 1,
+      label: "Generalization checkpoint",
+      correctAnswer: "minimum-validation-loss",
+      answers: ["minimum-validation-loss", "minimum-training-loss", "last-epoch-always"],
+    },
+  },
+  "transformer-from-zero/training/dropout-mode": {
+    1: {
+      version: 1,
+      label: "Dropout train/eval 모드",
+      correctAnswer: "train-random-eval-off",
+      answers: ["train-random-eval-off", "random-in-both", "off-in-both"],
+    },
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     1: {
       version: 1,
@@ -358,6 +398,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/neural-networks/layer-shapes"][1],
     status: "active",
   },
+  "transformer-from-zero/training/epoch-update-count": {
+    ...conceptQuestionHistory["transformer-from-zero/training/epoch-update-count"][1],
+    status: "active",
+  },
+  "transformer-from-zero/training/softmax-axis": {
+    ...conceptQuestionHistory["transformer-from-zero/training/softmax-axis"][1],
+    status: "active",
+  },
+  "transformer-from-zero/training/fused-cross-entropy": {
+    ...conceptQuestionHistory["transformer-from-zero/training/fused-cross-entropy"][1],
+    status: "active",
+  },
+  "transformer-from-zero/training/checkpoint-choice": {
+    ...conceptQuestionHistory["transformer-from-zero/training/checkpoint-choice"][1],
+    status: "active",
+  },
+  "transformer-from-zero/training/dropout-mode": {
+    ...conceptQuestionHistory["transformer-from-zero/training/dropout-mode"][1],
+    status: "active",
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/absolute-path"][1],
     status: "active",
@@ -453,6 +513,14 @@ export const neuralNetworkQuestions = {
   "layer-shapes": conceptQuestionRegistry["transformer-from-zero/neural-networks/layer-shapes"],
 } as const;
 
+export const trainingQuestions = {
+  "epoch-update-count": conceptQuestionRegistry["transformer-from-zero/training/epoch-update-count"],
+  "softmax-axis": conceptQuestionRegistry["transformer-from-zero/training/softmax-axis"],
+  "fused-cross-entropy": conceptQuestionRegistry["transformer-from-zero/training/fused-cross-entropy"],
+  "checkpoint-choice": conceptQuestionRegistry["transformer-from-zero/training/checkpoint-choice"],
+  "dropout-mode": conceptQuestionRegistry["transformer-from-zero/training/dropout-mode"],
+} as const;
+
 const linuxShellQuestions = {
   "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
   "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
@@ -495,6 +563,9 @@ export const chapterRegistry = {
   },
   "transformer-from-zero/neural-networks": {
     questions: neuralNetworkQuestions,
+  },
+  "transformer-from-zero/training": {
+    questions: trainingQuestions,
   },
   "linux-systems/shell-and-filesystem": {
     questions: linuxShellQuestions,

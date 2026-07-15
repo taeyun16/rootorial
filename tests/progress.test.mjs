@@ -27,10 +27,11 @@ test("normalizes stored progress to known chapters in curriculum order", () => {
 });
 
 test("validates sync input and rejects unknown chapter slugs", () => {
-  assert.deepEqual(validateCompletedSlugs(["vectors", "optimization", "neural-networks"]), [
+  assert.deepEqual(validateCompletedSlugs(["vectors", "optimization", "neural-networks", "training"]), [
     "transformer-from-zero/vectors",
     "transformer-from-zero/optimization",
     "transformer-from-zero/neural-networks",
+    "transformer-from-zero/training",
   ]);
   assert.throws(
     () => validateCompletedSlugs(["vectors", "not-a-chapter"]),
@@ -43,12 +44,13 @@ test("merges anonymous, cached, and remote progress without duplicates", () => {
   assert.deepEqual(
     mergeCompletedSlugs(
       ["attention", "vectors"],
-      ["vectors", "optimization", "neural-networks"],
+      ["vectors", "optimization", "neural-networks", "training"],
     ),
     [
       "transformer-from-zero/vectors",
       "transformer-from-zero/optimization",
       "transformer-from-zero/neural-networks",
+      "transformer-from-zero/training",
       "transformer-from-zero/attention",
     ],
   );
@@ -97,6 +99,7 @@ test("reads curriculum-aware v2 metadata", () => {
             vectors: true,
             optimization: true,
             "neural-networks": true,
+            training: true,
           },
         },
       },
@@ -105,6 +108,7 @@ test("reads curriculum-aware v2 metadata", () => {
     "transformer-from-zero/vectors",
     "transformer-from-zero/optimization",
     "transformer-from-zero/neural-networks",
+    "transformer-from-zero/training",
   ]);
   assert.equal(readProgressVersion({ rootorial: { progressVersion: 2 } }), 2);
 });

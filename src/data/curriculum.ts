@@ -51,6 +51,7 @@ export function chapterId(curriculumSlug: string, chapterSlug: string) {
 export const VECTOR_CHAPTER_ESTIMATED_MINUTES = 60;
 export const OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES = 55;
 export const NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES = 60;
+export const TRAINING_CHAPTER_ESTIMATED_MINUTES = 65;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
@@ -102,11 +103,12 @@ export const chaptersKo: Chapter[] = [
     title: "딥러닝 학습 구조",
     subtitle: "작은 배치가 깊은 모델을 학습시키는 과정",
     description:
-      "Mini-batch, Adam, Softmax, Cross Entropy, Dropout을 하나의 작은 분류기에 연결합니다.",
-    runtime: "WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["mini-batch", "Adam", "Dropout"],
+      "3-class logits의 Softmax·Cross Entropy를 mini-batch와 Adam update로 연결하고, validation·Dropout 경계를 실행하며 디버깅합니다.",
+    runtime: "TypeScript 수학 모델",
+    estimatedMinutes: TRAINING_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["mini-batch · CE", "Adam state", "validation · Dropout"],
   },
   {
     number: 5,
@@ -204,8 +206,8 @@ export const chaptersEn: Chapter[] = [
   {
     number: 4, slug: "training", title: "Deep Learning Training",
     subtitle: "How small batches train deep models",
-    description: "Connect mini-batches, Adam, Softmax, cross entropy, and dropout in one small classifier.",
-    runtime: "WebGPU", developmentStatus: "planned", status: "planned", concepts: ["mini-batch", "Adam", "Dropout"],
+    description: "Connect three-class Softmax and cross entropy to mini-batch Adam updates, then run and debug validation and dropout boundaries.",
+    runtime: "TypeScript math model", estimatedMinutes: TRAINING_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["mini-batch · CE", "Adam state", "validation · dropout"],
   },
   {
     number: 5, slug: "embeddings", title: "Tokens and Embeddings",

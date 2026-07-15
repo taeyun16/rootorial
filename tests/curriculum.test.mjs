@@ -15,7 +15,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
     chaptersEn.map(({ number, slug, status }) => ({ number, slug, status })),
   );
   assert.deepEqual(
-    chaptersKo.slice(0, 3).map(
+    chaptersKo.slice(0, 4).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -42,9 +42,41 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 60,
       },
+      {
+        slug: "training",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 65,
+      },
     ],
   );
-  assert.ok(chaptersKo.slice(3).every(({ status }) => status === "planned"));
+  assert.deepEqual(
+    {
+      runtime: chaptersKo[3].runtime,
+      description: chaptersKo[3].description,
+      concepts: chaptersKo[3].concepts,
+    },
+    {
+      runtime: "TypeScript 수학 모델",
+      description:
+        "3-class logits의 Softmax·Cross Entropy를 mini-batch와 Adam update로 연결하고, validation·Dropout 경계를 실행하며 디버깅합니다.",
+      concepts: ["mini-batch · CE", "Adam state", "validation · Dropout"],
+    },
+  );
+  assert.deepEqual(
+    {
+      runtime: chaptersEn[3].runtime,
+      description: chaptersEn[3].description,
+      concepts: chaptersEn[3].concepts,
+    },
+    {
+      runtime: "TypeScript math model",
+      description:
+        "Connect three-class Softmax and cross entropy to mini-batch Adam updates, then run and debug validation and dropout boundaries.",
+      concepts: ["mini-batch · CE", "Adam state", "validation · dropout"],
+    },
+  );
+  assert.ok(chaptersKo.slice(4).every(({ status }) => status === "planned"));
 });
 
 test("keeps the bilingual Linux roadmap structurally aligned", () => {
