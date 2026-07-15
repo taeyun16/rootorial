@@ -58,6 +58,7 @@ export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
 export const LINUX_PERMISSIONS_CHAPTER_ESTIMATED_MINUTES = 60;
 export const LINUX_MEMORY_CHAPTER_ESTIMATED_MINUTES = 65;
+export const LINUX_STORAGE_CHAPTER_ESTIMATED_MINUTES = 65;
 
 export const chaptersKo: Chapter[] = [
   {
@@ -322,11 +323,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "저장장치와 파일시스템",
     subtitle: "바이트 덩어리가 이름 있는 파일이 되는 구조",
     description:
-      "블록 장치, inode, 디렉터리와 mount를 추적하며 파일 경로 아래의 저장 구조를 조립합니다.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["block", "inode", "mount"],
+      "경로가 mount와 directory entry를 지나 inode·block에 닿는 과정을 추적하고, hard link 수명·용량 고갈·crash-safe 저장을 직접 실행하고 진단합니다.",
+    runtime: "파일시스템 모델 · 선택 Linux 관찰",
+    estimatedMinutes: LINUX_STORAGE_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["mount · inode", "hard link · unlink", "fsync · durability"],
   },
   {
     number: 7,
@@ -426,11 +428,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "Storage and Filesystems",
     subtitle: "How blocks of bytes become named files",
     description:
-      "Trace block devices, inodes, directories, and mounts to assemble the storage structure beneath a file path.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["block", "inode", "mount"],
+      "Trace a path across mounts and directory entries into inodes and blocks, then run and diagnose hard-link lifetime, capacity exhaustion, and crash-safe storage.",
+    runtime: "Filesystem model · optional Linux observation",
+    estimatedMinutes: LINUX_STORAGE_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["mount · inode", "hard link · unlink", "fsync · durability"],
   },
   {
     number: 7,

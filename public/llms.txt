@@ -52,7 +52,7 @@ The following topics are publicly listed but may not yet have complete lessons. 
 - Linux Systems from the Ground Up — Chapter 3: Processes and Signals (PID·PPID, stdio, signal·wait)
 - Linux Systems from the Ground Up — Chapter 4: Users and Permissions (UID·GID, rwx · path search, least privilege)
 - Linux Systems from the Ground Up — Chapter 5: Memory and Virtual Addresses (virtual page · PTE, TLB · page fault, mmap · COW)
-- Linux Systems from the Ground Up — Chapter 6: Storage and Filesystems (block, inode, mount)
+- Linux Systems from the Ground Up — Chapter 6: Storage and Filesystems (mount · inode, hard link · unlink, fsync · durability)
 - Linux Systems from the Ground Up — Chapter 7: From Packets to Sockets (IP, TCP, socket)
 - Linux Systems from the Ground Up — Chapter 8: Assemble a Tiny Linux System (kernel config, rootfs, debugging)
 - Infrastructure Design from the Ground Up (인프라 설계를 바닥부터)

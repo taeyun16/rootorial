@@ -52,6 +52,10 @@ const linuxMemoryKey = chapterPublicationKey(
   "linux-systems",
   "memory-and-virtual-addresses",
 );
+const linuxStorageKey = chapterPublicationKey(
+  "linux-systems",
+  "storage-and-filesystems",
+);
 
 function override(resourceKey, values = {}) {
   const chapter = resourceKey.startsWith("chapter:");
@@ -90,6 +94,8 @@ test("preserves the current public catalog when no overrides exist", () => {
   assert.equal(isPublicationListed(catalog, linuxPermissionsKey), true);
   assert.equal(isPublicationAccessible(catalog, linuxMemoryKey), false);
   assert.equal(isPublicationListed(catalog, linuxMemoryKey), true);
+  assert.equal(isPublicationAccessible(catalog, linuxStorageKey), false);
+  assert.equal(isPublicationListed(catalog, linuxStorageKey), true);
 
   const publicCatalog = publicPublicationCatalog(catalog);
   assert.ok(
@@ -172,6 +178,7 @@ test("publishes the existing Linux sample while keeping completed later chapters
   const processes = catalog.resources[linuxProcessesKey];
   const permissions = catalog.resources[linuxPermissionsKey];
   const memory = catalog.resources[linuxMemoryKey];
+  const storage = catalog.resources[linuxStorageKey];
 
   assert.equal(linux.contentReady, true);
   assert.equal(linux.effectivePublicationStatus, "published");
@@ -223,6 +230,16 @@ test("publishes the existing Linux sample while keeping completed later chapters
   assert.equal(memory.scheduledAt, null);
   assert.equal(memory.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, linuxMemoryKey), false);
+
+  assert.equal(storage.developmentStatus, "complete");
+  assert.equal(storage.contentReady, true);
+  assert.equal(storage.source, "default");
+  assert.equal(storage.publicationStatus, "draft");
+  assert.equal(storage.effectivePublicationStatus, "draft");
+  assert.equal(storage.listing, "listed");
+  assert.equal(storage.scheduledAt, null);
+  assert.equal(storage.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, linuxStorageKey), false);
 
   const linuxCatalog = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "linux-systems",

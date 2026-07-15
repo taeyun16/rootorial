@@ -61,6 +61,7 @@ export function LinuxMemoryChapter({ learnerCount = 0 }: { learnerCount?: number
     conceptsMastered,
   });
   const previousHref = `/admin/preview/curricula/${LINUX_CURRICULUM_SLUG}/chapters/users-and-permissions${isKo ? "" : "?lang=en"}`;
+  const nextHref = `/admin/preview/curricula/${LINUX_CURRICULUM_SLUG}/chapters/storage-and-filesystems${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell linux-chapter-shell linux-memory-chapter-shell">
@@ -242,7 +243,7 @@ $ getconf PAGESIZE`}</pre>
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousHref}>← {t("이전: 사용자와 권한", "Previous: Users and Permissions")}</a> : <span>← {t("이전: 사용자와 권한", "Previous: Users and Permissions")} <small>{t("드래프트 미리보기 전용", "Draft preview only")}</small></span>}
-            <span>{t("다음: 저장장치와 파일시스템", "Next: Storage and Filesystems")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview ? <a href={nextHref}>{t("다음: 저장장치와 파일시스템", "Next: Storage and Filesystems")} →</a> : <span>{t("다음: 저장장치와 파일시스템", "Next: Storage and Filesystems")} <small>{t("드래프트 미리보기 전용", "Draft preview only")}</small></span>}
           </nav>
         </article>
       </div>

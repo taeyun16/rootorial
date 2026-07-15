@@ -124,10 +124,11 @@ test("renders the Linux sample curriculum in both locales", async () => {
   assert.match(html, /셸에서 첫 파일까지/);
   assert.match(html, /전원이 켜지고 셸이 뜨기까지/);
   assert.match(html, /프로세스와 시그널/);
+  assert.match(html, /저장장치와 파일시스템/);
   assert.match(html, /href="\/curricula\/linux-systems\/chapters\/shell-and-filesystem"/);
   assert.doesNotMatch(
     html,
-    /href="\/curricula\/linux-systems\/chapters\/(?:boot-to-shell|processes-and-signals|users-and-permissions|memory-and-virtual-addresses)"/,
+    /href="\/curricula\/linux-systems\/chapters\/(?:boot-to-shell|processes-and-signals|users-and-permissions|memory-and-virtual-addresses|storage-and-filesystems)"/,
   );
   assert.match(html, /href="\/experiments\/linux"/);
   assert.match(html, /Linux 실험 열기/);
@@ -184,12 +185,20 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
   const memoryEnglish = await render(
     "/curricula/linux-systems/chapters/memory-and-virtual-addresses?lang=en",
   );
+  const storage = await render(
+    "/curricula/linux-systems/chapters/storage-and-filesystems",
+  );
+  const storageEnglish = await render(
+    "/curricula/linux-systems/chapters/storage-and-filesystems?lang=en",
+  );
   assert.equal(boot.status, 404);
   assert.equal(processes.status, 404);
   assert.equal(permissions.status, 404);
   assert.equal(permissionsEnglish.status, 404);
   assert.equal(memory.status, 404);
   assert.equal(memoryEnglish.status, 404);
+  assert.equal(storage.status, 404);
+  assert.equal(storageEnglish.status, 404);
   await Promise.all([
     boot.text(),
     processes.text(),
@@ -197,6 +206,8 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
     permissionsEnglish.text(),
     memory.text(),
     memoryEnglish.text(),
+    storage.text(),
+    storageEnglish.text(),
   ]);
 
   const unknown = await render("/curricula/linux-systems/chapters/not-a-chapter");

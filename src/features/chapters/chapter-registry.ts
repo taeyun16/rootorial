@@ -410,6 +410,46 @@ export const conceptQuestionHistory = {
       answers: ["first-write-copies-that-page", "fork-copies-all-pages-eagerly", "write-changes-parent-page"],
     },
   },
+  "linux-systems/storage-and-filesystems/path-resolution": {
+    1: {
+      version: 1,
+      label: "경로에서 data block까지",
+      correctAnswer: "mount-root-dentry-inode-block",
+      answers: ["mount-root-dentry-inode-block", "inode-stores-name-and-path", "path-points-directly-to-block"],
+    },
+  },
+  "linux-systems/storage-and-filesystems/mount-namespace": {
+    1: {
+      version: 1,
+      label: "mount 지점의 namespace",
+      correctAnswer: "mounted-root-shadows-underlay",
+      answers: ["mounted-root-shadows-underlay", "mount-merges-directories", "mount-deletes-underlay"],
+    },
+  },
+  "linux-systems/storage-and-filesystems/link-lifetime": {
+    1: {
+      version: 1,
+      label: "hard link와 inode 수명",
+      correctAnswer: "same-inode-reclaim-after-zero-links-and-opens",
+      answers: ["same-inode-reclaim-after-zero-links-and-opens", "hard-link-copies-blocks", "first-unlink-reclaims-data"],
+    },
+  },
+  "linux-systems/storage-and-filesystems/inode-capacity": {
+    1: {
+      version: 1,
+      label: "block과 inode 용량",
+      correctAnswer: "free-blocks-zero-free-inodes",
+      answers: ["free-blocks-zero-free-inodes", "page-cache-needs-emptying", "touch-needs-data-block-first"],
+    },
+  },
+  "linux-systems/storage-and-filesystems/crash-durability": {
+    1: {
+      version: 1,
+      label: "crash-safe 파일 교체",
+      correctAnswer: "fsync-file-rename-fsync-parent",
+      answers: ["fsync-file-rename-fsync-parent", "write-visible-means-durable", "rename-alone-persists-everything"],
+    },
+  },
 } as const satisfies Record<
   string,
   Readonly<Record<number, ConceptQuestionVersionContract>>
@@ -606,6 +646,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["linux-systems/memory-and-virtual-addresses/copy-on-write"][1],
     status: "active",
   },
+  "linux-systems/storage-and-filesystems/path-resolution": {
+    ...conceptQuestionHistory["linux-systems/storage-and-filesystems/path-resolution"][1],
+    status: "active",
+  },
+  "linux-systems/storage-and-filesystems/mount-namespace": {
+    ...conceptQuestionHistory["linux-systems/storage-and-filesystems/mount-namespace"][1],
+    status: "active",
+  },
+  "linux-systems/storage-and-filesystems/link-lifetime": {
+    ...conceptQuestionHistory["linux-systems/storage-and-filesystems/link-lifetime"][1],
+    status: "active",
+  },
+  "linux-systems/storage-and-filesystems/inode-capacity": {
+    ...conceptQuestionHistory["linux-systems/storage-and-filesystems/inode-capacity"][1],
+    status: "active",
+  },
+  "linux-systems/storage-and-filesystems/crash-durability": {
+    ...conceptQuestionHistory["linux-systems/storage-and-filesystems/crash-durability"][1],
+    status: "active",
+  },
 } as const satisfies Record<string, ConceptQuestionContract>;
 
 export type ConceptQuestionKey = keyof typeof conceptQuestionRegistry;
@@ -686,6 +746,14 @@ export const linuxMemoryQuestions = {
   "copy-on-write": conceptQuestionRegistry["linux-systems/memory-and-virtual-addresses/copy-on-write"],
 } as const;
 
+export const linuxStorageQuestions = {
+  "path-resolution": conceptQuestionRegistry["linux-systems/storage-and-filesystems/path-resolution"],
+  "mount-namespace": conceptQuestionRegistry["linux-systems/storage-and-filesystems/mount-namespace"],
+  "link-lifetime": conceptQuestionRegistry["linux-systems/storage-and-filesystems/link-lifetime"],
+  "inode-capacity": conceptQuestionRegistry["linux-systems/storage-and-filesystems/inode-capacity"],
+  "crash-durability": conceptQuestionRegistry["linux-systems/storage-and-filesystems/crash-durability"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -720,6 +788,9 @@ export const chapterRegistry = {
   },
   "linux-systems/memory-and-virtual-addresses": {
     questions: linuxMemoryQuestions,
+  },
+  "linux-systems/storage-and-filesystems": {
+    questions: linuxStorageQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 
