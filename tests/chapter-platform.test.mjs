@@ -57,13 +57,18 @@ test("keeps the registered completed optimization draft and unknown chapters pri
   await Promise.all([draft.text(), unknown.text()]);
 });
 
-test("keeps a registered completed Linux draft behind the public boundary", async () => {
+test("keeps registered completed Linux drafts behind the public boundary", async () => {
   assert.ok(chapterRegistry["linux-systems/boot-to-shell"]);
-  const response = await render(
+  assert.ok(chapterRegistry["linux-systems/processes-and-signals"]);
+  const boot = await render(
     "/curricula/linux-systems/chapters/boot-to-shell",
   );
-  assert.equal(response.status, 404);
-  await response.text();
+  const processes = await render(
+    "/curricula/linux-systems/chapters/processes-and-signals",
+  );
+  assert.equal(boot.status, 404);
+  assert.equal(processes.status, 404);
+  await Promise.all([boot.text(), processes.text()]);
 });
 
 test("returns not found instead of a server error for malformed route slugs", async () => {

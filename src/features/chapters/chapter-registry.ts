@@ -154,6 +154,46 @@ export const conceptQuestionHistory = {
       answers: ["init", "firmware", "kernel"],
     },
   },
+  "linux-systems/processes-and-signals/program-vs-process": {
+    1: {
+      version: 1,
+      label: "프로그램과 프로세스 구분",
+      correctAnswer: "same-program-distinct-processes",
+      answers: ["same-program-distinct-processes", "one-program-one-pid", "pid-identifies-file"],
+    },
+  },
+  "linux-systems/processes-and-signals/fork-exec-pid": {
+    1: {
+      version: 1,
+      label: "fork와 exec의 PID",
+      correctAnswer: "exec-replaces-image-keeps-pid",
+      answers: ["exec-replaces-image-keeps-pid", "exec-creates-another-pid", "fork-replaces-shell"],
+    },
+  },
+  "linux-systems/processes-and-signals/stdio-redirection": {
+    1: {
+      version: 1,
+      label: "stdout 리다이렉션 범위",
+      correctAnswer: "redirects-stdout-only",
+      answers: ["redirects-stdout-only", "redirects-all-three", "changes-program-file"],
+    },
+  },
+  "linux-systems/processes-and-signals/signal-choice": {
+    1: {
+      version: 1,
+      label: "협력적 종료와 강제 종료",
+      correctAnswer: "term-before-kill",
+      answers: ["term-before-kill", "kill-first", "stop-then-wait"],
+    },
+  },
+  "linux-systems/processes-and-signals/wait-reaps-child": {
+    1: {
+      version: 1,
+      label: "자식 종료 정보 회수",
+      correctAnswer: "zombie-until-wait",
+      answers: ["zombie-until-wait", "signal-reaps-zombie", "zombie-still-runs"],
+    },
+  },
 } as const satisfies Record<
   string,
   Readonly<Record<number, ConceptQuestionVersionContract>>
@@ -230,6 +270,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["linux-systems/boot-to-shell/pid-one"][1],
     status: "active",
   },
+  "linux-systems/processes-and-signals/program-vs-process": {
+    ...conceptQuestionHistory["linux-systems/processes-and-signals/program-vs-process"][1],
+    status: "active",
+  },
+  "linux-systems/processes-and-signals/fork-exec-pid": {
+    ...conceptQuestionHistory["linux-systems/processes-and-signals/fork-exec-pid"][1],
+    status: "active",
+  },
+  "linux-systems/processes-and-signals/stdio-redirection": {
+    ...conceptQuestionHistory["linux-systems/processes-and-signals/stdio-redirection"][1],
+    status: "active",
+  },
+  "linux-systems/processes-and-signals/signal-choice": {
+    ...conceptQuestionHistory["linux-systems/processes-and-signals/signal-choice"][1],
+    status: "active",
+  },
+  "linux-systems/processes-and-signals/wait-reaps-child": {
+    ...conceptQuestionHistory["linux-systems/processes-and-signals/wait-reaps-child"][1],
+    status: "active",
+  },
 } as const satisfies Record<string, ConceptQuestionContract>;
 
 export type ConceptQuestionKey = keyof typeof conceptQuestionRegistry;
@@ -262,6 +322,14 @@ const linuxBootQuestions = {
   "pid-one": conceptQuestionRegistry["linux-systems/boot-to-shell/pid-one"],
 } as const;
 
+export const linuxProcessQuestions = {
+  "program-vs-process": conceptQuestionRegistry["linux-systems/processes-and-signals/program-vs-process"],
+  "fork-exec-pid": conceptQuestionRegistry["linux-systems/processes-and-signals/fork-exec-pid"],
+  "stdio-redirection": conceptQuestionRegistry["linux-systems/processes-and-signals/stdio-redirection"],
+  "signal-choice": conceptQuestionRegistry["linux-systems/processes-and-signals/signal-choice"],
+  "wait-reaps-child": conceptQuestionRegistry["linux-systems/processes-and-signals/wait-reaps-child"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -278,6 +346,9 @@ export const chapterRegistry = {
   },
   "linux-systems/boot-to-shell": {
     questions: linuxBootQuestions,
+  },
+  "linux-systems/processes-and-signals": {
+    questions: linuxProcessQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

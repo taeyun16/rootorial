@@ -52,6 +52,7 @@ export const VECTOR_CHAPTER_ESTIMATED_MINUTES = 60;
 export const OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES = 55;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
+export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
 
 export const chaptersKo: Chapter[] = [
   {
@@ -274,11 +275,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "프로세스와 시그널",
     subtitle: "실행 중인 프로그램은 어떻게 태어나고 끝나는가",
     description:
-      "PID, 부모·자식 프로세스, 표준 스트림과 시그널을 관찰해 셸이 프로그램을 다루는 방식을 이해합니다.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["PID", "stdio", "signal"],
+      "결정론적 프로세스 모델에서 fork·exec, PID·PPID, 표준 스트림, signal과 wait의 상태 전이를 직접 조작하고 진단합니다.",
+    runtime: "프로세스 모델",
+    estimatedMinutes: LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["PID·PPID", "stdio", "signal·wait"],
   },
   {
     number: 4,
@@ -375,11 +377,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "Processes and Signals",
     subtitle: "How a running program begins and ends",
     description:
-      "Observe PIDs, parent-child processes, standard streams, and signals to understand how a shell controls programs.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["PID", "stdio", "signal"],
+      "Manipulate and diagnose fork, exec, PID and PPID, standard streams, signals, and wait transitions in a deterministic process model.",
+    runtime: "Process model",
+    estimatedMinutes: LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["PID·PPID", "stdio", "signal·wait"],
   },
   {
     number: 4,

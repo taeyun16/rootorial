@@ -50,7 +50,7 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
   assert.equal(linuxChaptersKo[0].slug, "shell-and-filesystem");
   assert.equal(linuxChaptersKo[0].status, "available");
   assert.deepEqual(
-    linuxChaptersKo.slice(0, 2).map(
+    linuxChaptersKo.slice(0, 3).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -71,9 +71,15 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 50,
       },
+      {
+        slug: "processes-and-signals",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 55,
+      },
     ],
   );
-  assert.ok(linuxChaptersKo.slice(2).every(({ status }) => status === "planned"));
+  assert.ok(linuxChaptersKo.slice(3).every(({ status }) => status === "planned"));
 });
 
 test("publishes Linux as an in-progress curriculum with a retained experiment", () => {
