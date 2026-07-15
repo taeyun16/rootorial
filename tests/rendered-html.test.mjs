@@ -23,6 +23,15 @@ async function render(pathname = "/") {
   );
 }
 
+async function renderWithPublicationRows(pathname, rows) {
+  globalThis.__ROOTORIAL_TEST_PUBLICATION_ROWS__ = rows;
+  try {
+    return await render(pathname);
+  } finally {
+    delete globalThis.__ROOTORIAL_TEST_PUBLICATION_ROWS__;
+  }
+}
+
 test("renders the Rootorial curriculum catalog", async () => {
   const response = await render();
   assert.equal(response.status, 200);
@@ -268,6 +277,12 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   const attentionEnglish = await render(
     "/curricula/transformer-from-zero/chapters/attention?lang=en",
   );
+  const selfAttention = await render(
+    "/curricula/transformer-from-zero/chapters/self-attention",
+  );
+  const selfAttentionEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/self-attention?lang=en",
+  );
   assert.equal(optimization.status, 404);
   assert.equal(neuralNetworks.status, 404);
   assert.equal(training.status, 404);
@@ -278,6 +293,8 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   assert.equal(sequencesEnglish.status, 404);
   assert.equal(attention.status, 404);
   assert.equal(attentionEnglish.status, 404);
+  assert.equal(selfAttention.status, 404);
+  assert.equal(selfAttentionEnglish.status, 404);
   await Promise.all([
     optimization.text(),
     neuralNetworks.text(),
@@ -289,7 +306,52 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
     sequencesEnglish.text(),
     attention.text(),
     attentionEnglish.text(),
+    selfAttention.text(),
+    selfAttentionEnglish.text(),
   ]);
+});
+
+test("SSR-renders the bilingual Self-Attention chapter with an explicit test-only publication override", async () => {
+  const rows = [
+    {
+      resource_key: "chapter:transformer-from-zero/self-attention",
+      resource_kind: "chapter",
+      curriculum_slug: "transformer-from-zero",
+      chapter_slug: "self-attention",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/transformer-from-zero/chapters/self-attention",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(
+    html,
+    /한 query가 바깥 memory를 읽던 Attention을, 같은 token sequence의 모든 row가 서로를 읽는 계산으로 확장합니다/,
+  );
+  assert.match(html, /07 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/transformer-from-zero/chapters/self-attention?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(
+    englishHtml,
+    /Extend Attention from one query reading external memory into every row of one token sequence reading that sequence/,
+  );
+  assert.match(englishHtml, /07 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
 });
 
 test("renders the interactive vectors chapter", async () => {

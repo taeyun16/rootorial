@@ -15,7 +15,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
     chaptersEn.map(({ number, slug, status }) => ({ number, slug, status })),
   );
   assert.deepEqual(
-    chaptersKo.slice(0, 7).map(
+    chaptersKo.slice(0, 8).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -66,7 +66,43 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 65,
       },
+      {
+        slug: "self-attention",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 75,
+      },
     ],
+  );
+  assert.deepEqual(
+    {
+      subtitle: chaptersKo[7].subtitle,
+      runtime: chaptersKo[7].runtime,
+      description: chaptersKo[7].description,
+      concepts: chaptersKo[7].concepts,
+    },
+    {
+      subtitle: "같은 시퀀스의 토큰들이 서로를 읽는 법",
+      runtime: "TypeScript Self-Attention 모델",
+      description:
+        "같은 입력에서 Q·K·V를 따로 투영해 모든 token row의 scaled dot-product를 계산하고, causal mask와 multi-head 분할·병합 계약을 실행하며 정보 누출과 shape 결함을 디버깅합니다.",
+      concepts: ["Q/K/V 투영 · token row", "scaled score · causal mask", "multi-head split · concat"],
+    },
+  );
+  assert.deepEqual(
+    {
+      subtitle: chaptersEn[7].subtitle,
+      runtime: chaptersEn[7].runtime,
+      description: chaptersEn[7].description,
+      concepts: chaptersEn[7].concepts,
+    },
+    {
+      subtitle: "Letting every token read the same sequence",
+      runtime: "TypeScript self-attention model",
+      description:
+        "Project Q, K, and V separately from the same input, compute scaled dot products for every token row, then execute causal-masking and multi-head split/merge contracts while debugging information leaks and shape defects.",
+      concepts: ["Q/K/V projections · token rows", "scaled scores · causal mask", "multi-head split · concatenate"],
+    },
   );
   assert.deepEqual(
     {
@@ -172,7 +208,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       concepts: ["mini-batch · CE", "Adam state", "validation · dropout"],
     },
   );
-  assert.ok(chaptersKo.slice(7).every(({ status }) => status === "planned"));
+  assert.ok(chaptersKo.slice(8).every(({ status }) => status === "planned"));
 });
 
 test("keeps the bilingual Linux roadmap structurally aligned", () => {

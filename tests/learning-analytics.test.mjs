@@ -114,6 +114,15 @@ test("accepts only the known learning surface and locale", () => {
     locale: "en",
   });
   assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "self-attention",
+    locale: "ko",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "self-attention",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     locale: "en",
@@ -227,6 +236,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "attention",
     path: "/curricula/transformer-from-zero/chapters/attention",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "self-attention" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "self-attention",
+    path: "/curricula/transformer-from-zero/chapters/self-attention",
   });
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
     curriculumSlug: "linux-systems",
@@ -658,6 +672,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "attention",
     answers: { "softmax-axis": "client-says-correct" },
+  }));
+
+  const selfAttentionResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "self-attention",
+    answers: {
+      "qkv-source": "same-x-separate-projections",
+      "scaled-score": "divide-by-sqrt-head-dimension",
+      "causal-mask": "block-future-logits-before-softmax",
+      "multi-head-contract": "split-features-run-heads-concat",
+      "position-boundary": "mask-limits-visibility-position-next",
+    },
+  });
+  assert.deepEqual(
+    selfAttentionResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/self-attention/qkv-source",
+        correctAnswer: "same-x-separate-projections",
+      },
+      {
+        key: "transformer-from-zero/self-attention/scaled-score",
+        correctAnswer: "divide-by-sqrt-head-dimension",
+      },
+      {
+        key: "transformer-from-zero/self-attention/causal-mask",
+        correctAnswer: "block-future-logits-before-softmax",
+      },
+      {
+        key: "transformer-from-zero/self-attention/multi-head-contract",
+        correctAnswer: "split-features-run-heads-concat",
+      },
+      {
+        key: "transformer-from-zero/self-attention/position-boundary",
+        correctAnswer: "mask-limits-visibility-position-next",
+      },
+    ],
+  );
+  assert.ok(selfAttentionResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "self-attention",
+    answers: { "causal-mask": "client-says-correct" },
   }));
 
   const linuxResult = validateAttemptInput({

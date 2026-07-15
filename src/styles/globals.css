@@ -5938,6 +5938,658 @@ textarea:focus-visible {
   }
 }
 
+/* Transformer chapter 08: self-attention ------------------------------- */
+
+.self-attention-chapter-shell,
+.self-attention-chapter-shell *,
+.self-attention-workbench,
+.self-attention-debugger-lab {
+  min-inline-size: 0;
+}
+
+.self-attention-chapter-shell {
+  overflow-x: clip;
+}
+
+.self-attention-lesson-hero {
+  border-top-color: #6d58a7;
+}
+
+.self-attention-prerequisite a,
+.self-attention-prerequisite div > span {
+  display: inline-block;
+  max-inline-size: 100%;
+  color: inherit;
+  font-size: 11px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.self-attention-boundary-grid,
+.self-attention-shape-ladder {
+  margin: 28px 0;
+  display: grid;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.self-attention-boundary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.self-attention-shape-ladder {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.self-attention-boundary-grid article,
+.self-attention-shape-ladder article {
+  min-inline-size: 0;
+  padding: 20px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.self-attention-boundary-grid article > span,
+.self-attention-shape-ladder article > span {
+  color: #654f9d;
+  font: 850 9px/1.4 var(--mono);
+  letter-spacing: .09em;
+}
+
+.self-attention-boundary-grid strong,
+.self-attention-shape-ladder strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--ink);
+  font: 850 13px/1.5 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.self-attention-boundary-grid p,
+.self-attention-shape-ladder p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.self-attention-shape-ladder > span[aria-hidden] {
+  align-self: center;
+  color: #654f9d;
+  font: 900 13px var(--mono);
+}
+
+.self-attention-formula-stack {
+  margin: 28px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.self-attention-formula-stack .math-formula-display {
+  max-inline-size: 100%;
+  margin: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.self-attention-mask-table-wrap {
+  max-inline-size: 100%;
+  margin: 28px 0;
+  border: 1px solid var(--line-strong);
+  overflow: hidden;
+}
+
+.self-attention-mask-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  background: var(--paper-raised);
+  font: 750 10px/1.35 var(--mono);
+}
+
+.self-attention-mask-table caption {
+  padding: 12px;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--muted);
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.self-attention-mask-table th,
+.self-attention-mask-table td {
+  min-inline-size: 0;
+  padding: 12px 5px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.self-attention-mask-table th {
+  background: #f0edf8;
+  color: var(--ink);
+}
+
+.self-attention-mask-table td.is-allowed {
+  background: #eef7f2;
+  color: var(--success-fg);
+}
+
+.self-attention-mask-table td.is-blocked {
+  background: #f8eeee;
+  color: #8e4545;
+  text-decoration: line-through;
+}
+
+.self-attention-precision-note,
+.self-attention-transfer-task {
+  max-inline-size: 100%;
+  margin: 24px 0;
+  padding: 18px;
+  border: 1px solid var(--line-strong);
+  background: #f2eff9;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+.self-attention-transfer-task strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #654f9d;
+  font: 850 9px var(--mono);
+  letter-spacing: .1em;
+}
+
+.self-attention-transfer-task p {
+  margin: 0;
+}
+
+.self-attention-completion-checklist,
+.self-attention-evidence {
+  margin: 24px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.self-attention-completion-checklist span,
+.self-attention-evidence span {
+  min-inline-size: 0;
+  min-height: 40px;
+  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.self-attention-completion-checklist span.is-complete,
+.self-attention-evidence span.is-complete {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.self-attention-workbench,
+.self-attention-debugger-lab {
+  max-inline-size: 100%;
+  overflow: hidden;
+}
+
+.self-attention-workbench *,
+.self-attention-debugger-lab * {
+  box-sizing: border-box;
+}
+
+.self-attention-workbench .interactive-lab-header,
+.self-attention-debugger-lab .interactive-lab-header {
+  background: #ebe7f5;
+}
+
+.self-attention-workbench button,
+.self-attention-workbench select,
+.self-attention-workbench input,
+.self-attention-debugger-lab button,
+.self-attention-debugger-lab select {
+  min-height: 48px;
+  max-inline-size: 100%;
+}
+
+.self-attention-workbench button:focus-visible,
+.self-attention-workbench select:focus-visible,
+.self-attention-workbench input:focus-visible,
+.self-attention-debugger-lab button:focus-visible,
+.self-attention-debugger-lab select:focus-visible,
+.self-attention-masked-grid button:focus-visible {
+  outline: 3px solid #654f9d;
+  outline-offset: 2px;
+}
+
+.self-attention-preset-row {
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.self-attention-preset-row > span {
+  margin-right: auto;
+  color: var(--muted);
+  font: 800 9px var(--mono);
+  letter-spacing: .08em;
+}
+
+.self-attention-preset-row button {
+  padding: 9px 13px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  color: var(--muted);
+  cursor: pointer;
+  font: 750 10px/1.4 var(--mono);
+}
+
+.self-attention-preset-row button[aria-pressed="true"] {
+  border-color: #654f9d;
+  background: #ebe7f5;
+  color: #46336f;
+}
+
+.self-attention-control-panel {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  border-bottom: 1px solid var(--line-strong);
+  background: #faf9fd;
+}
+
+.self-attention-control-panel label {
+  min-inline-size: 0;
+  display: grid;
+  align-content: start;
+  gap: 7px;
+  color: var(--muted);
+  font: 750 10px/1.45 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.self-attention-control-panel select,
+.self-attention-control-panel input,
+.self-attention-debug-card select {
+  width: 100%;
+  padding: 9px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font: 700 12px var(--mono);
+}
+
+.self-attention-run-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.self-attention-live-feedback,
+.self-attention-runtime-fallback,
+.self-attention-debug-feedback {
+  max-inline-size: 100%;
+  padding: 16px 18px;
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.self-attention-live-feedback strong,
+.self-attention-runtime-fallback strong,
+.self-attention-debug-feedback strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--ink);
+}
+
+.self-attention-live-feedback.is-correct,
+.self-attention-debug-feedback.is-correct {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.self-attention-live-feedback.is-incorrect,
+.self-attention-debug-feedback.is-incorrect,
+.self-attention-runtime-fallback {
+  background: #fff4ee;
+  color: #7d4130;
+}
+
+.self-attention-runtime-fallback p {
+  margin: 0 0 12px;
+}
+
+.self-attention-workbench .step-explorer {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.self-attention-workbench .step-explorer button {
+  min-height: 62px;
+}
+
+.self-attention-stage-panel {
+  padding: 22px;
+  display: grid;
+  gap: 18px;
+  background: var(--paper-raised);
+}
+
+.self-attention-stage-panel > header {
+  display: grid;
+  gap: 6px;
+}
+
+.self-attention-stage-panel > header span {
+  color: #654f9d;
+  font: 850 9px var(--mono);
+  letter-spacing: .09em;
+}
+
+.self-attention-stage-panel > header strong {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.self-attention-stage-panel > header p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.self-attention-matrix-stack {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.self-attention-matrix-stack .array-diagram,
+.self-attention-matrix-stack .array-diagram-scroll,
+.self-attention-matrix-stack table {
+  max-inline-size: 100%;
+}
+
+.self-attention-masked-grid-wrap {
+  max-inline-size: 100%;
+  overflow: hidden;
+}
+
+.self-attention-masked-grid {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  font: 700 clamp(8px, 2.3vw, 10px)/1.25 var(--mono);
+}
+
+.self-attention-masked-grid caption {
+  padding: 10px;
+  border: 1px solid var(--line-strong);
+  border-bottom: 0;
+  color: var(--muted);
+  text-align: left;
+}
+
+.self-attention-masked-grid th,
+.self-attention-masked-grid td {
+  padding: 0;
+  border: 1px solid var(--line);
+  text-align: center;
+}
+
+.self-attention-masked-grid th {
+  min-height: 38px;
+  padding: 7px 3px;
+  background: #f0edf8;
+}
+
+.self-attention-masked-grid button {
+  width: 100%;
+  min-width: 44px;
+  min-height: 48px;
+  padding: 5px 2px;
+  border: 0;
+  background: var(--paper-raised);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+}
+
+.self-attention-masked-grid button.is-blocked {
+  background: #f8eeee;
+  color: #8e4545;
+}
+
+.self-attention-masked-grid button[aria-pressed="true"] {
+  box-shadow: inset 0 0 0 3px #654f9d;
+}
+
+.self-attention-stage-inspection {
+  padding: 14px;
+  border: 1px solid var(--line-strong);
+  background: #f7f5fb;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.self-attention-evidence {
+  margin: 0;
+  padding: 18px;
+  border-top: 1px solid var(--line-strong);
+  background: #faf9fd;
+}
+
+.self-attention-evidence > strong {
+  width: 100%;
+  color: var(--ink);
+  font: 850 10px var(--mono);
+}
+
+.self-attention-debug-progress {
+  padding: 15px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--line-strong);
+  background: #faf9fd;
+  color: var(--muted);
+  font: 750 10px/1.5 var(--mono);
+}
+
+.self-attention-debug-progress strong {
+  color: #654f9d;
+}
+
+.self-attention-debug-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.self-attention-debug-card {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 20px;
+  border: 0;
+  border-right: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.self-attention-debug-card legend {
+  max-width: calc(100% - 20px);
+  padding: 0 8px;
+  color: var(--ink);
+  font: 850 12px/1.5 var(--mono);
+}
+
+.self-attention-debug-card > p {
+  min-height: 50px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.self-attention-debug-card label {
+  display: grid;
+  gap: 7px;
+  color: var(--muted);
+  font: 750 10px/1.45 var(--mono);
+}
+
+.self-attention-debug-actions {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.self-attention-debug-feedback {
+  margin: 16px -20px -20px;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 0;
+}
+
+.self-attention-debug-card.is-correct {
+  box-shadow: inset 4px 0 0 var(--success-border);
+}
+
+.self-attention-debug-card.is-incorrect {
+  box-shadow: inset 4px 0 0 #ba6a50;
+}
+
+@media (max-width: 900px) {
+  .self-attention-shape-ladder {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .self-attention-shape-ladder > span[aria-hidden] {
+    display: none;
+  }
+
+  .self-attention-control-panel {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .self-attention-boundary-grid,
+  .self-attention-shape-ladder,
+  .self-attention-matrix-stack,
+  .self-attention-debug-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .self-attention-boundary-grid article,
+  .self-attention-shape-ladder article,
+  .self-attention-stage-panel,
+  .self-attention-debug-card {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .self-attention-workbench .step-explorer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .self-attention-control-panel {
+    padding-right: 14px;
+    padding-left: 14px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .self-attention-run-actions,
+  .self-attention-debug-actions {
+    flex-direction: column;
+  }
+
+  .self-attention-run-actions .button,
+  .self-attention-debug-actions .button {
+    width: 100%;
+  }
+
+  .self-attention-completion-checklist,
+  .self-attention-evidence {
+    flex-direction: column;
+  }
+
+  .self-attention-completion-checklist span,
+  .self-attention-evidence span {
+    width: 100%;
+  }
+
+  .self-attention-debug-progress {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 430px) {
+  .self-attention-formula-stack .katex {
+    font-size: .86em;
+  }
+
+  .self-attention-preset-row button {
+    width: 100%;
+  }
+
+  .self-attention-mask-table th,
+  .self-attention-mask-table td {
+    padding: 10px 2px;
+    font-size: 8px;
+  }
+
+  .self-attention-masked-grid button {
+    min-width: 0;
+    padding-right: 1px;
+    padding-left: 1px;
+  }
+
+  .self-attention-debug-feedback {
+    margin-right: -14px;
+    margin-left: -14px;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .self-attention-chapter-shell *,
+  .self-attention-workbench *,
+  .self-attention-debugger-lab * {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+
+  .self-attention-chapter-shell .button:hover,
+  .self-attention-workbench .button:hover,
+  .self-attention-debugger-lab .button:hover {
+    transform: none !important;
+  }
+}
+
 /* Linux processes and signals chapter */
 
 .linux-processes-chapter-shell {

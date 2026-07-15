@@ -42,6 +42,10 @@ const attentionKey = chapterPublicationKey(
   "transformer-from-zero",
   "attention",
 );
+const selfAttentionKey = chapterPublicationKey(
+  "transformer-from-zero",
+  "self-attention",
+);
 const linuxKey = curriculumPublicationKey("linux-systems");
 const linuxShellKey = chapterPublicationKey(
   "linux-systems",
@@ -110,6 +114,8 @@ test("preserves the current public catalog when no overrides exist", () => {
   assert.equal(isPublicationListed(catalog, sequencesKey), true);
   assert.equal(isPublicationAccessible(catalog, attentionKey), false);
   assert.equal(isPublicationListed(catalog, attentionKey), true);
+  assert.equal(isPublicationAccessible(catalog, selfAttentionKey), false);
+  assert.equal(isPublicationListed(catalog, selfAttentionKey), true);
   assert.equal(isPublicationAccessible(catalog, linuxPermissionsKey), false);
   assert.equal(isPublicationListed(catalog, linuxPermissionsKey), true);
   assert.equal(isPublicationAccessible(catalog, linuxMemoryKey), false);
@@ -214,6 +220,28 @@ test("keeps published vectors and completed Transformer drafts editorially indep
   assert.equal(attention.scheduledAt, null);
   assert.equal(attention.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, attentionKey), false);
+
+  const selfAttention = catalog.resources[selfAttentionKey];
+  assert.equal(selfAttention.developmentStatus, "complete");
+  assert.equal(selfAttention.contentReady, true);
+  assert.equal(selfAttention.source, "default");
+  assert.equal(selfAttention.publicationStatus, "draft");
+  assert.equal(selfAttention.effectivePublicationStatus, "draft");
+  assert.equal(selfAttention.listing, "listed");
+  assert.equal(selfAttention.scheduledAt, null);
+  assert.equal(selfAttention.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, selfAttentionKey), false);
+
+  const transformerCatalog = publicPublicationCatalog(catalog).curricula.find(
+    ({ curriculum }) => curriculum.slug === "transformer-from-zero",
+  );
+  assert.equal(transformerCatalog?.chapters.length, 10);
+  assert.equal(
+    transformerCatalog?.chapters.filter(
+      ({ publication }) => publication.contentReady,
+    ).length,
+    8,
+  );
 });
 
 test("publishes the existing Linux sample while keeping completed later chapters draft", () => {

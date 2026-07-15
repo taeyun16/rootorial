@@ -12,6 +12,7 @@ import { LinuxTinySystemChapter } from "../../components/linux/LinuxTinySystemCh
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
 import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
 import { SequencesChapter } from "../../components/sequences/SequencesChapter";
+import { SelfAttentionChapter } from "../../components/self-attention/SelfAttentionChapter";
 import { TrainingChapter } from "../../components/training/TrainingChapter";
 import { VectorsChapter } from "../../components/VectorsChapter";
 import { chapterId } from "../../data/curriculum";
@@ -86,6 +87,10 @@ function AttentionChapterPage({ learnerCount }: ChapterPageProps) {
   return <AttentionChapter learnerCount={learnerCount} />;
 }
 
+function SelfAttentionChapterPage({ learnerCount }: ChapterPageProps) {
+  return <SelfAttentionChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
@@ -94,6 +99,7 @@ const chapterPages = {
   "transformer-from-zero/embeddings": EmbeddingsChapterPage,
   "transformer-from-zero/sequences": SequencesChapterPage,
   "transformer-from-zero/attention": AttentionChapterPage,
+  "transformer-from-zero/self-attention": SelfAttentionChapterPage,
   "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
   "linux-systems/boot-to-shell": LinuxBootChapterPage,
   "linux-systems/processes-and-signals": LinuxProcessesChapterPage,

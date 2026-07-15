@@ -314,6 +314,46 @@ export const conceptQuestionHistory = {
       answers: ["all-token-self-attention-now", "multi-head-and-mask-now", "single-query-cross-attention-first"],
     },
   },
+  "transformer-from-zero/self-attention/qkv-source": {
+    1: {
+      version: 1,
+      label: "Self-Attention Q/K/V 정보원",
+      correctAnswer: "same-x-separate-projections",
+      answers: ["separate-sequences-supply-qkv", "same-x-separate-projections", "qkv-are-identical"],
+    },
+  },
+  "transformer-from-zero/self-attention/scaled-score": {
+    1: {
+      version: 1,
+      label: "Scaled dot-product 분모",
+      correctAnswer: "divide-by-sqrt-head-dimension",
+      answers: ["divide-by-sequence-length", "divide-by-model-width", "divide-by-sqrt-head-dimension"],
+    },
+  },
+  "transformer-from-zero/self-attention/causal-mask": {
+    1: {
+      version: 1,
+      label: "Causal mask 계약",
+      correctAnswer: "block-future-logits-before-softmax",
+      answers: ["block-future-logits-before-softmax", "zero-future-context-after-merge", "mask-past-and-self"],
+    },
+  },
+  "transformer-from-zero/self-attention/multi-head-contract": {
+    1: {
+      version: 1,
+      label: "Multi-head 분할·병합 계약",
+      correctAnswer: "split-features-run-heads-concat",
+      answers: ["average-token-axis-before-attention", "split-features-run-heads-concat", "share-one-weight-row-all-heads"],
+    },
+  },
+  "transformer-from-zero/self-attention/position-boundary": {
+    1: {
+      version: 1,
+      label: "Causal mask와 위치 정보 경계",
+      correctAnswer: "mask-limits-visibility-position-next",
+      answers: ["causal-mask-fully-encodes-position", "attention-output-needs-no-position", "mask-limits-visibility-position-next"],
+    },
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     1: {
       version: 1,
@@ -758,6 +798,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/attention/attention-boundary"][1],
     status: "active",
   },
+  "transformer-from-zero/self-attention/qkv-source": {
+    ...conceptQuestionHistory["transformer-from-zero/self-attention/qkv-source"][1],
+    status: "active",
+  },
+  "transformer-from-zero/self-attention/scaled-score": {
+    ...conceptQuestionHistory["transformer-from-zero/self-attention/scaled-score"][1],
+    status: "active",
+  },
+  "transformer-from-zero/self-attention/causal-mask": {
+    ...conceptQuestionHistory["transformer-from-zero/self-attention/causal-mask"][1],
+    status: "active",
+  },
+  "transformer-from-zero/self-attention/multi-head-contract": {
+    ...conceptQuestionHistory["transformer-from-zero/self-attention/multi-head-contract"][1],
+    status: "active",
+  },
+  "transformer-from-zero/self-attention/position-boundary": {
+    ...conceptQuestionHistory["transformer-from-zero/self-attention/position-boundary"][1],
+    status: "active",
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/absolute-path"][1],
     status: "active",
@@ -965,6 +1025,14 @@ export const attentionQuestions = {
   "attention-boundary": conceptQuestionRegistry["transformer-from-zero/attention/attention-boundary"],
 } as const;
 
+export const selfAttentionQuestions = {
+  "qkv-source": conceptQuestionRegistry["transformer-from-zero/self-attention/qkv-source"],
+  "scaled-score": conceptQuestionRegistry["transformer-from-zero/self-attention/scaled-score"],
+  "causal-mask": conceptQuestionRegistry["transformer-from-zero/self-attention/causal-mask"],
+  "multi-head-contract": conceptQuestionRegistry["transformer-from-zero/self-attention/multi-head-contract"],
+  "position-boundary": conceptQuestionRegistry["transformer-from-zero/self-attention/position-boundary"],
+} as const;
+
 const linuxShellQuestions = {
   "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
   "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
@@ -1051,6 +1119,9 @@ export const chapterRegistry = {
   },
   "transformer-from-zero/attention": {
     questions: attentionQuestions,
+  },
+  "transformer-from-zero/self-attention": {
+    questions: selfAttentionQuestions,
   },
   "linux-systems/shell-and-filesystem": {
     questions: linuxShellQuestions,
