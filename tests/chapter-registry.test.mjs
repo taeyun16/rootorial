@@ -87,6 +87,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
     "Learning and Optimization",
   );
+  assert.equal(
+    getPublishedChapter("transformer-from-zero", "neural-networks", "en")?.chapter.title,
+    "Classification and Neural Networks",
+  );
   assert.equal(getPublishedChapter("transformer-from-zero", "missing"), undefined);
 });
 
@@ -125,6 +129,37 @@ test("separates active question submissions from historical labels", () => {
       "transformer-from-zero",
       "vectors",
       "orientation",
+      2,
+    ),
+    undefined,
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["transformer-from-zero/neural-networks"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "logit-to-probability": "sigmoid-maps-logit-to-probability",
+      "bce-penalty": "confident-wrong-costs-most",
+      "activation-purpose": "nonlinearity-bends-boundaries",
+      "xor-hidden-features": "combine-hidden-features",
+      "layer-shapes": "two-hidden-activations-one-logit",
+    },
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "neural-networks",
+      "xor-hidden-features",
+      1,
+    )?.correctAnswer,
+    "combine-hidden-features",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "neural-networks",
+      "xor-hidden-features",
       2,
     ),
     undefined,
@@ -231,6 +266,14 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "02. 학습과 최적화 · Rootorial",
       description:
         "선형 모델의 MSE와 gradient를 계산하고, 발산하는 학습률을 직접 복구하며 한 번의 파라미터 업데이트를 디버깅합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("transformer-from-zero", "neural-networks", "en"),
+    {
+      title: "03. Classification and Neural Networks · Rootorial",
+      description:
+        "Read binary classification through sigmoid and BCE, then assemble hidden features and two matrix products to solve XOR and debug network failures.",
     },
   );
   assert.deepEqual(

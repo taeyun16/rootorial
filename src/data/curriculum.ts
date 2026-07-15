@@ -50,6 +50,7 @@ export function chapterId(curriculumSlug: string, chapterSlug: string) {
 
 export const VECTOR_CHAPTER_ESTIMATED_MINUTES = 60;
 export const OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES = 55;
+export const NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES = 60;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
@@ -87,11 +88,12 @@ export const chaptersKo: Chapter[] = [
     title: "분류와 신경망",
     subtitle: "직선을 쌓아 복잡한 경계를 만드는 법",
     description:
-      "로지스틱 회귀에서 시작해 활성함수와 다층 퍼셉트론으로 XOR 문제를 해결합니다.",
-    runtime: "NumPy + WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["sigmoid", "BCE", "MLP"],
+      "sigmoid와 BCE로 이진 분류를 읽고, hidden feature와 두 행렬 곱을 조립해 XOR을 해결하고 신경망 결함을 디버깅합니다.",
+    runtime: "수학 모델",
+    estimatedMinutes: NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["sigmoid · BCE", "hidden layer", "XOR"],
   },
   {
     number: 4,
@@ -195,8 +197,8 @@ export const chaptersEn: Chapter[] = [
   {
     number: 3, slug: "neural-networks", title: "Classification and Neural Networks",
     subtitle: "Building complex boundaries from simple lines",
-    description: "Start with logistic regression, then use activation functions and a multilayer perceptron to solve XOR.",
-    runtime: "NumPy + WebGPU", developmentStatus: "planned", status: "planned", concepts: ["sigmoid", "BCE", "MLP"],
+    description: "Read binary classification through sigmoid and BCE, then assemble hidden features and two matrix products to solve XOR and debug network failures.",
+    runtime: "Math model", estimatedMinutes: NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["sigmoid · BCE", "hidden layer", "XOR"],
   },
   {
     number: 4, slug: "training", title: "Deep Learning Training",

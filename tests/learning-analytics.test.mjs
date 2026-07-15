@@ -69,6 +69,15 @@ test("accepts only the known learning surface and locale", () => {
     locale: "ko",
   });
   assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "neural-networks",
+    locale: "en",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "neural-networks",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     locale: "en",
@@ -112,6 +121,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "optimization",
     path: "/curricula/transformer-from-zero/chapters/optimization",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "neural-networks" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "neural-networks",
+    path: "/curricula/transformer-from-zero/chapters/neural-networks",
   });
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
     curriculumSlug: "linux-systems",
@@ -283,6 +297,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "optimization",
     answers: { "learning-rate": "client-says-correct" },
+  }));
+
+  const neuralNetworkResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "neural-networks",
+    answers: {
+      "logit-to-probability": "sigmoid-maps-logit-to-probability",
+      "bce-penalty": "confident-wrong-costs-most",
+      "activation-purpose": "nonlinearity-bends-boundaries",
+      "xor-hidden-features": "combine-hidden-features",
+      "layer-shapes": "two-hidden-activations-one-logit",
+    },
+  });
+  assert.deepEqual(
+    neuralNetworkResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/neural-networks/logit-to-probability",
+        correctAnswer: "sigmoid-maps-logit-to-probability",
+      },
+      {
+        key: "transformer-from-zero/neural-networks/bce-penalty",
+        correctAnswer: "confident-wrong-costs-most",
+      },
+      {
+        key: "transformer-from-zero/neural-networks/activation-purpose",
+        correctAnswer: "nonlinearity-bends-boundaries",
+      },
+      {
+        key: "transformer-from-zero/neural-networks/xor-hidden-features",
+        correctAnswer: "combine-hidden-features",
+      },
+      {
+        key: "transformer-from-zero/neural-networks/layer-shapes",
+        correctAnswer: "two-hidden-activations-one-logit",
+      },
+    ],
+  );
+  assert.ok(neuralNetworkResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "neural-networks",
+    answers: { "activation-purpose": "client-says-correct" },
   }));
 
   const linuxResult = validateAttemptInput({

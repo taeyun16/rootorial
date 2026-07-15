@@ -107,9 +107,10 @@ test("renders the Transformer curriculum detail", async () => {
   assert.match(html, /Transformer를/);
   assert.match(html, /벡터와 텐서/);
   assert.match(html, /학습과 최적화/);
+  assert.match(html, /분류와 신경망/);
   assert.doesNotMatch(
     html,
-    /href="\/curricula\/transformer-from-zero\/chapters\/optimization"/,
+    /href="\/curricula\/transformer-from-zero\/chapters\/(?:optimization|neural-networks)"/,
   );
   assert.match(html, /Mini Transformer/);
 });
@@ -180,12 +181,16 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
   await unknown.text();
 });
 
-test("keeps the completed optimization chapter unavailable on its public URL", async () => {
-  const response = await render(
+test("keeps completed Transformer drafts unavailable on their public URLs", async () => {
+  const optimization = await render(
     "/curricula/transformer-from-zero/chapters/optimization",
   );
-  assert.equal(response.status, 404);
-  await response.text();
+  const neuralNetworks = await render(
+    "/curricula/transformer-from-zero/chapters/neural-networks",
+  );
+  assert.equal(optimization.status, 404);
+  assert.equal(neuralNetworks.status, 404);
+  await Promise.all([optimization.text(), neuralNetworks.text()]);
 });
 
 test("renders the interactive vectors chapter", async () => {

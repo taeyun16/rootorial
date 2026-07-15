@@ -15,7 +15,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
     chaptersEn.map(({ number, slug, status }) => ({ number, slug, status })),
   );
   assert.deepEqual(
-    chaptersKo.slice(0, 2).map(
+    chaptersKo.slice(0, 3).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -36,9 +36,15 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 55,
       },
+      {
+        slug: "neural-networks",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 60,
+      },
     ],
   );
-  assert.ok(chaptersKo.slice(2).every(({ status }) => status === "planned"));
+  assert.ok(chaptersKo.slice(3).every(({ status }) => status === "planned"));
 });
 
 test("keeps the bilingual Linux roadmap structurally aligned", () => {
