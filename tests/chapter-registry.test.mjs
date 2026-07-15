@@ -119,6 +119,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     getPublishedChapter("transformer-from-zero", "sequences", "en")?.chapter.title,
     "Sequential Data",
   );
+  assert.equal(
+    getPublishedChapter("transformer-from-zero", "attention", "en")?.chapter.title,
+    "Attention",
+  );
   assert.equal(getPublishedChapter("transformer-from-zero", "missing"), undefined);
 });
 
@@ -310,6 +314,50 @@ test("separates active question submissions from historical labels", () => {
       "transformer-from-zero",
       "sequences",
       "causal-prefix",
+      2,
+    ),
+    undefined,
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["transformer-from-zero/attention"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "qk-roles": "query-compares-keys",
+      "score-shape": "scores-nq-nk",
+      "softmax-axis": "keys-within-each-query",
+      "value-context": "weights-mix-values",
+      "attention-boundary": "single-query-cross-attention-first",
+    },
+  );
+  assert.deepEqual(
+    Object.values(chapterRegistry["transformer-from-zero/attention"].questions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 2, 0, 1, 2],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "transformer-from-zero",
+      "attention",
+      "softmax-axis",
+    )?.correctAnswer,
+    "keys-within-each-query",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "attention",
+      "attention-boundary",
+      1,
+    )?.correctAnswer,
+    "single-query-cross-attention-first",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "attention",
+      "attention-boundary",
       2,
     ),
     undefined,
@@ -637,6 +685,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "06. Sequential Data · Rootorial",
       description:
         "Manipulate hidden state and shared recurrence in a deterministic RNN unroll, then compute temporal gradients and LSTM cell updates to debug causal prefixes.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/transformer-from-zero/chapters/attention",
+      "ko",
+    ),
+    {
+      title: "07. Attention · Rootorial",
+      description:
+        "단일 query와 분리된 Key·Value로 점수를 계산하고, key축 Softmax와 value 가중합 문맥을 실행하며 잘못된 Attention 계약을 디버깅합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("transformer-from-zero", "attention", "en"),
+    {
+      title: "07. Attention · Rootorial",
+      description:
+        "Compute scores from a single query and separate keys and values, then run key-axis softmax and a weighted-value context while debugging broken Attention contracts.",
     },
   );
   assert.deepEqual(

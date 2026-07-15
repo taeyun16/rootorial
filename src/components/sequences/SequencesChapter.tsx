@@ -64,6 +64,7 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
     conceptsMastered,
   });
   const previousPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/embeddings${isKo ? "" : "?lang=en"}`;
+  const nextPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/attention${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell sequences-chapter-shell">
@@ -292,7 +293,9 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
             {preview
               ? <a href={previousPreviewHref}>← {t("이전: 토큰과 임베딩", "Previous: Tokens and Embeddings")}</a>
               : <span>← {t("이전: 토큰과 임베딩", "Previous: Tokens and Embeddings")}</span>}
-            <span>{t("다음: Attention", "Next: Attention")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview
+              ? <a href={nextPreviewHref}>{t("다음: Attention", "Next: Attention")} →</a>
+              : <span>{t("다음: Attention", "Next: Attention")} <small>{t("드래프트", "Draft")}</small></span>}
           </nav>
         </article>
       </div>

@@ -18331,3 +18331,998 @@ textarea:focus-visible {
     transform: none !important;
   }
 }
+
+/* Transformer chapter 07: single-query cross-attention */
+.attention-chapter-shell,
+.attention-chapter-shell * {
+  min-inline-size: 0;
+  box-sizing: border-box;
+}
+
+.attention-chapter-shell {
+  overflow-x: clip;
+}
+
+.attention-path-comparison,
+.attention-role-grid,
+.attention-worked-inputs,
+.attention-routing-formulas {
+  margin: 24px 0;
+  display: grid;
+  gap: 12px;
+}
+
+.attention-path-comparison {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.attention-role-grid,
+.attention-worked-inputs,
+.attention-routing-formulas {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.attention-path-comparison article,
+.attention-role-grid article {
+  padding: 18px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.attention-path-comparison article:last-child {
+  border-color: var(--info-border);
+  box-shadow: inset 4px 0 0 var(--info-fg);
+  background: var(--info-bg);
+}
+
+.attention-path-comparison span,
+.attention-role-grid span,
+.attention-transfer-task > strong {
+  color: var(--annotation);
+  font: 850 10px/1.4 var(--mono);
+  letter-spacing: .07em;
+}
+
+.attention-path-comparison strong,
+.attention-role-grid strong {
+  margin-top: 8px;
+  display: block;
+  font: 800 13px/1.55 var(--mono);
+}
+
+.attention-path-comparison p,
+.attention-role-grid p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.attention-prerequisite a,
+.attention-prerequisite > div > span {
+  margin-top: 10px;
+  display: inline-flex;
+  color: var(--accent);
+  font: 800 11px/1.5 var(--mono);
+}
+
+.attention-worked-inputs > *,
+.attention-worked-output > * {
+  min-width: 0;
+}
+
+.attention-routing-formulas > .math-formula {
+  padding: 18px 10px;
+  display: grid;
+  place-items: center;
+  max-inline-size: 100%;
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-subtle);
+  color: var(--accent);
+}
+
+.attention-routing-formulas .katex-display,
+.attention-routing-formulas .katex-display > .katex {
+  max-inline-size: 100%;
+  margin: 0;
+}
+
+.attention-shape-ladder,
+.attention-worked-output,
+.attention-transfer-shapes {
+  margin: 24px 0;
+  display: grid;
+  align-items: center;
+  gap: 10px;
+}
+
+.attention-shape-ladder {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.attention-worked-output {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.attention-shape-ladder article {
+  min-height: 118px;
+  padding: 16px;
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.attention-shape-ladder article > span {
+  color: var(--annotation);
+  font: 850 9px var(--mono);
+  letter-spacing: .08em;
+}
+
+.attention-shape-ladder article > strong {
+  font: 850 12px/1.55 var(--mono);
+}
+
+.attention-shape-ladder article > p {
+  margin: 0;
+  color: var(--muted);
+  font: 750 10px var(--mono);
+}
+
+.attention-shape-ladder > span[aria-hidden],
+.attention-worked-output > span[aria-hidden],
+.attention-transfer-shapes > span[aria-hidden] {
+  color: var(--annotation);
+  font: 850 12px var(--mono);
+  text-align: center;
+}
+
+.attention-precision-note,
+.attention-transfer-task {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid var(--warning-border);
+  box-shadow: inset 4px 0 0 var(--warning-border);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+  overflow-wrap: anywhere;
+}
+
+.attention-transfer-task {
+  border-color: var(--info-border);
+  box-shadow: inset 4px 0 0 var(--info-border);
+  background: var(--info-bg);
+  color: var(--text);
+}
+
+.attention-transfer-task > p {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.attention-transfer-shapes {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  margin-bottom: 0;
+}
+
+.attention-transfer-shapes > span:not([aria-hidden]) {
+  padding: 12px;
+  border: 1px solid var(--info-border);
+  background: var(--paper-raised);
+  color: var(--info-fg);
+  font: 850 11px/1.5 var(--mono);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.attention-completion-checklist {
+  padding: 18px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.attention-completion-checklist span {
+  min-height: 44px;
+  padding: 9px 11px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  color: var(--muted);
+  font: 750 10px/1.5 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.attention-completion-checklist span.is-complete {
+  border-color: var(--success-border);
+  box-shadow: inset 4px 0 0 var(--success-fg);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.attention-routing-lab,
+.attention-debugger-lab {
+  margin: 34px 0;
+  max-inline-size: 100%;
+  overflow: hidden;
+}
+
+.attention-routing-lab *,
+.attention-debugger-lab * {
+  min-inline-size: 0;
+  box-sizing: border-box;
+}
+
+.attention-routing-lab .interactive-lab-header,
+.attention-debugger-lab .interactive-lab-header {
+  background: #e8f0ee;
+}
+
+.attention-routing-lab button,
+.attention-routing-lab input,
+.attention-routing-lab select,
+.attention-debugger-lab button,
+.attention-debugger-lab select {
+  max-inline-size: 100%;
+  min-height: 48px;
+}
+
+.attention-routing-lab button:focus-visible,
+.attention-routing-lab input:focus-visible,
+.attention-routing-lab select:focus-visible,
+.attention-debugger-lab button:focus-visible,
+.attention-debugger-lab select:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.attention-preset-bar {
+  padding: 14px 18px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--paper-subtle);
+}
+
+.attention-preset-bar button {
+  padding: 9px 12px;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.attention-preset-bar button strong {
+  font: 800 11px/1.45 var(--sans);
+}
+
+.attention-preset-bar button span {
+  color: var(--muted);
+  font: 750 9px/1.4 var(--mono);
+}
+
+.attention-preset-bar button[aria-pressed="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 4px 0 0 var(--annotation);
+  background: var(--accent-soft);
+}
+
+.attention-preset-bar button[aria-pressed="true"] strong::before {
+  content: "✓ ";
+}
+
+.attention-prediction-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.attention-query-controls,
+.attention-prediction-controls {
+  margin: 0;
+  padding: 20px;
+  border: 0;
+}
+
+.attention-query-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  gap: 10px;
+  border-right: 1px solid var(--line-strong);
+  background: var(--paper-subtle);
+}
+
+.attention-query-controls legend,
+.attention-prediction-controls legend,
+.attention-debug-card legend {
+  max-inline-size: 100%;
+  padding: 20px 20px 0;
+  font: 850 11px/1.5 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.attention-query-controls label,
+.attention-prediction-controls label,
+.attention-counterfactual label,
+.attention-debug-card label {
+  display: grid;
+  align-content: start;
+  gap: 7px;
+}
+
+.attention-query-controls label > span,
+.attention-prediction-controls label > span,
+.attention-counterfactual label > span,
+.attention-debug-card label > span {
+  color: var(--muted);
+  font: 750 9px/1.45 var(--mono);
+  letter-spacing: .04em;
+}
+
+.attention-query-controls small {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font: 700 9px/1.55 var(--mono);
+}
+
+.attention-query-input,
+.attention-prediction-select,
+.attention-counterfactual-select,
+.attention-debug-card select {
+  width: 100%;
+  padding: 9px 34px 9px 11px;
+  border: 1px solid var(--control-border);
+  border-radius: 0;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font: 700 11px/1.45 var(--mono);
+  text-overflow: ellipsis;
+}
+
+.attention-query-input {
+  padding-right: 11px;
+}
+
+.attention-run-actions,
+.attention-debug-actions {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.attention-run-actions .button,
+.attention-debug-actions .button {
+  width: 100%;
+  padding: 9px 11px;
+  white-space: normal;
+}
+
+.attention-runtime-fallback {
+  margin: 0;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--danger-border);
+  box-shadow: inset 4px 0 0 var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+  overflow-wrap: anywhere;
+}
+
+.attention-runtime-fallback p {
+  margin: 8px 0 12px;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.attention-routing-lab .step-explorer {
+  grid-template-columns: repeat(var(--step-count, 5), minmax(0, 1fr));
+  max-inline-size: 100%;
+  overflow: visible;
+}
+
+.attention-routing-lab .step-explorer button {
+  min-height: 64px;
+}
+
+.attention-routing-lab .step-explorer strong {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.attention-routing-lab .attention-pipeline-workspace {
+  min-height: 340px;
+  display: block;
+  max-inline-size: 100%;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.attention-memory-stage {
+  min-height: 340px;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: minmax(150px, .65fr) repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 16px;
+}
+
+.attention-query-vector {
+  min-height: 142px;
+  padding: 18px;
+  display: grid;
+  align-content: center;
+  gap: 9px;
+  border: 1px solid var(--danger-border);
+  box-shadow: inset 4px 0 0 var(--annotation);
+  background: var(--danger-bg);
+  overflow-wrap: anywhere;
+}
+
+.attention-query-vector span {
+  color: var(--annotation);
+  font: 850 9px var(--mono);
+  letter-spacing: .06em;
+}
+
+.attention-query-vector strong {
+  font: 850 15px/1.5 var(--mono);
+}
+
+.attention-query-vector p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.attention-routing-lab .attention-stage-visual,
+.attention-contribution-stage,
+.attention-context-stage {
+  min-height: 340px;
+  padding: 24px;
+  display: grid;
+  align-content: center;
+  justify-items: stretch;
+  gap: 20px;
+  max-inline-size: 100%;
+  overflow: hidden;
+}
+
+.attention-routing-lab .attention-stage-visual {
+  animation: attention-stage-enter 220ms ease both;
+}
+
+.attention-routing-lab .attention-stage-formula {
+  width: 100%;
+  max-inline-size: 100%;
+  overflow: hidden;
+  color: var(--accent);
+  font-size: clamp(15px, 2vw, 22px);
+  text-align: center;
+}
+
+.attention-routing-lab .attention-stage-formula .katex-display {
+  max-inline-size: 100%;
+  margin: 0;
+}
+
+.attention-routing-lab .attention-stage-visual > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.attention-slot-inspections {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.attention-slot-inspect {
+  min-height: 72px;
+  padding: 10px;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.attention-slot-inspect > span,
+.attention-slot-inspect > small {
+  color: var(--muted);
+  font: 750 9px/1.4 var(--mono);
+}
+
+.attention-slot-inspect > strong {
+  font: 850 11px/1.45 var(--mono);
+}
+
+.attention-slot-inspect[aria-pressed="true"] {
+  border-color: var(--success-border);
+  box-shadow: inset 4px 0 0 var(--success-fg);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.attention-slot-inspect[aria-pressed="true"] > small::before {
+  content: "✓ ";
+}
+
+.attention-context-stage {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.attention-context-stage > .attention-stage-formula {
+  grid-column: 1 / -1;
+}
+
+.attention-counterfactual {
+  padding: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(210px, .65fr) auto;
+  align-items: end;
+  gap: 14px;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--info-bg);
+}
+
+.attention-counterfactual > div > span {
+  color: var(--info-fg);
+  font: 850 9px var(--mono);
+  letter-spacing: .07em;
+}
+
+.attention-counterfactual h4 {
+  margin: 7px 0 0;
+  font: 750 17px/1.4 var(--serif);
+}
+
+.attention-counterfactual p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.attention-counterfactual-run {
+  width: 100%;
+  padding: 9px 12px;
+  white-space: normal;
+}
+
+.attention-evidence,
+.attention-completion-checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.attention-evidence {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--paper-subtle);
+}
+
+.attention-evidence > strong {
+  flex-basis: 100%;
+  color: var(--muted);
+  font: 850 9px var(--mono);
+  letter-spacing: .06em;
+}
+
+.attention-evidence > span {
+  min-height: 44px;
+  padding: 8px 10px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  color: var(--muted);
+  font: 750 10px/1.45 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.attention-evidence > span.is-complete {
+  border-color: var(--success-border);
+  box-shadow: inset 4px 0 0 var(--success-fg);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.attention-live-feedback {
+  min-height: 74px;
+  margin: 0;
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--line-strong);
+  background: #242b27;
+  color: #eef6f1;
+  font: 650 12px/1.7 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.attention-live-feedback.is-correct {
+  box-shadow: inset 4px 0 0 #87c7aa;
+  background: #173b2b;
+}
+
+.attention-live-feedback.is-error {
+  box-shadow: inset 4px 0 0 #efaa98;
+  background: #4b251f;
+}
+
+.attention-routing-lab .array-diagram,
+.attention-routing-lab .array-diagram-scroll,
+.attention-routing-lab .array-diagram table {
+  max-inline-size: 100%;
+}
+
+.attention-routing-lab .attention-contribution-stage .array-diagram td > button {
+  min-height: 44px;
+}
+
+.attention-debug-progress {
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid var(--line-strong);
+  background: #1d2c26;
+  color: #eef6f1;
+  overflow-wrap: anywhere;
+}
+
+.attention-debug-progress > div {
+  display: grid;
+  gap: 4px;
+}
+
+.attention-debug-progress span {
+  color: #bfd8cd;
+  font: 750 10px/1.55 var(--mono);
+}
+
+.attention-debug-progress strong {
+  font: 900 24px/1.2 var(--mono);
+}
+
+.attention-debug-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.attention-debug-card {
+  margin: 0;
+  padding: 20px;
+  display: grid;
+  align-content: start;
+  gap: 13px;
+  border: 0;
+  border-right: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.attention-debug-card:nth-child(even) {
+  border-right: 0;
+}
+
+.attention-debug-card > p {
+  min-height: 64px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+.attention-debug-card.is-correct {
+  box-shadow: inset 4px 0 0 var(--success-fg);
+  background: var(--success-bg);
+}
+
+.attention-debug-card.is-incorrect {
+  box-shadow: inset 4px 0 0 var(--danger-fg);
+  background: var(--danger-bg);
+}
+
+.attention-debug-feedback {
+  margin: 2px -20px -20px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line-strong);
+  background: var(--paper-subtle);
+  font-size: 11px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.attention-debug-feedback strong {
+  font: 850 10px/1.45 var(--mono);
+  letter-spacing: .04em;
+}
+
+.attention-debug-feedback p {
+  margin: 7px 0 0;
+}
+
+.attention-debug-feedback.is-correct {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.attention-debug-feedback.is-incorrect {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+@media (max-width: 900px) {
+  .attention-role-grid,
+  .attention-worked-inputs,
+  .attention-routing-formulas {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .attention-worked-output {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .attention-worked-output > span[aria-hidden] {
+    transform: rotate(90deg);
+  }
+
+  .attention-memory-stage {
+    grid-template-columns: minmax(150px, .6fr) minmax(0, 1fr);
+  }
+
+  .attention-memory-stage > :last-child {
+    grid-column: 1 / -1;
+  }
+
+  .attention-counterfactual {
+    grid-template-columns: minmax(0, 1fr) minmax(210px, .7fr);
+  }
+
+  .attention-counterfactual-run {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 700px) {
+  .attention-path-comparison,
+  .attention-shape-ladder,
+  .attention-transfer-shapes,
+  .attention-prediction-workspace,
+  .attention-memory-stage,
+  .attention-context-stage,
+  .attention-counterfactual,
+  .attention-debug-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .attention-shape-ladder > span[aria-hidden],
+  .attention-transfer-shapes > span[aria-hidden] {
+    transform: rotate(90deg);
+  }
+
+  .attention-memory-stage > :last-child,
+  .attention-context-stage > .attention-stage-formula,
+  .attention-counterfactual-run {
+    grid-column: auto;
+  }
+
+  .attention-query-controls {
+    border-right: 0;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .attention-debug-card,
+  .attention-debug-card:nth-child(even) {
+    border-right: 0;
+  }
+
+  .attention-debug-card > p {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .attention-routing-lab,
+  .attention-debugger-lab {
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .attention-routing-lab .interactive-lab-header,
+  .attention-debugger-lab .interactive-lab-header {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .attention-routing-lab .interactive-lab-actions,
+  .attention-debugger-lab .interactive-lab-actions,
+  .attention-routing-lab .interactive-lab-actions .button,
+  .attention-debugger-lab .interactive-lab-actions .button {
+    width: 100%;
+  }
+
+  .attention-preset-bar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .attention-routing-lab .step-explorer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    overflow: visible;
+  }
+
+  .attention-routing-lab .step-explorer button {
+    min-height: 58px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .attention-routing-lab .step-explorer button:nth-child(even) {
+    border-right: 0;
+  }
+
+  .attention-routing-lab .step-explorer button:last-child {
+    grid-column: 1 / -1;
+    border-right: 0;
+  }
+
+  .attention-slot-inspections,
+  .attention-run-actions,
+  .attention-debug-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .attention-memory-stage,
+  .attention-routing-lab .attention-stage-visual,
+  .attention-contribution-stage,
+  .attention-context-stage {
+    min-height: 0;
+    padding: 18px 14px;
+  }
+
+  .attention-routing-lab .array-diagram-scroll,
+  .attention-chapter-shell .attention-worked-inputs .array-diagram-scroll,
+  .attention-chapter-shell .attention-worked-output .array-diagram-scroll {
+    max-inline-size: 100%;
+    overflow: hidden;
+  }
+
+  .attention-routing-lab .array-diagram table,
+  .attention-chapter-shell .attention-worked-inputs .array-diagram table,
+  .attention-chapter-shell .attention-worked-output .array-diagram table {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    table-layout: fixed;
+    border-spacing: 3px;
+  }
+
+  .attention-routing-lab .array-diagram th,
+  .attention-chapter-shell .attention-worked-inputs .array-diagram th,
+  .attention-chapter-shell .attention-worked-output .array-diagram th {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .attention-routing-lab .array-diagram td > span,
+  .attention-routing-lab .array-diagram td > button,
+  .attention-chapter-shell .attention-worked-inputs .array-diagram td > span,
+  .attention-chapter-shell .attention-worked-output .array-diagram td > span {
+    width: 100%;
+    min-width: 0;
+    padding-right: 3px;
+    padding-left: 3px;
+    font-size: 9px;
+  }
+
+  .attention-routing-lab .attention-contribution-stage .array-diagram td > button {
+    min-height: 44px;
+  }
+
+  .attention-routing-formulas .katex,
+  .attention-routing-lab .attention-stage-formula .katex {
+    font-size: clamp(.72em, 3.5vw, .95em);
+  }
+
+  .attention-debug-progress {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .attention-evidence,
+  .attention-completion-checklist {
+    flex-direction: column;
+  }
+
+  .attention-evidence > span,
+  .attention-completion-checklist > span {
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .attention-preset-bar,
+  .attention-query-controls,
+  .attention-prediction-controls,
+  .attention-counterfactual,
+  .attention-evidence,
+  .attention-live-feedback,
+  .attention-debug-progress,
+  .attention-debug-card,
+  .attention-runtime-fallback {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .attention-query-controls legend,
+  .attention-prediction-controls legend,
+  .attention-debug-card legend {
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .attention-query-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .attention-query-controls small {
+    grid-column: auto;
+  }
+
+  .attention-debug-feedback {
+    margin-right: -12px;
+    margin-left: -12px;
+    padding-right: 12px;
+    padding-left: 12px;
+  }
+
+  .attention-pipeline-workspace .array-diagram {
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .attention-chapter-shell *,
+  .attention-routing-lab *,
+  .attention-debugger-lab * {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+
+  .attention-chapter-shell .button:hover,
+  .attention-routing-lab .button:hover,
+  .attention-debugger-lab .button:hover,
+  .attention-shape-ladder > span[aria-hidden],
+  .attention-worked-output > span[aria-hidden],
+  .attention-transfer-shapes > span[aria-hidden] {
+    transform: none !important;
+  }
+}

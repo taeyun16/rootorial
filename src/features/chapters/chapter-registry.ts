@@ -274,6 +274,46 @@ export const conceptQuestionHistory = {
       answers: ["state-reads-future-token", "attention-needs-no-position-or-mask", "state-uses-current-and-past-only"],
     },
   },
+  "transformer-from-zero/attention/qk-roles": {
+    1: {
+      version: 1,
+      label: "Query와 Key의 역할",
+      correctAnswer: "query-compares-keys",
+      answers: ["values-rank-keys", "query-compares-keys", "keys-average-queries"],
+    },
+  },
+  "transformer-from-zero/attention/score-shape": {
+    1: {
+      version: 1,
+      label: "Attention score shape",
+      correctAnswer: "scores-nq-nk",
+      answers: ["scores-dk-dv", "scores-nk-dv", "scores-nq-nk"],
+    },
+  },
+  "transformer-from-zero/attention/softmax-axis": {
+    1: {
+      version: 1,
+      label: "Attention Softmax 축",
+      correctAnswer: "keys-within-each-query",
+      answers: ["keys-within-each-query", "queries-within-each-key", "all-cells-globally"],
+    },
+  },
+  "transformer-from-zero/attention/value-context": {
+    1: {
+      version: 1,
+      label: "Value 가중합 context",
+      correctAnswer: "weights-mix-values",
+      answers: ["weights-pick-one-value", "weights-mix-values", "keys-become-context"],
+    },
+  },
+  "transformer-from-zero/attention/attention-boundary": {
+    1: {
+      version: 1,
+      label: "Attention과 Self-Attention 경계",
+      correctAnswer: "single-query-cross-attention-first",
+      answers: ["all-token-self-attention-now", "multi-head-and-mask-now", "single-query-cross-attention-first"],
+    },
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     1: {
       version: 1,
@@ -658,6 +698,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/sequences/causal-prefix"][1],
     status: "active",
   },
+  "transformer-from-zero/attention/qk-roles": {
+    ...conceptQuestionHistory["transformer-from-zero/attention/qk-roles"][1],
+    status: "active",
+  },
+  "transformer-from-zero/attention/score-shape": {
+    ...conceptQuestionHistory["transformer-from-zero/attention/score-shape"][1],
+    status: "active",
+  },
+  "transformer-from-zero/attention/softmax-axis": {
+    ...conceptQuestionHistory["transformer-from-zero/attention/softmax-axis"][1],
+    status: "active",
+  },
+  "transformer-from-zero/attention/value-context": {
+    ...conceptQuestionHistory["transformer-from-zero/attention/value-context"][1],
+    status: "active",
+  },
+  "transformer-from-zero/attention/attention-boundary": {
+    ...conceptQuestionHistory["transformer-from-zero/attention/attention-boundary"][1],
+    status: "active",
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/absolute-path"][1],
     status: "active",
@@ -837,6 +897,14 @@ export const sequenceQuestions = {
   "causal-prefix": conceptQuestionRegistry["transformer-from-zero/sequences/causal-prefix"],
 } as const;
 
+export const attentionQuestions = {
+  "qk-roles": conceptQuestionRegistry["transformer-from-zero/attention/qk-roles"],
+  "score-shape": conceptQuestionRegistry["transformer-from-zero/attention/score-shape"],
+  "softmax-axis": conceptQuestionRegistry["transformer-from-zero/attention/softmax-axis"],
+  "value-context": conceptQuestionRegistry["transformer-from-zero/attention/value-context"],
+  "attention-boundary": conceptQuestionRegistry["transformer-from-zero/attention/attention-boundary"],
+} as const;
+
 const linuxShellQuestions = {
   "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
   "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
@@ -912,6 +980,9 @@ export const chapterRegistry = {
   },
   "transformer-from-zero/sequences": {
     questions: sequenceQuestions,
+  },
+  "transformer-from-zero/attention": {
+    questions: attentionQuestions,
   },
   "linux-systems/shell-and-filesystem": {
     questions: linuxShellQuestions,

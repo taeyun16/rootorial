@@ -251,6 +251,12 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   const sequencesEnglish = await render(
     "/curricula/transformer-from-zero/chapters/sequences?lang=en",
   );
+  const attention = await render(
+    "/curricula/transformer-from-zero/chapters/attention",
+  );
+  const attentionEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/attention?lang=en",
+  );
   assert.equal(optimization.status, 404);
   assert.equal(neuralNetworks.status, 404);
   assert.equal(training.status, 404);
@@ -259,6 +265,8 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   assert.equal(embeddingsEnglish.status, 404);
   assert.equal(sequences.status, 404);
   assert.equal(sequencesEnglish.status, 404);
+  assert.equal(attention.status, 404);
+  assert.equal(attentionEnglish.status, 404);
   await Promise.all([
     optimization.text(),
     neuralNetworks.text(),
@@ -268,6 +276,8 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
     embeddingsEnglish.text(),
     sequences.text(),
     sequencesEnglish.text(),
+    attention.text(),
+    attentionEnglish.text(),
   ]);
 });
 

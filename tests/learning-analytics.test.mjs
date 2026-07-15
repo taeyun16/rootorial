@@ -105,6 +105,15 @@ test("accepts only the known learning surface and locale", () => {
     locale: "ko",
   });
   assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "attention",
+    locale: "en",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "attention",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     locale: "en",
@@ -204,6 +213,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "sequences",
     path: "/curricula/transformer-from-zero/chapters/sequences",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "attention" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "attention",
+    path: "/curricula/transformer-from-zero/chapters/attention",
   });
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
     curriculumSlug: "linux-systems",
@@ -583,6 +597,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "sequences",
     answers: { "causal-prefix": "client-says-correct" },
+  }));
+
+  const attentionResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "attention",
+    answers: {
+      "qk-roles": "query-compares-keys",
+      "score-shape": "scores-nq-nk",
+      "softmax-axis": "keys-within-each-query",
+      "value-context": "weights-mix-values",
+      "attention-boundary": "single-query-cross-attention-first",
+    },
+  });
+  assert.deepEqual(
+    attentionResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/attention/qk-roles",
+        correctAnswer: "query-compares-keys",
+      },
+      {
+        key: "transformer-from-zero/attention/score-shape",
+        correctAnswer: "scores-nq-nk",
+      },
+      {
+        key: "transformer-from-zero/attention/softmax-axis",
+        correctAnswer: "keys-within-each-query",
+      },
+      {
+        key: "transformer-from-zero/attention/value-context",
+        correctAnswer: "weights-mix-values",
+      },
+      {
+        key: "transformer-from-zero/attention/attention-boundary",
+        correctAnswer: "single-query-cross-attention-first",
+      },
+    ],
+  );
+  assert.ok(attentionResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "attention",
+    answers: { "softmax-axis": "client-says-correct" },
   }));
 
   const linuxResult = validateAttemptInput({

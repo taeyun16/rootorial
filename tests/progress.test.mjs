@@ -27,13 +27,14 @@ test("normalizes stored progress to known chapters in curriculum order", () => {
 });
 
 test("validates sync input and rejects unknown chapter slugs", () => {
-  assert.deepEqual(validateCompletedSlugs(["vectors", "optimization", "neural-networks", "training", "embeddings", "sequences"]), [
+  assert.deepEqual(validateCompletedSlugs(["vectors", "optimization", "neural-networks", "training", "embeddings", "sequences", "attention"]), [
     "transformer-from-zero/vectors",
     "transformer-from-zero/optimization",
     "transformer-from-zero/neural-networks",
     "transformer-from-zero/training",
     "transformer-from-zero/embeddings",
     "transformer-from-zero/sequences",
+    "transformer-from-zero/attention",
   ]);
   assert.throws(
     () => validateCompletedSlugs(["vectors", "not-a-chapter"]),
@@ -106,6 +107,7 @@ test("reads curriculum-aware v2 metadata", () => {
             training: true,
             embeddings: true,
             sequences: true,
+            attention: true,
           },
         },
       },
@@ -117,6 +119,7 @@ test("reads curriculum-aware v2 metadata", () => {
     "transformer-from-zero/training",
     "transformer-from-zero/embeddings",
     "transformer-from-zero/sequences",
+    "transformer-from-zero/attention",
   ]);
   assert.equal(readProgressVersion({ rootorial: { progressVersion: 2 } }), 2);
 });
