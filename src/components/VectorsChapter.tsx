@@ -89,12 +89,19 @@ function useChapterTopbarVisibility() {
 
 export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) {
   const [mastered, setMastered] = useState(false);
+  const [axisPracticeComplete, setAxisPracticeComplete] = useState(false);
+  const [shapePracticeComplete, setShapePracticeComplete] = useState(false);
   const { locale } = useLocale();
   const isKo = locale === "ko";
   const chapter = (isKo ? chaptersKo : chaptersEn).find(({ slug }) => slug === "vectors")!;
   const t = (ko: string, en: string) => isKo ? ko : en;
   const tocItems = isKo ? tocItemsKo : tocItemsEn;
   const [topbarHidden, setTopbarHidden] = useChapterTopbarVisibility();
+  const remainingRequirements = [
+    !axisPracticeComplete ? t("Axis Builder 세 연산", "Axis Builder: three operations") : null,
+    !shapePracticeComplete ? t("Shape Detective 세 미션", "Shape Detective: three missions") : null,
+    !mastered ? t("이해 확인 5문제", "five concept-check questions") : null,
+  ].filter((requirement): requirement is string => Boolean(requirement));
 
   return (
     <main
@@ -147,8 +154,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                   <li>벡터를 방향과 크기로 설명할 수 있다.</li>
                   <li>덧셈, 뺄셈, 스칼라 배와 정규화를 해석할 수 있다.</li>
                   <li>NumPy의 rank-1 배열, 행·열벡터와 reshape를 구분할 수 있다.</li>
-                  <li>stack과 axis를 이용해 batch, tokens, d_model shape를 읽을 수 있다.</li>
-                  <li>브로드캐스팅이 어느 축을 반복하는지 설명할 수 있다.</li>
+                  <li>stack·axis·브로드캐스팅으로 batch, tokens, d_model shape를 읽고 오류를 고칠 수 있다.</li>
                   <li>내적을 두 벡터의 정렬 정도로 해석할 수 있다.</li>
                 </ul>
               ) : (
@@ -156,8 +162,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                   <li>Explain a vector in terms of direction and magnitude.</li>
                   <li>Interpret addition, subtraction, scalar multiplication, and normalization.</li>
                   <li>Distinguish NumPy rank-1 arrays, row and column vectors, and reshape operations.</li>
-                  <li>Use stack and axis to read batch, tokens, and d_model shapes.</li>
-                  <li>Explain which axes broadcasting repeats.</li>
+                  <li>Use stack, axis, and broadcasting to read and repair batch, tokens, and d_model shapes.</li>
                   <li>Interpret the dot product as the alignment between two vectors.</li>
                 </ul>
               )}
@@ -276,7 +281,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                 </p>
               </div>
             </div>
-            <ShapeDebuggingLab />
+            <ShapeDebuggingLab onCompletionChange={setShapePracticeComplete} />
           </section>
 
           <section className="article-section full-bleed-section tensor-shape-section" id="tensor-shape">
@@ -299,7 +304,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             >
               <TensorShapeExplorer />
             </Discussable>
-            <AxisBuilderLab />
+            <AxisBuilderLab onCompletionChange={setAxisPracticeComplete} />
           </section>
 
           <section className="article-section full-bleed-section" id="dot-product">
@@ -378,10 +383,8 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             </p>
             <CompleteChapter
               slug="vectors"
-              canComplete={mastered}
-              lockedMessage={isKo
-                ? "이해 확인 다섯 문제를 맞히면 완료할 수 있습니다."
-                : "Answer all five concept-check questions correctly to complete the chapter."}
+              canComplete={mastered && axisPracticeComplete && shapePracticeComplete}
+              lockedMessage={`${t("남은 조건", "Remaining")}: ${remainingRequirements.join(" · ")}`}
             />
           </section>
 

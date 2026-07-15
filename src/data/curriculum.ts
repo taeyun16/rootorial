@@ -61,7 +61,7 @@ export const chaptersKo: Chapter[] = [
       "벡터의 크기와 방향, NumPy reshape와 axis, 브로드캐스팅과 내적을 예측·수정 실습으로 연결합니다.",
     runtime: "NumPy",
     estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES,
-    developmentStatus: "in-progress",
+    developmentStatus: "complete",
     status: "available",
     concepts: ["reshape", "axis", "내적"],
   },
@@ -180,7 +180,7 @@ export const chaptersEn: Chapter[] = [
     number: 1, slug: "vectors", title: "Vectors and Tensors",
     subtitle: "How collections of numbers gain meaning and direction",
     description: "Connect vector magnitude and direction, NumPy reshape and axes, broadcasting, and dot products through predict-and-repair practice.",
-    runtime: "NumPy", estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "in-progress", status: "available", concepts: ["reshape", "axis", "dot product"],
+    runtime: "NumPy", estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["reshape", "axis", "dot product"],
   },
   {
     number: 2, slug: "optimization", title: "Learning and Optimization",
