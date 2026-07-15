@@ -126,10 +126,11 @@ test("renders the Linux sample curriculum in both locales", async () => {
   assert.match(html, /프로세스와 시그널/);
   assert.match(html, /저장장치와 파일시스템/);
   assert.match(html, /패킷에서 소켓까지/);
+  assert.match(html, /작은 Linux 조립하기/);
   assert.match(html, /href="\/curricula\/linux-systems\/chapters\/shell-and-filesystem"/);
   assert.doesNotMatch(
     html,
-    /href="\/curricula\/linux-systems\/chapters\/(?:boot-to-shell|processes-and-signals|users-and-permissions|memory-and-virtual-addresses|storage-and-filesystems|networking-from-a-packet)"/,
+    /href="\/curricula\/linux-systems\/chapters\/(?:boot-to-shell|processes-and-signals|users-and-permissions|memory-and-virtual-addresses|storage-and-filesystems|networking-from-a-packet|assemble-a-tiny-linux)"/,
   );
   assert.match(html, /href="\/experiments\/linux"/);
   assert.match(html, /Linux 실험 열기/);
@@ -198,6 +199,12 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
   const networkingEnglish = await render(
     "/curricula/linux-systems/chapters/networking-from-a-packet?lang=en",
   );
+  const tinySystem = await render(
+    "/curricula/linux-systems/chapters/assemble-a-tiny-linux",
+  );
+  const tinySystemEnglish = await render(
+    "/curricula/linux-systems/chapters/assemble-a-tiny-linux?lang=en",
+  );
   assert.equal(boot.status, 404);
   assert.equal(processes.status, 404);
   assert.equal(permissions.status, 404);
@@ -208,6 +215,8 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
   assert.equal(storageEnglish.status, 404);
   assert.equal(networking.status, 404);
   assert.equal(networkingEnglish.status, 404);
+  assert.equal(tinySystem.status, 404);
+  assert.equal(tinySystemEnglish.status, 404);
   await Promise.all([
     boot.text(),
     processes.text(),
@@ -219,6 +228,8 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
     storageEnglish.text(),
     networking.text(),
     networkingEnglish.text(),
+    tinySystem.text(),
+    tinySystemEnglish.text(),
   ]);
 
   const unknown = await render("/curricula/linux-systems/chapters/not-a-chapter");

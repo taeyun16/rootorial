@@ -184,7 +184,7 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
   assert.equal(linuxChaptersKo[0].slug, "shell-and-filesystem");
   assert.equal(linuxChaptersKo[0].status, "available");
   assert.deepEqual(
-    linuxChaptersKo.slice(0, 7).map(
+    linuxChaptersKo.slice(0, 8).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -234,6 +234,12 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
         status: "available",
         developmentStatus: "complete",
         estimatedMinutes: 65,
+      },
+      {
+        slug: "assemble-a-tiny-linux",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 75,
       },
     ],
   );
@@ -341,7 +347,34 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
       concepts: ["socket fd · endpoint", "CIDR route · next hop", "TCP ACK · recv"],
     },
   );
-  assert.ok(linuxChaptersKo.slice(7).every(({ status }) => status === "planned"));
+  assert.deepEqual(
+    {
+      runtime: linuxChaptersKo[7].runtime,
+      description: linuxChaptersKo[7].description,
+      concepts: linuxChaptersKo[7].concepts,
+    },
+    {
+      runtime: "시스템 조립 모델 · 선택 v86",
+      description:
+        "kernel image와 rootfs artifact를 구분하고 PID 1의 mount·최소 권한 service·network 순서를 조립한 뒤, 경계별 증거로 reportd readiness를 진단합니다.",
+      concepts: ["artifact · rootfs", "PID 1 · service", "readiness · evidence"],
+    },
+  );
+  assert.deepEqual(
+    {
+      runtime: linuxChaptersEn[7].runtime,
+      description: linuxChaptersEn[7].description,
+      concepts: linuxChaptersEn[7].concepts,
+    },
+    {
+      runtime: "System assembly model · optional v86",
+      description:
+        "Separate kernel-image and rootfs artifacts, assemble PID 1's mounts, least-privilege service, and network order, then diagnose reportd readiness with evidence at each boundary.",
+      concepts: ["artifact · rootfs", "PID 1 · service", "readiness · evidence"],
+    },
+  );
+  assert.ok(linuxChaptersKo.every(({ status }) => status === "available"));
+  assert.ok(linuxChaptersKo.every(({ developmentStatus }) => developmentStatus === "complete"));
 });
 
 test("publishes Linux as an in-progress curriculum with a retained experiment", () => {

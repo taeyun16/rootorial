@@ -8,6 +8,7 @@ import { LinuxMemoryChapter } from "../../components/linux/LinuxMemoryChapter";
 import { LinuxNetworkingChapter } from "../../components/linux/LinuxNetworkingChapter";
 import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter";
+import { LinuxTinySystemChapter } from "../../components/linux/LinuxTinySystemChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
 import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
 import { SequencesChapter } from "../../components/sequences/SequencesChapter";
@@ -57,6 +58,10 @@ function LinuxNetworkingChapterPage({ learnerCount }: ChapterPageProps) {
   return <LinuxNetworkingChapter learnerCount={learnerCount} />;
 }
 
+function LinuxTinySystemChapterPage({ learnerCount }: ChapterPageProps) {
+  return <LinuxTinySystemChapter learnerCount={learnerCount} />;
+}
+
 function OptimizationChapterPage({ learnerCount }: ChapterPageProps) {
   return <OptimizationChapter learnerCount={learnerCount} />;
 }
@@ -96,6 +101,7 @@ const chapterPages = {
   "linux-systems/memory-and-virtual-addresses": LinuxMemoryChapterPage,
   "linux-systems/storage-and-filesystems": LinuxStorageChapterPage,
   "linux-systems/networking-from-a-packet": LinuxNetworkingChapterPage,
+  "linux-systems/assemble-a-tiny-linux": LinuxTinySystemChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(
