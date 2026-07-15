@@ -99,12 +99,14 @@ test("reads curriculum-aware v2 metadata", () => {
 
 test("keeps Linux and Transformer progress in separate curriculum buckets", () => {
   const completed = [
+    "linux-systems/boot-to-shell",
     "linux-systems/shell-and-filesystem",
     "transformer-from-zero/vectors",
   ];
   assert.deepEqual(validateCompletedSlugs(completed), [
     "transformer-from-zero/vectors",
     "linux-systems/shell-and-filesystem",
+    "linux-systems/boot-to-shell",
   ]);
   assert.deepEqual(buildProgressMetadata(completed), {
     rootorial: {
@@ -114,7 +116,10 @@ test("keeps Linux and Transformer progress in separate curriculum buckets", () =
           completedChapters: { vectors: true },
         },
         "linux-systems": {
-          completedChapters: { "shell-and-filesystem": true },
+          completedChapters: {
+            "shell-and-filesystem": true,
+            "boot-to-shell": true,
+          },
         },
       },
     },

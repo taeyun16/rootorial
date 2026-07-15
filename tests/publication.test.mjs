@@ -86,7 +86,7 @@ test("keeps editorial progress independent from chapter runtime readiness", () =
   assert.equal(isPublicationAccessible(catalog, vectorsKey), true);
 });
 
-test("publishes the completed Linux sample while keeping planned chapters closed", () => {
+test("publishes the existing Linux sample while keeping the completed boot chapter draft", () => {
   const catalog = resolvePublicationCatalog([], 1_000);
   const linux = catalog.resources[linuxKey];
   const shell = catalog.resources[linuxShellKey];
@@ -103,10 +103,14 @@ test("publishes the completed Linux sample while keeping planned chapters closed
   assert.equal(shell.listing, "listed");
   assert.equal(isPublicationAccessible(catalog, linuxShellKey), true);
 
-  assert.equal(boot.developmentStatus, "planned");
-  assert.equal(boot.contentReady, false);
+  assert.equal(boot.developmentStatus, "complete");
+  assert.equal(boot.contentReady, true);
+  assert.equal(boot.source, "default");
+  assert.equal(boot.publicationStatus, "draft");
   assert.equal(boot.effectivePublicationStatus, "draft");
   assert.equal(boot.listing, "listed");
+  assert.equal(boot.scheduledAt, null);
+  assert.equal(boot.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, linuxBootKey), false);
 
   const linuxCatalog = publicPublicationCatalog(catalog).curricula.find(

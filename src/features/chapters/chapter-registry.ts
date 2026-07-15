@@ -90,6 +90,38 @@ export const conceptQuestionHistory = {
       answers: ["protected-file", "missing-file", "invalid-echo"],
     },
   },
+  "linux-systems/boot-to-shell/firmware-handoff": {
+    1: {
+      version: 1,
+      label: "펌웨어 다음 인계 대상",
+      correctAnswer: "kernel-image",
+      answers: ["kernel-image", "shell-history", "pid-list"],
+    },
+  },
+  "linux-systems/boot-to-shell/kernel-userspace-boundary": {
+    1: {
+      version: 1,
+      label: "커널과 사용자 공간 경계",
+      correctAnswer: "kernel-only",
+      answers: ["kernel-only", "firmware-only", "shell-ready"],
+    },
+  },
+  "linux-systems/boot-to-shell/shell-origin": {
+    1: {
+      version: 1,
+      label: "콘솔 셸 시작 주체",
+      correctAnswer: "init-starts-shell",
+      answers: ["init-starts-shell", "firmware-clock", "root-directory-name"],
+    },
+  },
+  "linux-systems/boot-to-shell/pid-one": {
+    1: {
+      version: 1,
+      label: "PID 1 프로그램",
+      correctAnswer: "init",
+      answers: ["init", "firmware", "kernel"],
+    },
+  },
 } as const satisfies Record<
   string,
   Readonly<Record<number, ConceptQuestionVersionContract>>
@@ -134,6 +166,22 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/permission-error"][1],
     status: "active",
   },
+  "linux-systems/boot-to-shell/firmware-handoff": {
+    ...conceptQuestionHistory["linux-systems/boot-to-shell/firmware-handoff"][1],
+    status: "active",
+  },
+  "linux-systems/boot-to-shell/kernel-userspace-boundary": {
+    ...conceptQuestionHistory["linux-systems/boot-to-shell/kernel-userspace-boundary"][1],
+    status: "active",
+  },
+  "linux-systems/boot-to-shell/shell-origin": {
+    ...conceptQuestionHistory["linux-systems/boot-to-shell/shell-origin"][1],
+    status: "active",
+  },
+  "linux-systems/boot-to-shell/pid-one": {
+    ...conceptQuestionHistory["linux-systems/boot-to-shell/pid-one"][1],
+    status: "active",
+  },
 } as const satisfies Record<string, ConceptQuestionContract>;
 
 export type ConceptQuestionKey = keyof typeof conceptQuestionRegistry;
@@ -152,6 +200,13 @@ const linuxShellQuestions = {
   "permission-error": conceptQuestionRegistry["linux-systems/shell-and-filesystem/permission-error"],
 } as const;
 
+const linuxBootQuestions = {
+  "firmware-handoff": conceptQuestionRegistry["linux-systems/boot-to-shell/firmware-handoff"],
+  "kernel-userspace-boundary": conceptQuestionRegistry["linux-systems/boot-to-shell/kernel-userspace-boundary"],
+  "shell-origin": conceptQuestionRegistry["linux-systems/boot-to-shell/shell-origin"],
+  "pid-one": conceptQuestionRegistry["linux-systems/boot-to-shell/pid-one"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -162,6 +217,9 @@ export const chapterRegistry = {
   },
   "linux-systems/shell-and-filesystem": {
     questions: linuxShellQuestions,
+  },
+  "linux-systems/boot-to-shell": {
+    questions: linuxBootQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

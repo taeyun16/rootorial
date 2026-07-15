@@ -14,7 +14,31 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
   );
   assert.equal(linuxChaptersKo[0].slug, "shell-and-filesystem");
   assert.equal(linuxChaptersKo[0].status, "available");
-  assert.ok(linuxChaptersKo.slice(1).every(({ status }) => status === "planned"));
+  assert.deepEqual(
+    linuxChaptersKo.slice(0, 2).map(
+      ({ slug, status, developmentStatus, estimatedMinutes }) => ({
+        slug,
+        status,
+        developmentStatus,
+        estimatedMinutes,
+      }),
+    ),
+    [
+      {
+        slug: "shell-and-filesystem",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 35,
+      },
+      {
+        slug: "boot-to-shell",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 50,
+      },
+    ],
+  );
+  assert.ok(linuxChaptersKo.slice(2).every(({ status }) => status === "planned"));
 });
 
 test("publishes Linux as an in-progress curriculum with a retained experiment", () => {

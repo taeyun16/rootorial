@@ -73,11 +73,15 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "shell-and-filesystem",
     locale: "en",
   });
-  assert.throws(() => validateStartSessionInput({
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "boot-to-shell",
     locale: "ko",
-  }));
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "boot-to-shell",
+    locale: "ko",
+  });
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -100,6 +104,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     path: "/curricula/linux-systems/chapters/shell-and-filesystem",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "boot-to-shell" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "boot-to-shell",
+    path: "/curricula/linux-systems/chapters/boot-to-shell",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "optimization" }));
@@ -248,6 +257,27 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     answers: { "absolute-path": "client-says-correct" },
+  }));
+
+  const bootResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "boot-to-shell",
+    answers: {
+      "firmware-handoff": "kernel-image",
+      "pid-one": "init",
+    },
+  });
+  assert.equal(bootResult.answers[0].key, "linux-systems/boot-to-shell/firmware-handoff");
+  assert.equal(bootResult.answers[0].version, 1);
+  assert.equal(bootResult.answers[1].correctAnswer, "init");
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "boot-to-shell",
+    answers: { "firmware-handoff": "client-says-correct" },
   }));
 });
 

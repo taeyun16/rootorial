@@ -56,6 +56,15 @@ test("keeps planned and unknown chapters behind the publication boundary", async
   await Promise.all([planned.text(), unknown.text()]);
 });
 
+test("keeps a registered completed Linux draft behind the public boundary", async () => {
+  assert.ok(chapterRegistry["linux-systems/boot-to-shell"]);
+  const response = await render(
+    "/curricula/linux-systems/chapters/boot-to-shell",
+  );
+  assert.equal(response.status, 404);
+  await response.text();
+});
+
 test("returns not found instead of a server error for malformed route slugs", async () => {
   const malformedCurriculum = await render("/curricula/INVALID_SLUG");
   const malformedChapter = await render(

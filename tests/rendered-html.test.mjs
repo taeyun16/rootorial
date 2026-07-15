@@ -156,10 +156,10 @@ test("renders the interactive Linux shell and filesystem chapter", async () => {
   assert.match(englishHtml, /Teaching simulator · not real Linux/);
 });
 
-test("keeps planned and unknown Linux chapters unavailable", async () => {
-  const planned = await render("/curricula/linux-systems/chapters/boot-to-shell");
-  assert.equal(planned.status, 404);
-  await planned.text();
+test("keeps the completed draft and unknown Linux chapters unavailable", async () => {
+  const draft = await render("/curricula/linux-systems/chapters/boot-to-shell");
+  assert.equal(draft.status, 404);
+  await draft.text();
 
   const unknown = await render("/curricula/linux-systems/chapters/not-a-chapter");
   assert.equal(unknown.status, 404);
