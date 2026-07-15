@@ -490,6 +490,46 @@ export const conceptQuestionHistory = {
       answers: ["fsync-file-rename-fsync-parent", "write-visible-means-durable", "rename-alone-persists-everything"],
     },
   },
+  "linux-systems/networking-from-a-packet/socket-boundary": {
+    1: {
+      version: 1,
+      label: "fd와 kernel socket 경계",
+      correctAnswer: "fd-references-kernel-socket",
+      answers: ["fd-references-kernel-socket", "fd-number-crosses-network", "socket-is-remote-file"],
+    },
+  },
+  "linux-systems/networking-from-a-packet/longest-prefix-route": {
+    1: {
+      version: 1,
+      label: "longest-prefix route 선택",
+      correctAnswer: "most-specific-prefix",
+      answers: ["most-specific-prefix", "first-listed-route", "default-route-wins"],
+    },
+  },
+  "linux-systems/networking-from-a-packet/next-hop-addressing": {
+    1: {
+      version: 1,
+      label: "다음 홉의 link·IP 주소",
+      correctAnswer: "gateway-mac-keeps-remote-ip",
+      answers: ["gateway-mac-keeps-remote-ip", "remote-mac-directly", "gateway-ip-replaces-destination"],
+    },
+  },
+  "linux-systems/networking-from-a-packet/cumulative-ack": {
+    1: {
+      version: 1,
+      label: "TCP 누적 ACK와 gap",
+      correctAnswer: "ack-covers-contiguous-bytes",
+      answers: ["ack-covers-contiguous-bytes", "ack-is-packet-count", "ack-means-application-read"],
+    },
+  },
+  "linux-systems/networking-from-a-packet/listener-delivery": {
+    1: {
+      version: 1,
+      label: "listener·accepted fd·recv",
+      correctAnswer: "accept-new-fd-recv-confirms-delivery",
+      answers: ["accept-new-fd-recv-confirms-delivery", "listener-becomes-connected", "send-return-proves-application"],
+    },
+  },
 } as const satisfies Record<
   string,
   Readonly<Record<number, ConceptQuestionVersionContract>>
@@ -726,6 +766,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["linux-systems/storage-and-filesystems/crash-durability"][1],
     status: "active",
   },
+  "linux-systems/networking-from-a-packet/socket-boundary": {
+    ...conceptQuestionHistory["linux-systems/networking-from-a-packet/socket-boundary"][1],
+    status: "active",
+  },
+  "linux-systems/networking-from-a-packet/longest-prefix-route": {
+    ...conceptQuestionHistory["linux-systems/networking-from-a-packet/longest-prefix-route"][1],
+    status: "active",
+  },
+  "linux-systems/networking-from-a-packet/next-hop-addressing": {
+    ...conceptQuestionHistory["linux-systems/networking-from-a-packet/next-hop-addressing"][1],
+    status: "active",
+  },
+  "linux-systems/networking-from-a-packet/cumulative-ack": {
+    ...conceptQuestionHistory["linux-systems/networking-from-a-packet/cumulative-ack"][1],
+    status: "active",
+  },
+  "linux-systems/networking-from-a-packet/listener-delivery": {
+    ...conceptQuestionHistory["linux-systems/networking-from-a-packet/listener-delivery"][1],
+    status: "active",
+  },
 } as const satisfies Record<string, ConceptQuestionContract>;
 
 export type ConceptQuestionKey = keyof typeof conceptQuestionRegistry;
@@ -822,6 +882,14 @@ export const linuxStorageQuestions = {
   "crash-durability": conceptQuestionRegistry["linux-systems/storage-and-filesystems/crash-durability"],
 } as const;
 
+export const linuxNetworkingQuestions = {
+  "socket-boundary": conceptQuestionRegistry["linux-systems/networking-from-a-packet/socket-boundary"],
+  "longest-prefix-route": conceptQuestionRegistry["linux-systems/networking-from-a-packet/longest-prefix-route"],
+  "next-hop-addressing": conceptQuestionRegistry["linux-systems/networking-from-a-packet/next-hop-addressing"],
+  "cumulative-ack": conceptQuestionRegistry["linux-systems/networking-from-a-packet/cumulative-ack"],
+  "listener-delivery": conceptQuestionRegistry["linux-systems/networking-from-a-packet/listener-delivery"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -862,6 +930,9 @@ export const chapterRegistry = {
   },
   "linux-systems/storage-and-filesystems": {
     questions: linuxStorageQuestions,
+  },
+  "linux-systems/networking-from-a-packet": {
+    questions: linuxNetworkingQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

@@ -60,6 +60,10 @@ const linuxStorageKey = chapterPublicationKey(
   "linux-systems",
   "storage-and-filesystems",
 );
+const linuxNetworkingKey = chapterPublicationKey(
+  "linux-systems",
+  "networking-from-a-packet",
+);
 
 function override(resourceKey, values = {}) {
   const chapter = resourceKey.startsWith("chapter:");
@@ -102,6 +106,8 @@ test("preserves the current public catalog when no overrides exist", () => {
   assert.equal(isPublicationListed(catalog, linuxMemoryKey), true);
   assert.equal(isPublicationAccessible(catalog, linuxStorageKey), false);
   assert.equal(isPublicationListed(catalog, linuxStorageKey), true);
+  assert.equal(isPublicationAccessible(catalog, linuxNetworkingKey), false);
+  assert.equal(isPublicationListed(catalog, linuxNetworkingKey), true);
 
   const publicCatalog = publicPublicationCatalog(catalog);
   assert.ok(
@@ -196,6 +202,7 @@ test("publishes the existing Linux sample while keeping completed later chapters
   const permissions = catalog.resources[linuxPermissionsKey];
   const memory = catalog.resources[linuxMemoryKey];
   const storage = catalog.resources[linuxStorageKey];
+  const networking = catalog.resources[linuxNetworkingKey];
 
   assert.equal(linux.contentReady, true);
   assert.equal(linux.effectivePublicationStatus, "published");
@@ -257,6 +264,16 @@ test("publishes the existing Linux sample while keeping completed later chapters
   assert.equal(storage.scheduledAt, null);
   assert.equal(storage.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, linuxStorageKey), false);
+
+  assert.equal(networking.developmentStatus, "complete");
+  assert.equal(networking.contentReady, true);
+  assert.equal(networking.source, "default");
+  assert.equal(networking.publicationStatus, "draft");
+  assert.equal(networking.effectivePublicationStatus, "draft");
+  assert.equal(networking.listing, "listed");
+  assert.equal(networking.scheduledAt, null);
+  assert.equal(networking.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, linuxNetworkingKey), false);
 
   const linuxCatalog = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "linux-systems",

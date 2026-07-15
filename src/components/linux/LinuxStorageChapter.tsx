@@ -63,6 +63,7 @@ export function LinuxStorageChapter({ learnerCount = 0 }: { learnerCount?: numbe
     conceptsMastered,
   });
   const previousHref = `/admin/preview/curricula/${LINUX_CURRICULUM_SLUG}/chapters/memory-and-virtual-addresses${isKo ? "" : "?lang=en"}`;
+  const nextHref = `/admin/preview/curricula/${LINUX_CURRICULUM_SLUG}/chapters/networking-from-a-packet${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell linux-chapter-shell linux-storage-chapter-shell">
@@ -224,7 +225,7 @@ df -i /path/to/file`}</pre>
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousHref}>← {t("이전: 메모리와 가상 주소", "Previous: Memory and Virtual Addresses")}</a> : <span>← {t("이전: 메모리와 가상 주소", "Previous: Memory and Virtual Addresses")} <small>{t("드래프트 미리보기 전용", "Draft preview only")}</small></span>}
-            <span>{t("다음: 패킷에서 소켓까지", "Next: From Packets to Sockets")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview ? <a href={nextHref}>{t("다음: 패킷에서 소켓까지", "Next: From Packets to Sockets")} →</a> : <span>{t("다음: 패킷에서 소켓까지", "Next: From Packets to Sockets")} <small>{t("드래프트 미리보기 전용", "Draft preview only")}</small></span>}
           </nav>
         </article>
       </div>

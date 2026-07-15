@@ -158,6 +158,15 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "storage-and-filesystems",
     locale: "ko",
   });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "networking-from-a-packet",
+    locale: "en",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "networking-from-a-packet",
+    locale: "en",
+  });
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -230,6 +239,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "linux-systems",
     chapterSlug: "storage-and-filesystems",
     path: "/curricula/linux-systems/chapters/storage-and-filesystems",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "networking-from-a-packet" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "networking-from-a-packet",
+    path: "/curricula/linux-systems/chapters/networking-from-a-packet",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
 });
@@ -798,6 +812,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "linux-systems",
     chapterSlug: "storage-and-filesystems",
     answers: { "crash-durability": "client-says-correct" },
+  }));
+
+  const networkingResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "networking-from-a-packet",
+    answers: {
+      "socket-boundary": "fd-references-kernel-socket",
+      "longest-prefix-route": "most-specific-prefix",
+      "next-hop-addressing": "gateway-mac-keeps-remote-ip",
+      "cumulative-ack": "ack-covers-contiguous-bytes",
+      "listener-delivery": "accept-new-fd-recv-confirms-delivery",
+    },
+  });
+  assert.deepEqual(
+    networkingResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/networking-from-a-packet/socket-boundary",
+        correctAnswer: "fd-references-kernel-socket",
+      },
+      {
+        key: "linux-systems/networking-from-a-packet/longest-prefix-route",
+        correctAnswer: "most-specific-prefix",
+      },
+      {
+        key: "linux-systems/networking-from-a-packet/next-hop-addressing",
+        correctAnswer: "gateway-mac-keeps-remote-ip",
+      },
+      {
+        key: "linux-systems/networking-from-a-packet/cumulative-ack",
+        correctAnswer: "ack-covers-contiguous-bytes",
+      },
+      {
+        key: "linux-systems/networking-from-a-packet/listener-delivery",
+        correctAnswer: "accept-new-fd-recv-confirms-delivery",
+      },
+    ],
+  );
+  assert.ok(networkingResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "networking-from-a-packet",
+    answers: { "cumulative-ack": "client-says-correct" },
   }));
 });
 

@@ -30,6 +30,7 @@ export function CompleteChapter({
         <button
           type="button"
           className="button button-primary complete-button"
+          data-completion-ready={canComplete ? "true" : "false"}
           disabled
         >
           {isKo ? "미리보기에서는 완료할 수 없습니다" : "Completion is disabled in preview"}
@@ -78,6 +79,7 @@ export function CompleteChapter({
       <button
         type="button"
         className="button button-primary complete-button"
+        data-completion-ready={canComplete ? "true" : "false"}
         disabled={!canComplete || status === "loading" || status === "syncing"}
         onClick={() => void markComplete(progressId)}
       >

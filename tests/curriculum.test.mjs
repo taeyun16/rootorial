@@ -152,7 +152,7 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
   assert.equal(linuxChaptersKo[0].slug, "shell-and-filesystem");
   assert.equal(linuxChaptersKo[0].status, "available");
   assert.deepEqual(
-    linuxChaptersKo.slice(0, 6).map(
+    linuxChaptersKo.slice(0, 7).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -193,6 +193,12 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
       },
       {
         slug: "storage-and-filesystems",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 65,
+      },
+      {
+        slug: "networking-from-a-packet",
         status: "available",
         developmentStatus: "complete",
         estimatedMinutes: 65,
@@ -277,7 +283,33 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
       concepts: ["mount · inode", "hard link · unlink", "fsync · durability"],
     },
   );
-  assert.ok(linuxChaptersKo.slice(6).every(({ status }) => status === "planned"));
+  assert.deepEqual(
+    {
+      runtime: linuxChaptersKo[6].runtime,
+      description: linuxChaptersKo[6].description,
+      concepts: linuxChaptersKo[6].concepts,
+    },
+    {
+      runtime: "네트워크 경로 모델 · 선택 Linux 관찰",
+      description:
+        "regular-file fd에서 읽은 바이트를 socket fd로 넘기고, longest-prefix route·next hop·TCP 누적 ACK를 따라 원격 프로세스의 recv까지 실행하고 진단합니다.",
+      concepts: ["socket fd · endpoint", "CIDR route · next hop", "TCP ACK · recv"],
+    },
+  );
+  assert.deepEqual(
+    {
+      runtime: linuxChaptersEn[6].runtime,
+      description: linuxChaptersEn[6].description,
+      concepts: linuxChaptersEn[6].concepts,
+    },
+    {
+      runtime: "Network path model · optional Linux observation",
+      description:
+        "Move bytes read from a regular-file fd into a socket fd, then run and diagnose longest-prefix routing, next-hop resolution, cumulative TCP acknowledgements, and delivery to the remote process's recv call.",
+      concepts: ["socket fd · endpoint", "CIDR route · next hop", "TCP ACK · recv"],
+    },
+  );
+  assert.ok(linuxChaptersKo.slice(7).every(({ status }) => status === "planned"));
 });
 
 test("publishes Linux as an in-progress curriculum with a retained experiment", () => {
