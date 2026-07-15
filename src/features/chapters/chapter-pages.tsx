@@ -9,6 +9,7 @@ import { LinuxNetworkingChapter } from "../../components/linux/LinuxNetworkingCh
 import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter";
 import { LinuxTinySystemChapter } from "../../components/linux/LinuxTinySystemChapter";
+import { MiniTransformerChapter } from "../../components/mini-transformer/MiniTransformerChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
 import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
 import { SequencesChapter } from "../../components/sequences/SequencesChapter";
@@ -96,6 +97,10 @@ function TransformerBlockChapterPage({ learnerCount }: ChapterPageProps) {
   return <TransformerBlockChapter learnerCount={learnerCount} />;
 }
 
+function MiniTransformerChapterPage({ learnerCount }: ChapterPageProps) {
+  return <MiniTransformerChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
@@ -106,6 +111,7 @@ const chapterPages = {
   "transformer-from-zero/attention": AttentionChapterPage,
   "transformer-from-zero/self-attention": SelfAttentionChapterPage,
   "transformer-from-zero/transformer-block": TransformerBlockChapterPage,
+  "transformer-from-zero/mini-transformer": MiniTransformerChapterPage,
   "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
   "linux-systems/boot-to-shell": LinuxBootChapterPage,
   "linux-systems/processes-and-signals": LinuxProcessesChapterPage,

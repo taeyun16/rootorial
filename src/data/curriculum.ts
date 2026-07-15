@@ -57,6 +57,7 @@ export const SEQUENCES_CHAPTER_ESTIMATED_MINUTES = 65;
 export const ATTENTION_CHAPTER_ESTIMATED_MINUTES = 65;
 export const SELF_ATTENTION_CHAPTER_ESTIMATED_MINUTES = 75;
 export const TRANSFORMER_BLOCK_CHAPTER_ESTIMATED_MINUTES = 80;
+export const MINI_TRANSFORMER_CHAPTER_ESTIMATED_MINUTES = 90;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
@@ -190,11 +191,12 @@ export const chaptersKo: Chapter[] = [
     title: "Mini Transformer",
     subtitle: "배운 조각을 하나의 작동하는 모델로",
     description:
-      "Tokenizer부터 logits까지 연결하고 작은 next-token 모델이 학습되는 과정을 관찰합니다.",
-    runtime: "WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["tokenizer", "block", "logits"],
+      "결정적 tokenizer→embedding+position→pre-LayerNorm decoder block→final norm→vocabulary logits를 연결하고, shifted target loss·한 번의 LM-head update와 EOS/max-length autoregressive decoding을 실행·디버깅합니다.",
+    runtime: "TypeScript Mini Transformer 모델",
+    estimatedMinutes: MINI_TRANSFORMER_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["shifted target · causal prefix", "final norm · vocabulary logits", "loss · autoregressive decode"],
   },
 ];
 
@@ -256,8 +258,8 @@ export const chaptersEn: Chapter[] = [
   {
     number: 10, slug: "mini-transformer", title: "Mini Transformer",
     subtitle: "Combining the pieces into a working model",
-    description: "Connect the tokenizer to logits and watch a small next-token model learn.",
-    runtime: "WebGPU", developmentStatus: "planned", status: "planned", concepts: ["tokenizer", "block", "logits"],
+    description: "Connect a deterministic tokenizer, embedding plus position, one pre-LayerNorm decoder block, final normalization, and vocabulary logits, then execute and debug shifted-target loss, one LM-head update, and EOS/max-length autoregressive decoding.",
+    runtime: "TypeScript Mini Transformer model", estimatedMinutes: MINI_TRANSFORMER_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["shifted targets · causal prefixes", "final norm · vocabulary logits", "loss · autoregressive decoding"],
   },
 ];
 

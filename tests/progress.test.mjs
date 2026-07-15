@@ -14,6 +14,7 @@ import {
 test("normalizes stored progress to known chapters in curriculum order", () => {
   assert.deepEqual(
     normalizeCompletedSlugs([
+      "mini-transformer",
       "transformer-block",
       "self-attention",
       "attention",
@@ -27,6 +28,7 @@ test("normalizes stored progress to known chapters in curriculum order", () => {
       "transformer-from-zero/attention",
       "transformer-from-zero/self-attention",
       "transformer-from-zero/transformer-block",
+      "transformer-from-zero/mini-transformer",
     ],
   );
   assert.deepEqual(parseStoredProgress("not-json"), []);
@@ -45,6 +47,7 @@ test("validates sync input and rejects unknown chapter slugs", () => {
       "attention",
       "self-attention",
       "transformer-block",
+      "mini-transformer",
     ]),
     [
       "transformer-from-zero/vectors",
@@ -56,6 +59,7 @@ test("validates sync input and rejects unknown chapter slugs", () => {
       "transformer-from-zero/attention",
       "transformer-from-zero/self-attention",
       "transformer-from-zero/transformer-block",
+      "transformer-from-zero/mini-transformer",
     ],
   );
   assert.throws(
@@ -149,6 +153,7 @@ test("reads curriculum-aware v2 metadata", () => {
             attention: true,
             "self-attention": true,
             "transformer-block": true,
+            "mini-transformer": true,
           },
         },
       },
@@ -163,6 +168,7 @@ test("reads curriculum-aware v2 metadata", () => {
     "transformer-from-zero/attention",
     "transformer-from-zero/self-attention",
     "transformer-from-zero/transformer-block",
+    "transformer-from-zero/mini-transformer",
   ]);
   assert.equal(readProgressVersion({ rootorial: { progressVersion: 2 } }), 2);
 });

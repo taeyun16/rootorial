@@ -394,6 +394,46 @@ export const conceptQuestionHistory = {
       answers: ["flatten-token-axis", "hidden-state-same-token-model-shape", "block-emits-vocabulary-probabilities"],
     },
   },
+  "transformer-from-zero/mini-transformer/shifted-target": {
+    1: {
+      version: 1,
+      label: "Next-token shifted target 계약",
+      correctAnswer: "prefix-row-predicts-following-token",
+      answers: ["prefix-row-predicts-following-token", "row-copies-current-token", "final-row-predicts-first-token"],
+    },
+  },
+  "transformer-from-zero/mini-transformer/lm-head-boundary": {
+    1: {
+      version: 1,
+      label: "Hidden state에서 vocabulary logits로",
+      correctAnswer: "final-norm-then-vocabulary-projection",
+      answers: ["block-output-is-probability", "final-norm-then-vocabulary-projection", "tokenizer-creates-logits"],
+    },
+  },
+  "transformer-from-zero/mini-transformer/softmax-loss-axis": {
+    1: {
+      version: 1,
+      label: "Language-model Softmax와 loss 축",
+      correctAnswer: "vocabulary-axis-per-token-row",
+      answers: ["vocabulary-axis-per-token-row", "token-axis-per-vocabulary-column", "single-global-softmax"],
+    },
+  },
+  "transformer-from-zero/mini-transformer/head-update": {
+    1: {
+      version: 1,
+      label: "한 번의 LM-head 학습 update",
+      correctAnswer: "subtract-loss-gradient-from-head",
+      answers: ["add-loss-gradient-to-head", "subtract-loss-gradient-from-head", "replace-hidden-state-with-label"],
+    },
+  },
+  "transformer-from-zero/mini-transformer/autoregressive-loop": {
+    1: {
+      version: 1,
+      label: "Autoregressive 생성 loop",
+      correctAnswer: "append-recompute-stop-on-eos-or-limit",
+      answers: ["predict-all-future-tokens-once", "append-recompute-stop-on-eos-or-limit", "remove-prefix-after-each-token"],
+    },
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     1: {
       version: 1,
@@ -878,6 +918,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/transformer-block/block-handoff"][1],
     status: "active",
   },
+  "transformer-from-zero/mini-transformer/shifted-target": {
+    ...conceptQuestionHistory["transformer-from-zero/mini-transformer/shifted-target"][1],
+    status: "active",
+  },
+  "transformer-from-zero/mini-transformer/lm-head-boundary": {
+    ...conceptQuestionHistory["transformer-from-zero/mini-transformer/lm-head-boundary"][1],
+    status: "active",
+  },
+  "transformer-from-zero/mini-transformer/softmax-loss-axis": {
+    ...conceptQuestionHistory["transformer-from-zero/mini-transformer/softmax-loss-axis"][1],
+    status: "active",
+  },
+  "transformer-from-zero/mini-transformer/head-update": {
+    ...conceptQuestionHistory["transformer-from-zero/mini-transformer/head-update"][1],
+    status: "active",
+  },
+  "transformer-from-zero/mini-transformer/autoregressive-loop": {
+    ...conceptQuestionHistory["transformer-from-zero/mini-transformer/autoregressive-loop"][1],
+    status: "active",
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/absolute-path"][1],
     status: "active",
@@ -1101,6 +1161,14 @@ export const transformerBlockQuestions = {
   "block-handoff": conceptQuestionRegistry["transformer-from-zero/transformer-block/block-handoff"],
 } as const;
 
+export const miniTransformerQuestions = {
+  "shifted-target": conceptQuestionRegistry["transformer-from-zero/mini-transformer/shifted-target"],
+  "lm-head-boundary": conceptQuestionRegistry["transformer-from-zero/mini-transformer/lm-head-boundary"],
+  "softmax-loss-axis": conceptQuestionRegistry["transformer-from-zero/mini-transformer/softmax-loss-axis"],
+  "head-update": conceptQuestionRegistry["transformer-from-zero/mini-transformer/head-update"],
+  "autoregressive-loop": conceptQuestionRegistry["transformer-from-zero/mini-transformer/autoregressive-loop"],
+} as const;
+
 const linuxShellQuestions = {
   "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
   "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
@@ -1193,6 +1261,9 @@ export const chapterRegistry = {
   },
   "transformer-from-zero/transformer-block": {
     questions: transformerBlockQuestions,
+  },
+  "transformer-from-zero/mini-transformer": {
+    questions: miniTransformerQuestions,
   },
   "linux-systems/shell-and-filesystem": {
     questions: linuxShellQuestions,

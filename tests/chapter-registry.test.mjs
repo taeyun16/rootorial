@@ -135,6 +135,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     getPublishedChapter("transformer-from-zero", "transformer-block", "en")?.chapter.title,
     "The Transformer Block",
   );
+  assert.equal(
+    getPublishedChapter("transformer-from-zero", "mini-transformer", "en")?.chapter.title,
+    "Mini Transformer",
+  );
   assert.equal(getPublishedChapter("transformer-from-zero", "missing"), undefined);
 });
 
@@ -173,6 +177,50 @@ test("separates active question submissions from historical labels", () => {
       "transformer-from-zero",
       "vectors",
       "orientation",
+      2,
+    ),
+    undefined,
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["transformer-from-zero/mini-transformer"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "shifted-target": "prefix-row-predicts-following-token",
+      "lm-head-boundary": "final-norm-then-vocabulary-projection",
+      "softmax-loss-axis": "vocabulary-axis-per-token-row",
+      "head-update": "subtract-loss-gradient-from-head",
+      "autoregressive-loop": "append-recompute-stop-on-eos-or-limit",
+    },
+  );
+  assert.deepEqual(
+    Object.values(chapterRegistry["transformer-from-zero/mini-transformer"].questions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [0, 1, 0, 1, 1],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "transformer-from-zero",
+      "mini-transformer",
+      "softmax-loss-axis",
+    )?.correctAnswer,
+    "vocabulary-axis-per-token-row",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "mini-transformer",
+      "autoregressive-loop",
+      1,
+    )?.correctAnswer,
+    "append-recompute-stop-on-eos-or-limit",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "mini-transformer",
+      "autoregressive-loop",
       2,
     ),
     undefined,
@@ -881,6 +929,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "09. The Transformer Block · Rootorial",
       description:
         "Add a deterministic absolute positional signal once before the first block, then execute and debug a decoder-only pre-LayerNorm block whose causal self-attention and position-wise FFN preserve [T,d_model] through residual paths.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/transformer-from-zero/chapters/mini-transformer",
+      "ko",
+    ),
+    {
+      title: "10. Mini Transformer · Rootorial",
+      description:
+        "결정적 tokenizer→embedding+position→pre-LayerNorm decoder block→final norm→vocabulary logits를 연결하고, shifted target loss·한 번의 LM-head update와 EOS/max-length autoregressive decoding을 실행·디버깅합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("transformer-from-zero", "mini-transformer", "en"),
+    {
+      title: "10. Mini Transformer · Rootorial",
+      description:
+        "Connect a deterministic tokenizer, embedding plus position, one pre-LayerNorm decoder block, final normalization, and vocabulary logits, then execute and debug shifted-target loss, one LM-head update, and EOS/max-length autoregressive decoding.",
     },
   );
   assert.deepEqual(

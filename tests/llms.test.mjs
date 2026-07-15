@@ -29,6 +29,7 @@ const sequencesUrl = `${transformerUrl}/chapters/sequences`;
 const attentionUrl = `${transformerUrl}/chapters/attention`;
 const selfAttentionUrl = `${transformerUrl}/chapters/self-attention`;
 const transformerBlockUrl = `${transformerUrl}/chapters/transformer-block`;
+const miniTransformerUrl = `${transformerUrl}/chapters/mini-transformer`;
 const linuxBootUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/boot-to-shell`;
 const linuxProcessesUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/processes-and-signals`;
 const linuxPermissionsUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/users-and-permissions`;
@@ -121,6 +122,7 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.ok(!contents.includes(attentionUrl));
   assert.ok(!contents.includes(selfAttentionUrl));
   assert.ok(!contents.includes(transformerBlockUrl));
+  assert.ok(!contents.includes(miniTransformerUrl));
   assert.ok(!contents.includes(linuxBootUrl));
   assert.ok(!contents.includes(linuxProcessesUrl));
   assert.ok(!contents.includes(linuxPermissionsUrl));
@@ -143,6 +145,10 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.match(
     contents,
     /Transformers from the Ground Up — Chapter 9: The Transformer Block \(position · block input, pre-LayerNorm · residual, position-wise FFN · handoff\)/,
+  );
+  assert.match(
+    contents,
+    /Transformers from the Ground Up — Chapter 10: Mini Transformer \(shifted targets · causal prefixes, final norm · vocabulary logits, loss · autoregressive decoding\)/,
   );
   assert.match(
     contents,

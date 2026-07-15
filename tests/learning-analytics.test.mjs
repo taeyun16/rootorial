@@ -132,6 +132,15 @@ test("accepts only the known learning surface and locale", () => {
     locale: "en",
   });
   assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "mini-transformer",
+    locale: "ko",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "mini-transformer",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     locale: "en",
@@ -255,6 +264,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "transformer-block",
     path: "/curricula/transformer-from-zero/chapters/transformer-block",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "mini-transformer" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "mini-transformer",
+    path: "/curricula/transformer-from-zero/chapters/mini-transformer",
   });
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
     curriculumSlug: "linux-systems",
@@ -780,6 +794,38 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "transformer-block",
     answers: { "block-handoff": "client-says-correct" },
+  }));
+
+  const miniTransformerResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "mini-transformer",
+    answers: {
+      "shifted-target": "prefix-row-predicts-following-token",
+      "lm-head-boundary": "final-norm-then-vocabulary-projection",
+      "softmax-loss-axis": "vocabulary-axis-per-token-row",
+      "head-update": "subtract-loss-gradient-from-head",
+      "autoregressive-loop": "append-recompute-stop-on-eos-or-limit",
+    },
+  });
+  assert.deepEqual(
+    miniTransformerResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      { key: "transformer-from-zero/mini-transformer/shifted-target", correctAnswer: "prefix-row-predicts-following-token" },
+      { key: "transformer-from-zero/mini-transformer/lm-head-boundary", correctAnswer: "final-norm-then-vocabulary-projection" },
+      { key: "transformer-from-zero/mini-transformer/softmax-loss-axis", correctAnswer: "vocabulary-axis-per-token-row" },
+      { key: "transformer-from-zero/mini-transformer/head-update", correctAnswer: "subtract-loss-gradient-from-head" },
+      { key: "transformer-from-zero/mini-transformer/autoregressive-loop", correctAnswer: "append-recompute-stop-on-eos-or-limit" },
+    ],
+  );
+  assert.ok(miniTransformerResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "mini-transformer",
+    answers: { "autoregressive-loop": "client-says-correct" },
   }));
 
   const linuxResult = validateAttemptInput({
