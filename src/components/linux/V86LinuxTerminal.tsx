@@ -44,7 +44,7 @@ const copy = {
     commandPlaceholder: "uname -a",
     run: "실행",
     tryCommands: "부팅 후 확인할 명령",
-    bootHint: "처음 실행할 때 외부 공식 자산 약 14MB를 내려받습니다. 브라우저와 네트워크에 따라 수 초가 걸릴 수 있습니다.",
+    bootHint: "처음 실행할 때 외부 v86 데모 부팅 자산 약 14MB를 내려받습니다. 브라우저와 네트워크에 따라 수 초가 걸릴 수 있습니다.",
     networkHint: "게스트 이미지의 기본 배너에 네트워크·파일 전송 안내가 보일 수 있지만, 이 실험은 네트워크 장치를 연결하지 않아 해당 안내는 적용되지 않습니다.",
     errorHint: "외부 자산을 내려받지 못했습니다. 네트워크 상태를 확인한 뒤 다시 시도하세요.",
     timeoutError: "90초 안에 Linux 셸이 준비되지 않아 부팅을 중단했습니다.",
@@ -52,6 +52,8 @@ const copy = {
     downloaded: "다운로드",
     terminal: "v86 Linux 직렬 콘솔 출력",
     source: "v86 공식 소스",
+    unsupported: "이 브라우저는 WebAssembly를 지원하지 않아 선택형 실제 커널 실험을 시작할 수 없습니다.",
+    fallback: "네트워크가 필요 없는 결정론적 대체 활동으로 돌아가기",
   },
   en: {
     title: "Boot a real Linux kernel",
@@ -72,7 +74,7 @@ const copy = {
     commandPlaceholder: "uname -a",
     run: "Run",
     tryCommands: "Commands to try after boot",
-    bootHint: "The first run downloads about 14 MB of official external assets. It can take a few seconds depending on the browser and network.",
+    bootHint: "The first run downloads about 14 MB of external v86 demo boot assets. It can take a few seconds depending on the browser and network.",
     networkHint: "The stock guest banner may mention networking and file transfer, but this lab attaches no network device, so those instructions do not apply here.",
     errorHint: "The external assets could not be downloaded. Check the network and try again.",
     timeoutError: "Linux did not reach the shell within 90 seconds, so the boot was stopped.",
@@ -80,6 +82,8 @@ const copy = {
     downloaded: "Downloaded",
     terminal: "v86 Linux serial console output",
     source: "Official v86 source",
+    unsupported: "This browser does not support WebAssembly, so the optional real-kernel experiment cannot start.",
+    fallback: "Return to the deterministic, network-free fallback activity",
   },
 } as const;
 
@@ -138,7 +142,13 @@ async function fetchBootAsset(
   return bytes.buffer;
 }
 
-export function V86LinuxTerminal({ locale }: { locale: Locale }) {
+export function V86LinuxTerminal({
+  locale,
+  fallbackHref = "#shell-lab",
+}: {
+  locale: Locale;
+  fallbackHref?: string;
+}) {
   const c = copy[locale];
   const emulatorRef = useRef<V86 | null>(null);
   const outputRef = useRef("");
@@ -427,6 +437,13 @@ export function V86LinuxTerminal({ locale }: { locale: Locale }) {
         <div className="linux-runtime-error" role="alert">
           <strong>{c.errorHint}</strong>
           {errorMessage ? <code>{errorMessage}</code> : null}
+        </div>
+      ) : null}
+
+      {wasmSupported === false ? (
+        <div className="linux-runtime-error linux-runtime-fallback" role="alert">
+          <strong>{c.unsupported}</strong>
+          <a href={fallbackHref}>{c.fallback} →</a>
         </div>
       ) : null}
 

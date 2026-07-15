@@ -50,6 +50,7 @@ export function chapterId(curriculumSlug: string, chapterSlug: string) {
 
 export const VECTOR_CHAPTER_ESTIMATED_MINUTES = 60;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
+export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 
 export const chaptersKo: Chapter[] = [
   {
@@ -258,11 +259,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "전원이 켜지고 셸이 뜨기까지",
     subtitle: "BIOS, 커널과 init이 한 줄의 프롬프트를 만드는 과정",
     description:
-      "v86으로 실제 Linux를 부팅하며 펌웨어에서 커널, init과 로그인 셸까지의 경계를 추적합니다.",
-    runtime: "v86 · Buildroot",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["BIOS", "kernel", "init"],
+      "결정론적 부팅 모델에서 실패 경계를 복구하고, 선택형 v86 실험과 비교하며 펌웨어에서 커널, init과 직렬 콘솔 셸까지 추적합니다.",
+    runtime: "부팅 모델 · 선택 v86",
+    estimatedMinutes: LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["firmware", "rootfs", "PID 1"],
   },
   {
     number: 3,
@@ -358,11 +360,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "From Power-On to a Shell",
     subtitle: "How BIOS, the kernel, and init produce one command prompt",
     description:
-      "Boot a real Linux system with v86 and trace the boundaries from firmware through the kernel, init, and the login shell.",
-    runtime: "v86 · Buildroot",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["BIOS", "kernel", "init"],
+      "Repair failed boundaries in a deterministic boot model, compare them with an optional v86 run, and trace firmware through the kernel, init, and the serial console shell.",
+    runtime: "Boot model · optional v86",
+    estimatedMinutes: LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["firmware", "rootfs", "PID 1"],
   },
   {
     number: 3,

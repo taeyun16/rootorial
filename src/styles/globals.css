@@ -10823,6 +10823,453 @@ textarea:focus-visible {
   letter-spacing: .08em;
 }
 
+.linux-boot-hero {
+  background:
+    radial-gradient(circle at 78% 26%, rgba(44, 155, 103, .14), transparent 22rem),
+    linear-gradient(135deg, var(--paper) 0 72%, #eef5ef 72% 100%);
+}
+
+.boot-handoff-overview {
+  margin: 38px 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  list-style: none;
+  border-top: 1px solid var(--line-strong);
+  border-left: 1px solid var(--line-strong);
+}
+
+.boot-handoff-overview li {
+  min-width: 0;
+  min-height: 205px;
+  padding: 22px;
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  border-right: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.boot-handoff-overview li > span {
+  color: #237048;
+  font: 800 9px var(--mono);
+  letter-spacing: .1em;
+}
+
+.boot-handoff-overview strong {
+  font-size: 15px;
+}
+
+.boot-handoff-overview p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.68;
+  word-break: keep-all;
+}
+
+.boot-sequence-lab .interactive-lab-header,
+.boot-failure-lab .interactive-lab-header {
+  background: #e8f2e9;
+}
+
+.boot-preset-bar {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  background: #f7faf7;
+}
+
+.boot-preset-bar > span {
+  margin-right: 6px;
+  color: #237048;
+  font: 800 9px var(--mono);
+  letter-spacing: .1em;
+}
+
+.boot-preset-bar button {
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.boot-preset-bar button:hover {
+  border-color: #237048;
+  background: var(--linux-green-soft);
+}
+
+.boot-config-grid {
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  background: #fbfaf6;
+}
+
+.boot-config-grid label,
+.boot-prediction-panel label,
+.boot-failure-mission label {
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.boot-config-grid label > span,
+.boot-prediction-panel label > span,
+.boot-failure-mission label > span {
+  color: var(--muted);
+  font: 750 9px var(--mono);
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.boot-config-grid select,
+.boot-prediction-panel select,
+.boot-failure-mission select {
+  width: 100%;
+  min-width: 0;
+  min-height: 48px;
+  padding: 0 38px 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 0;
+  background: var(--paper-raised);
+  color: var(--text);
+  font-size: 12px;
+}
+
+.boot-prediction-panel {
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: minmax(220px, .85fr) minmax(0, 1.15fr);
+  align-items: stretch;
+  gap: 18px;
+  border-bottom: 1px solid var(--line);
+  background: #f2f7f2;
+}
+
+.boot-prediction-feedback {
+  min-width: 0;
+  padding: 12px 14px;
+  border-left: 3px solid #7ba58a;
+  background: rgba(255, 255, 255, .75);
+}
+
+.boot-prediction-feedback strong {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.boot-prediction-feedback p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.boot-run-bar {
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  border-bottom: 1px solid var(--line);
+  background: #111813;
+}
+
+.boot-run-bar .button {
+  flex: none;
+}
+
+.boot-lab-progress {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 14px;
+  color: #d9e5dc;
+}
+
+.boot-lab-progress strong {
+  color: #8fddb2;
+  font: 800 16px var(--mono);
+}
+
+.boot-lab-progress span {
+  color: #b7c5bb;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.boot-stage-timeline {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  list-style: none;
+  border-bottom: 1px solid var(--line);
+}
+
+.boot-stage-timeline li {
+  min-width: 0;
+  min-height: 176px;
+  padding: 20px;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  border-right: 1px solid var(--line);
+  background: #f7f6f1;
+}
+
+.boot-stage-timeline li:last-child {
+  border-right: 0;
+}
+
+.boot-stage-timeline li > span {
+  color: var(--muted);
+  font: 750 9px var(--mono);
+  letter-spacing: .08em;
+}
+
+.boot-stage-timeline strong {
+  width: max-content;
+  padding: 4px 7px;
+  border: 1px solid var(--line-strong);
+  color: var(--muted);
+  font: 800 9px var(--mono);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.boot-stage-timeline p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.62;
+  overflow-wrap: anywhere;
+}
+
+.boot-stage-timeline .is-passed {
+  background: #edf7f0;
+}
+
+.boot-stage-timeline .is-passed strong {
+  border-color: #8fc7a4;
+  color: #17623f;
+}
+
+.boot-stage-timeline .is-failed {
+  background: #fff1ed;
+}
+
+.boot-stage-timeline .is-failed strong {
+  border-color: #d7a094;
+  color: #8a3f32;
+}
+
+.boot-observation-checks,
+.boot-completion-checklist {
+  padding: 18px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  background: #fbfaf6;
+}
+
+.boot-observation-checks span,
+.boot-completion-checklist span {
+  min-height: 36px;
+  padding: 8px 11px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.boot-observation-checks span.is-complete,
+.boot-completion-checklist span.is-complete {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.boot-failure-progress {
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+  background: #111813;
+  color: #d9e5dc;
+}
+
+.boot-failure-progress strong {
+  color: #8fddb2;
+  font: 800 16px var(--mono);
+}
+
+.boot-failure-progress span {
+  font-size: 11px;
+}
+
+.boot-failure-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.boot-failure-mission {
+  min-width: 0;
+  margin: 0;
+  padding: 24px;
+  display: grid;
+  align-content: start;
+  gap: 16px;
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background: #fbfaf6;
+}
+
+.boot-failure-mission:nth-child(even) {
+  border-right: 0;
+}
+
+.boot-failure-mission legend {
+  padding: 24px 24px 0;
+  color: var(--text);
+  font: 600 18px var(--serif);
+}
+
+.boot-failure-mission pre,
+.boot-process-preview {
+  max-width: 100%;
+  margin: 0;
+  padding: 18px;
+  overflow-x: hidden;
+  border: 1px solid #2f3d33;
+  background: #111813;
+  color: #bce8ca;
+  font: 11px/1.7 var(--mono);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.boot-failure-mission > p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.boot-failure-mission > .button {
+  width: 100%;
+  justify-content: center;
+}
+
+.boot-failure-mission.is-correct {
+  background: #edf7f0;
+}
+
+.boot-failure-mission.is-incorrect {
+  background: #fff7f3;
+}
+
+.boot-diagnosis-feedback {
+  padding: 14px;
+  border-left: 3px solid #b15f4c;
+  background: rgba(255, 255, 255, .7);
+}
+
+.boot-failure-mission.is-correct .boot-diagnosis-feedback {
+  border-left-color: #2c9b67;
+}
+
+.boot-diagnosis-feedback strong {
+  color: var(--text);
+  font-size: 12px;
+}
+
+.boot-diagnosis-feedback p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.boot-observation-commands {
+  margin: 34px 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--line-strong);
+  border-left: 1px solid var(--line-strong);
+}
+
+.boot-observation-commands article {
+  min-width: 0;
+  padding: 18px;
+  border-right: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.boot-observation-commands p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.boot-v86-embed.linux-v86-section {
+  width: 100%;
+  margin: 34px 0 0;
+}
+
+.linux-runtime-fallback a {
+  color: inherit;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.boot-process-preview {
+  margin: 30px 0 0;
+}
+
+.boot-transfer-answer {
+  margin-top: 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.boot-transfer-answer summary {
+  min-height: 48px;
+  padding: 14px 16px;
+  cursor: pointer;
+  color: #17623f;
+  font-weight: 750;
+}
+
+.boot-transfer-answer p {
+  margin: 0;
+  padding: 0 16px 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.boot-completion-checklist {
+  margin: 24px 0;
+  padding: 0;
+  background: transparent;
+}
+
 @keyframes linux-runtime-pulse {
   50% { opacity: .42; }
 }
@@ -10902,6 +11349,20 @@ textarea:focus-visible {
   .linux-prompt-anatomy b {
     padding-top: 4px;
     padding-bottom: 0;
+  }
+
+  .boot-handoff-overview,
+  .boot-stage-timeline,
+  .boot-failure-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .boot-stage-timeline li:nth-child(2) {
+    border-right: 0;
+  }
+
+  .boot-stage-timeline li:nth-child(-n + 2) {
+    border-bottom: 1px solid var(--line);
   }
 }
 
@@ -11041,6 +11502,76 @@ textarea:focus-visible {
   .linux-prompt-anatomy {
     padding: 20px 16px;
     gap: 8px;
+  }
+
+  .boot-handoff-overview,
+  .boot-config-grid,
+  .boot-stage-timeline,
+  .boot-failure-grid,
+  .boot-observation-commands {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .boot-handoff-overview li,
+  .boot-stage-timeline li,
+  .boot-failure-mission,
+  .boot-failure-mission:nth-child(even) {
+    min-height: 0;
+    border-right: 0;
+  }
+
+  .boot-preset-bar,
+  .boot-config-grid,
+  .boot-prediction-panel,
+  .boot-observation-checks {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  .boot-prediction-panel {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .boot-preset-bar > span {
+    width: 100%;
+  }
+
+  .boot-preset-bar button {
+    flex: 1 1 calc(50% - 8px);
+  }
+
+  .boot-run-bar {
+    padding: 18px 16px;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .boot-run-bar .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .boot-lab-progress {
+    grid-template-columns: 1fr;
+  }
+
+  .boot-failure-progress {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .boot-failure-mission {
+    padding: 20px 16px;
+  }
+
+  .boot-failure-mission legend {
+    padding: 20px 16px 0;
+  }
+
+  .boot-v86-embed.linux-v86-section {
+    width: 100%;
+    margin-right: 0;
+    margin-left: 0;
   }
 }
 

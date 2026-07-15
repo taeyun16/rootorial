@@ -75,6 +75,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     getPublishedChapter("transformer-from-zero", "vectors", "en")?.chapter.title,
     "Vectors and Tensors",
   );
+  assert.equal(
+    getPublishedChapter("linux-systems", "boot-to-shell", "en")?.chapter.title,
+    "From Power-On to a Shell",
+  );
   assert.equal(getPublishedChapter("transformer-from-zero", "optimization"), undefined);
   assert.equal(getPublishedChapter("transformer-from-zero", "missing"), undefined);
 });
@@ -118,6 +122,28 @@ test("separates active question submissions from historical labels", () => {
     ),
     undefined,
   );
+  assert.equal(
+    getConceptQuestion("linux-systems", "boot-to-shell", "pid-one")?.correctAnswer,
+    "init",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "boot-to-shell",
+      "firmware-handoff",
+      1,
+    )?.correctAnswer,
+    "kernel-image",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "boot-to-shell",
+      "firmware-handoff",
+      2,
+    ),
+    undefined,
+  );
 });
 
 test("derives localized metadata from the catalog without route-specific copies", () => {
@@ -138,5 +164,13 @@ test("derives localized metadata from the catalog without route-specific copies"
       "ko",
     ),
     undefined,
+  );
+  assert.deepEqual(
+    chapterPageMetadata("linux-systems", "boot-to-shell", "en"),
+    {
+      title: "02. From Power-On to a Shell · Rootorial",
+      description:
+        "Repair failed boundaries in a deterministic boot model, compare them with an optional v86 run, and trace firmware through the kernel, init, and the serial console shell.",
+    },
   );
 });
