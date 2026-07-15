@@ -8,6 +8,7 @@ import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
 import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
+import { SequencesChapter } from "../../components/sequences/SequencesChapter";
 import { TrainingChapter } from "../../components/training/TrainingChapter";
 import { VectorsChapter } from "../../components/VectorsChapter";
 import { chapterId } from "../../data/curriculum";
@@ -66,12 +67,17 @@ function EmbeddingsChapterPage({ learnerCount }: ChapterPageProps) {
   return <EmbeddingsChapter learnerCount={learnerCount} />;
 }
 
+function SequencesChapterPage({ learnerCount }: ChapterPageProps) {
+  return <SequencesChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
   "transformer-from-zero/neural-networks": NeuralNetworksChapterPage,
   "transformer-from-zero/training": TrainingChapterPage,
   "transformer-from-zero/embeddings": EmbeddingsChapterPage,
+  "transformer-from-zero/sequences": SequencesChapterPage,
   "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
   "linux-systems/boot-to-shell": LinuxBootChapterPage,
   "linux-systems/processes-and-signals": LinuxProcessesChapterPage,

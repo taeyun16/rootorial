@@ -27,12 +27,13 @@ test("normalizes stored progress to known chapters in curriculum order", () => {
 });
 
 test("validates sync input and rejects unknown chapter slugs", () => {
-  assert.deepEqual(validateCompletedSlugs(["vectors", "optimization", "neural-networks", "training", "embeddings"]), [
+  assert.deepEqual(validateCompletedSlugs(["vectors", "optimization", "neural-networks", "training", "embeddings", "sequences"]), [
     "transformer-from-zero/vectors",
     "transformer-from-zero/optimization",
     "transformer-from-zero/neural-networks",
     "transformer-from-zero/training",
     "transformer-from-zero/embeddings",
+    "transformer-from-zero/sequences",
   ]);
   assert.throws(
     () => validateCompletedSlugs(["vectors", "not-a-chapter"]),
@@ -45,7 +46,7 @@ test("merges anonymous, cached, and remote progress without duplicates", () => {
   assert.deepEqual(
     mergeCompletedSlugs(
       ["attention", "vectors"],
-      ["vectors", "optimization", "neural-networks", "training", "embeddings"],
+      ["vectors", "optimization", "neural-networks", "training", "embeddings", "sequences"],
     ),
     [
       "transformer-from-zero/vectors",
@@ -53,6 +54,7 @@ test("merges anonymous, cached, and remote progress without duplicates", () => {
       "transformer-from-zero/neural-networks",
       "transformer-from-zero/training",
       "transformer-from-zero/embeddings",
+      "transformer-from-zero/sequences",
       "transformer-from-zero/attention",
     ],
   );
@@ -103,6 +105,7 @@ test("reads curriculum-aware v2 metadata", () => {
             "neural-networks": true,
             training: true,
             embeddings: true,
+            sequences: true,
           },
         },
       },
@@ -113,6 +116,7 @@ test("reads curriculum-aware v2 metadata", () => {
     "transformer-from-zero/neural-networks",
     "transformer-from-zero/training",
     "transformer-from-zero/embeddings",
+    "transformer-from-zero/sequences",
   ]);
   assert.equal(readProgressVersion({ rootorial: { progressVersion: 2 } }), 2);
 });

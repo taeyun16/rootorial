@@ -96,6 +96,15 @@ test("accepts only the known learning surface and locale", () => {
     locale: "en",
   });
   assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "sequences",
+    locale: "ko",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "sequences",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     locale: "en",
@@ -181,6 +190,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "embeddings",
     path: "/curricula/transformer-from-zero/chapters/embeddings",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "sequences" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "sequences",
+    path: "/curricula/transformer-from-zero/chapters/sequences",
   });
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
     curriculumSlug: "linux-systems",
@@ -508,6 +522,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "embeddings",
     answers: { "cosine-contract": "client-says-correct" },
+  }));
+
+  const sequencesResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "sequences",
+    answers: {
+      "hidden-shape": "hidden-is-bh-trace-is-bth",
+      "shared-recurrence": "same-cell-updates-ordered-state",
+      "temporal-gradient": "product-of-local-jacobians",
+      "lstm-cell-update": "forget-carry-plus-input-candidate",
+      "causal-prefix": "state-uses-current-and-past-only",
+    },
+  });
+  assert.deepEqual(
+    sequencesResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/sequences/hidden-shape",
+        correctAnswer: "hidden-is-bh-trace-is-bth",
+      },
+      {
+        key: "transformer-from-zero/sequences/shared-recurrence",
+        correctAnswer: "same-cell-updates-ordered-state",
+      },
+      {
+        key: "transformer-from-zero/sequences/temporal-gradient",
+        correctAnswer: "product-of-local-jacobians",
+      },
+      {
+        key: "transformer-from-zero/sequences/lstm-cell-update",
+        correctAnswer: "forget-carry-plus-input-candidate",
+      },
+      {
+        key: "transformer-from-zero/sequences/causal-prefix",
+        correctAnswer: "state-uses-current-and-past-only",
+      },
+    ],
+  );
+  assert.ok(sequencesResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "sequences",
+    answers: { "causal-prefix": "client-says-correct" },
   }));
 
   const linuxResult = validateAttemptInput({

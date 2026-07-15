@@ -110,7 +110,7 @@ test("renders the Transformer curriculum detail", async () => {
   assert.match(html, /분류와 신경망/);
   assert.doesNotMatch(
     html,
-    /href="\/curricula\/transformer-from-zero\/chapters\/(?:optimization|neural-networks|training|embeddings)"/,
+    /href="\/curricula\/transformer-from-zero\/chapters\/(?:optimization|neural-networks|training|embeddings|sequences)"/,
   );
   assert.match(html, /Mini Transformer/);
 });
@@ -234,12 +234,20 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   const embeddingsEnglish = await render(
     "/curricula/transformer-from-zero/chapters/embeddings?lang=en",
   );
+  const sequences = await render(
+    "/curricula/transformer-from-zero/chapters/sequences",
+  );
+  const sequencesEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/sequences?lang=en",
+  );
   assert.equal(optimization.status, 404);
   assert.equal(neuralNetworks.status, 404);
   assert.equal(training.status, 404);
   assert.equal(trainingEnglish.status, 404);
   assert.equal(embeddings.status, 404);
   assert.equal(embeddingsEnglish.status, 404);
+  assert.equal(sequences.status, 404);
+  assert.equal(sequencesEnglish.status, 404);
   await Promise.all([
     optimization.text(),
     neuralNetworks.text(),
@@ -247,6 +255,8 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
     trainingEnglish.text(),
     embeddings.text(),
     embeddingsEnglish.text(),
+    sequences.text(),
+    sequencesEnglish.text(),
   ]);
 });
 

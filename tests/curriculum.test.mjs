@@ -15,7 +15,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
     chaptersEn.map(({ number, slug, status }) => ({ number, slug, status })),
   );
   assert.deepEqual(
-    chaptersKo.slice(0, 5).map(
+    chaptersKo.slice(0, 6).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -54,7 +54,39 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 65,
       },
+      {
+        slug: "sequences",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 65,
+      },
     ],
+  );
+  assert.deepEqual(
+    {
+      runtime: chaptersKo[5].runtime,
+      description: chaptersKo[5].description,
+      concepts: chaptersKo[5].concepts,
+    },
+    {
+      runtime: "TypeScript 시퀀스 모델",
+      description:
+        "결정적 RNN unroll에서 hidden state와 공유 recurrence를 조작하고, 시간축 gradient와 LSTM cell update를 계산해 causal prefix를 디버깅합니다.",
+      concepts: ["hidden state · recurrence", "temporal gradient", "LSTM · causal prefix"],
+    },
+  );
+  assert.deepEqual(
+    {
+      runtime: chaptersEn[5].runtime,
+      description: chaptersEn[5].description,
+      concepts: chaptersEn[5].concepts,
+    },
+    {
+      runtime: "TypeScript sequence model",
+      description:
+        "Manipulate hidden state and shared recurrence in a deterministic RNN unroll, then compute temporal gradients and LSTM cell updates to debug causal prefixes.",
+      concepts: ["hidden state · recurrence", "temporal gradient", "LSTM · causal prefix"],
+    },
   );
   assert.deepEqual(
     {
@@ -108,7 +140,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       concepts: ["mini-batch · CE", "Adam state", "validation · dropout"],
     },
   );
-  assert.ok(chaptersKo.slice(5).every(({ status }) => status === "planned"));
+  assert.ok(chaptersKo.slice(6).every(({ status }) => status === "planned"));
 });
 
 test("keeps the bilingual Linux roadmap structurally aligned", () => {

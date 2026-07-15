@@ -25,6 +25,7 @@ const optimizationUrl = `${transformerUrl}/chapters/optimization`;
 const neuralNetworksUrl = `${transformerUrl}/chapters/neural-networks`;
 const trainingUrl = `${transformerUrl}/chapters/training`;
 const embeddingsUrl = `${transformerUrl}/chapters/embeddings`;
+const sequencesUrl = `${transformerUrl}/chapters/sequences`;
 const linuxBootUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/boot-to-shell`;
 const linuxProcessesUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/processes-and-signals`;
 const linuxPermissionsUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/users-and-permissions`;
@@ -111,11 +112,16 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.ok(!contents.includes(neuralNetworksUrl));
   assert.ok(!contents.includes(trainingUrl));
   assert.ok(!contents.includes(embeddingsUrl));
+  assert.ok(!contents.includes(sequencesUrl));
   assert.ok(!contents.includes(linuxBootUrl));
   assert.ok(!contents.includes(linuxProcessesUrl));
   assert.ok(!contents.includes(linuxPermissionsUrl));
   assert.ok(!contents.includes(linuxMemoryUrl));
   assert.ok(!contents.includes(linuxStorageUrl));
+  assert.match(
+    contents,
+    /Transformers from the Ground Up — Chapter 6: Sequential Data \(hidden state · recurrence, temporal gradient, LSTM · causal prefix\)/,
+  );
   assert.match(
     contents,
     /Linux Systems from the Ground Up — Chapter 6: Storage and Filesystems \(mount · inode, hard link · unlink, fsync · durability\)/,

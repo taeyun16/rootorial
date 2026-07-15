@@ -111,6 +111,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     getPublishedChapter("transformer-from-zero", "embeddings", "en")?.chapter.title,
     "Tokens and Embeddings",
   );
+  assert.equal(
+    getPublishedChapter("transformer-from-zero", "sequences", "en")?.chapter.title,
+    "Sequential Data",
+  );
   assert.equal(getPublishedChapter("transformer-from-zero", "missing"), undefined);
 });
 
@@ -258,6 +262,50 @@ test("separates active question submissions from historical labels", () => {
       "transformer-from-zero",
       "embeddings",
       "pooling-order",
+      2,
+    ),
+    undefined,
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["transformer-from-zero/sequences"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "hidden-shape": "hidden-is-bh-trace-is-bth",
+      "shared-recurrence": "same-cell-updates-ordered-state",
+      "temporal-gradient": "product-of-local-jacobians",
+      "lstm-cell-update": "forget-carry-plus-input-candidate",
+      "causal-prefix": "state-uses-current-and-past-only",
+    },
+  );
+  assert.deepEqual(
+    Object.values(chapterRegistry["transformer-from-zero/sequences"].questions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 2, 0, 1, 2],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "transformer-from-zero",
+      "sequences",
+      "temporal-gradient",
+    )?.correctAnswer,
+    "product-of-local-jacobians",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "sequences",
+      "causal-prefix",
+      1,
+    )?.correctAnswer,
+    "state-uses-current-and-past-only",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "sequences",
+      "causal-prefix",
       2,
     ),
     undefined,
@@ -527,6 +575,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "05. Tokens and Embeddings · Rootorial",
       description:
         "Compute and debug deterministic subword tokenization, embedding lookup, repeated-row gradients, cosine similarity, and masked mean pooling.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/transformer-from-zero/chapters/sequences",
+      "ko",
+    ),
+    {
+      title: "06. 순서가 있는 데이터 · Rootorial",
+      description:
+        "결정적 RNN unroll에서 hidden state와 공유 recurrence를 조작하고, 시간축 gradient와 LSTM cell update를 계산해 causal prefix를 디버깅합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("transformer-from-zero", "sequences", "en"),
+    {
+      title: "06. Sequential Data · Rootorial",
+      description:
+        "Manipulate hidden state and shared recurrence in a deterministic RNN unroll, then compute temporal gradients and LSTM cell updates to debug causal prefixes.",
     },
   );
   assert.deepEqual(

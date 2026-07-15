@@ -77,6 +77,7 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
     conceptsMastered,
   });
   const previousPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/training${isKo ? "" : "?lang=en"}`;
+  const nextPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/sequences${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell embeddings-chapter-shell">
@@ -359,7 +360,9 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
             {preview
               ? <a href={previousPreviewHref}>← {t("이전: 딥러닝 학습 구조", "Previous: Deep Learning Training")}</a>
               : <span>← {t("이전: 딥러닝 학습 구조", "Previous: Deep Learning Training")}</span>}
-            <span>{t("다음: 순서가 있는 데이터", "Next: Sequential Data")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview
+              ? <a href={nextPreviewHref}>{t("다음: 순서가 있는 데이터", "Next: Sequential Data")} →</a>
+              : <span>{t("다음: 순서가 있는 데이터", "Next: Sequential Data")} <small>{t("드래프트", "Draft")}</small></span>}
           </nav>
         </article>
       </div>
