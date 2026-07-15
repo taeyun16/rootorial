@@ -5411,7 +5411,14 @@ textarea:focus-visible {
   line-height: 1.7;
 }
 
-.shape-debug-header > strong {
+.shape-debug-progress {
+  flex: none;
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
+.shape-debug-progress strong {
   flex: none;
   padding: 9px 12px;
   border-radius: 2px;
@@ -5419,6 +5426,25 @@ textarea:focus-visible {
   color: #d8f2e5;
   font-family: var(--mono);
   font-size: 12px;
+}
+
+.shape-debug-progress button {
+  min-height: 32px;
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.shape-debug-progress button:disabled {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .shape-debug-missions {
@@ -5629,7 +5655,12 @@ textarea:focus-visible {
   .orientation-compare > div { border-right: 0; border-bottom: 1px solid var(--line); }
   .orientation-compare > div:last-child { border-bottom: 0; }
   .shape-debug-header { padding: 22px 20px; display: block; }
-  .shape-debug-header > strong { margin-top: 14px; display: inline-block; }
+  .shape-debug-progress {
+    margin-top: 14px;
+    grid-auto-flow: column;
+    justify-content: start;
+    align-items: center;
+  }
   .shape-debug-missions { grid-template-columns: 1fr; }
   .shape-debug-mission { border-right: 0; border-bottom: 1px solid var(--line); }
   .shape-debug-mission:last-child { border-bottom: 0; }
@@ -5739,6 +5770,7 @@ textarea:focus-visible {
   .mini-progress { width: 70px; }
   .chapter-header-actions { gap: 10px; }
   .chapter-header-actions .auth-button-primary { display: none; }
+  .chapter-header-actions .auth-setup-label { display: none; }
   .article-toc {
     top: var(--chapter-sticky-header-height);
     width: calc(100% + 32px);
@@ -9513,6 +9545,15 @@ textarea:focus-visible {
 
 .axis-builder-prediction > p.is-incorrect {
   color: var(--rust);
+  font-weight: 750;
+}
+
+.axis-builder-prediction > p.axis-builder-mastery {
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  color: var(--quiet);
+  font-family: var(--mono);
+  font-size: 10px;
   font-weight: 750;
 }
 

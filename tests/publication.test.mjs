@@ -76,9 +76,14 @@ test("keeps editorial progress independent from chapter runtime readiness", () =
     chapterPublicationKey("transformer-from-zero", "vectors")
   ];
 
-  assert.equal(vectors.developmentStatus, "in-progress");
+  assert.equal(vectors.developmentStatus, "complete");
   assert.equal(vectors.contentReady, true);
+  assert.equal(vectors.source, "default");
+  assert.equal(vectors.publicationStatus, "published");
   assert.equal(vectors.effectivePublicationStatus, "published");
+  assert.equal(vectors.listing, "listed");
+  assert.equal(vectors.scheduledAt, null);
+  assert.equal(isPublicationAccessible(catalog, vectorsKey), true);
 });
 
 test("publishes the completed Linux sample while keeping planned chapters closed", () => {

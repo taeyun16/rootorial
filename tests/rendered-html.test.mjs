@@ -193,13 +193,14 @@ test("renders the interactive vectors chapter", async () => {
   assert.match(html, /RESHAPE BLOCKS/);
   assert.match(html, /값은 그대로 두고 shape만 다시 배치해 보세요/);
   assert.match(html, /a\.reshape\(6\)/);
-  assert.match(html, /AXIS BUILDER/);
+  assert.match(html, /필수 실습 · AXIS BUILDER/);
   assert.match(html, /축을 만들고, 늘리고, 없애 보세요/);
   assert.match(html, /np\.stack\(\[a, b\], axis=0\)/);
   assert.match(html, /전치했는데 왜 세로가 되지 않을까요/);
   assert.match(html, /벡터를 더했는데 표가 생겼습니다/);
   assert.match(html, /숫자보다 먼저 축의 의미를 읽어 보세요/);
   assert.match(html, /예측 확인하기/);
+  assert.match(html, /미션 초기화/);
   assert.match(html, /영벡터를 정규화할 수 없는 이유 확인/);
   assert.match(html, /벡터를 만들고 크기와 방향 확인하기/);
   assert.match(html, /두 벡터의 내적은 관계를 하나의 점수로 바꿉니다/);
@@ -213,6 +214,7 @@ test("renders the interactive vectors chapter", async () => {
   assert.match(html, /shape 이해 확인/);
   assert.match(html, /이해 확인: 계산 전에 구조를 예측하기/);
   assert.match(html, /다섯 문제를 모두 맞히면/);
+  assert.match(html, /남은 조건: Axis Builder 세 연산 · Shape Detective 세 미션 · 이해 확인 5문제/);
   assert.match(html, /aria-label="v의 x 좌표"/);
   assert.match(html, /aria-label="w의 x 좌표"/);
   assert.match(html, /In \[ \]/);

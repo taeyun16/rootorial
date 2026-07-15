@@ -21,18 +21,26 @@ import {
 
 test("keeps localized catalog chapter identities aligned", () => {
   for (const curriculum of curricula) {
-    const korean = curriculum.chapters.ko.map(({ id, number, slug, status }) => ({
-      id,
-      number,
-      slug,
-      status,
-    }));
-    const english = curriculum.chapters.en.map(({ id, number, slug, status }) => ({
-      id,
-      number,
-      slug,
-      status,
-    }));
+    const korean = curriculum.chapters.ko.map(
+      ({ id, number, slug, status, developmentStatus, estimatedMinutes }) => ({
+        id,
+        number,
+        slug,
+        status,
+        developmentStatus,
+        estimatedMinutes,
+      }),
+    );
+    const english = curriculum.chapters.en.map(
+      ({ id, number, slug, status, developmentStatus, estimatedMinutes }) => ({
+        id,
+        number,
+        slug,
+        status,
+        developmentStatus,
+        estimatedMinutes,
+      }),
+    );
     assert.deepEqual(english, korean);
   }
 });
