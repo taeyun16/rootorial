@@ -56,6 +56,7 @@ export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
 export const LINUX_PERMISSIONS_CHAPTER_ESTIMATED_MINUTES = 60;
+export const LINUX_MEMORY_CHAPTER_ESTIMATED_MINUTES = 65;
 
 export const chaptersKo: Chapter[] = [
   {
@@ -306,11 +307,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "메모리와 가상 주소",
     subtitle: "각 프로세스가 자기만의 메모리를 가진 것처럼 보이는 이유",
     description:
-      "스택, 힙, 페이지와 가상 메모리를 작은 프로그램의 주소 변화와 /proc 정보로 연결합니다.",
-    runtime: "C · Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["stack", "heap", "page"],
+      "프로세스별 VA를 VPN·offset과 PTE·frame으로 번역하고, TLB miss·page fault·COW와 /proc maps의 경계를 직접 실행하고 진단합니다.",
+    runtime: "주소 변환 모델 · 선택 Linux 관찰",
+    estimatedMinutes: LINUX_MEMORY_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["virtual page · PTE", "TLB · page fault", "mmap · COW"],
   },
   {
     number: 6,
@@ -409,11 +411,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "Memory and Virtual Addresses",
     subtitle: "Why every process appears to have memory of its own",
     description:
-      "Connect stacks, heaps, pages, and virtual memory to address changes in a small program and information from /proc.",
-    runtime: "C · Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["stack", "heap", "page"],
+      "Translate per-process VAs through VPNs, offsets, PTEs, and frames, then run and diagnose TLB misses, page faults, COW, and /proc maps boundaries.",
+    runtime: "Address translation model · optional Linux observation",
+    estimatedMinutes: LINUX_MEMORY_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["virtual page · PTE", "TLB · page fault", "mmap · COW"],
   },
   {
     number: 6,
