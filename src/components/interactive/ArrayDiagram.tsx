@@ -14,6 +14,7 @@ type ArrayDiagramProps = {
   activeAxis?: number | null;
   selectedRow?: number | null;
   selectedColumn?: number | null;
+  selectedCell?: { row: number; column: number } | null;
   formatValue?: (value: ArrayCell) => string;
   tone?: ArrayTone;
   variant?: "plain" | "heatmap";
@@ -43,6 +44,7 @@ export function ArrayDiagram({
   activeAxis = null,
   selectedRow = null,
   selectedColumn = null,
+  selectedCell,
   formatValue = defaultFormatValue,
   tone = "forest",
   variant = "plain",
@@ -101,7 +103,9 @@ export function ArrayDiagram({
                   </th>
                 ) : null}
                 {row.map((value, columnIndex) => {
-                  const selected = rowIndex === selectedRow || columnIndex === selectedColumn;
+                  const selected = selectedCell !== undefined
+                    ? selectedCell?.row === rowIndex && selectedCell.column === columnIndex
+                    : rowIndex === selectedRow || columnIndex === selectedColumn;
                   const intensity = typeof value === "number" ? Math.min(1, Math.abs(value) / extent) : 0;
                   const cellClassName = [
                     selected ? "array-cell-active matrix-cell-active" : "",
@@ -122,6 +126,7 @@ export function ArrayDiagram({
                           className={cellClassName}
                           style={style}
                           aria-label={ariaLabel}
+                          aria-pressed={selectedCell !== undefined ? selected : undefined}
                           onClick={() => onSelectCell(rowIndex, columnIndex)}
                         >
                           {text}

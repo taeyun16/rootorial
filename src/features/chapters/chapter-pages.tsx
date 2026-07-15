@@ -5,6 +5,7 @@ import { LinuxPermissionsChapter } from "../../components/linux/LinuxPermissions
 import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
 import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
+import { TrainingChapter } from "../../components/training/TrainingChapter";
 import { VectorsChapter } from "../../components/VectorsChapter";
 import { chapterId } from "../../data/curriculum";
 import {
@@ -46,10 +47,15 @@ function NeuralNetworksChapterPage({ learnerCount }: ChapterPageProps) {
   return <NeuralNetworksChapter learnerCount={learnerCount} />;
 }
 
+function TrainingChapterPage({ learnerCount }: ChapterPageProps) {
+  return <TrainingChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
   "transformer-from-zero/neural-networks": NeuralNetworksChapterPage,
+  "transformer-from-zero/training": TrainingChapterPage,
   "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
   "linux-systems/boot-to-shell": LinuxBootChapterPage,
   "linux-systems/processes-and-signals": LinuxProcessesChapterPage,

@@ -78,6 +78,15 @@ test("accepts only the known learning surface and locale", () => {
     locale: "en",
   });
   assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "training",
+    locale: "ko",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "training",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     locale: "en",
@@ -135,6 +144,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "neural-networks",
     path: "/curricula/transformer-from-zero/chapters/neural-networks",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "training" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "training",
+    path: "/curricula/transformer-from-zero/chapters/training",
   });
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
     curriculumSlug: "linux-systems",
@@ -358,6 +372,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "neural-networks",
     answers: { "activation-purpose": "client-says-correct" },
+  }));
+
+  const trainingResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "training",
+    answers: {
+      "epoch-update-count": "ceil-samples-over-batch",
+      "softmax-axis": "classes-within-each-row",
+      "fused-cross-entropy": "raw-logits-true-label-mean",
+      "checkpoint-choice": "minimum-validation-loss",
+      "dropout-mode": "train-random-eval-off",
+    },
+  });
+  assert.deepEqual(
+    trainingResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/training/epoch-update-count",
+        correctAnswer: "ceil-samples-over-batch",
+      },
+      {
+        key: "transformer-from-zero/training/softmax-axis",
+        correctAnswer: "classes-within-each-row",
+      },
+      {
+        key: "transformer-from-zero/training/fused-cross-entropy",
+        correctAnswer: "raw-logits-true-label-mean",
+      },
+      {
+        key: "transformer-from-zero/training/checkpoint-choice",
+        correctAnswer: "minimum-validation-loss",
+      },
+      {
+        key: "transformer-from-zero/training/dropout-mode",
+        correctAnswer: "train-random-eval-off",
+      },
+    ],
+  );
+  assert.ok(trainingResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "training",
+    answers: { "dropout-mode": "client-says-correct" },
   }));
 
   const linuxResult = validateAttemptInput({

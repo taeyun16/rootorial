@@ -26,6 +26,10 @@ const neuralNetworksKey = chapterPublicationKey(
   "transformer-from-zero",
   "neural-networks",
 );
+const trainingKey = chapterPublicationKey(
+  "transformer-from-zero",
+  "training",
+);
 const linuxKey = curriculumPublicationKey("linux-systems");
 const linuxShellKey = chapterPublicationKey(
   "linux-systems",
@@ -70,6 +74,8 @@ test("preserves the current public catalog when no overrides exist", () => {
   assert.equal(isPublicationListed(catalog, optimizationKey), true);
   assert.equal(isPublicationAccessible(catalog, neuralNetworksKey), false);
   assert.equal(isPublicationListed(catalog, neuralNetworksKey), true);
+  assert.equal(isPublicationAccessible(catalog, trainingKey), false);
+  assert.equal(isPublicationListed(catalog, trainingKey), true);
   assert.equal(isPublicationAccessible(catalog, linuxPermissionsKey), false);
   assert.equal(isPublicationListed(catalog, linuxPermissionsKey), true);
 
@@ -122,6 +128,17 @@ test("keeps published vectors and completed Transformer drafts editorially indep
   assert.equal(neuralNetworks.scheduledAt, null);
   assert.equal(neuralNetworks.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, neuralNetworksKey), false);
+
+  const training = catalog.resources[trainingKey];
+  assert.equal(training.developmentStatus, "complete");
+  assert.equal(training.contentReady, true);
+  assert.equal(training.source, "default");
+  assert.equal(training.publicationStatus, "draft");
+  assert.equal(training.effectivePublicationStatus, "draft");
+  assert.equal(training.listing, "listed");
+  assert.equal(training.scheduledAt, null);
+  assert.equal(training.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, trainingKey), false);
 });
 
 test("publishes the existing Linux sample while keeping completed later chapters draft", () => {
