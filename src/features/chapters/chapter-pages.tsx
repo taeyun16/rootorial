@@ -4,6 +4,7 @@ import { LinuxBootChapter } from "../../components/linux/LinuxBootChapter";
 import { LinuxProcessesChapter } from "../../components/linux/LinuxProcessesChapter";
 import { LinuxPermissionsChapter } from "../../components/linux/LinuxPermissionsChapter";
 import { LinuxMemoryChapter } from "../../components/linux/LinuxMemoryChapter";
+import { LinuxNetworkingChapter } from "../../components/linux/LinuxNetworkingChapter";
 import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
@@ -51,6 +52,10 @@ function LinuxStorageChapterPage({ learnerCount }: ChapterPageProps) {
   return <LinuxStorageChapter learnerCount={learnerCount} />;
 }
 
+function LinuxNetworkingChapterPage({ learnerCount }: ChapterPageProps) {
+  return <LinuxNetworkingChapter learnerCount={learnerCount} />;
+}
+
 function OptimizationChapterPage({ learnerCount }: ChapterPageProps) {
   return <OptimizationChapter learnerCount={learnerCount} />;
 }
@@ -84,6 +89,7 @@ const chapterPages = {
   "linux-systems/users-and-permissions": LinuxPermissionsChapterPage,
   "linux-systems/memory-and-virtual-addresses": LinuxMemoryChapterPage,
   "linux-systems/storage-and-filesystems": LinuxStorageChapterPage,
+  "linux-systems/networking-from-a-packet": LinuxNetworkingChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(

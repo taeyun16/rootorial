@@ -125,10 +125,11 @@ test("renders the Linux sample curriculum in both locales", async () => {
   assert.match(html, /전원이 켜지고 셸이 뜨기까지/);
   assert.match(html, /프로세스와 시그널/);
   assert.match(html, /저장장치와 파일시스템/);
+  assert.match(html, /패킷에서 소켓까지/);
   assert.match(html, /href="\/curricula\/linux-systems\/chapters\/shell-and-filesystem"/);
   assert.doesNotMatch(
     html,
-    /href="\/curricula\/linux-systems\/chapters\/(?:boot-to-shell|processes-and-signals|users-and-permissions|memory-and-virtual-addresses|storage-and-filesystems)"/,
+    /href="\/curricula\/linux-systems\/chapters\/(?:boot-to-shell|processes-and-signals|users-and-permissions|memory-and-virtual-addresses|storage-and-filesystems|networking-from-a-packet)"/,
   );
   assert.match(html, /href="\/experiments\/linux"/);
   assert.match(html, /Linux 실험 열기/);
@@ -191,6 +192,12 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
   const storageEnglish = await render(
     "/curricula/linux-systems/chapters/storage-and-filesystems?lang=en",
   );
+  const networking = await render(
+    "/curricula/linux-systems/chapters/networking-from-a-packet",
+  );
+  const networkingEnglish = await render(
+    "/curricula/linux-systems/chapters/networking-from-a-packet?lang=en",
+  );
   assert.equal(boot.status, 404);
   assert.equal(processes.status, 404);
   assert.equal(permissions.status, 404);
@@ -199,6 +206,8 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
   assert.equal(memoryEnglish.status, 404);
   assert.equal(storage.status, 404);
   assert.equal(storageEnglish.status, 404);
+  assert.equal(networking.status, 404);
+  assert.equal(networkingEnglish.status, 404);
   await Promise.all([
     boot.text(),
     processes.text(),
@@ -208,6 +217,8 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
     memoryEnglish.text(),
     storage.text(),
     storageEnglish.text(),
+    networking.text(),
+    networkingEnglish.text(),
   ]);
 
   const unknown = await render("/curricula/linux-systems/chapters/not-a-chapter");

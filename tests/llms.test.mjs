@@ -31,6 +31,7 @@ const linuxProcessesUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/pro
 const linuxPermissionsUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/users-and-permissions`;
 const linuxMemoryUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/memory-and-virtual-addresses`;
 const linuxStorageUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/storage-and-filesystems`;
+const linuxNetworkingUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/networking-from-a-packet`;
 const defaultCatalog = resolvePublicationCatalog([], 0);
 
 function publicationOverride({
@@ -118,6 +119,7 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.ok(!contents.includes(linuxPermissionsUrl));
   assert.ok(!contents.includes(linuxMemoryUrl));
   assert.ok(!contents.includes(linuxStorageUrl));
+  assert.ok(!contents.includes(linuxNetworkingUrl));
   assert.match(
     contents,
     /Transformers from the Ground Up — Chapter 6: Sequential Data \(hidden state · recurrence, temporal gradient, LSTM · causal prefix\)/,
@@ -125,6 +127,10 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.match(
     contents,
     /Linux Systems from the Ground Up — Chapter 6: Storage and Filesystems \(mount · inode, hard link · unlink, fsync · durability\)/,
+  );
+  assert.match(
+    contents,
+    /Linux Systems from the Ground Up — Chapter 7: From Packets to Sockets \(socket fd · endpoint, CIDR route · next hop, TCP ACK · recv\)/,
   );
 
   for (const curriculum of curricula) {

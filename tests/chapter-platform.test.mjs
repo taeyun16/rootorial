@@ -105,6 +105,7 @@ test("keeps registered completed Linux drafts behind the public boundary", async
   assert.ok(chapterRegistry["linux-systems/users-and-permissions"]);
   assert.ok(chapterRegistry["linux-systems/memory-and-virtual-addresses"]);
   assert.ok(chapterRegistry["linux-systems/storage-and-filesystems"]);
+  assert.ok(chapterRegistry["linux-systems/networking-from-a-packet"]);
   const boot = await render(
     "/curricula/linux-systems/chapters/boot-to-shell",
   );
@@ -129,6 +130,12 @@ test("keeps registered completed Linux drafts behind the public boundary", async
   const storageEnglish = await render(
     "/curricula/linux-systems/chapters/storage-and-filesystems?lang=en",
   );
+  const networking = await render(
+    "/curricula/linux-systems/chapters/networking-from-a-packet",
+  );
+  const networkingEnglish = await render(
+    "/curricula/linux-systems/chapters/networking-from-a-packet?lang=en",
+  );
   assert.equal(boot.status, 404);
   assert.equal(processes.status, 404);
   assert.equal(permissions.status, 404);
@@ -137,6 +144,8 @@ test("keeps registered completed Linux drafts behind the public boundary", async
   assert.equal(memoryEnglish.status, 404);
   assert.equal(storage.status, 404);
   assert.equal(storageEnglish.status, 404);
+  assert.equal(networking.status, 404);
+  assert.equal(networkingEnglish.status, 404);
   await Promise.all([
     boot.text(),
     processes.text(),
@@ -146,6 +155,8 @@ test("keeps registered completed Linux drafts behind the public boundary", async
     memoryEnglish.text(),
     storage.text(),
     storageEnglish.text(),
+    networking.text(),
+    networkingEnglish.text(),
   ]);
 });
 

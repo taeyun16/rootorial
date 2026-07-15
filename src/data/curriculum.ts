@@ -60,6 +60,7 @@ export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
 export const LINUX_PERMISSIONS_CHAPTER_ESTIMATED_MINUTES = 60;
 export const LINUX_MEMORY_CHAPTER_ESTIMATED_MINUTES = 65;
 export const LINUX_STORAGE_CHAPTER_ESTIMATED_MINUTES = 65;
+export const LINUX_NETWORKING_CHAPTER_ESTIMATED_MINUTES = 65;
 
 export const chaptersKo: Chapter[] = [
   {
@@ -338,11 +339,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "패킷에서 소켓까지",
     subtitle: "한 프로세스의 데이터가 다른 컴퓨터에 닿는 과정",
     description:
-      "인터페이스, IP, 라우팅, TCP와 소켓을 하나의 요청이 이동하는 순서로 관찰합니다.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["IP", "TCP", "socket"],
+      "regular-file fd에서 읽은 바이트를 socket fd로 넘기고, longest-prefix route·next hop·TCP 누적 ACK를 따라 원격 프로세스의 recv까지 실행하고 진단합니다.",
+    runtime: "네트워크 경로 모델 · 선택 Linux 관찰",
+    estimatedMinutes: LINUX_NETWORKING_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["socket fd · endpoint", "CIDR route · next hop", "TCP ACK · recv"],
   },
   {
     number: 8,
@@ -443,11 +445,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "From Packets to Sockets",
     subtitle: "How one process reaches another computer",
     description:
-      "Observe interfaces, IP, routing, TCP, and sockets in the order that one request moves through them.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["IP", "TCP", "socket"],
+      "Move bytes read from a regular-file fd into a socket fd, then run and diagnose longest-prefix routing, next-hop resolution, cumulative TCP acknowledgements, and delivery to the remote process's recv call.",
+    runtime: "Network path model · optional Linux observation",
+    estimatedMinutes: LINUX_NETWORKING_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["socket fd · endpoint", "CIDR route · next hop", "TCP ACK · recv"],
   },
   {
     number: 8,

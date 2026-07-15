@@ -96,6 +96,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     "Storage and Filesystems",
   );
   assert.equal(
+    getPublishedChapter("linux-systems", "networking-from-a-packet", "en")?.chapter.title,
+    "From Packets to Sockets",
+  );
+  assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
     "Learning and Optimization",
   );
@@ -506,6 +510,45 @@ test("separates active question submissions from historical labels", () => {
     ),
     undefined,
   );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["linux-systems/networking-from-a-packet"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "socket-boundary": "fd-references-kernel-socket",
+      "longest-prefix-route": "most-specific-prefix",
+      "next-hop-addressing": "gateway-mac-keeps-remote-ip",
+      "cumulative-ack": "ack-covers-contiguous-bytes",
+      "listener-delivery": "accept-new-fd-recv-confirms-delivery",
+    },
+  );
+  assert.equal(
+    getConceptQuestion(
+      "linux-systems",
+      "networking-from-a-packet",
+      "listener-delivery",
+    )?.correctAnswer,
+    "accept-new-fd-recv-confirms-delivery",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "networking-from-a-packet",
+      "socket-boundary",
+      1,
+    )?.correctAnswer,
+    "fd-references-kernel-socket",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "networking-from-a-packet",
+      "socket-boundary",
+      2,
+    ),
+    undefined,
+  );
 });
 
 test("derives localized metadata from the catalog without route-specific copies", () => {
@@ -667,6 +710,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "06. Storage and Filesystems · Rootorial",
       description:
         "Trace a path across mounts and directory entries into inodes and blocks, then run and diagnose hard-link lifetime, capacity exhaustion, and crash-safe storage.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/linux-systems/chapters/networking-from-a-packet",
+      "ko",
+    ),
+    {
+      title: "07. 패킷에서 소켓까지 · Rootorial",
+      description:
+        "regular-file fd에서 읽은 바이트를 socket fd로 넘기고, longest-prefix route·next hop·TCP 누적 ACK를 따라 원격 프로세스의 recv까지 실행하고 진단합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("linux-systems", "networking-from-a-packet", "en"),
+    {
+      title: "07. From Packets to Sockets · Rootorial",
+      description:
+        "Move bytes read from a regular-file fd into a socket fd, then run and diagnose longest-prefix routing, next-hop resolution, cumulative TCP acknowledgements, and delivery to the remote process's recv call.",
     },
   );
 });

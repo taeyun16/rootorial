@@ -123,6 +123,7 @@ test("reads curriculum-aware v2 metadata", () => {
 
 test("keeps Linux and Transformer progress in separate curriculum buckets", () => {
   const completed = [
+    "linux-systems/networking-from-a-packet",
     "linux-systems/storage-and-filesystems",
     "linux-systems/memory-and-virtual-addresses",
     "linux-systems/users-and-permissions",
@@ -139,6 +140,7 @@ test("keeps Linux and Transformer progress in separate curriculum buckets", () =
     "linux-systems/users-and-permissions",
     "linux-systems/memory-and-virtual-addresses",
     "linux-systems/storage-and-filesystems",
+    "linux-systems/networking-from-a-packet",
   ]);
   assert.deepEqual(buildProgressMetadata(completed), {
     rootorial: {
@@ -155,6 +157,7 @@ test("keeps Linux and Transformer progress in separate curriculum buckets", () =
             "users-and-permissions": true,
             "memory-and-virtual-addresses": true,
             "storage-and-filesystems": true,
+            "networking-from-a-packet": true,
           },
         },
       },
