@@ -29,6 +29,7 @@ const linuxBootUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/boot-to-
 const linuxProcessesUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/processes-and-signals`;
 const linuxPermissionsUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/users-and-permissions`;
 const linuxMemoryUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/memory-and-virtual-addresses`;
+const linuxStorageUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/storage-and-filesystems`;
 const defaultCatalog = resolvePublicationCatalog([], 0);
 
 function publicationOverride({
@@ -114,6 +115,11 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.ok(!contents.includes(linuxProcessesUrl));
   assert.ok(!contents.includes(linuxPermissionsUrl));
   assert.ok(!contents.includes(linuxMemoryUrl));
+  assert.ok(!contents.includes(linuxStorageUrl));
+  assert.match(
+    contents,
+    /Linux Systems from the Ground Up — Chapter 6: Storage and Filesystems \(mount · inode, hard link · unlink, fsync · durability\)/,
+  );
 
   for (const curriculum of curricula) {
     const curriculumKey = curriculumPublicationKey(curriculum.slug);

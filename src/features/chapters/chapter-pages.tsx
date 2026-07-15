@@ -5,6 +5,7 @@ import { LinuxProcessesChapter } from "../../components/linux/LinuxProcessesChap
 import { LinuxPermissionsChapter } from "../../components/linux/LinuxPermissionsChapter";
 import { LinuxMemoryChapter } from "../../components/linux/LinuxMemoryChapter";
 import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
+import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
 import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
 import { TrainingChapter } from "../../components/training/TrainingChapter";
@@ -45,6 +46,10 @@ function LinuxMemoryChapterPage({ learnerCount }: ChapterPageProps) {
   return <LinuxMemoryChapter learnerCount={learnerCount} />;
 }
 
+function LinuxStorageChapterPage({ learnerCount }: ChapterPageProps) {
+  return <LinuxStorageChapter learnerCount={learnerCount} />;
+}
+
 function OptimizationChapterPage({ learnerCount }: ChapterPageProps) {
   return <OptimizationChapter learnerCount={learnerCount} />;
 }
@@ -72,6 +77,7 @@ const chapterPages = {
   "linux-systems/processes-and-signals": LinuxProcessesChapterPage,
   "linux-systems/users-and-permissions": LinuxPermissionsChapterPage,
   "linux-systems/memory-and-virtual-addresses": LinuxMemoryChapterPage,
+  "linux-systems/storage-and-filesystems": LinuxStorageChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(

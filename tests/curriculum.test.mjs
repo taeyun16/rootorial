@@ -120,7 +120,7 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
   assert.equal(linuxChaptersKo[0].slug, "shell-and-filesystem");
   assert.equal(linuxChaptersKo[0].status, "available");
   assert.deepEqual(
-    linuxChaptersKo.slice(0, 5).map(
+    linuxChaptersKo.slice(0, 6).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -155,6 +155,12 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
       },
       {
         slug: "memory-and-virtual-addresses",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 65,
+      },
+      {
+        slug: "storage-and-filesystems",
         status: "available",
         developmentStatus: "complete",
         estimatedMinutes: 65,
@@ -213,7 +219,33 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
       concepts: ["virtual page · PTE", "TLB · page fault", "mmap · COW"],
     },
   );
-  assert.ok(linuxChaptersKo.slice(5).every(({ status }) => status === "planned"));
+  assert.deepEqual(
+    {
+      runtime: linuxChaptersKo[5].runtime,
+      description: linuxChaptersKo[5].description,
+      concepts: linuxChaptersKo[5].concepts,
+    },
+    {
+      runtime: "파일시스템 모델 · 선택 Linux 관찰",
+      description:
+        "경로가 mount와 directory entry를 지나 inode·block에 닿는 과정을 추적하고, hard link 수명·용량 고갈·crash-safe 저장을 직접 실행하고 진단합니다.",
+      concepts: ["mount · inode", "hard link · unlink", "fsync · durability"],
+    },
+  );
+  assert.deepEqual(
+    {
+      runtime: linuxChaptersEn[5].runtime,
+      description: linuxChaptersEn[5].description,
+      concepts: linuxChaptersEn[5].concepts,
+    },
+    {
+      runtime: "Filesystem model · optional Linux observation",
+      description:
+        "Trace a path across mounts and directory entries into inodes and blocks, then run and diagnose hard-link lifetime, capacity exhaustion, and crash-safe storage.",
+      concepts: ["mount · inode", "hard link · unlink", "fsync · durability"],
+    },
+  );
+  assert.ok(linuxChaptersKo.slice(6).every(({ status }) => status === "planned"));
 });
 
 test("publishes Linux as an in-progress curriculum with a retained experiment", () => {

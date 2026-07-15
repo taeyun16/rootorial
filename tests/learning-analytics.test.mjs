@@ -140,6 +140,15 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "memory-and-virtual-addresses",
     locale: "en",
   });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "storage-and-filesystems",
+    locale: "ko",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "storage-and-filesystems",
+    locale: "ko",
+  });
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -202,6 +211,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "linux-systems",
     chapterSlug: "memory-and-virtual-addresses",
     path: "/curricula/linux-systems/chapters/memory-and-virtual-addresses",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "storage-and-filesystems" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "storage-and-filesystems",
+    path: "/curricula/linux-systems/chapters/storage-and-filesystems",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
 });
@@ -676,6 +690,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "linux-systems",
     chapterSlug: "memory-and-virtual-addresses",
     answers: { "copy-on-write": "client-says-correct" },
+  }));
+
+  const storageResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "storage-and-filesystems",
+    answers: {
+      "path-resolution": "mount-root-dentry-inode-block",
+      "mount-namespace": "mounted-root-shadows-underlay",
+      "link-lifetime": "same-inode-reclaim-after-zero-links-and-opens",
+      "inode-capacity": "free-blocks-zero-free-inodes",
+      "crash-durability": "fsync-file-rename-fsync-parent",
+    },
+  });
+  assert.deepEqual(
+    storageResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/storage-and-filesystems/path-resolution",
+        correctAnswer: "mount-root-dentry-inode-block",
+      },
+      {
+        key: "linux-systems/storage-and-filesystems/mount-namespace",
+        correctAnswer: "mounted-root-shadows-underlay",
+      },
+      {
+        key: "linux-systems/storage-and-filesystems/link-lifetime",
+        correctAnswer: "same-inode-reclaim-after-zero-links-and-opens",
+      },
+      {
+        key: "linux-systems/storage-and-filesystems/inode-capacity",
+        correctAnswer: "free-blocks-zero-free-inodes",
+      },
+      {
+        key: "linux-systems/storage-and-filesystems/crash-durability",
+        correctAnswer: "fsync-file-rename-fsync-parent",
+      },
+    ],
+  );
+  assert.ok(storageResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "storage-and-filesystems",
+    answers: { "crash-durability": "client-says-correct" },
   }));
 });
 

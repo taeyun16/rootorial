@@ -92,6 +92,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     "Memory and Virtual Addresses",
   );
   assert.equal(
+    getPublishedChapter("linux-systems", "storage-and-filesystems", "en")?.chapter.title,
+    "Storage and Filesystems",
+  );
+  assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
     "Learning and Optimization",
   );
@@ -415,6 +419,45 @@ test("separates active question submissions from historical labels", () => {
     ),
     undefined,
   );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["linux-systems/storage-and-filesystems"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "path-resolution": "mount-root-dentry-inode-block",
+      "mount-namespace": "mounted-root-shadows-underlay",
+      "link-lifetime": "same-inode-reclaim-after-zero-links-and-opens",
+      "inode-capacity": "free-blocks-zero-free-inodes",
+      "crash-durability": "fsync-file-rename-fsync-parent",
+    },
+  );
+  assert.equal(
+    getConceptQuestion(
+      "linux-systems",
+      "storage-and-filesystems",
+      "crash-durability",
+    )?.correctAnswer,
+    "fsync-file-rename-fsync-parent",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "storage-and-filesystems",
+      "path-resolution",
+      1,
+    )?.correctAnswer,
+    "mount-root-dentry-inode-block",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "storage-and-filesystems",
+      "path-resolution",
+      2,
+    ),
+    undefined,
+  );
 });
 
 test("derives localized metadata from the catalog without route-specific copies", () => {
@@ -538,6 +581,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "05. Memory and Virtual Addresses · Rootorial",
       description:
         "Translate per-process VAs through VPNs, offsets, PTEs, and frames, then run and diagnose TLB misses, page faults, COW, and /proc maps boundaries.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/linux-systems/chapters/storage-and-filesystems",
+      "ko",
+    ),
+    {
+      title: "06. 저장장치와 파일시스템 · Rootorial",
+      description:
+        "경로가 mount와 directory entry를 지나 inode·block에 닿는 과정을 추적하고, hard link 수명·용량 고갈·crash-safe 저장을 직접 실행하고 진단합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("linux-systems", "storage-and-filesystems", "en"),
+    {
+      title: "06. Storage and Filesystems · Rootorial",
+      description:
+        "Trace a path across mounts and directory entries into inodes and blocks, then run and diagnose hard-link lifetime, capacity exhaustion, and crash-safe storage.",
     },
   );
 });
