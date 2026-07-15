@@ -84,6 +84,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     "Processes and Signals",
   );
   assert.equal(
+    getPublishedChapter("linux-systems", "users-and-permissions", "en")?.chapter.title,
+    "Users and Permissions",
+  );
+  assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
     "Learning and Optimization",
   );
@@ -243,6 +247,45 @@ test("separates active question submissions from historical labels", () => {
     ),
     undefined,
   );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["linux-systems/users-and-permissions"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "process-credentials": "effective-uid-and-groups",
+      "permission-class": "owner-then-group-then-other",
+      "directory-search": "execute-allows-traversal",
+      "delete-boundary": "parent-write-and-search",
+      "least-privilege": "smallest-sufficient-grant",
+    },
+  );
+  assert.equal(
+    getConceptQuestion(
+      "linux-systems",
+      "users-and-permissions",
+      "least-privilege",
+    )?.correctAnswer,
+    "smallest-sufficient-grant",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "users-and-permissions",
+      "process-credentials",
+      1,
+    )?.correctAnswer,
+    "effective-uid-and-groups",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "users-and-permissions",
+      "process-credentials",
+      2,
+    ),
+    undefined,
+  );
 });
 
 test("derives localized metadata from the catalog without route-specific copies", () => {
@@ -290,6 +333,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "03. Processes and Signals · Rootorial",
       description:
         "Manipulate and diagnose fork, exec, PID and PPID, standard streams, signals, and wait transitions in a deterministic process model.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/linux-systems/chapters/users-and-permissions",
+      "ko",
+    ),
+    {
+      title: "04. 사용자와 권한 · Rootorial",
+      description:
+        "프로세스 자격 증명과 파일 owner·group·rwx를 비교하고, 경로 탐색·삭제 경계를 진단하며 최소 권한 정책을 조립합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("linux-systems", "users-and-permissions", "en"),
+    {
+      title: "04. Users and Permissions · Rootorial",
+      description:
+        "Compare process credentials with file owner, group, and rwx bits, diagnose path traversal and deletion boundaries, and assemble a least-privilege policy.",
     },
   );
 });

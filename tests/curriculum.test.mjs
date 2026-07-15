@@ -56,7 +56,7 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
   assert.equal(linuxChaptersKo[0].slug, "shell-and-filesystem");
   assert.equal(linuxChaptersKo[0].status, "available");
   assert.deepEqual(
-    linuxChaptersKo.slice(0, 3).map(
+    linuxChaptersKo.slice(0, 4).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -83,9 +83,41 @@ test("keeps the bilingual Linux roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 55,
       },
+      {
+        slug: "users-and-permissions",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 60,
+      },
     ],
   );
-  assert.ok(linuxChaptersKo.slice(3).every(({ status }) => status === "planned"));
+  assert.deepEqual(
+    {
+      runtime: linuxChaptersKo[3].runtime,
+      description: linuxChaptersKo[3].description,
+      concepts: linuxChaptersKo[3].concepts,
+    },
+    {
+      runtime: "권한 모델",
+      description:
+        "프로세스 자격 증명과 파일 owner·group·rwx를 비교하고, 경로 탐색·삭제 경계를 진단하며 최소 권한 정책을 조립합니다.",
+      concepts: ["UID·GID", "rwx · path search", "least privilege"],
+    },
+  );
+  assert.deepEqual(
+    {
+      runtime: linuxChaptersEn[3].runtime,
+      description: linuxChaptersEn[3].description,
+      concepts: linuxChaptersEn[3].concepts,
+    },
+    {
+      runtime: "Permission model",
+      description:
+        "Compare process credentials with file owner, group, and rwx bits, diagnose path traversal and deletion boundaries, and assemble a least-privilege policy.",
+      concepts: ["UID·GID", "rwx · path search", "least privilege"],
+    },
+  );
+  assert.ok(linuxChaptersKo.slice(4).every(({ status }) => status === "planned"));
 });
 
 test("publishes Linux as an in-progress curriculum with a retained experiment", () => {

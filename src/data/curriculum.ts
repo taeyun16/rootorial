@@ -54,6 +54,7 @@ export const NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES = 60;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
+export const LINUX_PERMISSIONS_CHAPTER_ESTIMATED_MINUTES = 60;
 
 export const chaptersKo: Chapter[] = [
   {
@@ -290,11 +291,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "사용자와 권한",
     subtitle: "누가 어떤 파일을 읽고 바꿀 수 있는가",
     description:
-      "사용자·그룹과 rwx 권한을 실제 접근 성공과 실패에 연결하고 최소 권한의 의미를 확인합니다.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["uid", "group", "rwx"],
+      "프로세스 자격 증명과 파일 owner·group·rwx를 비교하고, 경로 탐색·삭제 경계를 진단하며 최소 권한 정책을 조립합니다.",
+    runtime: "권한 모델",
+    estimatedMinutes: LINUX_PERMISSIONS_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["UID·GID", "rwx · path search", "least privilege"],
   },
   {
     number: 5,
@@ -392,11 +394,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "Users and Permissions",
     subtitle: "Who can read or change each file",
     description:
-      "Connect users, groups, and rwx permissions to real access successes and failures, then apply least privilege.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["uid", "group", "rwx"],
+      "Compare process credentials with file owner, group, and rwx bits, diagnose path traversal and deletion boundaries, and assemble a least-privilege policy.",
+    runtime: "Permission model",
+    estimatedMinutes: LINUX_PERMISSIONS_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["UID·GID", "rwx · path search", "least privilege"],
   },
   {
     number: 5,

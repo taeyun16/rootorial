@@ -104,6 +104,15 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "processes-and-signals",
     locale: "en",
   });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "users-and-permissions",
+    locale: "ko",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "users-and-permissions",
+    locale: "ko",
+  });
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -146,6 +155,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "linux-systems",
     chapterSlug: "processes-and-signals",
     path: "/curricula/linux-systems/chapters/processes-and-signals",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "users-and-permissions" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "users-and-permissions",
+    path: "/curricula/linux-systems/chapters/users-and-permissions",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
 });
@@ -432,6 +446,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "linux-systems",
     chapterSlug: "processes-and-signals",
     answers: { "signal-choice": "client-says-correct" },
+  }));
+
+  const permissionsResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "users-and-permissions",
+    answers: {
+      "process-credentials": "effective-uid-and-groups",
+      "permission-class": "owner-then-group-then-other",
+      "directory-search": "execute-allows-traversal",
+      "delete-boundary": "parent-write-and-search",
+      "least-privilege": "smallest-sufficient-grant",
+    },
+  });
+  assert.deepEqual(
+    permissionsResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/users-and-permissions/process-credentials",
+        correctAnswer: "effective-uid-and-groups",
+      },
+      {
+        key: "linux-systems/users-and-permissions/permission-class",
+        correctAnswer: "owner-then-group-then-other",
+      },
+      {
+        key: "linux-systems/users-and-permissions/directory-search",
+        correctAnswer: "execute-allows-traversal",
+      },
+      {
+        key: "linux-systems/users-and-permissions/delete-boundary",
+        correctAnswer: "parent-write-and-search",
+      },
+      {
+        key: "linux-systems/users-and-permissions/least-privilege",
+        correctAnswer: "smallest-sufficient-grant",
+      },
+    ],
+  );
+  assert.ok(permissionsResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "users-and-permissions",
+    answers: { "least-privilege": "client-says-correct" },
   }));
 });
 

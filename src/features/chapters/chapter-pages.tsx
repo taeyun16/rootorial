@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { LinuxBootChapter } from "../../components/linux/LinuxBootChapter";
 import { LinuxProcessesChapter } from "../../components/linux/LinuxProcessesChapter";
+import { LinuxPermissionsChapter } from "../../components/linux/LinuxPermissionsChapter";
 import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
 import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
@@ -33,6 +34,10 @@ function LinuxProcessesChapterPage({ learnerCount }: ChapterPageProps) {
   return <LinuxProcessesChapter learnerCount={learnerCount} />;
 }
 
+function LinuxPermissionsChapterPage({ learnerCount }: ChapterPageProps) {
+  return <LinuxPermissionsChapter learnerCount={learnerCount} />;
+}
+
 function OptimizationChapterPage({ learnerCount }: ChapterPageProps) {
   return <OptimizationChapter learnerCount={learnerCount} />;
 }
@@ -48,6 +53,7 @@ const chapterPages = {
   "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
   "linux-systems/boot-to-shell": LinuxBootChapterPage,
   "linux-systems/processes-and-signals": LinuxProcessesChapterPage,
+  "linux-systems/users-and-permissions": LinuxPermissionsChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(
