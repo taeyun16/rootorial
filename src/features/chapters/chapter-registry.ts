@@ -98,6 +98,62 @@ export const conceptQuestionHistory = {
       answers: ["same-as-weights", "one-scalar", "same-as-batch"],
     },
   },
+  "transformer-from-zero/neural-networks/logit-to-probability": {
+    1: {
+      version: 1,
+      label: "Logit에서 확률로",
+      correctAnswer: "sigmoid-maps-logit-to-probability",
+      answers: [
+        "sigmoid-maps-logit-to-probability",
+        "threshold-creates-probability",
+        "bce-creates-logit",
+      ],
+    },
+  },
+  "transformer-from-zero/neural-networks/bce-penalty": {
+    1: {
+      version: 1,
+      label: "BCE와 확신한 오답",
+      correctAnswer: "confident-wrong-costs-most",
+      answers: [
+        "confident-wrong-costs-most",
+        "near-threshold-costs-most",
+        "same-accuracy-same-loss",
+      ],
+    },
+  },
+  "transformer-from-zero/neural-networks/activation-purpose": {
+    1: {
+      version: 1,
+      label: "Hidden activation의 역할",
+      correctAnswer: "nonlinearity-bends-boundaries",
+      answers: [
+        "nonlinearity-bends-boundaries",
+        "depth-alone-solves-xor",
+        "activation-only-changes-speed",
+      ],
+    },
+  },
+  "transformer-from-zero/neural-networks/xor-hidden-features": {
+    1: {
+      version: 1,
+      label: "XOR hidden feature 결합",
+      correctAnswer: "combine-hidden-features",
+      answers: ["combine-hidden-features", "copy-first-input", "average-labels"],
+    },
+  },
+  "transformer-from-zero/neural-networks/layer-shapes": {
+    1: {
+      version: 1,
+      label: "2→2→1 layer shape",
+      correctAnswer: "two-hidden-activations-one-logit",
+      answers: [
+        "two-hidden-activations-one-logit",
+        "batch-becomes-hidden",
+        "one-logit-total",
+      ],
+    },
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     1: {
       version: 1,
@@ -242,6 +298,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/optimization/gradient-shape"][1],
     status: "active",
   },
+  "transformer-from-zero/neural-networks/logit-to-probability": {
+    ...conceptQuestionHistory["transformer-from-zero/neural-networks/logit-to-probability"][1],
+    status: "active",
+  },
+  "transformer-from-zero/neural-networks/bce-penalty": {
+    ...conceptQuestionHistory["transformer-from-zero/neural-networks/bce-penalty"][1],
+    status: "active",
+  },
+  "transformer-from-zero/neural-networks/activation-purpose": {
+    ...conceptQuestionHistory["transformer-from-zero/neural-networks/activation-purpose"][1],
+    status: "active",
+  },
+  "transformer-from-zero/neural-networks/xor-hidden-features": {
+    ...conceptQuestionHistory["transformer-from-zero/neural-networks/xor-hidden-features"][1],
+    status: "active",
+  },
+  "transformer-from-zero/neural-networks/layer-shapes": {
+    ...conceptQuestionHistory["transformer-from-zero/neural-networks/layer-shapes"][1],
+    status: "active",
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/absolute-path"][1],
     status: "active",
@@ -309,6 +385,14 @@ export const optimizationQuestions = {
   "gradient-shape": conceptQuestionRegistry["transformer-from-zero/optimization/gradient-shape"],
 } as const;
 
+export const neuralNetworkQuestions = {
+  "logit-to-probability": conceptQuestionRegistry["transformer-from-zero/neural-networks/logit-to-probability"],
+  "bce-penalty": conceptQuestionRegistry["transformer-from-zero/neural-networks/bce-penalty"],
+  "activation-purpose": conceptQuestionRegistry["transformer-from-zero/neural-networks/activation-purpose"],
+  "xor-hidden-features": conceptQuestionRegistry["transformer-from-zero/neural-networks/xor-hidden-features"],
+  "layer-shapes": conceptQuestionRegistry["transformer-from-zero/neural-networks/layer-shapes"],
+} as const;
+
 const linuxShellQuestions = {
   "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
   "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
@@ -340,6 +424,9 @@ export const chapterRegistry = {
   },
   "transformer-from-zero/optimization": {
     questions: optimizationQuestions,
+  },
+  "transformer-from-zero/neural-networks": {
+    questions: neuralNetworkQuestions,
   },
   "linux-systems/shell-and-filesystem": {
     questions: linuxShellQuestions,

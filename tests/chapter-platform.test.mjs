@@ -44,17 +44,22 @@ test("serves localized curriculum and chapter metadata in the first response", a
   assert.match(chapterHtml, /How collections of numbers gain meaning and direction/);
 });
 
-test("keeps the registered completed optimization draft and unknown chapters private", async () => {
+test("keeps registered completed Transformer drafts and unknown chapters private", async () => {
   assert.ok(chapterRegistry["transformer-from-zero/optimization"]);
-  const draft = await render(
+  assert.ok(chapterRegistry["transformer-from-zero/neural-networks"]);
+  const optimization = await render(
     "/curricula/transformer-from-zero/chapters/optimization",
+  );
+  const neuralNetworks = await render(
+    "/curricula/transformer-from-zero/chapters/neural-networks",
   );
   const unknown = await render(
     "/curricula/transformer-from-zero/chapters/not-a-chapter",
   );
-  assert.equal(draft.status, 404);
+  assert.equal(optimization.status, 404);
+  assert.equal(neuralNetworks.status, 404);
   assert.equal(unknown.status, 404);
-  await Promise.all([draft.text(), unknown.text()]);
+  await Promise.all([optimization.text(), neuralNetworks.text(), unknown.text()]);
 });
 
 test("keeps registered completed Linux drafts behind the public boundary", async () => {

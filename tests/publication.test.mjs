@@ -22,6 +22,10 @@ const optimizationKey = chapterPublicationKey(
   "transformer-from-zero",
   "optimization",
 );
+const neuralNetworksKey = chapterPublicationKey(
+  "transformer-from-zero",
+  "neural-networks",
+);
 const linuxKey = curriculumPublicationKey("linux-systems");
 const linuxShellKey = chapterPublicationKey(
   "linux-systems",
@@ -60,6 +64,8 @@ test("preserves the current public catalog when no overrides exist", () => {
   assert.equal(isPublicationAccessible(catalog, vectorsKey), true);
   assert.equal(isPublicationAccessible(catalog, optimizationKey), false);
   assert.equal(isPublicationListed(catalog, optimizationKey), true);
+  assert.equal(isPublicationAccessible(catalog, neuralNetworksKey), false);
+  assert.equal(isPublicationListed(catalog, neuralNetworksKey), true);
 
   const publicCatalog = publicPublicationCatalog(catalog);
   assert.ok(
@@ -74,7 +80,7 @@ test("preserves the current public catalog when no overrides exist", () => {
   );
 });
 
-test("keeps published vectors and completed optimization editorially independent", () => {
+test("keeps published vectors and completed Transformer drafts editorially independent", () => {
   const catalog = resolvePublicationCatalog([], 1_000);
   const vectors = catalog.resources[
     chapterPublicationKey("transformer-from-zero", "vectors")
@@ -99,6 +105,17 @@ test("keeps published vectors and completed optimization editorially independent
   assert.equal(optimization.scheduledAt, null);
   assert.equal(optimization.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, optimizationKey), false);
+
+  const neuralNetworks = catalog.resources[neuralNetworksKey];
+  assert.equal(neuralNetworks.developmentStatus, "complete");
+  assert.equal(neuralNetworks.contentReady, true);
+  assert.equal(neuralNetworks.source, "default");
+  assert.equal(neuralNetworks.publicationStatus, "draft");
+  assert.equal(neuralNetworks.effectivePublicationStatus, "draft");
+  assert.equal(neuralNetworks.listing, "listed");
+  assert.equal(neuralNetworks.scheduledAt, null);
+  assert.equal(neuralNetworks.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, neuralNetworksKey), false);
 });
 
 test("publishes the existing Linux sample while keeping completed later chapters draft", () => {
