@@ -66,6 +66,38 @@ export const conceptQuestionHistory = {
       answers: ["3-4", "3-3", "4-4"],
     },
   },
+  "transformer-from-zero/optimization/loss-role": {
+    1: {
+      version: 1,
+      label: "MSE 손실의 역할",
+      correctAnswer: "scalar-summary",
+      answers: ["scalar-summary", "parameter-vector", "accuracy-label"],
+    },
+  },
+  "transformer-from-zero/optimization/gradient-direction": {
+    1: {
+      version: 1,
+      label: "Gradient 반대 방향",
+      correctAnswer: "subtract-gradient",
+      answers: ["subtract-gradient", "add-gradient", "ignore-gradient"],
+    },
+  },
+  "transformer-from-zero/optimization/learning-rate": {
+    1: {
+      version: 1,
+      label: "과도한 학습률",
+      correctAnswer: "overshoot-diverge",
+      answers: ["overshoot-diverge", "always-faster", "changes-minimum"],
+    },
+  },
+  "transformer-from-zero/optimization/gradient-shape": {
+    1: {
+      version: 1,
+      label: "Gradient shape",
+      correctAnswer: "same-as-weights",
+      answers: ["same-as-weights", "one-scalar", "same-as-batch"],
+    },
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     1: {
       version: 1,
@@ -154,6 +186,22 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/vectors/attention-context"][1],
     status: "retired",
   },
+  "transformer-from-zero/optimization/loss-role": {
+    ...conceptQuestionHistory["transformer-from-zero/optimization/loss-role"][1],
+    status: "active",
+  },
+  "transformer-from-zero/optimization/gradient-direction": {
+    ...conceptQuestionHistory["transformer-from-zero/optimization/gradient-direction"][1],
+    status: "active",
+  },
+  "transformer-from-zero/optimization/learning-rate": {
+    ...conceptQuestionHistory["transformer-from-zero/optimization/learning-rate"][1],
+    status: "active",
+  },
+  "transformer-from-zero/optimization/gradient-shape": {
+    ...conceptQuestionHistory["transformer-from-zero/optimization/gradient-shape"][1],
+    status: "active",
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/absolute-path"][1],
     status: "active",
@@ -194,6 +242,13 @@ const vectorQuestions = {
   "dot-product": conceptQuestionRegistry["transformer-from-zero/vectors/dot-product"],
 } as const;
 
+export const optimizationQuestions = {
+  "loss-role": conceptQuestionRegistry["transformer-from-zero/optimization/loss-role"],
+  "gradient-direction": conceptQuestionRegistry["transformer-from-zero/optimization/gradient-direction"],
+  "learning-rate": conceptQuestionRegistry["transformer-from-zero/optimization/learning-rate"],
+  "gradient-shape": conceptQuestionRegistry["transformer-from-zero/optimization/gradient-shape"],
+} as const;
+
 const linuxShellQuestions = {
   "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
   "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
@@ -214,6 +269,9 @@ export type ChapterRegistration = {
 export const chapterRegistry = {
   "transformer-from-zero/vectors": {
     questions: vectorQuestions,
+  },
+  "transformer-from-zero/optimization": {
+    questions: optimizationQuestions,
   },
   "linux-systems/shell-and-filesystem": {
     questions: linuxShellQuestions,

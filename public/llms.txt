@@ -39,7 +39,7 @@ Rootorial develops independent learning paths across AI and machine learning, op
 
 The following topics are publicly listed but may not yet have complete lessons. Do not describe roadmap material as currently available.
 
-- Transformers from the Ground Up — Chapter 2: Learning and Optimization (loss, gradient, learning rate)
+- Transformers from the Ground Up — Chapter 2: Learning and Optimization (MSE, gradient, learning rate)
 - Transformers from the Ground Up — Chapter 3: Classification and Neural Networks (sigmoid, BCE, MLP)
 - Transformers from the Ground Up — Chapter 4: Deep Learning Training (mini-batch, Adam, Dropout)
 - Transformers from the Ground Up — Chapter 5: Tokens and Embeddings (token, embedding, cosine)

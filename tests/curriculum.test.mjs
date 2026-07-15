@@ -1,10 +1,45 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  chaptersEn,
+  chaptersKo,
   getCurriculum,
   linuxChaptersEn,
   linuxChaptersKo,
 } from "../src/data/curriculum.ts";
+
+test("keeps the bilingual Transformer roadmap structurally aligned", () => {
+  assert.equal(chaptersKo.length, 10);
+  assert.deepEqual(
+    chaptersKo.map(({ number, slug, status }) => ({ number, slug, status })),
+    chaptersEn.map(({ number, slug, status }) => ({ number, slug, status })),
+  );
+  assert.deepEqual(
+    chaptersKo.slice(0, 2).map(
+      ({ slug, status, developmentStatus, estimatedMinutes }) => ({
+        slug,
+        status,
+        developmentStatus,
+        estimatedMinutes,
+      }),
+    ),
+    [
+      {
+        slug: "vectors",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 60,
+      },
+      {
+        slug: "optimization",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 55,
+      },
+    ],
+  );
+  assert.ok(chaptersKo.slice(2).every(({ status }) => status === "planned"));
+});
 
 test("keeps the bilingual Linux roadmap structurally aligned", () => {
   assert.equal(linuxChaptersKo.length, 8);

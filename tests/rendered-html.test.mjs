@@ -106,6 +106,11 @@ test("renders the Transformer curriculum detail", async () => {
   assert.match(html, /Rootorial/);
   assert.match(html, /Transformer를/);
   assert.match(html, /벡터와 텐서/);
+  assert.match(html, /학습과 최적화/);
+  assert.doesNotMatch(
+    html,
+    /href="\/curricula\/transformer-from-zero\/chapters\/optimization"/,
+  );
   assert.match(html, /Mini Transformer/);
 });
 
@@ -164,6 +169,14 @@ test("keeps the completed draft and unknown Linux chapters unavailable", async (
   const unknown = await render("/curricula/linux-systems/chapters/not-a-chapter");
   assert.equal(unknown.status, 404);
   await unknown.text();
+});
+
+test("keeps the completed optimization chapter unavailable on its public URL", async () => {
+  const response = await render(
+    "/curricula/transformer-from-zero/chapters/optimization",
+  );
+  assert.equal(response.status, 404);
+  await response.text();
 });
 
 test("renders the interactive vectors chapter", async () => {

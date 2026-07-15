@@ -59,11 +59,15 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "vectors",
     locale: "ko",
   }));
-  assert.throws(() => validateStartSessionInput({
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "optimization",
     locale: "ko",
-  }));
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "optimization",
+    locale: "ko",
+  });
   assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
@@ -95,6 +99,11 @@ test("accepts course access only for a known curriculum", () => {
     chapterSlug: "vectors",
     path: "/curricula/transformer-from-zero/chapters/vectors",
   });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "optimization" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "optimization",
+    path: "/curricula/transformer-from-zero/chapters/optimization",
+  });
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
     curriculumSlug: "linux-systems",
     chapterSlug: null,
@@ -111,7 +120,6 @@ test("accepts course access only for a known curriculum", () => {
     path: "/curricula/linux-systems/chapters/boot-to-shell",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
-  assert.throws(() => validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "optimization" }));
 });
 
 test("normalizes heartbeat activity so hidden tabs cannot be active", () => {
@@ -238,6 +246,30 @@ test("validates submitted answers against the versioned server registry", () => 
     conceptQuestionRegistry["transformer-from-zero/vectors/attention-context"].status,
     "retired",
   );
+
+  const optimizationResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "optimization",
+    answers: {
+      "loss-role": "scalar-summary",
+      "gradient-direction": "subtract-gradient",
+    },
+  });
+  assert.equal(
+    optimizationResult.answers[0].key,
+    "transformer-from-zero/optimization/loss-role",
+  );
+  assert.equal(optimizationResult.answers[0].version, 1);
+  assert.equal(optimizationResult.answers[1].correctAnswer, "subtract-gradient");
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "optimization",
+    answers: { "learning-rate": "client-says-correct" },
+  }));
 
   const linuxResult = validateAttemptInput({
     sessionId,
