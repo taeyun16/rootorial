@@ -79,7 +79,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     getPublishedChapter("linux-systems", "boot-to-shell", "en")?.chapter.title,
     "From Power-On to a Shell",
   );
-  assert.equal(getPublishedChapter("transformer-from-zero", "optimization"), undefined);
+  assert.equal(
+    getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
+    "Learning and Optimization",
+  );
   assert.equal(getPublishedChapter("transformer-from-zero", "missing"), undefined);
 });
 
@@ -144,6 +147,32 @@ test("separates active question submissions from historical labels", () => {
     ),
     undefined,
   );
+  assert.equal(
+    getConceptQuestion(
+      "transformer-from-zero",
+      "optimization",
+      "gradient-direction",
+    )?.correctAnswer,
+    "subtract-gradient",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "optimization",
+      "learning-rate",
+      1,
+    )?.correctAnswer,
+    "overshoot-diverge",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "optimization",
+      "learning-rate",
+      2,
+    ),
+    undefined,
+  );
 });
 
 test("derives localized metadata from the catalog without route-specific copies", () => {
@@ -158,12 +187,16 @@ test("derives localized metadata from the catalog without route-specific copies"
     },
   );
   assert.equal(pageMetadataForPath("/admin", "en"), undefined);
-  assert.equal(
+  assert.deepEqual(
     pageMetadataForPath(
       "/curricula/transformer-from-zero/chapters/optimization",
       "ko",
     ),
-    undefined,
+    {
+      title: "02. 학습과 최적화 · Rootorial",
+      description:
+        "선형 모델의 MSE와 gradient를 계산하고, 발산하는 학습률을 직접 복구하며 한 번의 파라미터 업데이트를 디버깅합니다.",
+    },
   );
   assert.deepEqual(
     chapterPageMetadata("linux-systems", "boot-to-shell", "en"),

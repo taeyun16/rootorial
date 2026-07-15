@@ -49,6 +49,7 @@ export function chapterId(curriculumSlug: string, chapterSlug: string) {
 }
 
 export const VECTOR_CHAPTER_ESTIMATED_MINUTES = 60;
+export const OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES = 55;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 
@@ -72,11 +73,12 @@ export const chaptersKo: Chapter[] = [
     title: "학습과 최적화",
     subtitle: "모델은 어떻게 정답에 가까워지는가",
     description:
-      "손실함수, 미분과 경사하강법을 직접 움직이며 학습률의 의미를 확인합니다.",
-    runtime: "NumPy",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["loss", "gradient", "learning rate"],
+      "선형 모델의 MSE와 gradient를 계산하고, 발산하는 학습률을 직접 복구하며 한 번의 파라미터 업데이트를 디버깅합니다.",
+    runtime: "수학 모델 · 선택 NumPy",
+    estimatedMinutes: OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["MSE", "gradient", "learning rate"],
   },
   {
     number: 3,
@@ -186,8 +188,8 @@ export const chaptersEn: Chapter[] = [
   {
     number: 2, slug: "optimization", title: "Learning and Optimization",
     subtitle: "How a model moves closer to the right answer",
-    description: "Move through loss functions, derivatives, and gradient descent to understand what the learning rate controls.",
-    runtime: "NumPy", developmentStatus: "planned", status: "planned", concepts: ["loss", "gradient", "learning rate"],
+    description: "Compute MSE and gradients for a linear model, repair a diverging learning rate, and debug one parameter update at a time.",
+    runtime: "Math model · optional NumPy", estimatedMinutes: OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["MSE", "gradient", "learning rate"],
   },
   {
     number: 3, slug: "neural-networks", title: "Classification and Neural Networks",

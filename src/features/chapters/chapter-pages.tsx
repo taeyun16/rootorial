@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { LinuxBootChapter } from "../../components/linux/LinuxBootChapter";
 import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
+import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
 import { VectorsChapter } from "../../components/VectorsChapter";
 import { chapterId } from "../../data/curriculum";
 import {
@@ -26,8 +27,13 @@ function LinuxBootChapterPage({ learnerCount }: ChapterPageProps) {
   return <LinuxBootChapter learnerCount={learnerCount} />;
 }
 
+function OptimizationChapterPage({ learnerCount }: ChapterPageProps) {
+  return <OptimizationChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
+  "transformer-from-zero/optimization": OptimizationChapterPage,
   "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
   "linux-systems/boot-to-shell": LinuxBootChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;

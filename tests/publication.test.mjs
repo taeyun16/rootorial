@@ -70,7 +70,7 @@ test("preserves the current public catalog when no overrides exist", () => {
   );
 });
 
-test("keeps editorial progress independent from chapter runtime readiness", () => {
+test("keeps published vectors and completed optimization editorially independent", () => {
   const catalog = resolvePublicationCatalog([], 1_000);
   const vectors = catalog.resources[
     chapterPublicationKey("transformer-from-zero", "vectors")
@@ -84,6 +84,17 @@ test("keeps editorial progress independent from chapter runtime readiness", () =
   assert.equal(vectors.listing, "listed");
   assert.equal(vectors.scheduledAt, null);
   assert.equal(isPublicationAccessible(catalog, vectorsKey), true);
+
+  const optimization = catalog.resources[optimizationKey];
+  assert.equal(optimization.developmentStatus, "complete");
+  assert.equal(optimization.contentReady, true);
+  assert.equal(optimization.source, "default");
+  assert.equal(optimization.publicationStatus, "draft");
+  assert.equal(optimization.effectivePublicationStatus, "draft");
+  assert.equal(optimization.listing, "listed");
+  assert.equal(optimization.scheduledAt, null);
+  assert.equal(optimization.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, optimizationKey), false);
 });
 
 test("publishes the existing Linux sample while keeping the completed boot chapter draft", () => {

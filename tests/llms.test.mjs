@@ -21,6 +21,7 @@ const transformerKey = curriculumPublicationKey("transformer-from-zero");
 const vectorsKey = chapterPublicationKey("transformer-from-zero", "vectors");
 const transformerUrl = `${ROOTORIAL_URL}/curricula/transformer-from-zero`;
 const vectorsUrl = `${transformerUrl}/chapters/vectors`;
+const optimizationUrl = `${transformerUrl}/chapters/optimization`;
 const linuxBootUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/boot-to-shell`;
 const defaultCatalog = resolvePublicationCatalog([], 0);
 
@@ -99,6 +100,7 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.match(contents, /https:\/\/linkedin\.com\/in\/taeyun16/);
   assert.ok(contents.includes(transformerUrl));
   assert.ok(contents.includes(vectorsUrl));
+  assert.ok(!contents.includes(optimizationUrl));
   assert.ok(!contents.includes(linuxBootUrl));
 
   for (const curriculum of curricula) {

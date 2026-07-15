@@ -90,10 +90,15 @@ test("reads curriculum-aware v2 metadata", () => {
     rootorial: {
       progressVersion: 2,
       curricula: {
-        "transformer-from-zero": { completedChapters: { vectors: true } },
+        "transformer-from-zero": {
+          completedChapters: { vectors: true, optimization: true },
+        },
       },
     },
-  }), ["transformer-from-zero/vectors"]);
+  }), [
+    "transformer-from-zero/vectors",
+    "transformer-from-zero/optimization",
+  ]);
   assert.equal(readProgressVersion({ rootorial: { progressVersion: 2 } }), 2);
 });
 
