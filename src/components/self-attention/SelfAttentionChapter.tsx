@@ -66,6 +66,7 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
     conceptsMastered,
   });
   const previousPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/attention${isKo ? "" : "?lang=en"}`;
+  const nextPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/transformer-block${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell self-attention-chapter-shell">
@@ -246,7 +247,9 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousPreviewHref}>← {t("이전: Attention", "Previous: Attention")}</a> : <span>← {t("이전: Attention", "Previous: Attention")}</span>}
-            <span>{t("다음: Transformer 블록", "Next: The Transformer Block")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview
+              ? <a href={nextPreviewHref}>{t("다음: Transformer 블록", "Next: The Transformer Block")} →</a>
+              : <span>{t("다음: Transformer 블록", "Next: The Transformer Block")}</span>}
           </nav>
           <noscript>{t("Self-Attention 활동에는 JavaScript가 필요합니다. 위 설명과 수식은 계속 읽을 수 있습니다.", "The Self-Attention activities require JavaScript. The explanation and formulas above remain readable.")}</noscript>
         </article>

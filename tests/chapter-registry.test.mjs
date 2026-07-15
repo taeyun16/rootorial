@@ -131,6 +131,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     getPublishedChapter("transformer-from-zero", "self-attention", "en")?.chapter.title,
     "Self-Attention",
   );
+  assert.equal(
+    getPublishedChapter("transformer-from-zero", "transformer-block", "en")?.chapter.title,
+    "The Transformer Block",
+  );
   assert.equal(getPublishedChapter("transformer-from-zero", "missing"), undefined);
 });
 
@@ -410,6 +414,50 @@ test("separates active question submissions from historical labels", () => {
       "transformer-from-zero",
       "self-attention",
       "position-boundary",
+      2,
+    ),
+    undefined,
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["transformer-from-zero/transformer-block"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "position-input": "add-sinusoidal-once-before-first-block",
+      "prenorm-residual": "normalize-run-add-original",
+      "layernorm-axis": "features-within-token",
+      "positionwise-ffn": "shared-mlp-each-token-row",
+      "block-handoff": "hidden-state-same-token-model-shape",
+    },
+  );
+  assert.deepEqual(
+    Object.values(chapterRegistry["transformer-from-zero/transformer-block"].questions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 1, 1, 0, 1],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "transformer-from-zero",
+      "transformer-block",
+      "layernorm-axis",
+    )?.correctAnswer,
+    "features-within-token",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "transformer-block",
+      "block-handoff",
+      1,
+    )?.correctAnswer,
+    "hidden-state-same-token-model-shape",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "transformer-block",
+      "block-handoff",
       2,
     ),
     undefined,
@@ -814,6 +862,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "08. Self-Attention · Rootorial",
       description:
         "Project Q, K, and V separately from the same input, compute scaled dot products for every token row, then execute causal-masking and multi-head split/merge contracts while debugging information leaks and shape defects.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/transformer-from-zero/chapters/transformer-block",
+      "ko",
+    ),
+    {
+      title: "09. Transformer 블록 · Rootorial",
+      description:
+        "결정적 absolute 위치 신호를 첫 블록 입력에 한 번 더하고, pre-LayerNorm causal Self-Attention과 position-wise FFN을 residual 경로로 감싸 [T,d_model]을 보존하는 decoder-only block을 실행·디버깅합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("transformer-from-zero", "transformer-block", "en"),
+    {
+      title: "09. The Transformer Block · Rootorial",
+      description:
+        "Add a deterministic absolute positional signal once before the first block, then execute and debug a decoder-only pre-LayerNorm block whose causal self-attention and position-wise FFN preserve [T,d_model] through residual paths.",
     },
   );
   assert.deepEqual(

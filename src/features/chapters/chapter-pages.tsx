@@ -14,6 +14,7 @@ import { OptimizationChapter } from "../../components/optimization/OptimizationC
 import { SequencesChapter } from "../../components/sequences/SequencesChapter";
 import { SelfAttentionChapter } from "../../components/self-attention/SelfAttentionChapter";
 import { TrainingChapter } from "../../components/training/TrainingChapter";
+import { TransformerBlockChapter } from "../../components/transformer-block/TransformerBlockChapter";
 import { VectorsChapter } from "../../components/VectorsChapter";
 import { chapterId } from "../../data/curriculum";
 import {
@@ -91,6 +92,10 @@ function SelfAttentionChapterPage({ learnerCount }: ChapterPageProps) {
   return <SelfAttentionChapter learnerCount={learnerCount} />;
 }
 
+function TransformerBlockChapterPage({ learnerCount }: ChapterPageProps) {
+  return <TransformerBlockChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
@@ -100,6 +105,7 @@ const chapterPages = {
   "transformer-from-zero/sequences": SequencesChapterPage,
   "transformer-from-zero/attention": AttentionChapterPage,
   "transformer-from-zero/self-attention": SelfAttentionChapterPage,
+  "transformer-from-zero/transformer-block": TransformerBlockChapterPage,
   "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
   "linux-systems/boot-to-shell": LinuxBootChapterPage,
   "linux-systems/processes-and-signals": LinuxProcessesChapterPage,

@@ -123,6 +123,15 @@ test("accepts only the known learning surface and locale", () => {
     locale: "ko",
   });
   assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "transformer-block",
+    locale: "en",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "transformer-block",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     locale: "en",
@@ -241,6 +250,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "self-attention",
     path: "/curricula/transformer-from-zero/chapters/self-attention",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "transformer-block" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "transformer-block",
+    path: "/curricula/transformer-from-zero/chapters/transformer-block",
   });
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
     curriculumSlug: "linux-systems",
@@ -719,6 +733,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "self-attention",
     answers: { "causal-mask": "client-says-correct" },
+  }));
+
+  const transformerBlockResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "transformer-block",
+    answers: {
+      "position-input": "add-sinusoidal-once-before-first-block",
+      "prenorm-residual": "normalize-run-add-original",
+      "layernorm-axis": "features-within-token",
+      "positionwise-ffn": "shared-mlp-each-token-row",
+      "block-handoff": "hidden-state-same-token-model-shape",
+    },
+  });
+  assert.deepEqual(
+    transformerBlockResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/transformer-block/position-input",
+        correctAnswer: "add-sinusoidal-once-before-first-block",
+      },
+      {
+        key: "transformer-from-zero/transformer-block/prenorm-residual",
+        correctAnswer: "normalize-run-add-original",
+      },
+      {
+        key: "transformer-from-zero/transformer-block/layernorm-axis",
+        correctAnswer: "features-within-token",
+      },
+      {
+        key: "transformer-from-zero/transformer-block/positionwise-ffn",
+        correctAnswer: "shared-mlp-each-token-row",
+      },
+      {
+        key: "transformer-from-zero/transformer-block/block-handoff",
+        correctAnswer: "hidden-state-same-token-model-shape",
+      },
+    ],
+  );
+  assert.ok(transformerBlockResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "transformer-block",
+    answers: { "block-handoff": "client-says-correct" },
   }));
 
   const linuxResult = validateAttemptInput({
