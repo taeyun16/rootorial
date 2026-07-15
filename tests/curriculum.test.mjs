@@ -15,7 +15,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
     chaptersEn.map(({ number, slug, status }) => ({ number, slug, status })),
   );
   assert.deepEqual(
-    chaptersKo.slice(0, 4).map(
+    chaptersKo.slice(0, 5).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -48,7 +48,39 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 65,
       },
+      {
+        slug: "embeddings",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 65,
+      },
     ],
+  );
+  assert.deepEqual(
+    {
+      runtime: chaptersKo[4].runtime,
+      description: chaptersKo[4].description,
+      concepts: chaptersKo[4].concepts,
+    },
+    {
+      runtime: "TypeScript 임베딩 모델",
+      description:
+        "결정적 subword 토큰화에서 embedding lookup·반복 row gradient·cosine·masked mean까지 직접 계산하고 디버깅합니다.",
+      concepts: ["token ID · lookup", "row gradient · cosine", "masked mean"],
+    },
+  );
+  assert.deepEqual(
+    {
+      runtime: chaptersEn[4].runtime,
+      description: chaptersEn[4].description,
+      concepts: chaptersEn[4].concepts,
+    },
+    {
+      runtime: "TypeScript embedding model",
+      description:
+        "Compute and debug deterministic subword tokenization, embedding lookup, repeated-row gradients, cosine similarity, and masked mean pooling.",
+      concepts: ["token ID · lookup", "row gradient · cosine", "masked mean"],
+    },
   );
   assert.deepEqual(
     {
@@ -76,7 +108,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       concepts: ["mini-batch · CE", "Adam state", "validation · dropout"],
     },
   );
-  assert.ok(chaptersKo.slice(4).every(({ status }) => status === "planned"));
+  assert.ok(chaptersKo.slice(5).every(({ status }) => status === "planned"));
 });
 
 test("keeps the bilingual Linux roadmap structurally aligned", () => {

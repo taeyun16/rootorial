@@ -48,6 +48,7 @@ test("keeps registered completed Transformer drafts and unknown chapters private
   assert.ok(chapterRegistry["transformer-from-zero/optimization"]);
   assert.ok(chapterRegistry["transformer-from-zero/neural-networks"]);
   assert.ok(chapterRegistry["transformer-from-zero/training"]);
+  assert.ok(chapterRegistry["transformer-from-zero/embeddings"]);
   const optimization = await render(
     "/curricula/transformer-from-zero/chapters/optimization",
   );
@@ -60,6 +61,12 @@ test("keeps registered completed Transformer drafts and unknown chapters private
   const trainingEnglish = await render(
     "/curricula/transformer-from-zero/chapters/training?lang=en",
   );
+  const embeddings = await render(
+    "/curricula/transformer-from-zero/chapters/embeddings",
+  );
+  const embeddingsEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/embeddings?lang=en",
+  );
   const unknown = await render(
     "/curricula/transformer-from-zero/chapters/not-a-chapter",
   );
@@ -67,12 +74,16 @@ test("keeps registered completed Transformer drafts and unknown chapters private
   assert.equal(neuralNetworks.status, 404);
   assert.equal(training.status, 404);
   assert.equal(trainingEnglish.status, 404);
+  assert.equal(embeddings.status, 404);
+  assert.equal(embeddingsEnglish.status, 404);
   assert.equal(unknown.status, 404);
   await Promise.all([
     optimization.text(),
     neuralNetworks.text(),
     training.text(),
     trainingEnglish.text(),
+    embeddings.text(),
+    embeddingsEnglish.text(),
     unknown.text(),
   ]);
 });
