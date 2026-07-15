@@ -80,6 +80,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     "From Power-On to a Shell",
   );
   assert.equal(
+    getPublishedChapter("linux-systems", "processes-and-signals", "en")?.chapter.title,
+    "Processes and Signals",
+  );
+  assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
     "Learning and Optimization",
   );
@@ -173,6 +177,37 @@ test("separates active question submissions from historical labels", () => {
     ),
     undefined,
   );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["linux-systems/processes-and-signals"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "program-vs-process": "same-program-distinct-processes",
+      "fork-exec-pid": "exec-replaces-image-keeps-pid",
+      "stdio-redirection": "redirects-stdout-only",
+      "signal-choice": "term-before-kill",
+      "wait-reaps-child": "zombie-until-wait",
+    },
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "processes-and-signals",
+      "signal-choice",
+      1,
+    )?.correctAnswer,
+    "term-before-kill",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "processes-and-signals",
+      "signal-choice",
+      2,
+    ),
+    undefined,
+  );
 });
 
 test("derives localized metadata from the catalog without route-specific copies", () => {
@@ -204,6 +239,14 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "02. From Power-On to a Shell · Rootorial",
       description:
         "Repair failed boundaries in a deterministic boot model, compare them with an optional v86 run, and trace firmware through the kernel, init, and the serial console shell.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("linux-systems", "processes-and-signals", "en"),
+    {
+      title: "03. Processes and Signals · Rootorial",
+      description:
+        "Manipulate and diagnose fork, exec, PID and PPID, standard streams, signals, and wait transitions in a deterministic process model.",
     },
   );
 });

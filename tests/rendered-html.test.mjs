@@ -122,7 +122,12 @@ test("renders the Linux sample curriculum in both locales", async () => {
   assert.match(html, /첫 샘플 챕터 시작하기/);
   assert.match(html, /셸에서 첫 파일까지/);
   assert.match(html, /전원이 켜지고 셸이 뜨기까지/);
+  assert.match(html, /프로세스와 시그널/);
   assert.match(html, /href="\/curricula\/linux-systems\/chapters\/shell-and-filesystem"/);
+  assert.doesNotMatch(
+    html,
+    /href="\/curricula\/linux-systems\/chapters\/(?:boot-to-shell|processes-and-signals)"/,
+  );
   assert.match(html, /href="\/experiments\/linux"/);
   assert.match(html, /Linux 실험 열기/);
   assert.match(html, /Linux 시스템을 바닥부터 · Rootorial/);
@@ -162,9 +167,13 @@ test("renders the interactive Linux shell and filesystem chapter", async () => {
 });
 
 test("keeps the completed draft and unknown Linux chapters unavailable", async () => {
-  const draft = await render("/curricula/linux-systems/chapters/boot-to-shell");
-  assert.equal(draft.status, 404);
-  await draft.text();
+  const boot = await render("/curricula/linux-systems/chapters/boot-to-shell");
+  const processes = await render(
+    "/curricula/linux-systems/chapters/processes-and-signals",
+  );
+  assert.equal(boot.status, 404);
+  assert.equal(processes.status, 404);
+  await Promise.all([boot.text(), processes.text()]);
 
   const unknown = await render("/curricula/linux-systems/chapters/not-a-chapter");
   assert.equal(unknown.status, 404);

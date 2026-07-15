@@ -86,6 +86,15 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "boot-to-shell",
     locale: "ko",
   });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "processes-and-signals",
+    locale: "en",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "processes-and-signals",
+    locale: "en",
+  });
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -118,6 +127,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "linux-systems",
     chapterSlug: "boot-to-shell",
     path: "/curricula/linux-systems/chapters/boot-to-shell",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "processes-and-signals" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "processes-and-signals",
+    path: "/curricula/linux-systems/chapters/processes-and-signals",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
 });
@@ -310,6 +324,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "linux-systems",
     chapterSlug: "boot-to-shell",
     answers: { "firmware-handoff": "client-says-correct" },
+  }));
+
+  const processResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "processes-and-signals",
+    answers: {
+      "program-vs-process": "same-program-distinct-processes",
+      "fork-exec-pid": "exec-replaces-image-keeps-pid",
+      "stdio-redirection": "redirects-stdout-only",
+      "signal-choice": "term-before-kill",
+      "wait-reaps-child": "zombie-until-wait",
+    },
+  });
+  assert.deepEqual(
+    processResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/processes-and-signals/program-vs-process",
+        correctAnswer: "same-program-distinct-processes",
+      },
+      {
+        key: "linux-systems/processes-and-signals/fork-exec-pid",
+        correctAnswer: "exec-replaces-image-keeps-pid",
+      },
+      {
+        key: "linux-systems/processes-and-signals/stdio-redirection",
+        correctAnswer: "redirects-stdout-only",
+      },
+      {
+        key: "linux-systems/processes-and-signals/signal-choice",
+        correctAnswer: "term-before-kill",
+      },
+      {
+        key: "linux-systems/processes-and-signals/wait-reaps-child",
+        correctAnswer: "zombie-until-wait",
+      },
+    ],
+  );
+  assert.ok(processResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "processes-and-signals",
+    answers: { "signal-choice": "client-says-correct" },
   }));
 });
 

@@ -23,6 +23,7 @@ const transformerUrl = `${ROOTORIAL_URL}/curricula/transformer-from-zero`;
 const vectorsUrl = `${transformerUrl}/chapters/vectors`;
 const optimizationUrl = `${transformerUrl}/chapters/optimization`;
 const linuxBootUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/boot-to-shell`;
+const linuxProcessesUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/processes-and-signals`;
 const defaultCatalog = resolvePublicationCatalog([], 0);
 
 function publicationOverride({
@@ -102,6 +103,7 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.ok(contents.includes(vectorsUrl));
   assert.ok(!contents.includes(optimizationUrl));
   assert.ok(!contents.includes(linuxBootUrl));
+  assert.ok(!contents.includes(linuxProcessesUrl));
 
   for (const curriculum of curricula) {
     const curriculumKey = curriculumPublicationKey(curriculum.slug);

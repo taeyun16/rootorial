@@ -28,6 +28,10 @@ const linuxShellKey = chapterPublicationKey(
   "shell-and-filesystem",
 );
 const linuxBootKey = chapterPublicationKey("linux-systems", "boot-to-shell");
+const linuxProcessesKey = chapterPublicationKey(
+  "linux-systems",
+  "processes-and-signals",
+);
 
 function override(resourceKey, values = {}) {
   const chapter = resourceKey.startsWith("chapter:");
@@ -97,11 +101,12 @@ test("keeps published vectors and completed optimization editorially independent
   assert.equal(isPublicationAccessible(catalog, optimizationKey), false);
 });
 
-test("publishes the existing Linux sample while keeping the completed boot chapter draft", () => {
+test("publishes the existing Linux sample while keeping completed later chapters draft", () => {
   const catalog = resolvePublicationCatalog([], 1_000);
   const linux = catalog.resources[linuxKey];
   const shell = catalog.resources[linuxShellKey];
   const boot = catalog.resources[linuxBootKey];
+  const processes = catalog.resources[linuxProcessesKey];
 
   assert.equal(linux.contentReady, true);
   assert.equal(linux.effectivePublicationStatus, "published");
@@ -123,6 +128,16 @@ test("publishes the existing Linux sample while keeping the completed boot chapt
   assert.equal(boot.scheduledAt, null);
   assert.equal(boot.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, linuxBootKey), false);
+
+  assert.equal(processes.developmentStatus, "complete");
+  assert.equal(processes.contentReady, true);
+  assert.equal(processes.source, "default");
+  assert.equal(processes.publicationStatus, "draft");
+  assert.equal(processes.effectivePublicationStatus, "draft");
+  assert.equal(processes.listing, "listed");
+  assert.equal(processes.scheduledAt, null);
+  assert.equal(processes.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, linuxProcessesKey), false);
 
   const linuxCatalog = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "linux-systems",
