@@ -52,6 +52,7 @@ export const VECTOR_CHAPTER_ESTIMATED_MINUTES = 60;
 export const OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES = 55;
 export const NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES = 60;
 export const TRAINING_CHAPTER_ESTIMATED_MINUTES = 65;
+export const EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES = 65;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
 export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
 export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
@@ -117,11 +118,12 @@ export const chaptersKo: Chapter[] = [
     title: "토큰과 임베딩",
     subtitle: "단어를 계산 가능한 공간에 놓기",
     description:
-      "토큰화, one-hot, embedding lookup과 의미 유사도를 연결하고 실제 문장 임베딩을 비교합니다.",
-    runtime: "Workers AI + NumPy",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["token", "embedding", "cosine"],
+      "결정적 subword 토큰화에서 embedding lookup·반복 row gradient·cosine·masked mean까지 직접 계산하고 디버깅합니다.",
+    runtime: "TypeScript 임베딩 모델",
+    estimatedMinutes: EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["token ID · lookup", "row gradient · cosine", "masked mean"],
   },
   {
     number: 6,
@@ -213,8 +215,8 @@ export const chaptersEn: Chapter[] = [
   {
     number: 5, slug: "embeddings", title: "Tokens and Embeddings",
     subtitle: "Placing words in a space we can compute with",
-    description: "Connect tokenization, one-hot vectors, embedding lookup, and semantic similarity, then compare real sentence embeddings.",
-    runtime: "Workers AI + NumPy", developmentStatus: "planned", status: "planned", concepts: ["token", "embedding", "cosine"],
+    description: "Compute and debug deterministic subword tokenization, embedding lookup, repeated-row gradients, cosine similarity, and masked mean pooling.",
+    runtime: "TypeScript embedding model", estimatedMinutes: EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["token ID · lookup", "row gradient · cosine", "masked mean"],
   },
   {
     number: 6, slug: "sequences", title: "Sequential Data",

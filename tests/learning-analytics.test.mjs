@@ -87,6 +87,15 @@ test("accepts only the known learning surface and locale", () => {
     locale: "ko",
   });
   assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "embeddings",
+    locale: "en",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "embeddings",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     locale: "en",
@@ -158,6 +167,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "training",
     path: "/curricula/transformer-from-zero/chapters/training",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "embeddings" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "embeddings",
+    path: "/curricula/transformer-from-zero/chapters/embeddings",
   });
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
     curriculumSlug: "linux-systems",
@@ -433,6 +447,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "training",
     answers: { "dropout-mode": "client-says-correct" },
+  }));
+
+  const embeddingsResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "embeddings",
+    answers: {
+      "tokenizer-contract": "tokens-depend-on-tokenizer",
+      "lookup-shape": "ids-bt-to-vectors-btd",
+      "repeated-gradient": "referenced-rows-sum-contributions",
+      "cosine-contract": "angle-not-id-or-magnitude",
+      "pooling-order": "masked-mean-drops-pad-and-order",
+    },
+  });
+  assert.deepEqual(
+    embeddingsResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/embeddings/tokenizer-contract",
+        correctAnswer: "tokens-depend-on-tokenizer",
+      },
+      {
+        key: "transformer-from-zero/embeddings/lookup-shape",
+        correctAnswer: "ids-bt-to-vectors-btd",
+      },
+      {
+        key: "transformer-from-zero/embeddings/repeated-gradient",
+        correctAnswer: "referenced-rows-sum-contributions",
+      },
+      {
+        key: "transformer-from-zero/embeddings/cosine-contract",
+        correctAnswer: "angle-not-id-or-magnitude",
+      },
+      {
+        key: "transformer-from-zero/embeddings/pooling-order",
+        correctAnswer: "masked-mean-drops-pad-and-order",
+      },
+    ],
+  );
+  assert.ok(embeddingsResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "embeddings",
+    answers: { "cosine-contract": "client-says-correct" },
   }));
 
   const linuxResult = validateAttemptInput({

@@ -1,4 +1,5 @@
 import type { ComponentType } from "react";
+import { EmbeddingsChapter } from "../../components/embeddings/EmbeddingsChapter";
 import { LinuxBootChapter } from "../../components/linux/LinuxBootChapter";
 import { LinuxProcessesChapter } from "../../components/linux/LinuxProcessesChapter";
 import { LinuxPermissionsChapter } from "../../components/linux/LinuxPermissionsChapter";
@@ -56,11 +57,16 @@ function TrainingChapterPage({ learnerCount }: ChapterPageProps) {
   return <TrainingChapter learnerCount={learnerCount} />;
 }
 
+function EmbeddingsChapterPage({ learnerCount }: ChapterPageProps) {
+  return <EmbeddingsChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
   "transformer-from-zero/neural-networks": NeuralNetworksChapterPage,
   "transformer-from-zero/training": TrainingChapterPage,
+  "transformer-from-zero/embeddings": EmbeddingsChapterPage,
   "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
   "linux-systems/boot-to-shell": LinuxBootChapterPage,
   "linux-systems/processes-and-signals": LinuxProcessesChapterPage,

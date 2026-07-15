@@ -194,6 +194,46 @@ export const conceptQuestionHistory = {
       answers: ["train-random-eval-off", "random-in-both", "off-in-both"],
     },
   },
+  "transformer-from-zero/embeddings/tokenizer-contract": {
+    1: {
+      version: 1,
+      label: "문자열과 토큰의 관계",
+      correctAnswer: "tokens-depend-on-tokenizer",
+      answers: ["tokens-depend-on-tokenizer", "one-word-one-token", "ids-measure-meaning"],
+    },
+  },
+  "transformer-from-zero/embeddings/lookup-shape": {
+    1: {
+      version: 1,
+      label: "Embedding lookup shape",
+      correctAnswer: "ids-bt-to-vectors-btd",
+      answers: ["ids-bt-to-vectors-btd", "ids-bt-to-vocabulary-btv", "ids-bt-to-one-vector-d"],
+    },
+  },
+  "transformer-from-zero/embeddings/repeated-gradient": {
+    1: {
+      version: 1,
+      label: "반복 token row gradient",
+      correctAnswer: "referenced-rows-sum-contributions",
+      answers: ["referenced-rows-sum-contributions", "all-rows-receive-gradient", "duplicates-are-deduplicated"],
+    },
+  },
+  "transformer-from-zero/embeddings/cosine-contract": {
+    1: {
+      version: 1,
+      label: "Cosine similarity 계약",
+      correctAnswer: "angle-not-id-or-magnitude",
+      answers: ["angle-not-id-or-magnitude", "larger-id-more-similar", "zero-vector-cosine-zero"],
+    },
+  },
+  "transformer-from-zero/embeddings/pooling-order": {
+    1: {
+      version: 1,
+      label: "Masked mean과 순서",
+      correctAnswer: "masked-mean-drops-pad-and-order",
+      answers: ["masked-mean-drops-pad-and-order", "mean-preserves-order", "pad-must-enter-denominator"],
+    },
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     1: {
       version: 1,
@@ -458,6 +498,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/training/dropout-mode"][1],
     status: "active",
   },
+  "transformer-from-zero/embeddings/tokenizer-contract": {
+    ...conceptQuestionHistory["transformer-from-zero/embeddings/tokenizer-contract"][1],
+    status: "active",
+  },
+  "transformer-from-zero/embeddings/lookup-shape": {
+    ...conceptQuestionHistory["transformer-from-zero/embeddings/lookup-shape"][1],
+    status: "active",
+  },
+  "transformer-from-zero/embeddings/repeated-gradient": {
+    ...conceptQuestionHistory["transformer-from-zero/embeddings/repeated-gradient"][1],
+    status: "active",
+  },
+  "transformer-from-zero/embeddings/cosine-contract": {
+    ...conceptQuestionHistory["transformer-from-zero/embeddings/cosine-contract"][1],
+    status: "active",
+  },
+  "transformer-from-zero/embeddings/pooling-order": {
+    ...conceptQuestionHistory["transformer-from-zero/embeddings/pooling-order"][1],
+    status: "active",
+  },
   "linux-systems/shell-and-filesystem/absolute-path": {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/absolute-path"][1],
     status: "active",
@@ -581,6 +641,14 @@ export const trainingQuestions = {
   "dropout-mode": conceptQuestionRegistry["transformer-from-zero/training/dropout-mode"],
 } as const;
 
+export const embeddingQuestions = {
+  "tokenizer-contract": conceptQuestionRegistry["transformer-from-zero/embeddings/tokenizer-contract"],
+  "lookup-shape": conceptQuestionRegistry["transformer-from-zero/embeddings/lookup-shape"],
+  "repeated-gradient": conceptQuestionRegistry["transformer-from-zero/embeddings/repeated-gradient"],
+  "cosine-contract": conceptQuestionRegistry["transformer-from-zero/embeddings/cosine-contract"],
+  "pooling-order": conceptQuestionRegistry["transformer-from-zero/embeddings/pooling-order"],
+} as const;
+
 const linuxShellQuestions = {
   "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
   "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
@@ -634,6 +702,9 @@ export const chapterRegistry = {
   },
   "transformer-from-zero/training": {
     questions: trainingQuestions,
+  },
+  "transformer-from-zero/embeddings": {
+    questions: embeddingQuestions,
   },
   "linux-systems/shell-and-filesystem": {
     questions: linuxShellQuestions,

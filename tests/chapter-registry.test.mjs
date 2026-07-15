@@ -103,6 +103,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     getPublishedChapter("transformer-from-zero", "training", "en")?.chapter.title,
     "Deep Learning Training",
   );
+  assert.equal(
+    getPublishedChapter("transformer-from-zero", "embeddings", "en")?.chapter.title,
+    "Tokens and Embeddings",
+  );
   assert.equal(getPublishedChapter("transformer-from-zero", "missing"), undefined);
 });
 
@@ -211,6 +215,45 @@ test("separates active question submissions from historical labels", () => {
       "transformer-from-zero",
       "training",
       "dropout-mode",
+      2,
+    ),
+    undefined,
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["transformer-from-zero/embeddings"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "tokenizer-contract": "tokens-depend-on-tokenizer",
+      "lookup-shape": "ids-bt-to-vectors-btd",
+      "repeated-gradient": "referenced-rows-sum-contributions",
+      "cosine-contract": "angle-not-id-or-magnitude",
+      "pooling-order": "masked-mean-drops-pad-and-order",
+    },
+  );
+  assert.equal(
+    getConceptQuestion(
+      "transformer-from-zero",
+      "embeddings",
+      "cosine-contract",
+    )?.correctAnswer,
+    "angle-not-id-or-magnitude",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "embeddings",
+      "pooling-order",
+      1,
+    )?.correctAnswer,
+    "masked-mean-drops-pad-and-order",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "embeddings",
+      "pooling-order",
       2,
     ),
     undefined,
@@ -422,6 +465,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "04. Deep Learning Training · Rootorial",
       description:
         "Connect three-class Softmax and cross entropy to mini-batch Adam updates, then run and debug validation and dropout boundaries.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/transformer-from-zero/chapters/embeddings",
+      "ko",
+    ),
+    {
+      title: "05. 토큰과 임베딩 · Rootorial",
+      description:
+        "결정적 subword 토큰화에서 embedding lookup·반복 row gradient·cosine·masked mean까지 직접 계산하고 디버깅합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("transformer-from-zero", "embeddings", "en"),
+    {
+      title: "05. Tokens and Embeddings · Rootorial",
+      description:
+        "Compute and debug deterministic subword tokenization, embedding lookup, repeated-row gradients, cosine similarity, and masked mean pooling.",
     },
   );
   assert.deepEqual(

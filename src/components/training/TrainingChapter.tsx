@@ -69,6 +69,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
     conceptsMastered,
   });
   const previousPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/neural-networks${isKo ? "" : "?lang=en"}`;
+  const nextPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/embeddings${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell training-chapter-shell">
@@ -369,7 +370,9 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             {preview
               ? <a href={previousPreviewHref}>← {t("이전: 분류와 신경망", "Previous: Classification and Neural Networks")}</a>
               : <span>← {t("이전: 분류와 신경망", "Previous: Classification and Neural Networks")}</span>}
-            <span>{t("다음: 토큰과 임베딩", "Next: Tokens and Embeddings")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview
+              ? <a href={nextPreviewHref}>{t("다음: 토큰과 임베딩", "Next: Tokens and Embeddings")} →</a>
+              : <span>{t("다음: 토큰과 임베딩", "Next: Tokens and Embeddings")} <small>{t("준비 중", "Coming soon")}</small></span>}
           </nav>
         </article>
       </div>
