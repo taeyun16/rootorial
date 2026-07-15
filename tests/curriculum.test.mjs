@@ -15,7 +15,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
     chaptersEn.map(({ number, slug, status }) => ({ number, slug, status })),
   );
   assert.deepEqual(
-    chaptersKo.slice(0, 9).map(
+    chaptersKo.slice(0, 10).map(
       ({ slug, status, developmentStatus, estimatedMinutes }) => ({
         slug,
         status,
@@ -78,7 +78,43 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
         developmentStatus: "complete",
         estimatedMinutes: 80,
       },
+      {
+        slug: "mini-transformer",
+        status: "available",
+        developmentStatus: "complete",
+        estimatedMinutes: 90,
+      },
     ],
+  );
+  assert.deepEqual(
+    {
+      subtitle: chaptersKo[9].subtitle,
+      runtime: chaptersKo[9].runtime,
+      description: chaptersKo[9].description,
+      concepts: chaptersKo[9].concepts,
+    },
+    {
+      subtitle: "배운 조각을 하나의 작동하는 모델로",
+      runtime: "TypeScript Mini Transformer 모델",
+      description:
+        "결정적 tokenizer→embedding+position→pre-LayerNorm decoder block→final norm→vocabulary logits를 연결하고, shifted target loss·한 번의 LM-head update와 EOS/max-length autoregressive decoding을 실행·디버깅합니다.",
+      concepts: ["shifted target · causal prefix", "final norm · vocabulary logits", "loss · autoregressive decode"],
+    },
+  );
+  assert.deepEqual(
+    {
+      subtitle: chaptersEn[9].subtitle,
+      runtime: chaptersEn[9].runtime,
+      description: chaptersEn[9].description,
+      concepts: chaptersEn[9].concepts,
+    },
+    {
+      subtitle: "Combining the pieces into a working model",
+      runtime: "TypeScript Mini Transformer model",
+      description:
+        "Connect a deterministic tokenizer, embedding plus position, one pre-LayerNorm decoder block, final normalization, and vocabulary logits, then execute and debug shifted-target loss, one LM-head update, and EOS/max-length autoregressive decoding.",
+      concepts: ["shifted targets · causal prefixes", "final norm · vocabulary logits", "loss · autoregressive decoding"],
+    },
   );
   assert.deepEqual(
     {
@@ -244,7 +280,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       concepts: ["mini-batch · CE", "Adam state", "validation · dropout"],
     },
   );
-  assert.ok(chaptersKo.slice(9).every(({ status }) => status === "planned"));
+  assert.ok(chaptersKo.slice(10).every(({ status }) => status === "planned"));
 });
 
 test("keeps the bilingual Linux roadmap structurally aligned", () => {

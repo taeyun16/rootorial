@@ -171,8 +171,8 @@ export function TransformerBlockConceptCheck({
       correctAnswer: transformerBlockQuestions["block-handoff"].correctAnswer,
       answerLabel: t("정답: [T,d_model] hidden state", "Answer: a [T,d_model] hidden state"),
       correctFeedback: t(
-        "맞았습니다. residual 덧셈은 shape를 보존합니다. block stack, final norm, vocabulary projection과 loss는 다음 장에서 연결합니다.",
-        "Right. Residual additions preserve shape. The block stack, final norm, vocabulary projection, and loss are connected in the next chapter.",
+        "맞았습니다. residual 덧셈은 shape를 보존합니다. 다음 장은 한 block을 final norm, vocabulary projection과 loss에 연결하고, 더 깊은 stack은 같은 shape 계약을 반복하는 전이 과제로 다룹니다.",
+        "Right. Residual additions preserve shape. The next chapter connects one block to final normalization, vocabulary projection, and loss, then treats a deeper stack as a transfer exercise that repeats the same shape contract.",
       ),
       incorrectFeedback: t(
         "block과 language-model head의 경계를 구분하세요. 이 장은 [T,d_model] state를 만들 뿐 tokenizer나 vocabulary 확률을 실행하지 않습니다.",

@@ -60,6 +60,7 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
   const [conceptsMastered, setConceptsMastered] = useState(false);
   const canComplete = canCompleteTransformerBlockChapter({ labComplete, debuggerComplete, conceptsMastered });
   const previousPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/self-attention${isKo ? "" : "?lang=en"}`;
+  const nextPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/mini-transformer${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell transformer-block-chapter-shell">
@@ -108,13 +109,13 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
             <div className="margin-label">01 — ASSEMBLY BOUNDARY</div>
             <h2>{t("Attention은 token 사이를 읽고, 블록은 그 결과를 학습 가능한 state로 이어 줍니다", "Attention reads across tokens; the block carries that result into a learnable state")}</h2>
             <p>{t(
-              "Self-Attention은 [T,d_model] routing 출력을 만들었습니다. 블록은 같은 shape의 skip path를 두 번 보존하면서 정규화된 branch에 Attention과 FFN을 적용합니다. tokenizer, 여러 block stack, final norm, vocabulary projection, loss와 training은 마지막 장의 범위입니다.",
-              "Self-attention produced a [T,d_model] routing output. A block preserves a same-shaped skip path twice while applying attention and the FFN to normalized branches. Tokenization, a multi-block stack, final normalization, vocabulary projection, loss, and training belong to the final chapter.",
+              "Self-Attention은 [T,d_model] routing 출력을 만들었습니다. 블록은 같은 shape의 skip path를 두 번 보존하면서 정규화된 branch에 Attention과 FFN을 적용합니다. 마지막 장은 tokenizer, 한 block의 실행 가능한 전체 경로, final norm, vocabulary projection, loss와 head update를 연결하고 multi-block 확장은 전이 과제로 다룹니다.",
+              "Self-attention produced a [T,d_model] routing output. A block preserves a same-shaped skip path twice while applying attention and the FFN to normalized branches. The final chapter connects tokenization, an executable one-block model path, final normalization, vocabulary projection, loss, and a head update, then treats multi-block scaling as a transfer task.",
             )}</p>
             <div className="transformer-block-boundary-grid" role="group" aria-label={t("Self-Attention과 Transformer block 경계", "Boundary between self-attention and a Transformer block")}>
               <article><span>SELF-ATTENTION</span><strong>token routing</strong><p>Q/K/V · mask · heads</p></article>
               <article><span>TRANSFORMER BLOCK</span><strong>state update</strong><p>position · LN · residual · FFN</p></article>
-              <article><span>MINI TRANSFORMER</span><strong>model path</strong><p>stack · logits · loss</p></article>
+              <article><span>MINI TRANSFORMER</span><strong>model path</strong><p>one block · logits · loss</p></article>
             </div>
             <div className="concept-callout transformer-block-prerequisite"><span className="callout-mark">↩</span><div>
               <strong>{t("선행 개념", "Prerequisites")}</strong>
@@ -197,7 +198,7 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
 
           <section className="article-section" id="transfer">
             <div className="margin-label">09 — TRANSFER TO A MINI TRANSFORMER</div>
-            <h2>{t("한 block의 [T,d_model] state를 stack과 logits 경계로 넘깁니다", "Hand one block's [T,d_model] state to the stack and logits boundary")}</h2>
+            <h2>{t("한 block의 [T,d_model] state를 logits 경계로 넘기고 stack 확장을 설계합니다", "Hand one block's [T,d_model] state to the logits boundary and design stack scaling")}</h2>
             <div className="transformer-block-transfer-task"><strong>{t("전이 과제", "TRANSFER TASK")}</strong><p>{t(
               "두 번째 block을 쌓는다고 가정하세요. position P를 다시 더하지 않고 첫 block의 y를 다음 x로 넘긴 뒤, 어떤 두 LN→sublayer→ADD가 반복되는지 쓰세요. 마지막 token의 next-token logits를 만들려면 block 밖에서 어떤 final norm과 vocabulary projection이 더 필요한지도 구분하세요.",
               "Suppose you stack a second block. Pass the first block's y as the next x without adding P again, then state which two LN-to-sublayer-to-ADD paths repeat. Also separate the final normalization and vocabulary projection needed outside the block to create next-token logits.",
@@ -221,7 +222,7 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousPreviewHref}>← {t("이전: Self-Attention", "Previous: Self-Attention")}</a> : <span>← {t("이전: Self-Attention", "Previous: Self-Attention")}</span>}
-            <span>{t("다음: Mini Transformer", "Next: Mini Transformer")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview ? <a href={nextPreviewHref}>{t("다음: Mini Transformer", "Next: Mini Transformer")} →</a> : <span>{t("다음: Mini Transformer", "Next: Mini Transformer")}</span>}
           </nav>
           <noscript>{t("Transformer block 활동에는 JavaScript가 필요합니다. 위 설명과 수식은 계속 읽을 수 있습니다.", "The Transformer block activities require JavaScript. The explanation and formulas above remain readable.")}</noscript>
         </article>

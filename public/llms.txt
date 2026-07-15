@@ -47,7 +47,7 @@ The following topics are publicly listed but may not yet have complete lessons. 
 - Transformers from the Ground Up — Chapter 7: Attention (Query · Key roles, key-axis Softmax, Value · context)
 - Transformers from the Ground Up — Chapter 8: Self-Attention (Q/K/V projections · token rows, scaled scores · causal mask, multi-head split · concatenate)
 - Transformers from the Ground Up — Chapter 9: The Transformer Block (position · block input, pre-LayerNorm · residual, position-wise FFN · handoff)
-- Transformers from the Ground Up — Chapter 10: Mini Transformer (tokenizer, block, logits)
+- Transformers from the Ground Up — Chapter 10: Mini Transformer (shifted targets · causal prefixes, final norm · vocabulary logits, loss · autoregressive decoding)
 - Linux Systems from the Ground Up — Chapter 2: From Power-On to a Shell (firmware, rootfs, PID 1)
 - Linux Systems from the Ground Up — Chapter 3: Processes and Signals (PID·PPID, stdio, signal·wait)
 - Linux Systems from the Ground Up — Chapter 4: Users and Permissions (UID·GID, rwx · path search, least privilege)

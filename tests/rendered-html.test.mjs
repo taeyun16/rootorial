@@ -289,6 +289,12 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   const transformerBlockEnglish = await render(
     "/curricula/transformer-from-zero/chapters/transformer-block?lang=en",
   );
+  const miniTransformer = await render(
+    "/curricula/transformer-from-zero/chapters/mini-transformer",
+  );
+  const miniTransformerEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/mini-transformer?lang=en",
+  );
   assert.equal(optimization.status, 404);
   assert.equal(neuralNetworks.status, 404);
   assert.equal(training.status, 404);
@@ -303,6 +309,8 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   assert.equal(selfAttentionEnglish.status, 404);
   assert.equal(transformerBlock.status, 404);
   assert.equal(transformerBlockEnglish.status, 404);
+  assert.equal(miniTransformer.status, 404);
+  assert.equal(miniTransformerEnglish.status, 404);
   await Promise.all([
     optimization.text(),
     neuralNetworks.text(),
@@ -318,6 +326,8 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
     selfAttentionEnglish.text(),
     transformerBlock.text(),
     transformerBlockEnglish.text(),
+    miniTransformer.text(),
+    miniTransformerEnglish.text(),
   ]);
 });
 
@@ -405,6 +415,51 @@ test("SSR-renders the bilingual Transformer Block chapter with an explicit test-
     /Assemble the prior chapter(?:'|&#x27;)s causal multi-head routing into a complete decoder block/,
   );
   assert.match(englishHtml, /08 — BLOCK CONTRACT REPAIR CONSOLE/);
+});
+
+test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-only publication override", async () => {
+  const rows = [
+    {
+      resource_key: "chapter:transformer-from-zero/mini-transformer",
+      resource_kind: "chapter",
+      curriculum_slug: "transformer-from-zero",
+      chapter_slug: "mini-transformer",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/transformer-from-zero/chapters/mini-transformer",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(
+    html,
+    /앞의 아홉 장을 작은 decoder-only next-token 모델 하나로 닫습니다/,
+  );
+  assert.match(html, /07 — MODEL BOUNDARY REPAIR CONSOLE/);
+  assert.match(html, /필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/transformer-from-zero/chapters/mini-transformer?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(
+    englishHtml,
+    /Close the previous nine chapters by assembling one tiny decoder-only next-token model/,
+  );
+  assert.match(englishHtml, /07 — MODEL BOUNDARY REPAIR CONSOLE/);
+  assert.match(englishHtml, /REQUIRED LAB · PREDICT → CONFIGURE → RUN → INSPECT/);
 });
 
 test("renders the interactive vectors chapter", async () => {
