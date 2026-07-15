@@ -68,6 +68,10 @@ const linuxNetworkingKey = chapterPublicationKey(
   "linux-systems",
   "networking-from-a-packet",
 );
+const linuxTinySystemKey = chapterPublicationKey(
+  "linux-systems",
+  "assemble-a-tiny-linux",
+);
 
 function override(resourceKey, values = {}) {
   const chapter = resourceKey.startsWith("chapter:");
@@ -114,6 +118,8 @@ test("preserves the current public catalog when no overrides exist", () => {
   assert.equal(isPublicationListed(catalog, linuxStorageKey), true);
   assert.equal(isPublicationAccessible(catalog, linuxNetworkingKey), false);
   assert.equal(isPublicationListed(catalog, linuxNetworkingKey), true);
+  assert.equal(isPublicationAccessible(catalog, linuxTinySystemKey), false);
+  assert.equal(isPublicationListed(catalog, linuxTinySystemKey), true);
 
   const publicCatalog = publicPublicationCatalog(catalog);
   assert.ok(
@@ -220,6 +226,7 @@ test("publishes the existing Linux sample while keeping completed later chapters
   const memory = catalog.resources[linuxMemoryKey];
   const storage = catalog.resources[linuxStorageKey];
   const networking = catalog.resources[linuxNetworkingKey];
+  const tinySystem = catalog.resources[linuxTinySystemKey];
 
   assert.equal(linux.contentReady, true);
   assert.equal(linux.effectivePublicationStatus, "published");
@@ -291,6 +298,16 @@ test("publishes the existing Linux sample while keeping completed later chapters
   assert.equal(networking.scheduledAt, null);
   assert.equal(networking.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, linuxNetworkingKey), false);
+
+  assert.equal(tinySystem.developmentStatus, "complete");
+  assert.equal(tinySystem.contentReady, true);
+  assert.equal(tinySystem.source, "default");
+  assert.equal(tinySystem.publicationStatus, "draft");
+  assert.equal(tinySystem.effectivePublicationStatus, "draft");
+  assert.equal(tinySystem.listing, "listed");
+  assert.equal(tinySystem.scheduledAt, null);
+  assert.equal(tinySystem.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, linuxTinySystemKey), false);
 
   const linuxCatalog = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "linux-systems",

@@ -100,6 +100,10 @@ test("publishes only available chapters that also have a renderer contract", () 
     "From Packets to Sockets",
   );
   assert.equal(
+    getPublishedChapter("linux-systems", "assemble-a-tiny-linux", "en")?.chapter.title,
+    "Assemble a Tiny Linux System",
+  );
+  assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
     "Learning and Optimization",
   );
@@ -597,6 +601,45 @@ test("separates active question submissions from historical labels", () => {
     ),
     undefined,
   );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["linux-systems/assemble-a-tiny-linux"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "artifact-runtime-boundary": "rootfs-carries-userspace",
+      "pid-one-service-order": "mount-network-then-service",
+      "least-privilege-service": "group-read-without-world-write",
+      "readiness-evidence": "probe-each-boundary",
+      "optional-v86-scope": "fixed-guest-observation-only",
+    },
+  );
+  assert.equal(
+    getConceptQuestion(
+      "linux-systems",
+      "assemble-a-tiny-linux",
+      "readiness-evidence",
+    )?.correctAnswer,
+    "probe-each-boundary",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "assemble-a-tiny-linux",
+      "artifact-runtime-boundary",
+      1,
+    )?.correctAnswer,
+    "rootfs-carries-userspace",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "linux-systems",
+      "assemble-a-tiny-linux",
+      "artifact-runtime-boundary",
+      2,
+    ),
+    undefined,
+  );
 });
 
 test("derives localized metadata from the catalog without route-specific copies", () => {
@@ -796,6 +839,25 @@ test("derives localized metadata from the catalog without route-specific copies"
       title: "07. From Packets to Sockets · Rootorial",
       description:
         "Move bytes read from a regular-file fd into a socket fd, then run and diagnose longest-prefix routing, next-hop resolution, cumulative TCP acknowledgements, and delivery to the remote process's recv call.",
+    },
+  );
+  assert.deepEqual(
+    pageMetadataForPath(
+      "/curricula/linux-systems/chapters/assemble-a-tiny-linux",
+      "ko",
+    ),
+    {
+      title: "08. 작은 Linux 조립하기 · Rootorial",
+      description:
+        "kernel image와 rootfs artifact를 구분하고 PID 1의 mount·최소 권한 service·network 순서를 조립한 뒤, 경계별 증거로 reportd readiness를 진단합니다.",
+    },
+  );
+  assert.deepEqual(
+    chapterPageMetadata("linux-systems", "assemble-a-tiny-linux", "en"),
+    {
+      title: "08. Assemble a Tiny Linux System · Rootorial",
+      description:
+        "Separate kernel-image and rootfs artifacts, assemble PID 1's mounts, least-privilege service, and network order, then diagnose reportd readiness with evidence at each boundary.",
     },
   );
 });

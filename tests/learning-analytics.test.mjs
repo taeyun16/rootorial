@@ -176,6 +176,15 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "networking-from-a-packet",
     locale: "en",
   });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "assemble-a-tiny-linux",
+    locale: "ko",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "assemble-a-tiny-linux",
+    locale: "ko",
+  });
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -258,6 +267,11 @@ test("accepts course access only for a known curriculum", () => {
     curriculumSlug: "linux-systems",
     chapterSlug: "networking-from-a-packet",
     path: "/curricula/linux-systems/chapters/networking-from-a-packet",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "assemble-a-tiny-linux" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "assemble-a-tiny-linux",
+    path: "/curricula/linux-systems/chapters/assemble-a-tiny-linux",
   });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
 });
@@ -920,6 +934,53 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "linux-systems",
     chapterSlug: "networking-from-a-packet",
     answers: { "cumulative-ack": "client-says-correct" },
+  }));
+
+  const tinySystemResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "assemble-a-tiny-linux",
+    answers: {
+      "artifact-runtime-boundary": "rootfs-carries-userspace",
+      "pid-one-service-order": "mount-network-then-service",
+      "least-privilege-service": "group-read-without-world-write",
+      "readiness-evidence": "probe-each-boundary",
+      "optional-v86-scope": "fixed-guest-observation-only",
+    },
+  });
+  assert.deepEqual(
+    tinySystemResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary",
+        correctAnswer: "rootfs-carries-userspace",
+      },
+      {
+        key: "linux-systems/assemble-a-tiny-linux/pid-one-service-order",
+        correctAnswer: "mount-network-then-service",
+      },
+      {
+        key: "linux-systems/assemble-a-tiny-linux/least-privilege-service",
+        correctAnswer: "group-read-without-world-write",
+      },
+      {
+        key: "linux-systems/assemble-a-tiny-linux/readiness-evidence",
+        correctAnswer: "probe-each-boundary",
+      },
+      {
+        key: "linux-systems/assemble-a-tiny-linux/optional-v86-scope",
+        correctAnswer: "fixed-guest-observation-only",
+      },
+    ],
+  );
+  assert.ok(tinySystemResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "assemble-a-tiny-linux",
+    answers: { "readiness-evidence": "client-says-correct" },
   }));
 });
 

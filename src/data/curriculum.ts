@@ -62,6 +62,7 @@ export const LINUX_PERMISSIONS_CHAPTER_ESTIMATED_MINUTES = 60;
 export const LINUX_MEMORY_CHAPTER_ESTIMATED_MINUTES = 65;
 export const LINUX_STORAGE_CHAPTER_ESTIMATED_MINUTES = 65;
 export const LINUX_NETWORKING_CHAPTER_ESTIMATED_MINUTES = 65;
+export const LINUX_TINY_SYSTEM_CHAPTER_ESTIMATED_MINUTES = 75;
 
 export const chaptersKo: Chapter[] = [
   {
@@ -354,11 +355,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "작은 Linux 조립하기",
     subtitle: "부팅부터 네트워크까지 배운 층을 하나의 시스템으로",
     description:
-      "커널과 root filesystem을 구성하고 부팅 실패를 진단하며 최소 Linux 시스템을 완성합니다.",
-    runtime: "Buildroot · v86",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["kernel config", "rootfs", "debugging"],
+      "kernel image와 rootfs artifact를 구분하고 PID 1의 mount·최소 권한 service·network 순서를 조립한 뒤, 경계별 증거로 reportd readiness를 진단합니다.",
+    runtime: "시스템 조립 모델 · 선택 v86",
+    estimatedMinutes: LINUX_TINY_SYSTEM_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["artifact · rootfs", "PID 1 · service", "readiness · evidence"],
   },
 ];
 
@@ -460,11 +462,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "Assemble a Tiny Linux System",
     subtitle: "Combine every layer from boot to networking",
     description:
-      "Configure a kernel and root filesystem, diagnose boot failures, and complete a minimal Linux system.",
-    runtime: "Buildroot · v86",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["kernel config", "rootfs", "debugging"],
+      "Separate kernel-image and rootfs artifacts, assemble PID 1's mounts, least-privilege service, and network order, then diagnose reportd readiness with evidence at each boundary.",
+    runtime: "System assembly model · optional v86",
+    estimatedMinutes: LINUX_TINY_SYSTEM_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["artifact · rootfs", "PID 1 · service", "readiness · evidence"],
   },
 ];
 

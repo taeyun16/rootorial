@@ -570,6 +570,46 @@ export const conceptQuestionHistory = {
       answers: ["accept-new-fd-recv-confirms-delivery", "listener-becomes-connected", "send-return-proves-application"],
     },
   },
+  "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
+    1: {
+      version: 1,
+      label: "artifact와 runtime 상태 경계",
+      correctAnswer: "rootfs-carries-userspace",
+      answers: ["rootfs-carries-userspace", "kernel-config-creates-binaries", "runtime-state-persisted-in-image"],
+    },
+  },
+  "linux-systems/assemble-a-tiny-linux/pid-one-service-order": {
+    1: {
+      version: 1,
+      label: "PID 1의 service 시작 순서",
+      correctAnswer: "mount-network-then-service",
+      answers: ["mount-network-then-service", "service-before-prerequisites", "prompt-proves-service-ready"],
+    },
+  },
+  "linux-systems/assemble-a-tiny-linux/least-privilege-service": {
+    1: {
+      version: 1,
+      label: "service 최소 권한",
+      correctAnswer: "group-read-without-world-write",
+      answers: ["group-read-without-world-write", "run-service-as-root", "chmod-world-writable"],
+    },
+  },
+  "linux-systems/assemble-a-tiny-linux/readiness-evidence": {
+    1: {
+      version: 1,
+      label: "end-to-end readiness 증거",
+      correctAnswer: "probe-each-boundary",
+      answers: ["probe-each-boundary", "prompt-proves-all", "tcp-ack-proves-app"],
+    },
+  },
+  "linux-systems/assemble-a-tiny-linux/optional-v86-scope": {
+    1: {
+      version: 1,
+      label: "선택 v86의 검증 범위",
+      correctAnswer: "fixed-guest-observation-only",
+      answers: ["fixed-guest-observation-only", "v86-builds-student-artifact", "v86-proves-network-path"],
+    },
+  },
 } as const satisfies Record<
   string,
   Readonly<Record<number, ConceptQuestionVersionContract>>
@@ -846,6 +886,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["linux-systems/networking-from-a-packet/listener-delivery"][1],
     status: "active",
   },
+  "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
+    ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"][1],
+    status: "active",
+  },
+  "linux-systems/assemble-a-tiny-linux/pid-one-service-order": {
+    ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/pid-one-service-order"][1],
+    status: "active",
+  },
+  "linux-systems/assemble-a-tiny-linux/least-privilege-service": {
+    ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/least-privilege-service"][1],
+    status: "active",
+  },
+  "linux-systems/assemble-a-tiny-linux/readiness-evidence": {
+    ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/readiness-evidence"][1],
+    status: "active",
+  },
+  "linux-systems/assemble-a-tiny-linux/optional-v86-scope": {
+    ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/optional-v86-scope"][1],
+    status: "active",
+  },
 } as const satisfies Record<string, ConceptQuestionContract>;
 
 export type ConceptQuestionKey = keyof typeof conceptQuestionRegistry;
@@ -958,6 +1018,14 @@ export const linuxNetworkingQuestions = {
   "listener-delivery": conceptQuestionRegistry["linux-systems/networking-from-a-packet/listener-delivery"],
 } as const;
 
+export const linuxTinySystemQuestions = {
+  "artifact-runtime-boundary": conceptQuestionRegistry["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"],
+  "pid-one-service-order": conceptQuestionRegistry["linux-systems/assemble-a-tiny-linux/pid-one-service-order"],
+  "least-privilege-service": conceptQuestionRegistry["linux-systems/assemble-a-tiny-linux/least-privilege-service"],
+  "readiness-evidence": conceptQuestionRegistry["linux-systems/assemble-a-tiny-linux/readiness-evidence"],
+  "optional-v86-scope": conceptQuestionRegistry["linux-systems/assemble-a-tiny-linux/optional-v86-scope"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -1004,6 +1072,9 @@ export const chapterRegistry = {
   },
   "linux-systems/networking-from-a-packet": {
     questions: linuxNetworkingQuestions,
+  },
+  "linux-systems/assemble-a-tiny-linux": {
+    questions: linuxTinySystemQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

@@ -19326,3 +19326,673 @@ textarea:focus-visible {
     transform: none !important;
   }
 }
+
+/* Linux capstone: artifact -> PID 1 -> file -> socket evidence */
+.linux-tiny-system-chapter-shell,
+.linux-tiny-system-chapter-shell *,
+.tiny-system-assembly-lab,
+.tiny-system-assembly-lab *,
+.tiny-system-incident-lab,
+.tiny-system-incident-lab * {
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.linux-tiny-system-chapter-shell {
+  overflow-x: clip;
+}
+
+.linux-tiny-system-hero {
+  background:
+    radial-gradient(circle at 88% 15%, rgba(186, 215, 173, .24), transparent 32%),
+    linear-gradient(135deg, rgba(247, 244, 229, .96), rgba(235, 241, 230, .92));
+}
+
+.tiny-system-contract-grid,
+.tiny-system-evidence-grid,
+.tiny-system-observation-commands {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 28px 0;
+}
+
+.tiny-system-contract-grid article,
+.tiny-system-evidence-grid article,
+.tiny-system-observation-commands article {
+  display: flex;
+  min-height: 138px;
+  flex-direction: column;
+  gap: 9px;
+  justify-content: space-between;
+  padding: 20px;
+  border: 1px solid rgba(68, 82, 65, .2);
+  background: rgba(255, 255, 255, .7);
+}
+
+.tiny-system-contract-grid span,
+.tiny-system-contract-grid small,
+.tiny-system-evidence-grid code,
+.tiny-system-observation-commands code,
+.tiny-system-boot-pipeline > li > span,
+.tiny-system-service-path small,
+.tiny-system-transfer-task > strong {
+  color: var(--olive, #56624b);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.tiny-system-contract-grid strong,
+.tiny-system-evidence-grid strong,
+.tiny-system-observation-commands code {
+  overflow-wrap: anywhere;
+}
+
+.tiny-system-contract-grid p,
+.tiny-system-evidence-grid p,
+.tiny-system-observation-commands p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.tiny-system-boot-pipeline {
+  display: grid;
+  margin: 28px 0;
+  padding: 0;
+  border: 1px solid rgba(68, 82, 65, .2);
+  counter-reset: none;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  list-style: none;
+}
+
+.tiny-system-boot-pipeline > li {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border-right: 1px solid rgba(68, 82, 65, .16);
+}
+
+.tiny-system-boot-pipeline > li:last-child {
+  border-right: 0;
+}
+
+.tiny-system-boot-pipeline p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.tiny-system-service-path {
+  display: grid;
+  align-items: stretch;
+  margin: 28px 0;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+}
+
+.tiny-system-service-path > span:not([aria-hidden]) {
+  display: flex;
+  min-height: 94px;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  padding: 14px;
+  border: 1px solid rgba(68, 82, 65, .22);
+  background: rgba(255, 255, 255, .72);
+  text-align: center;
+}
+
+.tiny-system-service-path > span[aria-hidden] {
+  display: grid;
+  padding: 0 5px;
+  color: var(--muted);
+  place-items: center;
+}
+
+.tiny-system-service-path strong,
+.tiny-system-prediction-answer code,
+.tiny-system-transfer-task code {
+  overflow-wrap: anywhere;
+}
+
+.tiny-system-prediction-answer,
+.tiny-system-transfer-task {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid rgba(68, 82, 65, .22);
+  border-left: 4px solid var(--olive, #56624b);
+  background: rgba(242, 244, 233, .78);
+}
+
+.tiny-system-prediction-answer summary {
+  min-height: 44px;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.tiny-system-prediction-answer p,
+.tiny-system-transfer-task p {
+  margin-bottom: 0;
+}
+
+.tiny-system-assembly-lab,
+.tiny-system-incident-lab {
+  margin: 36px 0;
+}
+
+.tiny-system-assembly-lab .button,
+.tiny-system-incident-lab .button,
+.tiny-system-assembly-lab input,
+.tiny-system-assembly-lab select,
+.tiny-system-incident-lab input,
+.tiny-system-incident-lab select {
+  min-height: 48px;
+}
+
+.tiny-system-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 18px;
+  border-bottom: 1px solid rgba(68, 82, 65, .16);
+}
+
+.tiny-system-preset-row .button {
+  flex: 1 1 190px;
+}
+
+.tiny-system-preset-row .button.is-active {
+  outline: 2px solid var(--olive, #56624b);
+  outline-offset: -3px;
+  background: rgba(86, 98, 75, .1);
+}
+
+.tiny-system-config-grid {
+  display: grid;
+  gap: 12px;
+  padding: 22px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.tiny-system-config-grid article,
+.tiny-system-config-grid label,
+.tiny-system-run-controls label,
+.tiny-system-incident-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tiny-system-config-grid article {
+  justify-content: center;
+  padding: 14px;
+  border: 1px solid rgba(68, 82, 65, .18);
+  background: rgba(255, 255, 255, .64);
+}
+
+.tiny-system-config-grid span,
+.tiny-system-config-grid label > span,
+.tiny-system-run-controls label > span,
+.tiny-system-incident-controls label > span,
+.tiny-system-inspection-workspace > header > span,
+.tiny-system-inspection-panel > span {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.tiny-system-config-grid select,
+.tiny-system-run-controls select,
+.tiny-system-incident-controls select,
+.tiny-system-incident-controls input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid rgba(68, 82, 65, .32);
+  border-radius: 0;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.tiny-system-run-controls {
+  display: grid;
+  gap: 14px;
+  align-items: end;
+  margin: 0;
+  padding: 22px;
+  border: 0;
+  border-top: 1px solid rgba(68, 82, 65, .16);
+  border-bottom: 1px solid rgba(68, 82, 65, .16);
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.tiny-system-run-controls legend {
+  width: 100%;
+  padding: 22px 22px 0;
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.tiny-system-live-feedback,
+.tiny-system-runtime-fallback,
+.tiny-system-incident-progress,
+.tiny-system-incident-feedback {
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(68, 82, 65, .16);
+  background: rgba(255, 255, 255, .66);
+}
+
+.tiny-system-live-feedback.is-correct,
+.tiny-system-incident-card.is-correct .tiny-system-incident-feedback {
+  border-left: 4px solid #35734d;
+  background: rgba(223, 241, 226, .74);
+}
+
+.tiny-system-live-feedback.is-incorrect,
+.tiny-system-incident-card.is-incorrect .tiny-system-incident-feedback,
+.tiny-system-runtime-fallback {
+  border-left: 4px solid #9c443a;
+  background: rgba(249, 229, 224, .8);
+}
+
+.tiny-system-live-feedback p,
+.tiny-system-runtime-fallback p,
+.tiny-system-incident-feedback p {
+  margin: 6px 0 0;
+  line-height: 1.6;
+}
+
+.tiny-system-attempt {
+  border-bottom: 1px solid rgba(68, 82, 65, .16);
+  background: #172019;
+  color: #e8f0e7;
+}
+
+.tiny-system-attempt > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid rgba(232, 240, 231, .16);
+}
+
+.tiny-system-attempt > header div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.tiny-system-attempt > header span,
+.tiny-system-attempt code {
+  font-family: var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.tiny-system-attempt > header .is-correct {
+  color: #a8deb5;
+}
+
+.tiny-system-attempt > header .is-incorrect {
+  color: #f3ada3;
+}
+
+.tiny-system-attempt ol {
+  display: grid;
+  gap: 0;
+  max-height: 300px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.tiny-system-attempt li {
+  display: grid;
+  gap: 12px;
+  padding: 9px 20px;
+  border-bottom: 1px solid rgba(232, 240, 231, .08);
+  grid-template-columns: 24px minmax(0, 1fr);
+}
+
+.tiny-system-inspection-workspace {
+  padding: 22px;
+}
+
+.tiny-system-inspection-workspace > header p {
+  max-width: 760px;
+  margin: 6px 0 18px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.tiny-system-assembly-lab .step-explorer {
+  overflow: visible;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.tiny-system-assembly-lab .step-explorer button {
+  min-height: 62px;
+}
+
+.tiny-system-assembly-lab .step-explorer strong {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.tiny-system-inspection-panel {
+  min-height: 248px;
+  padding: 22px;
+  border: 1px solid rgba(68, 82, 65, .24);
+  border-top: 0;
+  background: rgba(255, 255, 255, .72);
+}
+
+.tiny-system-inspection-panel h4 {
+  max-width: 760px;
+  margin: 9px 0 18px;
+  font-size: clamp(18px, 2.5vw, 25px);
+  line-height: 1.35;
+}
+
+.tiny-system-inspection-panel dl {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 20px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tiny-system-inspection-panel dl > div {
+  padding: 14px;
+  border: 1px solid rgba(68, 82, 65, .16);
+}
+
+.tiny-system-inspection-panel dt {
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.tiny-system-inspection-panel dd {
+  margin: 0;
+}
+
+.tiny-system-inspection-panel code {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.tiny-system-assembly-evidence,
+.tiny-system-completion-checklist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 18px 22px;
+  border-top: 1px solid rgba(68, 82, 65, .16);
+}
+
+.tiny-system-assembly-evidence span,
+.tiny-system-completion-checklist span {
+  flex: 1 1 150px;
+  padding: 10px 12px;
+  border: 1px solid rgba(68, 82, 65, .2);
+  background: rgba(255, 255, 255, .68);
+  font-size: 12px;
+}
+
+.tiny-system-assembly-evidence span.is-complete,
+.tiny-system-completion-checklist span.is-complete {
+  border-color: #4f7f5c;
+  background: rgba(223, 241, 226, .82);
+  color: #28573a;
+  font-weight: 700;
+}
+
+.tiny-system-lab-mastered {
+  margin: 0;
+  padding: 18px 22px;
+  border-top: 1px solid #4f7f5c;
+  background: #28573a;
+  color: #fff;
+  font-weight: 700;
+}
+
+.tiny-system-incident-progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.tiny-system-incident-progress strong {
+  font-family: var(--mono);
+  font-size: 20px;
+}
+
+.tiny-system-incident-grid {
+  display: grid;
+  gap: 18px;
+  padding: 22px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tiny-system-incident-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0;
+  padding: 18px;
+  border: 1px solid rgba(68, 82, 65, .22);
+  background: rgba(255, 255, 255, .7);
+}
+
+.tiny-system-incident-card legend {
+  max-width: calc(100% - 16px);
+  padding: 0 8px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.tiny-system-incident-card pre {
+  max-width: 100%;
+  margin: 0;
+  padding: 14px;
+  overflow-x: auto;
+  border: 1px solid rgba(68, 82, 65, .18);
+  background: #172019;
+  color: #e8f0e7;
+  font-size: 11px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.tiny-system-incident-controls {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tiny-system-incident-feedback {
+  margin: 0 -18px -18px;
+  border-top: 1px solid rgba(68, 82, 65, .16);
+  border-bottom: 0;
+}
+
+.tiny-system-v86-embed {
+  margin-top: 24px;
+}
+
+.tiny-system-completion-checklist {
+  margin: 26px 0;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.linux-tiny-system-chapter-shell :is(button, input, select, summary, a):focus-visible {
+  outline: 3px solid #ad672e;
+  outline-offset: 3px;
+}
+
+.linux-tiny-system-chapter-shell .button:hover {
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  .tiny-system-boot-pipeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tiny-system-boot-pipeline > li {
+    min-height: 140px;
+    border-bottom: 1px solid rgba(68, 82, 65, .16);
+  }
+
+  .tiny-system-service-path {
+    gap: 6px;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tiny-system-service-path > span[aria-hidden] {
+    min-height: 28px;
+    transform: rotate(90deg);
+  }
+
+  .tiny-system-config-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tiny-system-incident-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .tiny-system-contract-grid,
+  .tiny-system-evidence-grid,
+  .tiny-system-observation-commands,
+  .tiny-system-config-grid,
+  .tiny-system-run-controls,
+  .tiny-system-inspection-panel dl,
+  .tiny-system-incident-controls {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tiny-system-contract-grid article,
+  .tiny-system-evidence-grid article,
+  .tiny-system-observation-commands article {
+    min-height: auto;
+  }
+
+  .tiny-system-boot-pipeline {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tiny-system-boot-pipeline > li {
+    min-height: auto;
+    border-right: 0;
+  }
+
+  .tiny-system-preset-row,
+  .tiny-system-config-grid,
+  .tiny-system-run-controls,
+  .tiny-system-live-feedback,
+  .tiny-system-runtime-fallback,
+  .tiny-system-inspection-workspace,
+  .tiny-system-incident-progress,
+  .tiny-system-incident-grid {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .tiny-system-run-controls legend {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .tiny-system-assembly-lab .step-explorer {
+    overflow: visible;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tiny-system-assembly-lab .step-explorer button {
+    min-height: 58px;
+    border-right: 1px solid rgba(68, 82, 65, .16);
+    border-bottom: 1px solid rgba(68, 82, 65, .16);
+  }
+
+  .tiny-system-assembly-lab .step-explorer button:nth-child(even) {
+    border-right: 0;
+  }
+
+  .tiny-system-assembly-lab .step-explorer button:last-child {
+    border-right: 1px solid rgba(68, 82, 65, .16);
+  }
+
+  .tiny-system-inspection-panel {
+    min-height: 220px;
+    padding: 16px;
+  }
+
+  .tiny-system-attempt > header,
+  .tiny-system-incident-progress {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .tiny-system-assembly-evidence,
+  .tiny-system-completion-checklist {
+    flex-direction: column;
+  }
+
+  .tiny-system-assembly-evidence span,
+  .tiny-system-completion-checklist span {
+    width: 100%;
+    flex-basis: auto;
+  }
+}
+
+@media (max-width: 430px) {
+  .tiny-system-preset-row .button {
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  .tiny-system-incident-card {
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .tiny-system-incident-feedback {
+    margin-right: -14px;
+    margin-left: -14px;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .linux-tiny-system-chapter-shell *,
+  .tiny-system-assembly-lab *,
+  .tiny-system-incident-lab * {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+
+  .linux-tiny-system-chapter-shell .button:hover,
+  .tiny-system-service-path > span[aria-hidden] {
+    transform: none !important;
+  }
+}

@@ -53,6 +53,7 @@ export function LinuxNetworkingChapter({ learnerCount = 0 }: { learnerCount?: nu
   const [conceptsMastered, setConceptsMastered] = useState(false);
   const canComplete = canCompleteNetworkingChapter({ packetLabComplete: journeyComplete, incidentsComplete, conceptsMastered });
   const previousHref = `/admin/preview/curricula/${LINUX_CURRICULUM_SLUG}/chapters/storage-and-filesystems${isKo ? "" : "?lang=en"}`;
+  const nextHref = `/admin/preview/curricula/${LINUX_CURRICULUM_SLUG}/chapters/assemble-a-tiny-linux${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell linux-chapter-shell linux-networking-chapter-shell">
@@ -126,7 +127,7 @@ export function LinuxNetworkingChapter({ learnerCount = 0 }: { learnerCount?: nu
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousHref}>← {t("이전: 저장장치와 파일시스템", "Previous: Storage and Filesystems")}</a> : <span>← {t("이전: 저장장치와 파일시스템", "Previous: Storage and Filesystems")} <small>{t("드래프트 미리보기 전용", "Draft preview only")}</small></span>}
-            <span>{t("다음: 작은 Linux 조립하기", "Next: Assemble a Tiny Linux System")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview ? <a href={nextHref}>{t("다음: 작은 Linux 조립하기", "Next: Assemble a Tiny Linux System")} →</a> : <span>{t("다음: 작은 Linux 조립하기", "Next: Assemble a Tiny Linux System")} <small>{t("드래프트 미리보기 전용", "Draft preview only")}</small></span>}
           </nav>
         </article>
       </div>
