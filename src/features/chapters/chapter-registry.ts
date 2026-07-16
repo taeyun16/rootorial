@@ -690,6 +690,46 @@ export const conceptQuestionHistory = {
       answers: ["accept-new-fd-recv-confirms-delivery", "listener-becomes-connected", "send-return-proves-application"],
     },
   },
+  "infrastructure-design/network-namespaces-and-boundaries/namespace-network-view": {
+    1: {
+      version: 1,
+      label: "network namespace가 격리하는 view",
+      correctAnswer: "interfaces-routes-neighbors-sockets",
+      answers: ["kernel-and-memory", "interfaces-routes-neighbors-sockets", "filesystem-and-users"],
+    },
+  },
+  "infrastructure-design/network-namespaces-and-boundaries/loopback-scope": {
+    1: {
+      version: 1,
+      label: "127.0.0.1의 namespace 범위",
+      correctAnswer: "current-namespace-loopback",
+      answers: ["host-loopback-always", "all-namespaces-loopback", "current-namespace-loopback"],
+    },
+  },
+  "infrastructure-design/network-namespaces-and-boundaries/socket-ownership": {
+    1: {
+      version: 1,
+      label: "listener socket의 namespace 소유권",
+      correctAnswer: "creation-network-namespace",
+      answers: ["creation-network-namespace", "port-number-namespace", "host-owns-all-sockets"],
+    },
+  },
+  "infrastructure-design/network-namespaces-and-boundaries/interface-ownership": {
+    1: {
+      version: 1,
+      label: "interface 이동과 소유권",
+      correctAnswer: "one-network-namespace-at-a-time",
+      answers: ["copied-into-every-namespace", "one-network-namespace-at-a-time", "process-namespace-only"],
+    },
+  },
+  "infrastructure-design/network-namespaces-and-boundaries/observation-scope": {
+    1: {
+      version: 1,
+      label: "namespace 내부 listener 관측",
+      correctAnswer: "execute-observer-in-target-namespace",
+      answers: ["host-ss-shows-everything", "ping-proves-listener", "execute-observer-in-target-namespace"],
+    },
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     1: {
       version: 1,
@@ -1066,6 +1106,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["linux-systems/networking-from-a-packet/listener-delivery"][1],
     status: "active",
   },
+  "infrastructure-design/network-namespaces-and-boundaries/namespace-network-view": {
+    ...conceptQuestionHistory["infrastructure-design/network-namespaces-and-boundaries/namespace-network-view"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-namespaces-and-boundaries/loopback-scope": {
+    ...conceptQuestionHistory["infrastructure-design/network-namespaces-and-boundaries/loopback-scope"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-namespaces-and-boundaries/socket-ownership": {
+    ...conceptQuestionHistory["infrastructure-design/network-namespaces-and-boundaries/socket-ownership"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-namespaces-and-boundaries/interface-ownership": {
+    ...conceptQuestionHistory["infrastructure-design/network-namespaces-and-boundaries/interface-ownership"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-namespaces-and-boundaries/observation-scope": {
+    ...conceptQuestionHistory["infrastructure-design/network-namespaces-and-boundaries/observation-scope"][1],
+    status: "active",
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"][1],
     status: "active",
@@ -1230,6 +1290,14 @@ export const linuxTinySystemQuestions = {
   "optional-v86-scope": conceptQuestionRegistry["linux-systems/assemble-a-tiny-linux/optional-v86-scope"],
 } as const;
 
+export const infrastructureNamespaceQuestions = {
+  "namespace-network-view": conceptQuestionRegistry["infrastructure-design/network-namespaces-and-boundaries/namespace-network-view"],
+  "loopback-scope": conceptQuestionRegistry["infrastructure-design/network-namespaces-and-boundaries/loopback-scope"],
+  "socket-ownership": conceptQuestionRegistry["infrastructure-design/network-namespaces-and-boundaries/socket-ownership"],
+  "interface-ownership": conceptQuestionRegistry["infrastructure-design/network-namespaces-and-boundaries/interface-ownership"],
+  "observation-scope": conceptQuestionRegistry["infrastructure-design/network-namespaces-and-boundaries/observation-scope"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -1288,6 +1356,9 @@ export const chapterRegistry = {
   },
   "linux-systems/assemble-a-tiny-linux": {
     questions: linuxTinySystemQuestions,
+  },
+  "infrastructure-design/network-namespaces-and-boundaries": {
+    questions: infrastructureNamespaceQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

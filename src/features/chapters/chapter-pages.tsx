@@ -9,6 +9,7 @@ import { LinuxNetworkingChapter } from "../../components/linux/LinuxNetworkingCh
 import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter";
 import { LinuxTinySystemChapter } from "../../components/linux/LinuxTinySystemChapter";
+import { NetworkNamespacesChapter } from "../../components/infrastructure/NetworkNamespacesChapter";
 import { MiniTransformerChapter } from "../../components/mini-transformer/MiniTransformerChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
 import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
@@ -101,6 +102,10 @@ function MiniTransformerChapterPage({ learnerCount }: ChapterPageProps) {
   return <MiniTransformerChapter learnerCount={learnerCount} />;
 }
 
+function NetworkNamespacesChapterPage({ learnerCount }: ChapterPageProps) {
+  return <NetworkNamespacesChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
@@ -120,6 +125,7 @@ const chapterPages = {
   "linux-systems/storage-and-filesystems": LinuxStorageChapterPage,
   "linux-systems/networking-from-a-packet": LinuxNetworkingChapterPage,
   "linux-systems/assemble-a-tiny-linux": LinuxTinySystemChapterPage,
+  "infrastructure-design/network-namespaces-and-boundaries": NetworkNamespacesChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(
