@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale } from "../features/localization/localization";
 
 type MissionId = "transpose" | "broadcast" | "tensor";
@@ -16,7 +16,11 @@ type Mission = {
   repair: string;
 };
 
-export function ShapeDebuggingLab() {
+type ShapeDebuggingLabProps = {
+  onCompletionChange?: (completed: boolean) => void;
+};
+
+export function ShapeDebuggingLab({ onCompletionChange }: ShapeDebuggingLabProps = {}) {
   const { locale } = useLocale();
   const isKo = locale === "ko";
   const [answers, setAnswers] = useState<Partial<Record<MissionId, string>>>({});
@@ -123,6 +127,11 @@ export function ShapeDebuggingLab() {
   ], [isKo]);
 
   const solved = missions.filter((mission) => checked[mission.id] && answers[mission.id] === mission.correctAnswer).length;
+  const hasAttempt = Object.keys(answers).length > 0;
+
+  useEffect(() => {
+    onCompletionChange?.(solved === missions.length);
+  }, [missions.length, onCompletionChange, solved]);
 
   return (
     <section className="shape-debug-lab" aria-labelledby="shape-debug-title">
@@ -132,7 +141,19 @@ export function ShapeDebuggingLab() {
           <h3 id="shape-debug-title">{isKo ? "실행 전에 원인을 찾고 코드를 고쳐 보세요" : "Find the cause and repair the code before running it"}</h3>
           <p>{isKo ? "정답을 외우기보다 shape가 만들어지는 규칙을 세 번 추적합니다." : "Trace how each shape is formed instead of memorizing the answer."}</p>
         </div>
-        <strong aria-label={isKo ? `${solved}개 중 3개 해결` : `${solved} of 3 solved`}>{solved} / 3</strong>
+        <div className="shape-debug-progress">
+          <strong aria-label={isKo ? `${solved}개 중 3개 해결` : `${solved} of 3 solved`}>{solved} / 3</strong>
+          <button
+            type="button"
+            disabled={!hasAttempt}
+            onClick={() => {
+              setAnswers({});
+              setChecked({});
+            }}
+          >
+            {isKo ? "미션 초기화" : "Reset missions"}
+          </button>
+        </div>
       </header>
 
       <div className="shape-debug-missions">

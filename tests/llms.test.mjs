@@ -21,6 +21,22 @@ const transformerKey = curriculumPublicationKey("transformer-from-zero");
 const vectorsKey = chapterPublicationKey("transformer-from-zero", "vectors");
 const transformerUrl = `${ROOTORIAL_URL}/curricula/transformer-from-zero`;
 const vectorsUrl = `${transformerUrl}/chapters/vectors`;
+const optimizationUrl = `${transformerUrl}/chapters/optimization`;
+const neuralNetworksUrl = `${transformerUrl}/chapters/neural-networks`;
+const trainingUrl = `${transformerUrl}/chapters/training`;
+const embeddingsUrl = `${transformerUrl}/chapters/embeddings`;
+const sequencesUrl = `${transformerUrl}/chapters/sequences`;
+const attentionUrl = `${transformerUrl}/chapters/attention`;
+const selfAttentionUrl = `${transformerUrl}/chapters/self-attention`;
+const transformerBlockUrl = `${transformerUrl}/chapters/transformer-block`;
+const miniTransformerUrl = `${transformerUrl}/chapters/mini-transformer`;
+const linuxBootUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/boot-to-shell`;
+const linuxProcessesUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/processes-and-signals`;
+const linuxPermissionsUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/users-and-permissions`;
+const linuxMemoryUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/memory-and-virtual-addresses`;
+const linuxStorageUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/storage-and-filesystems`;
+const linuxNetworkingUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/networking-from-a-packet`;
+const linuxTinySystemUrl = `${ROOTORIAL_URL}/curricula/linux-systems/chapters/assemble-a-tiny-linux`;
 const defaultCatalog = resolvePublicationCatalog([], 0);
 
 function publicationOverride({
@@ -98,6 +114,54 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.match(contents, /https:\/\/linkedin\.com\/in\/taeyun16/);
   assert.ok(contents.includes(transformerUrl));
   assert.ok(contents.includes(vectorsUrl));
+  assert.ok(!contents.includes(optimizationUrl));
+  assert.ok(!contents.includes(neuralNetworksUrl));
+  assert.ok(!contents.includes(trainingUrl));
+  assert.ok(!contents.includes(embeddingsUrl));
+  assert.ok(!contents.includes(sequencesUrl));
+  assert.ok(!contents.includes(attentionUrl));
+  assert.ok(!contents.includes(selfAttentionUrl));
+  assert.ok(!contents.includes(transformerBlockUrl));
+  assert.ok(!contents.includes(miniTransformerUrl));
+  assert.ok(!contents.includes(linuxBootUrl));
+  assert.ok(!contents.includes(linuxProcessesUrl));
+  assert.ok(!contents.includes(linuxPermissionsUrl));
+  assert.ok(!contents.includes(linuxMemoryUrl));
+  assert.ok(!contents.includes(linuxStorageUrl));
+  assert.ok(!contents.includes(linuxNetworkingUrl));
+  assert.ok(!contents.includes(linuxTinySystemUrl));
+  assert.match(
+    contents,
+    /Transformers from the Ground Up — Chapter 6: Sequential Data \(hidden state · recurrence, temporal gradient, LSTM · causal prefix\)/,
+  );
+  assert.match(
+    contents,
+    /Transformers from the Ground Up — Chapter 7: Attention \(Query · Key roles, key-axis Softmax, Value · context\)/,
+  );
+  assert.match(
+    contents,
+    /Transformers from the Ground Up — Chapter 8: Self-Attention \(Q\/K\/V projections · token rows, scaled scores · causal mask, multi-head split · concatenate\)/,
+  );
+  assert.match(
+    contents,
+    /Transformers from the Ground Up — Chapter 9: The Transformer Block \(position · block input, pre-LayerNorm · residual, position-wise FFN · handoff\)/,
+  );
+  assert.match(
+    contents,
+    /Transformers from the Ground Up — Chapter 10: Mini Transformer \(shifted targets · causal prefixes, final norm · vocabulary logits, loss · autoregressive decoding\)/,
+  );
+  assert.match(
+    contents,
+    /Linux Systems from the Ground Up — Chapter 6: Storage and Filesystems \(mount · inode, hard link · unlink, fsync · durability\)/,
+  );
+  assert.match(
+    contents,
+    /Linux Systems from the Ground Up — Chapter 7: From Packets to Sockets \(socket fd · endpoint, CIDR route · next hop, TCP ACK · recv\)/,
+  );
+  assert.match(
+    contents,
+    /Linux Systems from the Ground Up — Chapter 8: Assemble a Tiny Linux System \(artifact · rootfs, PID 1 · service, readiness · evidence\)/,
+  );
 
   for (const curriculum of curricula) {
     const curriculumKey = curriculumPublicationKey(curriculum.slug);

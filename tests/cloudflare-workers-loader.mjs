@@ -1,15 +1,20 @@
 const cloudflareWorkersStub = `
-  function emptyStatement() {
+  function publicationRows(query) {
+    if (!String(query).includes("content_publication_overrides")) return [];
+    const rows = globalThis.__ROOTORIAL_TEST_PUBLICATION_ROWS__;
+    return Array.isArray(rows) ? rows : [];
+  }
+  function emptyStatement(rows = []) {
     return {
       bind() { return this; },
-      async all() { return { results: [], success: true, meta: {} }; },
-      async first() { return null; },
+      async all() { return { results: rows, success: true, meta: {} }; },
+      async first() { return rows[0] ?? null; },
       async run() { return { results: [], success: true, meta: { changes: 0 } }; },
     };
   }
   export const env = {
     DB: {
-      prepare() { return emptyStatement(); },
+      prepare(query) { return emptyStatement(publicationRows(query)); },
       async batch(statements) {
         return Promise.all(statements.map((statement) => statement.run()));
       },

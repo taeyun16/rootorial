@@ -8,6 +8,7 @@ type MatrixGridProps = {
   columnLabels?: string[];
   selectedRow?: number | null;
   selectedColumn?: number | null;
+  selectedCell?: { row: number; column: number } | null;
   formatValue?: (value: number) => string;
   tone?: "forest" | "indigo" | "terra";
   onSelectCell?: (row: number, column: number) => void;
@@ -20,6 +21,7 @@ export function MatrixGrid({
   columnLabels,
   selectedRow = null,
   selectedColumn = null,
+  selectedCell,
   formatValue = (value) => value.toFixed(2),
   tone = "forest",
   onSelectCell,
@@ -33,6 +35,7 @@ export function MatrixGrid({
       columnLabels={columnLabels}
       selectedRow={selectedRow}
       selectedColumn={selectedColumn}
+      selectedCell={selectedCell}
       formatValue={(value) => typeof value === "number" ? formatValue(value) : ""}
       tone={tone}
       variant="heatmap"

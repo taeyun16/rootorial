@@ -49,7 +49,23 @@ export function chapterId(curriculumSlug: string, chapterSlug: string) {
 }
 
 export const VECTOR_CHAPTER_ESTIMATED_MINUTES = 60;
+export const OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES = 55;
+export const NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES = 60;
+export const TRAINING_CHAPTER_ESTIMATED_MINUTES = 65;
+export const EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES = 65;
+export const SEQUENCES_CHAPTER_ESTIMATED_MINUTES = 65;
+export const ATTENTION_CHAPTER_ESTIMATED_MINUTES = 65;
+export const SELF_ATTENTION_CHAPTER_ESTIMATED_MINUTES = 75;
+export const TRANSFORMER_BLOCK_CHAPTER_ESTIMATED_MINUTES = 80;
+export const MINI_TRANSFORMER_CHAPTER_ESTIMATED_MINUTES = 90;
 export const LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES = 35;
+export const LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES = 50;
+export const LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES = 55;
+export const LINUX_PERMISSIONS_CHAPTER_ESTIMATED_MINUTES = 60;
+export const LINUX_MEMORY_CHAPTER_ESTIMATED_MINUTES = 65;
+export const LINUX_STORAGE_CHAPTER_ESTIMATED_MINUTES = 65;
+export const LINUX_NETWORKING_CHAPTER_ESTIMATED_MINUTES = 65;
+export const LINUX_TINY_SYSTEM_CHAPTER_ESTIMATED_MINUTES = 75;
 
 export const chaptersKo: Chapter[] = [
   {
@@ -61,7 +77,7 @@ export const chaptersKo: Chapter[] = [
       "벡터의 크기와 방향, NumPy reshape와 axis, 브로드캐스팅과 내적을 예측·수정 실습으로 연결합니다.",
     runtime: "NumPy",
     estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES,
-    developmentStatus: "in-progress",
+    developmentStatus: "complete",
     status: "available",
     concepts: ["reshape", "axis", "내적"],
   },
@@ -71,11 +87,12 @@ export const chaptersKo: Chapter[] = [
     title: "학습과 최적화",
     subtitle: "모델은 어떻게 정답에 가까워지는가",
     description:
-      "손실함수, 미분과 경사하강법을 직접 움직이며 학습률의 의미를 확인합니다.",
-    runtime: "NumPy",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["loss", "gradient", "learning rate"],
+      "선형 모델의 MSE와 gradient를 계산하고, 발산하는 학습률을 직접 복구하며 한 번의 파라미터 업데이트를 디버깅합니다.",
+    runtime: "수학 모델 · 선택 NumPy",
+    estimatedMinutes: OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["MSE", "gradient", "learning rate"],
   },
   {
     number: 3,
@@ -83,11 +100,12 @@ export const chaptersKo: Chapter[] = [
     title: "분류와 신경망",
     subtitle: "직선을 쌓아 복잡한 경계를 만드는 법",
     description:
-      "로지스틱 회귀에서 시작해 활성함수와 다층 퍼셉트론으로 XOR 문제를 해결합니다.",
-    runtime: "NumPy + WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["sigmoid", "BCE", "MLP"],
+      "sigmoid와 BCE로 이진 분류를 읽고, hidden feature와 두 행렬 곱을 조립해 XOR을 해결하고 신경망 결함을 디버깅합니다.",
+    runtime: "수학 모델",
+    estimatedMinutes: NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["sigmoid · BCE", "hidden layer", "XOR"],
   },
   {
     number: 4,
@@ -95,11 +113,12 @@ export const chaptersKo: Chapter[] = [
     title: "딥러닝 학습 구조",
     subtitle: "작은 배치가 깊은 모델을 학습시키는 과정",
     description:
-      "Mini-batch, Adam, Softmax, Cross Entropy, Dropout을 하나의 작은 분류기에 연결합니다.",
-    runtime: "WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["mini-batch", "Adam", "Dropout"],
+      "3-class logits의 Softmax·Cross Entropy를 mini-batch와 Adam update로 연결하고, validation·Dropout 경계를 실행하며 디버깅합니다.",
+    runtime: "TypeScript 수학 모델",
+    estimatedMinutes: TRAINING_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["mini-batch · CE", "Adam state", "validation · Dropout"],
   },
   {
     number: 5,
@@ -107,11 +126,12 @@ export const chaptersKo: Chapter[] = [
     title: "토큰과 임베딩",
     subtitle: "단어를 계산 가능한 공간에 놓기",
     description:
-      "토큰화, one-hot, embedding lookup과 의미 유사도를 연결하고 실제 문장 임베딩을 비교합니다.",
-    runtime: "Workers AI + NumPy",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["token", "embedding", "cosine"],
+      "결정적 subword 토큰화에서 embedding lookup·반복 row gradient·cosine·masked mean까지 직접 계산하고 디버깅합니다.",
+    runtime: "TypeScript 임베딩 모델",
+    estimatedMinutes: EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["token ID · lookup", "row gradient · cosine", "masked mean"],
   },
   {
     number: 6,
@@ -119,11 +139,12 @@ export const chaptersKo: Chapter[] = [
     title: "순서가 있는 데이터",
     subtitle: "RNN은 무엇을 기억하고 무엇을 잊는가",
     description:
-      "Hidden state, 장기 의존성, 기울기 소실과 LSTM의 게이트를 시퀀스 위에서 관찰합니다.",
-    runtime: "NumPy + WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["hidden state", "RNN", "LSTM"],
+      "결정적 RNN unroll에서 hidden state와 공유 recurrence를 조작하고, 시간축 gradient와 LSTM cell update를 계산해 causal prefix를 디버깅합니다.",
+    runtime: "TypeScript 시퀀스 모델",
+    estimatedMinutes: SEQUENCES_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["hidden state · recurrence", "temporal gradient", "LSTM · causal prefix"],
   },
   {
     number: 7,
@@ -131,23 +152,25 @@ export const chaptersKo: Chapter[] = [
     title: "Attention",
     subtitle: "필요한 정보를 직접 찾아보는 방법",
     description:
-      "Query, Key, Value의 유사도에서 문맥 벡터가 만들어지는 전 과정을 단계별로 계산합니다.",
-    runtime: "NumPy",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["Query", "Key", "Value"],
+      "단일 query와 분리된 Key·Value로 점수를 계산하고, key축 Softmax와 value 가중합 문맥을 실행하며 잘못된 Attention 계약을 디버깅합니다.",
+    runtime: "TypeScript Attention 모델",
+    estimatedMinutes: ATTENTION_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["Query · Key 역할", "key축 Softmax", "Value · context"],
   },
   {
     number: 8,
     slug: "self-attention",
     title: "Self-Attention",
-    subtitle: "문장 안의 단어들이 서로를 읽게 만들기",
+    subtitle: "같은 시퀀스의 토큰들이 서로를 읽는 법",
     description:
-      "Scaled dot-product, causal mask와 multi-head attention을 토큰별 heatmap으로 분해합니다.",
-    runtime: "NumPy + WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["scaled dot-product", "mask", "multi-head"],
+      "같은 입력에서 Q·K·V를 따로 투영해 모든 token row의 scaled dot-product를 계산하고, causal mask와 multi-head 분할·병합 계약을 실행하며 정보 누출과 shape 결함을 디버깅합니다.",
+    runtime: "TypeScript Self-Attention 모델",
+    estimatedMinutes: SELF_ATTENTION_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["Q/K/V 투영 · token row", "scaled score · causal mask", "multi-head split · concat"],
   },
   {
     number: 9,
@@ -155,11 +178,12 @@ export const chaptersKo: Chapter[] = [
     title: "Transformer 블록",
     subtitle: "Attention만으로는 충분하지 않다",
     description:
-      "Positional encoding, residual, layer normalization과 FFN을 하나의 블록으로 조립합니다.",
-    runtime: "WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["position", "residual", "FFN"],
+      "결정적 absolute 위치 신호를 첫 블록 입력에 한 번 더하고, pre-LayerNorm causal Self-Attention과 position-wise FFN을 residual 경로로 감싸 [T,d_model]을 보존하는 decoder-only block을 실행·디버깅합니다.",
+    runtime: "TypeScript Transformer 블록 모델",
+    estimatedMinutes: TRANSFORMER_BLOCK_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["position · block input", "pre-LayerNorm · residual", "position-wise FFN · handoff"],
   },
   {
     number: 10,
@@ -167,11 +191,12 @@ export const chaptersKo: Chapter[] = [
     title: "Mini Transformer",
     subtitle: "배운 조각을 하나의 작동하는 모델로",
     description:
-      "Tokenizer부터 logits까지 연결하고 작은 next-token 모델이 학습되는 과정을 관찰합니다.",
-    runtime: "WebGPU",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["tokenizer", "block", "logits"],
+      "결정적 tokenizer→embedding+position→pre-LayerNorm decoder block→final norm→vocabulary logits를 연결하고, shifted target loss·한 번의 LM-head update와 EOS/max-length autoregressive decoding을 실행·디버깅합니다.",
+    runtime: "TypeScript Mini Transformer 모델",
+    estimatedMinutes: MINI_TRANSFORMER_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["shifted target · causal prefix", "final norm · vocabulary logits", "loss · autoregressive decode"],
   },
 ];
 
@@ -180,61 +205,61 @@ export const chaptersEn: Chapter[] = [
     number: 1, slug: "vectors", title: "Vectors and Tensors",
     subtitle: "How collections of numbers gain meaning and direction",
     description: "Connect vector magnitude and direction, NumPy reshape and axes, broadcasting, and dot products through predict-and-repair practice.",
-    runtime: "NumPy", estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "in-progress", status: "available", concepts: ["reshape", "axis", "dot product"],
+    runtime: "NumPy", estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["reshape", "axis", "dot product"],
   },
   {
     number: 2, slug: "optimization", title: "Learning and Optimization",
     subtitle: "How a model moves closer to the right answer",
-    description: "Move through loss functions, derivatives, and gradient descent to understand what the learning rate controls.",
-    runtime: "NumPy", developmentStatus: "planned", status: "planned", concepts: ["loss", "gradient", "learning rate"],
+    description: "Compute MSE and gradients for a linear model, repair a diverging learning rate, and debug one parameter update at a time.",
+    runtime: "Math model · optional NumPy", estimatedMinutes: OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["MSE", "gradient", "learning rate"],
   },
   {
     number: 3, slug: "neural-networks", title: "Classification and Neural Networks",
     subtitle: "Building complex boundaries from simple lines",
-    description: "Start with logistic regression, then use activation functions and a multilayer perceptron to solve XOR.",
-    runtime: "NumPy + WebGPU", developmentStatus: "planned", status: "planned", concepts: ["sigmoid", "BCE", "MLP"],
+    description: "Read binary classification through sigmoid and BCE, then assemble hidden features and two matrix products to solve XOR and debug network failures.",
+    runtime: "Math model", estimatedMinutes: NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["sigmoid · BCE", "hidden layer", "XOR"],
   },
   {
     number: 4, slug: "training", title: "Deep Learning Training",
     subtitle: "How small batches train deep models",
-    description: "Connect mini-batches, Adam, Softmax, cross entropy, and dropout in one small classifier.",
-    runtime: "WebGPU", developmentStatus: "planned", status: "planned", concepts: ["mini-batch", "Adam", "Dropout"],
+    description: "Connect three-class Softmax and cross entropy to mini-batch Adam updates, then run and debug validation and dropout boundaries.",
+    runtime: "TypeScript math model", estimatedMinutes: TRAINING_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["mini-batch · CE", "Adam state", "validation · dropout"],
   },
   {
     number: 5, slug: "embeddings", title: "Tokens and Embeddings",
     subtitle: "Placing words in a space we can compute with",
-    description: "Connect tokenization, one-hot vectors, embedding lookup, and semantic similarity, then compare real sentence embeddings.",
-    runtime: "Workers AI + NumPy", developmentStatus: "planned", status: "planned", concepts: ["token", "embedding", "cosine"],
+    description: "Compute and debug deterministic subword tokenization, embedding lookup, repeated-row gradients, cosine similarity, and masked mean pooling.",
+    runtime: "TypeScript embedding model", estimatedMinutes: EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["token ID · lookup", "row gradient · cosine", "masked mean"],
   },
   {
     number: 6, slug: "sequences", title: "Sequential Data",
     subtitle: "What an RNN remembers and forgets",
-    description: "Observe hidden state, long-range dependencies, vanishing gradients, and LSTM gates across a sequence.",
-    runtime: "NumPy + WebGPU", developmentStatus: "planned", status: "planned", concepts: ["hidden state", "RNN", "LSTM"],
+    description: "Manipulate hidden state and shared recurrence in a deterministic RNN unroll, then compute temporal gradients and LSTM cell updates to debug causal prefixes.",
+    runtime: "TypeScript sequence model", estimatedMinutes: SEQUENCES_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["hidden state · recurrence", "temporal gradient", "LSTM · causal prefix"],
   },
   {
     number: 7, slug: "attention", title: "Attention",
     subtitle: "Finding the information that matters directly",
-    description: "Calculate every step from Query-Key-Value similarity to the resulting context vectors.",
-    runtime: "NumPy", developmentStatus: "planned", status: "planned", concepts: ["Query", "Key", "Value"],
+    description: "Compute scores from a single query and separate keys and values, then run key-axis softmax and a weighted-value context while debugging broken Attention contracts.",
+    runtime: "TypeScript attention model", estimatedMinutes: ATTENTION_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["Query · Key roles", "key-axis Softmax", "Value · context"],
   },
   {
     number: 8, slug: "self-attention", title: "Self-Attention",
-    subtitle: "Letting words in a sentence read one another",
-    description: "Break scaled dot-product, causal masking, and multi-head attention into token-level heatmaps.",
-    runtime: "NumPy + WebGPU", developmentStatus: "planned", status: "planned", concepts: ["scaled dot-product", "mask", "multi-head"],
+    subtitle: "Letting every token read the same sequence",
+    description: "Project Q, K, and V separately from the same input, compute scaled dot products for every token row, then execute causal-masking and multi-head split/merge contracts while debugging information leaks and shape defects.",
+    runtime: "TypeScript self-attention model", estimatedMinutes: SELF_ATTENTION_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["Q/K/V projections · token rows", "scaled scores · causal mask", "multi-head split · concatenate"],
   },
   {
     number: 9, slug: "transformer-block", title: "The Transformer Block",
     subtitle: "Why attention alone is not enough",
-    description: "Assemble positional encoding, residual connections, layer normalization, and an FFN into one block.",
-    runtime: "WebGPU", developmentStatus: "planned", status: "planned", concepts: ["position", "residual", "FFN"],
+    description: "Add a deterministic absolute positional signal once before the first block, then execute and debug a decoder-only pre-LayerNorm block whose causal self-attention and position-wise FFN preserve [T,d_model] through residual paths.",
+    runtime: "TypeScript Transformer block model", estimatedMinutes: TRANSFORMER_BLOCK_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["position · block input", "pre-LayerNorm · residual", "position-wise FFN · handoff"],
   },
   {
     number: 10, slug: "mini-transformer", title: "Mini Transformer",
     subtitle: "Combining the pieces into a working model",
-    description: "Connect the tokenizer to logits and watch a small next-token model learn.",
-    runtime: "WebGPU", developmentStatus: "planned", status: "planned", concepts: ["tokenizer", "block", "logits"],
+    description: "Connect a deterministic tokenizer, embedding plus position, one pre-LayerNorm decoder block, final normalization, and vocabulary logits, then execute and debug shifted-target loss, one LM-head update, and EOS/max-length autoregressive decoding.",
+    runtime: "TypeScript Mini Transformer model", estimatedMinutes: MINI_TRANSFORMER_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["shifted targets · causal prefixes", "final norm · vocabulary logits", "loss · autoregressive decoding"],
   },
 ];
 
@@ -258,11 +283,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "전원이 켜지고 셸이 뜨기까지",
     subtitle: "BIOS, 커널과 init이 한 줄의 프롬프트를 만드는 과정",
     description:
-      "v86으로 실제 Linux를 부팅하며 펌웨어에서 커널, init과 로그인 셸까지의 경계를 추적합니다.",
-    runtime: "v86 · Buildroot",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["BIOS", "kernel", "init"],
+      "결정론적 부팅 모델에서 실패 경계를 복구하고, 선택형 v86 실험과 비교하며 펌웨어에서 커널, init과 직렬 콘솔 셸까지 추적합니다.",
+    runtime: "부팅 모델 · 선택 v86",
+    estimatedMinutes: LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["firmware", "rootfs", "PID 1"],
   },
   {
     number: 3,
@@ -270,11 +296,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "프로세스와 시그널",
     subtitle: "실행 중인 프로그램은 어떻게 태어나고 끝나는가",
     description:
-      "PID, 부모·자식 프로세스, 표준 스트림과 시그널을 관찰해 셸이 프로그램을 다루는 방식을 이해합니다.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["PID", "stdio", "signal"],
+      "결정론적 프로세스 모델에서 fork·exec, PID·PPID, 표준 스트림, signal과 wait의 상태 전이를 직접 조작하고 진단합니다.",
+    runtime: "프로세스 모델",
+    estimatedMinutes: LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["PID·PPID", "stdio", "signal·wait"],
   },
   {
     number: 4,
@@ -282,11 +309,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "사용자와 권한",
     subtitle: "누가 어떤 파일을 읽고 바꿀 수 있는가",
     description:
-      "사용자·그룹과 rwx 권한을 실제 접근 성공과 실패에 연결하고 최소 권한의 의미를 확인합니다.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["uid", "group", "rwx"],
+      "프로세스 자격 증명과 파일 owner·group·rwx를 비교하고, 경로 탐색·삭제 경계를 진단하며 최소 권한 정책을 조립합니다.",
+    runtime: "권한 모델",
+    estimatedMinutes: LINUX_PERMISSIONS_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["UID·GID", "rwx · path search", "least privilege"],
   },
   {
     number: 5,
@@ -294,11 +322,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "메모리와 가상 주소",
     subtitle: "각 프로세스가 자기만의 메모리를 가진 것처럼 보이는 이유",
     description:
-      "스택, 힙, 페이지와 가상 메모리를 작은 프로그램의 주소 변화와 /proc 정보로 연결합니다.",
-    runtime: "C · Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["stack", "heap", "page"],
+      "프로세스별 VA를 VPN·offset과 PTE·frame으로 번역하고, TLB miss·page fault·COW와 /proc maps의 경계를 직접 실행하고 진단합니다.",
+    runtime: "주소 변환 모델 · 선택 Linux 관찰",
+    estimatedMinutes: LINUX_MEMORY_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["virtual page · PTE", "TLB · page fault", "mmap · COW"],
   },
   {
     number: 6,
@@ -306,11 +335,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "저장장치와 파일시스템",
     subtitle: "바이트 덩어리가 이름 있는 파일이 되는 구조",
     description:
-      "블록 장치, inode, 디렉터리와 mount를 추적하며 파일 경로 아래의 저장 구조를 조립합니다.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["block", "inode", "mount"],
+      "경로가 mount와 directory entry를 지나 inode·block에 닿는 과정을 추적하고, hard link 수명·용량 고갈·crash-safe 저장을 직접 실행하고 진단합니다.",
+    runtime: "파일시스템 모델 · 선택 Linux 관찰",
+    estimatedMinutes: LINUX_STORAGE_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["mount · inode", "hard link · unlink", "fsync · durability"],
   },
   {
     number: 7,
@@ -318,11 +348,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "패킷에서 소켓까지",
     subtitle: "한 프로세스의 데이터가 다른 컴퓨터에 닿는 과정",
     description:
-      "인터페이스, IP, 라우팅, TCP와 소켓을 하나의 요청이 이동하는 순서로 관찰합니다.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["IP", "TCP", "socket"],
+      "regular-file fd에서 읽은 바이트를 socket fd로 넘기고, longest-prefix route·next hop·TCP 누적 ACK를 따라 원격 프로세스의 recv까지 실행하고 진단합니다.",
+    runtime: "네트워크 경로 모델 · 선택 Linux 관찰",
+    estimatedMinutes: LINUX_NETWORKING_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["socket fd · endpoint", "CIDR route · next hop", "TCP ACK · recv"],
   },
   {
     number: 8,
@@ -330,11 +361,12 @@ export const linuxChaptersKo: Chapter[] = [
     title: "작은 Linux 조립하기",
     subtitle: "부팅부터 네트워크까지 배운 층을 하나의 시스템으로",
     description:
-      "커널과 root filesystem을 구성하고 부팅 실패를 진단하며 최소 Linux 시스템을 완성합니다.",
-    runtime: "Buildroot · v86",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["kernel config", "rootfs", "debugging"],
+      "kernel image와 rootfs artifact를 구분하고 PID 1의 mount·최소 권한 service·network 순서를 조립한 뒤, 경계별 증거로 reportd readiness를 진단합니다.",
+    runtime: "시스템 조립 모델 · 선택 v86",
+    estimatedMinutes: LINUX_TINY_SYSTEM_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["artifact · rootfs", "PID 1 · service", "readiness · evidence"],
   },
 ];
 
@@ -358,11 +390,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "From Power-On to a Shell",
     subtitle: "How BIOS, the kernel, and init produce one command prompt",
     description:
-      "Boot a real Linux system with v86 and trace the boundaries from firmware through the kernel, init, and the login shell.",
-    runtime: "v86 · Buildroot",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["BIOS", "kernel", "init"],
+      "Repair failed boundaries in a deterministic boot model, compare them with an optional v86 run, and trace firmware through the kernel, init, and the serial console shell.",
+    runtime: "Boot model · optional v86",
+    estimatedMinutes: LINUX_BOOT_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["firmware", "rootfs", "PID 1"],
   },
   {
     number: 3,
@@ -370,11 +403,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "Processes and Signals",
     subtitle: "How a running program begins and ends",
     description:
-      "Observe PIDs, parent-child processes, standard streams, and signals to understand how a shell controls programs.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["PID", "stdio", "signal"],
+      "Manipulate and diagnose fork, exec, PID and PPID, standard streams, signals, and wait transitions in a deterministic process model.",
+    runtime: "Process model",
+    estimatedMinutes: LINUX_PROCESSES_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["PID·PPID", "stdio", "signal·wait"],
   },
   {
     number: 4,
@@ -382,11 +416,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "Users and Permissions",
     subtitle: "Who can read or change each file",
     description:
-      "Connect users, groups, and rwx permissions to real access successes and failures, then apply least privilege.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["uid", "group", "rwx"],
+      "Compare process credentials with file owner, group, and rwx bits, diagnose path traversal and deletion boundaries, and assemble a least-privilege policy.",
+    runtime: "Permission model",
+    estimatedMinutes: LINUX_PERMISSIONS_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["UID·GID", "rwx · path search", "least privilege"],
   },
   {
     number: 5,
@@ -394,11 +429,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "Memory and Virtual Addresses",
     subtitle: "Why every process appears to have memory of its own",
     description:
-      "Connect stacks, heaps, pages, and virtual memory to address changes in a small program and information from /proc.",
-    runtime: "C · Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["stack", "heap", "page"],
+      "Translate per-process VAs through VPNs, offsets, PTEs, and frames, then run and diagnose TLB misses, page faults, COW, and /proc maps boundaries.",
+    runtime: "Address translation model · optional Linux observation",
+    estimatedMinutes: LINUX_MEMORY_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["virtual page · PTE", "TLB · page fault", "mmap · COW"],
   },
   {
     number: 6,
@@ -406,11 +442,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "Storage and Filesystems",
     subtitle: "How blocks of bytes become named files",
     description:
-      "Trace block devices, inodes, directories, and mounts to assemble the storage structure beneath a file path.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["block", "inode", "mount"],
+      "Trace a path across mounts and directory entries into inodes and blocks, then run and diagnose hard-link lifetime, capacity exhaustion, and crash-safe storage.",
+    runtime: "Filesystem model · optional Linux observation",
+    estimatedMinutes: LINUX_STORAGE_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["mount · inode", "hard link · unlink", "fsync · durability"],
   },
   {
     number: 7,
@@ -418,11 +455,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "From Packets to Sockets",
     subtitle: "How one process reaches another computer",
     description:
-      "Observe interfaces, IP, routing, TCP, and sockets in the order that one request moves through them.",
-    runtime: "Linux VM",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["IP", "TCP", "socket"],
+      "Move bytes read from a regular-file fd into a socket fd, then run and diagnose longest-prefix routing, next-hop resolution, cumulative TCP acknowledgements, and delivery to the remote process's recv call.",
+    runtime: "Network path model · optional Linux observation",
+    estimatedMinutes: LINUX_NETWORKING_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["socket fd · endpoint", "CIDR route · next hop", "TCP ACK · recv"],
   },
   {
     number: 8,
@@ -430,11 +468,12 @@ export const linuxChaptersEn: Chapter[] = [
     title: "Assemble a Tiny Linux System",
     subtitle: "Combine every layer from boot to networking",
     description:
-      "Configure a kernel and root filesystem, diagnose boot failures, and complete a minimal Linux system.",
-    runtime: "Buildroot · v86",
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["kernel config", "rootfs", "debugging"],
+      "Separate kernel-image and rootfs artifacts, assemble PID 1's mounts, least-privilege service, and network order, then diagnose reportd readiness with evidence at each boundary.",
+    runtime: "System assembly model · optional v86",
+    estimatedMinutes: LINUX_TINY_SYSTEM_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["artifact · rootfs", "PID 1 · service", "readiness · evidence"],
   },
 ];
 

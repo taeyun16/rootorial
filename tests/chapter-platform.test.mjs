@@ -44,16 +44,175 @@ test("serves localized curriculum and chapter metadata in the first response", a
   assert.match(chapterHtml, /How collections of numbers gain meaning and direction/);
 });
 
-test("keeps planned and unknown chapters behind the publication boundary", async () => {
-  const planned = await render(
+test("keeps registered completed Transformer drafts and unknown chapters private", async () => {
+  assert.ok(chapterRegistry["transformer-from-zero/optimization"]);
+  assert.ok(chapterRegistry["transformer-from-zero/neural-networks"]);
+  assert.ok(chapterRegistry["transformer-from-zero/training"]);
+  assert.ok(chapterRegistry["transformer-from-zero/embeddings"]);
+  assert.ok(chapterRegistry["transformer-from-zero/sequences"]);
+  assert.ok(chapterRegistry["transformer-from-zero/attention"]);
+  assert.ok(chapterRegistry["transformer-from-zero/self-attention"]);
+  assert.ok(chapterRegistry["transformer-from-zero/transformer-block"]);
+  assert.ok(chapterRegistry["transformer-from-zero/mini-transformer"]);
+  const optimization = await render(
     "/curricula/transformer-from-zero/chapters/optimization",
+  );
+  const neuralNetworks = await render(
+    "/curricula/transformer-from-zero/chapters/neural-networks",
+  );
+  const training = await render(
+    "/curricula/transformer-from-zero/chapters/training",
+  );
+  const trainingEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/training?lang=en",
+  );
+  const embeddings = await render(
+    "/curricula/transformer-from-zero/chapters/embeddings",
+  );
+  const embeddingsEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/embeddings?lang=en",
+  );
+  const sequences = await render(
+    "/curricula/transformer-from-zero/chapters/sequences",
+  );
+  const sequencesEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/sequences?lang=en",
+  );
+  const attention = await render(
+    "/curricula/transformer-from-zero/chapters/attention",
+  );
+  const attentionEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/attention?lang=en",
+  );
+  const selfAttention = await render(
+    "/curricula/transformer-from-zero/chapters/self-attention",
+  );
+  const selfAttentionEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/self-attention?lang=en",
+  );
+  const transformerBlock = await render(
+    "/curricula/transformer-from-zero/chapters/transformer-block",
+  );
+  const transformerBlockEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/transformer-block?lang=en",
+  );
+  const miniTransformer = await render(
+    "/curricula/transformer-from-zero/chapters/mini-transformer",
+  );
+  const miniTransformerEnglish = await render(
+    "/curricula/transformer-from-zero/chapters/mini-transformer?lang=en",
   );
   const unknown = await render(
     "/curricula/transformer-from-zero/chapters/not-a-chapter",
   );
-  assert.equal(planned.status, 404);
+  assert.equal(optimization.status, 404);
+  assert.equal(neuralNetworks.status, 404);
+  assert.equal(training.status, 404);
+  assert.equal(trainingEnglish.status, 404);
+  assert.equal(embeddings.status, 404);
+  assert.equal(embeddingsEnglish.status, 404);
+  assert.equal(sequences.status, 404);
+  assert.equal(sequencesEnglish.status, 404);
+  assert.equal(attention.status, 404);
+  assert.equal(attentionEnglish.status, 404);
+  assert.equal(selfAttention.status, 404);
+  assert.equal(selfAttentionEnglish.status, 404);
+  assert.equal(transformerBlock.status, 404);
+  assert.equal(transformerBlockEnglish.status, 404);
+  assert.equal(miniTransformer.status, 404);
+  assert.equal(miniTransformerEnglish.status, 404);
   assert.equal(unknown.status, 404);
-  await Promise.all([planned.text(), unknown.text()]);
+  await Promise.all([
+    optimization.text(),
+    neuralNetworks.text(),
+    training.text(),
+    trainingEnglish.text(),
+    embeddings.text(),
+    embeddingsEnglish.text(),
+    sequences.text(),
+    sequencesEnglish.text(),
+    attention.text(),
+    attentionEnglish.text(),
+    selfAttention.text(),
+    selfAttentionEnglish.text(),
+    transformerBlock.text(),
+    transformerBlockEnglish.text(),
+    miniTransformer.text(),
+    miniTransformerEnglish.text(),
+    unknown.text(),
+  ]);
+});
+
+test("keeps registered completed Linux drafts behind the public boundary", async () => {
+  assert.ok(chapterRegistry["linux-systems/boot-to-shell"]);
+  assert.ok(chapterRegistry["linux-systems/processes-and-signals"]);
+  assert.ok(chapterRegistry["linux-systems/users-and-permissions"]);
+  assert.ok(chapterRegistry["linux-systems/memory-and-virtual-addresses"]);
+  assert.ok(chapterRegistry["linux-systems/storage-and-filesystems"]);
+  assert.ok(chapterRegistry["linux-systems/networking-from-a-packet"]);
+  assert.ok(chapterRegistry["linux-systems/assemble-a-tiny-linux"]);
+  const boot = await render(
+    "/curricula/linux-systems/chapters/boot-to-shell",
+  );
+  const processes = await render(
+    "/curricula/linux-systems/chapters/processes-and-signals",
+  );
+  const permissions = await render(
+    "/curricula/linux-systems/chapters/users-and-permissions",
+  );
+  const permissionsEnglish = await render(
+    "/curricula/linux-systems/chapters/users-and-permissions?lang=en",
+  );
+  const memory = await render(
+    "/curricula/linux-systems/chapters/memory-and-virtual-addresses",
+  );
+  const memoryEnglish = await render(
+    "/curricula/linux-systems/chapters/memory-and-virtual-addresses?lang=en",
+  );
+  const storage = await render(
+    "/curricula/linux-systems/chapters/storage-and-filesystems",
+  );
+  const storageEnglish = await render(
+    "/curricula/linux-systems/chapters/storage-and-filesystems?lang=en",
+  );
+  const networking = await render(
+    "/curricula/linux-systems/chapters/networking-from-a-packet",
+  );
+  const networkingEnglish = await render(
+    "/curricula/linux-systems/chapters/networking-from-a-packet?lang=en",
+  );
+  const tinySystem = await render(
+    "/curricula/linux-systems/chapters/assemble-a-tiny-linux",
+  );
+  const tinySystemEnglish = await render(
+    "/curricula/linux-systems/chapters/assemble-a-tiny-linux?lang=en",
+  );
+  assert.equal(boot.status, 404);
+  assert.equal(processes.status, 404);
+  assert.equal(permissions.status, 404);
+  assert.equal(permissionsEnglish.status, 404);
+  assert.equal(memory.status, 404);
+  assert.equal(memoryEnglish.status, 404);
+  assert.equal(storage.status, 404);
+  assert.equal(storageEnglish.status, 404);
+  assert.equal(networking.status, 404);
+  assert.equal(networkingEnglish.status, 404);
+  assert.equal(tinySystem.status, 404);
+  assert.equal(tinySystemEnglish.status, 404);
+  await Promise.all([
+    boot.text(),
+    processes.text(),
+    permissions.text(),
+    permissionsEnglish.text(),
+    memory.text(),
+    memoryEnglish.text(),
+    storage.text(),
+    storageEnglish.text(),
+    networking.text(),
+    networkingEnglish.text(),
+    tinySystem.text(),
+    tinySystemEnglish.text(),
+  ]);
 });
 
 test("returns not found instead of a server error for malformed route slugs", async () => {

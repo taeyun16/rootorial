@@ -59,11 +59,87 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "vectors",
     locale: "ko",
   }));
-  assert.throws(() => validateStartSessionInput({
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "transformer-from-zero",
     chapterSlug: "optimization",
     locale: "ko",
-  }));
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "optimization",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "neural-networks",
+    locale: "en",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "neural-networks",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "training",
+    locale: "ko",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "training",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "embeddings",
+    locale: "en",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "embeddings",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "sequences",
+    locale: "ko",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "sequences",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "attention",
+    locale: "en",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "attention",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "self-attention",
+    locale: "ko",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "self-attention",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "transformer-block",
+    locale: "en",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "transformer-block",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "mini-transformer",
+    locale: "ko",
+  }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "mini-transformer",
+    locale: "ko",
+  });
   assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
@@ -73,11 +149,69 @@ test("accepts only the known learning surface and locale", () => {
     chapterSlug: "shell-and-filesystem",
     locale: "en",
   });
-  assert.throws(() => validateStartSessionInput({
+  assert.deepEqual(validateStartSessionInput({
     curriculumSlug: "linux-systems",
     chapterSlug: "boot-to-shell",
     locale: "ko",
-  }));
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "boot-to-shell",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "processes-and-signals",
+    locale: "en",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "processes-and-signals",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "users-and-permissions",
+    locale: "ko",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "users-and-permissions",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "memory-and-virtual-addresses",
+    locale: "en",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "memory-and-virtual-addresses",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "storage-and-filesystems",
+    locale: "ko",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "storage-and-filesystems",
+    locale: "ko",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "networking-from-a-packet",
+    locale: "en",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "networking-from-a-packet",
+    locale: "en",
+  });
+  assert.deepEqual(validateStartSessionInput({
+    curriculumSlug: "linux-systems",
+    chapterSlug: "assemble-a-tiny-linux",
+    locale: "ko",
+  }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "assemble-a-tiny-linux",
+    locale: "ko",
+  });
 });
 
 test("accepts course access only for a known curriculum", () => {
@@ -91,6 +225,51 @@ test("accepts course access only for a known curriculum", () => {
     chapterSlug: "vectors",
     path: "/curricula/transformer-from-zero/chapters/vectors",
   });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "optimization" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "optimization",
+    path: "/curricula/transformer-from-zero/chapters/optimization",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "neural-networks" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "neural-networks",
+    path: "/curricula/transformer-from-zero/chapters/neural-networks",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "training" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "training",
+    path: "/curricula/transformer-from-zero/chapters/training",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "embeddings" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "embeddings",
+    path: "/curricula/transformer-from-zero/chapters/embeddings",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "sequences" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "sequences",
+    path: "/curricula/transformer-from-zero/chapters/sequences",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "attention" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "attention",
+    path: "/curricula/transformer-from-zero/chapters/attention",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "self-attention" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "self-attention",
+    path: "/curricula/transformer-from-zero/chapters/self-attention",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "transformer-block" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "transformer-block",
+    path: "/curricula/transformer-from-zero/chapters/transformer-block",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "mini-transformer" }), {
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "mini-transformer",
+    path: "/curricula/transformer-from-zero/chapters/mini-transformer",
+  });
   assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems" }), {
     curriculumSlug: "linux-systems",
     chapterSlug: null,
@@ -101,8 +280,42 @@ test("accepts course access only for a known curriculum", () => {
     chapterSlug: "shell-and-filesystem",
     path: "/curricula/linux-systems/chapters/shell-and-filesystem",
   });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "boot-to-shell" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "boot-to-shell",
+    path: "/curricula/linux-systems/chapters/boot-to-shell",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "processes-and-signals" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "processes-and-signals",
+    path: "/curricula/linux-systems/chapters/processes-and-signals",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "users-and-permissions" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "users-and-permissions",
+    path: "/curricula/linux-systems/chapters/users-and-permissions",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "memory-and-virtual-addresses" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "memory-and-virtual-addresses",
+    path: "/curricula/linux-systems/chapters/memory-and-virtual-addresses",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "storage-and-filesystems" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "storage-and-filesystems",
+    path: "/curricula/linux-systems/chapters/storage-and-filesystems",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "networking-from-a-packet" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "networking-from-a-packet",
+    path: "/curricula/linux-systems/chapters/networking-from-a-packet",
+  });
+  assert.deepEqual(validateCourseAccessInput({ curriculumSlug: "linux-systems", chapterSlug: "assemble-a-tiny-linux" }), {
+    curriculumSlug: "linux-systems",
+    chapterSlug: "assemble-a-tiny-linux",
+    path: "/curricula/linux-systems/chapters/assemble-a-tiny-linux",
+  });
   assert.throws(() => validateCourseAccessInput({ curriculumSlug: "unknown" }));
-  assert.throws(() => validateCourseAccessInput({ curriculumSlug: "transformer-from-zero", chapterSlug: "optimization" }));
 });
 
 test("normalizes heartbeat activity so hidden tabs cannot be active", () => {
@@ -230,6 +443,391 @@ test("validates submitted answers against the versioned server registry", () => 
     "retired",
   );
 
+  const optimizationResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "optimization",
+    answers: {
+      "loss-role": "scalar-summary",
+      "gradient-direction": "subtract-gradient",
+    },
+  });
+  assert.equal(
+    optimizationResult.answers[0].key,
+    "transformer-from-zero/optimization/loss-role",
+  );
+  assert.equal(optimizationResult.answers[0].version, 1);
+  assert.equal(optimizationResult.answers[1].correctAnswer, "subtract-gradient");
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "optimization",
+    answers: { "learning-rate": "client-says-correct" },
+  }));
+
+  const neuralNetworkResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "neural-networks",
+    answers: {
+      "logit-to-probability": "sigmoid-maps-logit-to-probability",
+      "bce-penalty": "confident-wrong-costs-most",
+      "activation-purpose": "nonlinearity-bends-boundaries",
+      "xor-hidden-features": "combine-hidden-features",
+      "layer-shapes": "two-hidden-activations-one-logit",
+    },
+  });
+  assert.deepEqual(
+    neuralNetworkResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/neural-networks/logit-to-probability",
+        correctAnswer: "sigmoid-maps-logit-to-probability",
+      },
+      {
+        key: "transformer-from-zero/neural-networks/bce-penalty",
+        correctAnswer: "confident-wrong-costs-most",
+      },
+      {
+        key: "transformer-from-zero/neural-networks/activation-purpose",
+        correctAnswer: "nonlinearity-bends-boundaries",
+      },
+      {
+        key: "transformer-from-zero/neural-networks/xor-hidden-features",
+        correctAnswer: "combine-hidden-features",
+      },
+      {
+        key: "transformer-from-zero/neural-networks/layer-shapes",
+        correctAnswer: "two-hidden-activations-one-logit",
+      },
+    ],
+  );
+  assert.ok(neuralNetworkResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "neural-networks",
+    answers: { "activation-purpose": "client-says-correct" },
+  }));
+
+  const trainingResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "training",
+    answers: {
+      "epoch-update-count": "ceil-samples-over-batch",
+      "softmax-axis": "classes-within-each-row",
+      "fused-cross-entropy": "raw-logits-true-label-mean",
+      "checkpoint-choice": "minimum-validation-loss",
+      "dropout-mode": "train-random-eval-off",
+    },
+  });
+  assert.deepEqual(
+    trainingResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/training/epoch-update-count",
+        correctAnswer: "ceil-samples-over-batch",
+      },
+      {
+        key: "transformer-from-zero/training/softmax-axis",
+        correctAnswer: "classes-within-each-row",
+      },
+      {
+        key: "transformer-from-zero/training/fused-cross-entropy",
+        correctAnswer: "raw-logits-true-label-mean",
+      },
+      {
+        key: "transformer-from-zero/training/checkpoint-choice",
+        correctAnswer: "minimum-validation-loss",
+      },
+      {
+        key: "transformer-from-zero/training/dropout-mode",
+        correctAnswer: "train-random-eval-off",
+      },
+    ],
+  );
+  assert.ok(trainingResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "training",
+    answers: { "dropout-mode": "client-says-correct" },
+  }));
+
+  const embeddingsResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "embeddings",
+    answers: {
+      "tokenizer-contract": "tokens-depend-on-tokenizer",
+      "lookup-shape": "ids-bt-to-vectors-btd",
+      "repeated-gradient": "referenced-rows-sum-contributions",
+      "cosine-contract": "angle-not-id-or-magnitude",
+      "pooling-order": "masked-mean-drops-pad-and-order",
+    },
+  });
+  assert.deepEqual(
+    embeddingsResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/embeddings/tokenizer-contract",
+        correctAnswer: "tokens-depend-on-tokenizer",
+      },
+      {
+        key: "transformer-from-zero/embeddings/lookup-shape",
+        correctAnswer: "ids-bt-to-vectors-btd",
+      },
+      {
+        key: "transformer-from-zero/embeddings/repeated-gradient",
+        correctAnswer: "referenced-rows-sum-contributions",
+      },
+      {
+        key: "transformer-from-zero/embeddings/cosine-contract",
+        correctAnswer: "angle-not-id-or-magnitude",
+      },
+      {
+        key: "transformer-from-zero/embeddings/pooling-order",
+        correctAnswer: "masked-mean-drops-pad-and-order",
+      },
+    ],
+  );
+  assert.ok(embeddingsResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "embeddings",
+    answers: { "cosine-contract": "client-says-correct" },
+  }));
+
+  const sequencesResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "sequences",
+    answers: {
+      "hidden-shape": "hidden-is-bh-trace-is-bth",
+      "shared-recurrence": "same-cell-updates-ordered-state",
+      "temporal-gradient": "product-of-local-jacobians",
+      "lstm-cell-update": "forget-carry-plus-input-candidate",
+      "causal-prefix": "state-uses-current-and-past-only",
+    },
+  });
+  assert.deepEqual(
+    sequencesResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/sequences/hidden-shape",
+        correctAnswer: "hidden-is-bh-trace-is-bth",
+      },
+      {
+        key: "transformer-from-zero/sequences/shared-recurrence",
+        correctAnswer: "same-cell-updates-ordered-state",
+      },
+      {
+        key: "transformer-from-zero/sequences/temporal-gradient",
+        correctAnswer: "product-of-local-jacobians",
+      },
+      {
+        key: "transformer-from-zero/sequences/lstm-cell-update",
+        correctAnswer: "forget-carry-plus-input-candidate",
+      },
+      {
+        key: "transformer-from-zero/sequences/causal-prefix",
+        correctAnswer: "state-uses-current-and-past-only",
+      },
+    ],
+  );
+  assert.ok(sequencesResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "sequences",
+    answers: { "causal-prefix": "client-says-correct" },
+  }));
+
+  const attentionResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "attention",
+    answers: {
+      "qk-roles": "query-compares-keys",
+      "score-shape": "scores-nq-nk",
+      "softmax-axis": "keys-within-each-query",
+      "value-context": "weights-mix-values",
+      "attention-boundary": "single-query-cross-attention-first",
+    },
+  });
+  assert.deepEqual(
+    attentionResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/attention/qk-roles",
+        correctAnswer: "query-compares-keys",
+      },
+      {
+        key: "transformer-from-zero/attention/score-shape",
+        correctAnswer: "scores-nq-nk",
+      },
+      {
+        key: "transformer-from-zero/attention/softmax-axis",
+        correctAnswer: "keys-within-each-query",
+      },
+      {
+        key: "transformer-from-zero/attention/value-context",
+        correctAnswer: "weights-mix-values",
+      },
+      {
+        key: "transformer-from-zero/attention/attention-boundary",
+        correctAnswer: "single-query-cross-attention-first",
+      },
+    ],
+  );
+  assert.ok(attentionResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "attention",
+    answers: { "softmax-axis": "client-says-correct" },
+  }));
+
+  const selfAttentionResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "self-attention",
+    answers: {
+      "qkv-source": "same-x-separate-projections",
+      "scaled-score": "divide-by-sqrt-head-dimension",
+      "causal-mask": "block-future-logits-before-softmax",
+      "multi-head-contract": "split-features-run-heads-concat",
+      "position-boundary": "mask-limits-visibility-position-next",
+    },
+  });
+  assert.deepEqual(
+    selfAttentionResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/self-attention/qkv-source",
+        correctAnswer: "same-x-separate-projections",
+      },
+      {
+        key: "transformer-from-zero/self-attention/scaled-score",
+        correctAnswer: "divide-by-sqrt-head-dimension",
+      },
+      {
+        key: "transformer-from-zero/self-attention/causal-mask",
+        correctAnswer: "block-future-logits-before-softmax",
+      },
+      {
+        key: "transformer-from-zero/self-attention/multi-head-contract",
+        correctAnswer: "split-features-run-heads-concat",
+      },
+      {
+        key: "transformer-from-zero/self-attention/position-boundary",
+        correctAnswer: "mask-limits-visibility-position-next",
+      },
+    ],
+  );
+  assert.ok(selfAttentionResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "self-attention",
+    answers: { "causal-mask": "client-says-correct" },
+  }));
+
+  const transformerBlockResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "transformer-block",
+    answers: {
+      "position-input": "add-sinusoidal-once-before-first-block",
+      "prenorm-residual": "normalize-run-add-original",
+      "layernorm-axis": "features-within-token",
+      "positionwise-ffn": "shared-mlp-each-token-row",
+      "block-handoff": "hidden-state-same-token-model-shape",
+    },
+  });
+  assert.deepEqual(
+    transformerBlockResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "transformer-from-zero/transformer-block/position-input",
+        correctAnswer: "add-sinusoidal-once-before-first-block",
+      },
+      {
+        key: "transformer-from-zero/transformer-block/prenorm-residual",
+        correctAnswer: "normalize-run-add-original",
+      },
+      {
+        key: "transformer-from-zero/transformer-block/layernorm-axis",
+        correctAnswer: "features-within-token",
+      },
+      {
+        key: "transformer-from-zero/transformer-block/positionwise-ffn",
+        correctAnswer: "shared-mlp-each-token-row",
+      },
+      {
+        key: "transformer-from-zero/transformer-block/block-handoff",
+        correctAnswer: "hidden-state-same-token-model-shape",
+      },
+    ],
+  );
+  assert.ok(transformerBlockResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "transformer-block",
+    answers: { "block-handoff": "client-says-correct" },
+  }));
+
+  const miniTransformerResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "mini-transformer",
+    answers: {
+      "shifted-target": "prefix-row-predicts-following-token",
+      "lm-head-boundary": "final-norm-then-vocabulary-projection",
+      "softmax-loss-axis": "vocabulary-axis-per-token-row",
+      "head-update": "subtract-loss-gradient-from-head",
+      "autoregressive-loop": "append-recompute-stop-on-eos-or-limit",
+    },
+  });
+  assert.deepEqual(
+    miniTransformerResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      { key: "transformer-from-zero/mini-transformer/shifted-target", correctAnswer: "prefix-row-predicts-following-token" },
+      { key: "transformer-from-zero/mini-transformer/lm-head-boundary", correctAnswer: "final-norm-then-vocabulary-projection" },
+      { key: "transformer-from-zero/mini-transformer/softmax-loss-axis", correctAnswer: "vocabulary-axis-per-token-row" },
+      { key: "transformer-from-zero/mini-transformer/head-update", correctAnswer: "subtract-loss-gradient-from-head" },
+      { key: "transformer-from-zero/mini-transformer/autoregressive-loop", correctAnswer: "append-recompute-stop-on-eos-or-limit" },
+    ],
+  );
+  assert.ok(miniTransformerResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "transformer-from-zero",
+    chapterSlug: "mini-transformer",
+    answers: { "autoregressive-loop": "client-says-correct" },
+  }));
+
   const linuxResult = validateAttemptInput({
     sessionId,
     submissionId,
@@ -248,6 +846,309 @@ test("validates submitted answers against the versioned server registry", () => 
     curriculumSlug: "linux-systems",
     chapterSlug: "shell-and-filesystem",
     answers: { "absolute-path": "client-says-correct" },
+  }));
+
+  const bootResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "boot-to-shell",
+    answers: {
+      "firmware-handoff": "kernel-image",
+      "pid-one": "init",
+    },
+  });
+  assert.equal(bootResult.answers[0].key, "linux-systems/boot-to-shell/firmware-handoff");
+  assert.equal(bootResult.answers[0].version, 1);
+  assert.equal(bootResult.answers[1].correctAnswer, "init");
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "boot-to-shell",
+    answers: { "firmware-handoff": "client-says-correct" },
+  }));
+
+  const processResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "processes-and-signals",
+    answers: {
+      "program-vs-process": "same-program-distinct-processes",
+      "fork-exec-pid": "exec-replaces-image-keeps-pid",
+      "stdio-redirection": "redirects-stdout-only",
+      "signal-choice": "term-before-kill",
+      "wait-reaps-child": "zombie-until-wait",
+    },
+  });
+  assert.deepEqual(
+    processResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/processes-and-signals/program-vs-process",
+        correctAnswer: "same-program-distinct-processes",
+      },
+      {
+        key: "linux-systems/processes-and-signals/fork-exec-pid",
+        correctAnswer: "exec-replaces-image-keeps-pid",
+      },
+      {
+        key: "linux-systems/processes-and-signals/stdio-redirection",
+        correctAnswer: "redirects-stdout-only",
+      },
+      {
+        key: "linux-systems/processes-and-signals/signal-choice",
+        correctAnswer: "term-before-kill",
+      },
+      {
+        key: "linux-systems/processes-and-signals/wait-reaps-child",
+        correctAnswer: "zombie-until-wait",
+      },
+    ],
+  );
+  assert.ok(processResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "processes-and-signals",
+    answers: { "signal-choice": "client-says-correct" },
+  }));
+
+  const permissionsResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "users-and-permissions",
+    answers: {
+      "process-credentials": "effective-uid-and-groups",
+      "permission-class": "owner-then-group-then-other",
+      "directory-search": "execute-allows-traversal",
+      "delete-boundary": "parent-write-and-search",
+      "least-privilege": "smallest-sufficient-grant",
+    },
+  });
+  assert.deepEqual(
+    permissionsResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/users-and-permissions/process-credentials",
+        correctAnswer: "effective-uid-and-groups",
+      },
+      {
+        key: "linux-systems/users-and-permissions/permission-class",
+        correctAnswer: "owner-then-group-then-other",
+      },
+      {
+        key: "linux-systems/users-and-permissions/directory-search",
+        correctAnswer: "execute-allows-traversal",
+      },
+      {
+        key: "linux-systems/users-and-permissions/delete-boundary",
+        correctAnswer: "parent-write-and-search",
+      },
+      {
+        key: "linux-systems/users-and-permissions/least-privilege",
+        correctAnswer: "smallest-sufficient-grant",
+      },
+    ],
+  );
+  assert.ok(permissionsResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "users-and-permissions",
+    answers: { "least-privilege": "client-says-correct" },
+  }));
+
+  const memoryResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "memory-and-virtual-addresses",
+    answers: {
+      "address-translation": "vpn-to-frame-offset-unchanged",
+      "process-isolation": "same-va-can-map-different-frames",
+      "page-fault": "tlb-miss-is-not-page-fault",
+      "region-lifetime": "maps-shows-vmas-not-residency",
+      "copy-on-write": "first-write-copies-that-page",
+    },
+  });
+  assert.deepEqual(
+    memoryResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/memory-and-virtual-addresses/address-translation",
+        correctAnswer: "vpn-to-frame-offset-unchanged",
+      },
+      {
+        key: "linux-systems/memory-and-virtual-addresses/process-isolation",
+        correctAnswer: "same-va-can-map-different-frames",
+      },
+      {
+        key: "linux-systems/memory-and-virtual-addresses/page-fault",
+        correctAnswer: "tlb-miss-is-not-page-fault",
+      },
+      {
+        key: "linux-systems/memory-and-virtual-addresses/region-lifetime",
+        correctAnswer: "maps-shows-vmas-not-residency",
+      },
+      {
+        key: "linux-systems/memory-and-virtual-addresses/copy-on-write",
+        correctAnswer: "first-write-copies-that-page",
+      },
+    ],
+  );
+  assert.ok(memoryResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "memory-and-virtual-addresses",
+    answers: { "copy-on-write": "client-says-correct" },
+  }));
+
+  const storageResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "storage-and-filesystems",
+    answers: {
+      "path-resolution": "mount-root-dentry-inode-block",
+      "mount-namespace": "mounted-root-shadows-underlay",
+      "link-lifetime": "same-inode-reclaim-after-zero-links-and-opens",
+      "inode-capacity": "free-blocks-zero-free-inodes",
+      "crash-durability": "fsync-file-rename-fsync-parent",
+    },
+  });
+  assert.deepEqual(
+    storageResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/storage-and-filesystems/path-resolution",
+        correctAnswer: "mount-root-dentry-inode-block",
+      },
+      {
+        key: "linux-systems/storage-and-filesystems/mount-namespace",
+        correctAnswer: "mounted-root-shadows-underlay",
+      },
+      {
+        key: "linux-systems/storage-and-filesystems/link-lifetime",
+        correctAnswer: "same-inode-reclaim-after-zero-links-and-opens",
+      },
+      {
+        key: "linux-systems/storage-and-filesystems/inode-capacity",
+        correctAnswer: "free-blocks-zero-free-inodes",
+      },
+      {
+        key: "linux-systems/storage-and-filesystems/crash-durability",
+        correctAnswer: "fsync-file-rename-fsync-parent",
+      },
+    ],
+  );
+  assert.ok(storageResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "storage-and-filesystems",
+    answers: { "crash-durability": "client-says-correct" },
+  }));
+
+  const networkingResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "networking-from-a-packet",
+    answers: {
+      "socket-boundary": "fd-references-kernel-socket",
+      "longest-prefix-route": "most-specific-prefix",
+      "next-hop-addressing": "gateway-mac-keeps-remote-ip",
+      "cumulative-ack": "ack-covers-contiguous-bytes",
+      "listener-delivery": "accept-new-fd-recv-confirms-delivery",
+    },
+  });
+  assert.deepEqual(
+    networkingResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/networking-from-a-packet/socket-boundary",
+        correctAnswer: "fd-references-kernel-socket",
+      },
+      {
+        key: "linux-systems/networking-from-a-packet/longest-prefix-route",
+        correctAnswer: "most-specific-prefix",
+      },
+      {
+        key: "linux-systems/networking-from-a-packet/next-hop-addressing",
+        correctAnswer: "gateway-mac-keeps-remote-ip",
+      },
+      {
+        key: "linux-systems/networking-from-a-packet/cumulative-ack",
+        correctAnswer: "ack-covers-contiguous-bytes",
+      },
+      {
+        key: "linux-systems/networking-from-a-packet/listener-delivery",
+        correctAnswer: "accept-new-fd-recv-confirms-delivery",
+      },
+    ],
+  );
+  assert.ok(networkingResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "networking-from-a-packet",
+    answers: { "cumulative-ack": "client-says-correct" },
+  }));
+
+  const tinySystemResult = validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "assemble-a-tiny-linux",
+    answers: {
+      "artifact-runtime-boundary": "rootfs-carries-userspace",
+      "pid-one-service-order": "mount-network-then-service",
+      "least-privilege-service": "group-read-without-world-write",
+      "readiness-evidence": "probe-each-boundary",
+      "optional-v86-scope": "fixed-guest-observation-only",
+    },
+  });
+  assert.deepEqual(
+    tinySystemResult.answers.map(({ key, correctAnswer }) => ({ key, correctAnswer })),
+    [
+      {
+        key: "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary",
+        correctAnswer: "rootfs-carries-userspace",
+      },
+      {
+        key: "linux-systems/assemble-a-tiny-linux/pid-one-service-order",
+        correctAnswer: "mount-network-then-service",
+      },
+      {
+        key: "linux-systems/assemble-a-tiny-linux/least-privilege-service",
+        correctAnswer: "group-read-without-world-write",
+      },
+      {
+        key: "linux-systems/assemble-a-tiny-linux/readiness-evidence",
+        correctAnswer: "probe-each-boundary",
+      },
+      {
+        key: "linux-systems/assemble-a-tiny-linux/optional-v86-scope",
+        correctAnswer: "fixed-guest-observation-only",
+      },
+    ],
+  );
+  assert.ok(tinySystemResult.answers.every(({ version }) => version === 1));
+  assert.throws(() => validateAttemptInput({
+    sessionId,
+    submissionId,
+    curriculumSlug: "linux-systems",
+    chapterSlug: "assemble-a-tiny-linux",
+    answers: { "readiness-evidence": "client-says-correct" },
   }));
 });
 

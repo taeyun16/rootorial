@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import {
   concatenateVectors,
   shapeOfNumericArray,
@@ -40,13 +40,20 @@ const optionSets: Record<`${Operation}-${MatrixAxis}`, string[]> = {
   "sum-1": ["(2,)", "(3,)", "(2, 3)"],
 };
 
-export function AxisBuilderLab() {
+type AxisBuilderLabProps = {
+  onCompletionChange?: (completed: boolean) => void;
+};
+
+export function AxisBuilderLab({ onCompletionChange }: AxisBuilderLabProps = {}) {
   const { locale } = useLocale();
   const isKo = locale === "ko";
   const [operation, setOperation] = useState<Operation>("stack");
   const [axis, setAxis] = useState<MatrixAxis>(0);
   const [answer, setAnswer] = useState<string | null>(null);
   const [checked, setChecked] = useState(false);
+  const [completedOperations, setCompletedOperations] = useState<ReadonlySet<Operation>>(
+    () => new Set(),
+  );
   const panelId = useId();
   const predictionName = useId();
 
@@ -74,6 +81,10 @@ export function AxisBuilderLab() {
     ? `matrix.sum(axis=${axis})`
     : `np.${operation}([a, b], axis=${axis})`;
 
+  useEffect(() => {
+    onCompletionChange?.(completedOperations.size === stages.length);
+  }, [completedOperations, onCompletionChange, stages.length]);
+
   function resetPrediction() {
     setAnswer(null);
     setChecked(false);
@@ -89,11 +100,22 @@ export function AxisBuilderLab() {
     resetPrediction();
   }
 
+  function checkPrediction() {
+    setChecked(true);
+    if (answer !== result.answer) return;
+    setCompletedOperations((current) => {
+      if (current.has(operation)) return current;
+      return new Set([...current, operation]);
+    });
+  }
+
   return (
     <InteractiveLab
-      kicker="AXIS BUILDER"
+      kicker={isKo ? "필수 실습 · AXIS BUILDER" : "REQUIRED LAB · AXIS BUILDER"}
       title={isKo ? "축을 만들고, 늘리고, 없애 보세요" : "Create, extend, and remove axes"}
-      description={isKo ? "연산과 axis를 바꾼 뒤 결과 shape를 먼저 예측합니다." : "Change the operation and axis, then predict the result shape first."}
+      description={isKo
+        ? "연산과 axis를 바꾼 뒤 결과 shape를 먼저 예측하세요. 세 연산을 모두 맞히면 필수 실습이 완료됩니다."
+        : "Change the operation and axis, then predict the result shape. Complete all three operations to finish this required lab."}
       actions={(
         <div className="axis-selector" role="group" aria-label={isKo ? "axis 선택" : "Choose an axis"}>
           {[0, 1].map((candidate) => (
@@ -173,13 +195,20 @@ export function AxisBuilderLab() {
             </label>
           ))}
         </div>
-        <button type="button" disabled={!answer} onClick={() => setChecked(true)}>{isKo ? "예측 확인" : "Check prediction"}</button>
+        <button type="button" disabled={!answer} onClick={checkPrediction}>{isKo ? "예측 확인" : "Check prediction"}</button>
         <p className={checked ? correct ? "is-correct" : "is-incorrect" : undefined} role="status">
           {checked
             ? correct
               ? (isKo ? `정확해요. 결과는 ${result.answer === "error" ? "오류" : result.answer}입니다.` : `Correct. The result is ${result.answer}.`)
               : (isKo ? "선택한 axis가 새로 생기는지, 늘어나는지, 사라지는지 다시 추적해 보세요." : "Trace whether the selected axis is created, extended, or removed.")
             : (isKo ? "숫자를 계산하기 전에 shape의 어느 위치가 바뀌는지 확인하세요." : "Before calculating values, identify which position in the shape changes.")}
+        </p>
+        <p className="axis-builder-mastery" role="status" aria-live="polite">
+          {completedOperations.size === stages.length
+            ? (isKo ? "세 가지 축 연산을 모두 예측했습니다." : "You predicted all three axis operations.")
+            : (isKo
+                ? `완료한 축 연산 ${completedOperations.size} / ${stages.length}`
+                : `${completedOperations.size} / ${stages.length} axis operations completed`)}
         </p>
       </fieldset>
     </InteractiveLab>
