@@ -122,12 +122,14 @@ export const transformerContentQualityContracts = {
     sourceFile: "src/components/neural-networks/NeuralNetworksChapter.tsx",
     e2eFile: "e2e/neural-networks.spec.ts",
     expectedConceptQuestions: 5,
-    targetPythonCells: 1,
+    targetPythonCells: 2,
     expectedDefaultPublication: "draft",
     activities: [
       activity("xor-prediction", "predict", "NeuralNetworkXorLab", 1, true),
       activity("xor-builder", "build", "NeuralNetworkXorLab", 4, true),
       activity("forward-debugger", "debug", "NeuralNetworkDebuggerLab", 4, true),
+      activity("linear-xor-python", "code", "NotebookCell", 0, false, "python"),
+      activity("hidden-repair-python", "code", "NotebookCell", 1, false, "python"),
     ],
     editorialReview: {
       conceptDepth: 5,

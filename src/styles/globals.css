@@ -15339,6 +15339,10 @@ textarea:focus-visible {
   overflow-wrap: anywhere;
 }
 
+.neural-python-bridge .notebook-cell {
+  margin-top: 30px;
+}
+
 .neural-xor-lab .interactive-lab-header,
 .neural-debugger-lab .interactive-lab-header {
   border-bottom: 1px solid var(--line-strong);

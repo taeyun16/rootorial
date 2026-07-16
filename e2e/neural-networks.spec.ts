@@ -100,6 +100,9 @@ test("completes XOR, network surgery, and concepts in the Korean admin draft pre
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "분류와 신경망" })).toBeVisible();
   await expect(page.getByText("필수 LAB · XOR FORWARD PASS", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · NETWORK SURGERY", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "시뮬레이터의 XOR을 실제 NumPy forward pass로 옮깁니다" })).toBeVisible();
+  await expect(page.getByText("직선 하나로 XOR을 탐색", { exact: true })).toBeVisible();
+  await expect(page.getByText("빠진 hidden activation 수리", { exact: true })).toBeVisible();
 
   await completeXorLab(page, { includeWrongPrediction: true });
   const xorLab = page.locator(".neural-xor-lab");
@@ -153,6 +156,9 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   expect(response?.status()).toBe(200);
   await expect(page).toHaveTitle("[Preview] 03. Classification and Neural Networks · Rootorial");
   await expect(page.getByRole("heading", { name: "Classification and Neural Networks" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Move the simulator's XOR into a real NumPy forward pass" })).toBeVisible();
+  await expect(page.getByText("Search XOR with one line", { exact: true })).toBeVisible();
+  await expect(page.getByText("Repair the missing hidden activation", { exact: true })).toBeVisible();
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];

@@ -24,8 +24,8 @@ test("makes the current executable-Python gap explicit", () => {
 
   assert.equal(pythonCells.vectors, 2);
   assert.equal(pythonCells.optimization, 1);
+  assert.equal(pythonCells["neural-networks"], 2);
   for (const slug of [
-    "neural-networks",
     "training",
     "embeddings",
     "sequences",
@@ -38,7 +38,7 @@ test("makes the current executable-Python gap explicit", () => {
   }
   assert.equal(
     report.targetGaps.filter((gap) => gap.includes("Python cells")).length,
-    8,
+    7,
   );
 });
 
@@ -46,6 +46,6 @@ test("renders a reviewable Markdown report with score and draft state", () => {
   const markdown = renderCurriculumQualityMarkdown(analyzeCurriculumQuality());
 
   assert.match(markdown, /벡터와 텐서.*2.*44\/45.*published/);
-  assert.match(markdown, /분류와 신경망.*0.*39\/45.*draft/);
+  assert.match(markdown, /분류와 신경망.*2.*44\/45.*draft/);
   assert.match(markdown, /Structural contract issues: 0/);
 });

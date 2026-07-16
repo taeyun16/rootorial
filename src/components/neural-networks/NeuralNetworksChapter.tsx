@@ -5,6 +5,12 @@ import {
   chaptersKo,
   TRANSFORMER_CURRICULUM_SLUG,
 } from "../../data/curriculum";
+import {
+  neuralNetworksHiddenRepairCode,
+  neuralNetworksHiddenRepairCodeEn,
+  neuralNetworksLinearBoundaryCode,
+  neuralNetworksLinearBoundaryCodeEn,
+} from "../../data/neuralNetworksNotebook";
 import { useLocale } from "../../features/localization/localization";
 import { canCompleteNeuralNetworksChapter } from "../../features/neural-networks/forward-pass";
 import { AuthControls } from "../AuthControls";
@@ -13,6 +19,7 @@ import { CompleteChapter } from "../CompleteChapter";
 import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { PythonCode } from "../PythonCode";
@@ -28,6 +35,7 @@ const tocItems = {
     { id: "linear-limit", label: "직선 경계의 한계" },
     { id: "hidden", label: "hidden feature" },
     { id: "xor-lab", label: "필수 XOR 실습" },
+    { id: "numpy-bridge", label: "NumPy로 다시 만들기" },
     { id: "debug", label: "네트워크 수술" },
     { id: "transfer", label: "batch·class로 전이" },
     { id: "check", label: "이해 확인" },
@@ -38,6 +46,7 @@ const tocItems = {
     { id: "linear-limit", label: "The limit of one line" },
     { id: "hidden", label: "Hidden features" },
     { id: "xor-lab", label: "Required XOR lab" },
+    { id: "numpy-bridge", label: "Rebuild it in NumPy" },
     { id: "debug", label: "Network surgery" },
     { id: "transfer", label: "Transfer to batches and classes" },
     { id: "check", label: "Concept check" },
@@ -212,15 +221,44 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
             <NeuralNetworkXorLab onCompletionChange={setXorLabComplete} />
           </div>
 
+          <section className="article-section neural-python-bridge" id="numpy-bridge">
+            <div className="margin-label">06 — NUMPY BRIDGE · OPTIONAL</div>
+            <h2>{t("시뮬레이터의 XOR을 실제 NumPy forward pass로 옮깁니다", "Move the simulator's XOR into a real NumPy forward pass")}</h2>
+            <p>{t("첫 셀은 많은 직선을 직접 탐색해 단일 affine 경계가 3/4에서 멈추는 것을 확인합니다. 두 번째 셀은 activation이 빠져 2/4로 무너진 2층 네트워크를 한 줄 수정해 4/4와 낮은 BCE로 복구합니다.", "The first cell searches many lines and confirms that one affine boundary stops at 3/4. In the second, repair one missing activation in a two-layer network so it recovers 4/4 with low BCE.")}</p>
+            <div className="concept-callout">
+              <span className="callout-mark">Py</span>
+              <div>
+                <strong>{t("선택 심화이며 각 셀은 독립적으로 실행됩니다", "Optional extension; each cell runs independently")}</strong>
+                <p>{t("브라우저가 공유 Pyodide 런타임과 NumPy를 지연 로드합니다. 다운로드 실패는 필수 XOR 실습이나 챕터 완료를 막지 않습니다. 두 셀은 서로의 변수에 의존하지 않으므로 어떤 순서로 실행해도 됩니다.", "The browser lazily loads the shared Pyodide runtime and NumPy. A download failure never blocks the required XOR lab or chapter completion. The cells do not share variables, so either can run first.")}</p>
+              </div>
+            </div>
+            <NotebookCell
+              title={t("직선 하나로 XOR을 탐색", "Search XOR with one line")}
+              initialCode={isKo ? neuralNetworksLinearBoundaryCode : neuralNetworksLinearBoundaryCodeEn}
+              description={<p>{t("대표 직선의 네 확률을 읽은 뒤 작은 정수 weight·bias 공간을 전수 탐색합니다. 출력의 single_affine_correct와 grid_search_best가 왜 모두 3/4인지 설명해 보세요.", "Read the representative line's four probabilities, then exhaustively search a small integer weight-and-bias space. Explain why both single_affine_correct and grid_search_best remain 3/4.")}</p>}
+              hint={<p>{t("대표 weight나 탐색 범위를 바꿔 보세요. 4/4를 찾았다고 생각하면 predictions와 네 점의 위치를 함께 확인한 뒤 셀을 초기화하세요.", "Change the representative weights or the search range. If you think you found 4/4, inspect the predictions alongside all four points, then reset the cell.")}</p>}
+              editorMinHeight={430}
+              ariaLabel={t("단일 affine XOR 한계 NumPy 코드", "NumPy code for the single-affine XOR limit")}
+            />
+            <NotebookCell
+              title={t("빠진 hidden activation 수리", "Repair the missing hidden activation")}
+              initialCode={isKo ? neuralNetworksHiddenRepairCode : neuralNetworksHiddenRepairCodeEn}
+              description={<p>{t("처음 실행하면 hidden activation이 빠져 assertion이 실패합니다. REPAIR 아래 한 줄만 수정해 X[4,2]→hidden[4,2]→logits[4]를 유지하면서 XOR 4/4와 mean_bce<0.1을 통과시키세요.", "The first run fails its assertion because the hidden activation is missing. Change only the line below REPAIR, preserve X[4,2]→hidden[4,2]→logits[4], and reach XOR 4/4 with mean_bce<0.1.")}</p>}
+              hint={<p>{t("두 affine 사이에 비선형성이 없으면 하나의 affine으로 합쳐집니다. hidden_logits를 어느 함수에 통과시켜야 OR와 NAND detector가 0–1 feature가 될까요?", "Without a nonlinearity, two affine maps collapse into one. Which function should transform hidden_logits so the OR and NAND detectors become 0–1 features?")}</p>}
+              editorMinHeight={560}
+              ariaLabel={t("hidden activation 수리 NumPy 코드", "NumPy code for repairing the hidden activation")}
+            />
+          </section>
+
           <section className="article-section" id="debug">
-            <div className="margin-label">06 — DEBUG</div>
+            <div className="margin-label">07 — DEBUG</div>
             <h2>{t("깨진 층은 이름이 아니라 실제 forward 결과로 수리합니다", "Repair broken layers by actual forward results, not names")}</h2>
             <p>{t("shape가 맞는지, activation 뒤 네 행이 달라지는지, output이 truth table을 회복하는지, BCE 입력이 유효한 확률인지 차례로 검사하세요. 각 patch는 같은 수학 모델을 다시 실행해 의미론적으로 판정됩니다.", "Check shape compatibility, whether activation differentiates the four rows, whether the output restores the truth table, and whether BCE receives valid probabilities. Every patch is graded semantically by rerunning the same math model.")}</p>
             <NeuralNetworkDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
 
           <section className="article-section" id="transfer">
-            <div className="margin-label">07 — TRANSFER</div>
+            <div className="margin-label">08 — TRANSFER</div>
             <h2>{t("다음 장에서는 행을 mini-batch로, output을 class logits로 넓힙니다", "Next, rows become mini-batches and outputs expand to class logits")}</h2>
             <p>{t("전이 과제: X[8,2]와 hidden width 3으로 3-class classifier를 조립해 보세요. W¹[2,3] 뒤 H[8,3], W²[3,3] 뒤 logits[8,3]이 됩니다. affine→activation→affine 뼈대는 유지되고, 다음 장에서 full batch를 mini-batch로 나누고 sigmoid/BCE를 Softmax·Cross Entropy로 확장합니다.", "Transfer task: assemble a three-class classifier from X[8,2] with hidden width 3. W¹[2,3] yields H[8,3], and W²[3,3] yields logits[8,3]. The affine→activation→affine skeleton remains; the next chapter splits full data into mini-batches and extends sigmoid/BCE to Softmax and cross entropy.")}</p>
             <div className="neural-transfer-map">
@@ -240,7 +278,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">08 — CHECK</div>
+            <div className="margin-label">09 — CHECK</div>
             <NeuralNetworksConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 
