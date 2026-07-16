@@ -104,6 +104,14 @@ test("publishes only available chapters that also have a renderer contract", () 
     "Assemble a Tiny Linux System",
   );
   assert.equal(
+    getPublishedChapter(
+      "infrastructure-design",
+      "network-namespaces-and-boundaries",
+      "en",
+    )?.chapter.title,
+    "Network Namespaces and Isolation Boundaries",
+  );
+  assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
     "Learning and Optimization",
   );
@@ -741,6 +749,50 @@ test("separates active question submissions from historical labels", () => {
       "linux-systems",
       "networking-from-a-packet",
       "socket-boundary",
+      2,
+    ),
+    undefined,
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(chapterRegistry["infrastructure-design/network-namespaces-and-boundaries"].questions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "namespace-network-view": "interfaces-routes-neighbors-sockets",
+      "loopback-scope": "current-namespace-loopback",
+      "socket-ownership": "creation-network-namespace",
+      "interface-ownership": "one-network-namespace-at-a-time",
+      "observation-scope": "execute-observer-in-target-namespace",
+    },
+  );
+  assert.deepEqual(
+    Object.values(chapterRegistry["infrastructure-design/network-namespaces-and-boundaries"].questions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 2, 0, 1, 2],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "infrastructure-design",
+      "network-namespaces-and-boundaries",
+      "loopback-scope",
+    )?.correctAnswer,
+    "current-namespace-loopback",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "infrastructure-design",
+      "network-namespaces-and-boundaries",
+      "namespace-network-view",
+      1,
+    )?.correctAnswer,
+    "interfaces-routes-neighbors-sockets",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "infrastructure-design",
+      "network-namespaces-and-boundaries",
+      "namespace-network-view",
       2,
     ),
     undefined,

@@ -331,6 +331,18 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   ]);
 });
 
+test("keeps the completed infrastructure chapter unavailable on its public URL", async () => {
+  const korean = await render(
+    "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries",
+  );
+  const english = await render(
+    "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en",
+  );
+  assert.equal(korean.status, 404);
+  assert.equal(english.status, 404);
+  await Promise.all([korean.text(), english.text()]);
+});
+
 test("SSR-renders the bilingual Self-Attention chapter with an explicit test-only publication override", async () => {
   const rows = [
     {
@@ -460,6 +472,60 @@ test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-o
   );
   assert.match(englishHtml, /07 — MODEL BOUNDARY REPAIR CONSOLE/);
   assert.match(englishHtml, /REQUIRED LAB · PREDICT → CONFIGURE → RUN → INSPECT/);
+});
+
+test("SSR-renders the bilingual network namespace chapter with test-only publication overrides", async () => {
+  const rows = [
+    {
+      resource_key: "curriculum:infrastructure-design",
+      resource_kind: "curriculum",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: null,
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+    {
+      resource_key: "chapter:infrastructure-design/network-namespaces-and-boundaries",
+      resource_kind: "chapter",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: "network-namespaces-and-boundaries",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /같은 kernel 안에 여러 network view를 만들고/);
+  assert.match(html, /REQUIRED LAB · DESIGN THE BOUNDARY/);
+  assert.match(html, /REQUIRED ACTIVITY · INCIDENT CONSOLE/);
+  assert.match(html, /veth·bridge·routing으로 토폴로지 조립/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /create several network views inside the same kernel/);
+  assert.match(englishHtml, /Design namespace-local health and the isolation matrix/);
+  assert.match(englishHtml, /Repair four incidents through observation scope and object ownership/);
 });
 
 test("renders the interactive vectors chapter", async () => {

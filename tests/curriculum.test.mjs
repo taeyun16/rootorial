@@ -4,9 +4,56 @@ import {
   chaptersEn,
   chaptersKo,
   getCurriculum,
+  infrastructureChaptersEn,
+  infrastructureChaptersKo,
   linuxChaptersEn,
   linuxChaptersKo,
 } from "../src/data/curriculum.ts";
+
+test("builds the infrastructure ladder from network namespaces to a platform capstone", () => {
+  assert.equal(infrastructureChaptersKo.length, 8);
+  assert.deepEqual(
+    infrastructureChaptersKo.map(
+      ({ number, slug, status, developmentStatus }) => ({
+        number,
+        slug,
+        status,
+        developmentStatus,
+      }),
+    ),
+    infrastructureChaptersEn.map(
+      ({ number, slug, status, developmentStatus }) => ({
+        number,
+        slug,
+        status,
+        developmentStatus,
+      }),
+    ),
+  );
+  assert.deepEqual(
+    infrastructureChaptersKo.map(({ slug }) => slug),
+    [
+      "network-namespaces-and-boundaries",
+      "veth-bridges-and-routing",
+      "egress-nat-and-conntrack",
+      "network-policy-and-firewalls",
+      "service-discovery-and-load-balancing",
+      "availability-and-failure-domains",
+      "network-observability-and-capacity",
+      "assemble-a-namespace-platform",
+    ],
+  );
+  assert.deepEqual(
+    infrastructureChaptersKo.map(({ status, developmentStatus }) => ({ status, developmentStatus })),
+    [
+      { status: "available", developmentStatus: "complete" },
+      ...Array.from({ length: 7 }, () => ({ status: "planned", developmentStatus: "planned" })),
+    ],
+  );
+  const curriculum = getCurriculum("infrastructure-design");
+  assert.equal(curriculum?.status, "in-progress");
+  assert.match(curriculum?.summary.en ?? "", /Linux network namespaces/);
+});
 
 test("keeps the bilingual Transformer roadmap structurally aligned", () => {
   assert.equal(chaptersKo.length, 10);

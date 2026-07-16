@@ -20,8 +20,8 @@ Rootorial develops independent learning paths across AI and machine learning, op
   - Scope: Trace how processes, memory, files, and networks meet inside an operating system.
 - Infrastructure Design from the Ground Up (인프라 설계를 바닥부터)
   - Area: INFRASTRUCTURE / 인프라
-  - Status: planned
-  - Scope: Turn requirements into concrete choices across scale, availability, and cost.
+  - Status: in progress
+  - Scope: Assemble isolation, routing, policy, and availability in Linux network namespaces, then verify the design with evidence.
 - Design Patterns from the Ground Up (디자인 패턴을 바닥부터)
   - Area: SOFTWARE DESIGN / 소프트웨어 설계
   - Status: planned

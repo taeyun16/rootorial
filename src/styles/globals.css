@@ -75,6 +75,276 @@
   --mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
 }
 
+/* Infrastructure · network namespace chapter */
+.infrastructure-chapter-shell {
+  --chapter-accent: #1f63a8;
+  --chapter-accent-soft: color-mix(in srgb, #1f63a8 14%, transparent);
+}
+
+.namespace-view-grid,
+.namespace-ownership-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin: 1.25rem 0;
+}
+
+.namespace-view-grid article,
+.namespace-ownership-grid article,
+.namespace-lab-panel,
+.namespace-incident-card {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--paper-raised) 92%, var(--chapter-accent-soft));
+  overflow-wrap: anywhere;
+}
+
+.namespace-view-grid span,
+.namespace-ownership-grid span,
+.namespace-lab-panel > span,
+.namespace-incident-card > span {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+  font: 700 0.72rem/1.2 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.namespace-view-grid strong,
+.namespace-ownership-grid strong {
+  display: block;
+  color: var(--chapter-accent);
+}
+
+.namespace-loopback-strip,
+.namespace-evidence-pipeline {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+  align-items: stretch;
+  margin: 1.25rem 0;
+}
+
+.namespace-loopback-strip {
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+}
+
+.namespace-loopback-strip > span,
+.namespace-evidence-pipeline li {
+  min-width: 0;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.namespace-evidence-pipeline {
+  padding: 0;
+  list-style: none;
+}
+
+.namespace-evidence-pipeline li > span {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-bottom: 0.6rem;
+  border-radius: 999px;
+  background: var(--chapter-accent-soft);
+  color: var(--chapter-accent);
+  font: 700 0.72rem/1 var(--mono);
+}
+
+.namespace-lab {
+  margin: 1.5rem 0;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid color-mix(in srgb, var(--chapter-accent) 45%, var(--line));
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--paper-raised) 96%, var(--chapter-accent-soft));
+}
+
+.namespace-lab-header,
+.namespace-lab-toolbar,
+.namespace-lab-actions,
+.namespace-incident-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.namespace-lab-header h3,
+.namespace-incident-card h4 {
+  margin: 0;
+}
+
+.namespace-lab-grid,
+.namespace-design-grid,
+.namespace-reachability-grid,
+.namespace-incident-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.namespace-design-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.namespace-design-grid fieldset,
+.namespace-incident-card fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+}
+
+.namespace-design-grid label,
+.namespace-incident-card label {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+  margin-top: 0.65rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.namespace-design-grid select,
+.namespace-incident-card select,
+.namespace-incident-card input {
+  width: 100%;
+  min-width: 0;
+}
+
+.namespace-incident-card pre {
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.namespace-state-card,
+.namespace-reachability-card {
+  min-width: 0;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-left: 0.25rem solid var(--chapter-accent);
+  border-radius: 0.75rem;
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.namespace-state-card ul,
+.namespace-reachability-card ul {
+  margin: 0.55rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.namespace-loopback-control {
+  display: flex;
+  min-height: 44px;
+  margin-top: 0.65rem;
+  gap: 0.55rem;
+  align-items: center;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.namespace-loopback-control input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+}
+
+.namespace-feedback {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  background: var(--chapter-accent-soft);
+  overflow-wrap: anywhere;
+}
+
+.namespace-feedback.is-success {
+  background: color-mix(in srgb, #159763 16%, transparent);
+}
+
+.namespace-feedback.is-error {
+  background: color-mix(in srgb, #d84b4b 14%, transparent);
+}
+
+.namespace-mastery-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+}
+
+.namespace-mastery-progress span {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  font: 650 0.75rem/1.2 var(--mono);
+}
+
+.namespace-mastery-progress .is-complete {
+  border-color: #159763;
+  color: #087a4d;
+  background: color-mix(in srgb, #159763 10%, transparent);
+}
+
+@media (max-width: 720px) {
+  .namespace-view-grid,
+  .namespace-ownership-grid,
+  .namespace-lab-grid,
+  .namespace-design-grid,
+  .namespace-reachability-grid,
+  .namespace-incident-grid,
+  .namespace-evidence-pipeline {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .namespace-loopback-strip {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .namespace-loopback-strip > span[aria-hidden="true"] {
+    justify-self: center;
+    padding: 0;
+    border: 0;
+  }
+
+  .namespace-lab-header,
+  .namespace-lab-toolbar,
+  .namespace-lab-actions,
+  .namespace-incident-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .namespace-lab button,
+  .namespace-lab select,
+  .namespace-lab input {
+    max-width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .namespace-lab *,
+  .namespace-view-grid *,
+  .namespace-ownership-grid * {
+    scroll-behavior: auto;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
