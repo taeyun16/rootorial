@@ -54,7 +54,7 @@ PASS: hidden activation restores XOR with low BCE
 
 ## Verification
 
-- `npm test`: 311 tests passed, including the curriculum contract, chapter source contract, type check, lint, and production build.
+- `npm test`: 311 tests passed after the curriculum contract, chapter source contract, type check, and production build completed successfully.
 - `npm run check:curriculum-quality`: all 10 chapter contracts valid; the known improvement-target count fell from 15 to 14.
 - In-app Browser: both cells executed with the shared Pyodide/NumPy runtime; the deliberate failure and one-line repair matched the outputs above.
 - Responsive review: the bridge introduction and CodeMirror cell remained contained at a 390×844 viewport, with long code wrapping inside the editor rather than widening the page.
