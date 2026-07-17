@@ -89,7 +89,7 @@ export const transformerContentQualityContracts = {
       feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
-      crossChapterConnection: 4,
+      crossChapterConnection: 5,
     },
   },
   optimization: {
