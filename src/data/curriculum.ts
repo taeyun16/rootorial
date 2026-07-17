@@ -749,9 +749,9 @@ export const infrastructureChaptersKo: Chapter[] = [
       "client·edge·app·data namespace를 요구사항에서 조립하고 route, NAT, policy, discovery와 failure evidence로 설계 결정을 검증합니다.",
     runtime: "TypeScript 인프라 설계 스튜디오",
     estimatedMinutes: 95,
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["requirements · topology", "policy · availability", "evidence · trade-off"],
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["versioned evidence", "namespace platform · policy", "failure · capacity trade-off"],
   },
 ];
 
@@ -856,9 +856,9 @@ export const infrastructureChaptersEn: Chapter[] = [
       "Assemble client, edge, app, and data namespaces from requirements, then verify design decisions with route, NAT, policy, discovery, and failure evidence.",
     runtime: "TypeScript infrastructure design studio",
     estimatedMinutes: 95,
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["requirements · topology", "policy · availability", "evidence · trade-off"],
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["versioned evidence", "namespace platform · policy", "failure · capacity trade-off"],
   },
 ];
 

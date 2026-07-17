@@ -953,6 +953,46 @@ export const conceptQuestionHistory = {
       answers: ["queue-absorbs-bursts-not-sustained-overload", "queue-adds-link-bandwidth", "queue-removes-connection-limit"],
     },
   },
+  "infrastructure-design/assemble-a-namespace-platform/evidence-reexecution": {
+    1: {
+      version: 1,
+      label: "versioned receipt와 current evaluator 재실행",
+      correctAnswer: "rerun-current-evaluators",
+      answers: ["trust-stored-verdict", "rerun-current-evaluators", "accept-any-newer-timestamp"],
+    },
+  },
+  "infrastructure-design/assemble-a-namespace-platform/public-ingress-boundary": {
+    1: {
+      version: 1,
+      label: "public ingress 최소 허용 경계",
+      correctAnswer: "edge-443-only",
+      answers: ["edge-443-only", "edge-and-app-443", "app-443-only"],
+    },
+  },
+  "infrastructure-design/assemble-a-namespace-platform/private-egress-state": {
+    1: {
+      version: 1,
+      label: "private app의 stateful egress",
+      correctAnswer: "edge-nat-conntrack-return",
+      answers: ["assign-app-public-address", "edge-snat-without-state", "edge-nat-conntrack-return"],
+    },
+  },
+  "infrastructure-design/assemble-a-namespace-platform/zone-failure-survival": {
+    1: {
+      version: 1,
+      label: "zone A 상실 후 독립 service path",
+      correctAnswer: "independent-zone-b-path",
+      answers: ["more-zone-a-replicas", "independent-zone-b-path", "larger-zone-a-edge"],
+    },
+  },
+  "infrastructure-design/assemble-a-namespace-platform/capacity-headroom-contract": {
+    1: {
+      version: 1,
+      label: "900 rps의 resource별 30% headroom",
+      correctAnswer: "all-resource-ratios-at-most-0-7",
+      answers: ["all-resource-ratios-at-most-0-7", "average-ratio-only", "highest-capacity-number"],
+    },
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     1: {
       version: 1,
@@ -1468,6 +1508,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["infrastructure-design/network-observability-and-capacity/queue-role"][1],
     status: "active",
   },
+  "infrastructure-design/assemble-a-namespace-platform/evidence-reexecution": {
+    ...conceptQuestionHistory["infrastructure-design/assemble-a-namespace-platform/evidence-reexecution"][1],
+    status: "active",
+  },
+  "infrastructure-design/assemble-a-namespace-platform/public-ingress-boundary": {
+    ...conceptQuestionHistory["infrastructure-design/assemble-a-namespace-platform/public-ingress-boundary"][1],
+    status: "active",
+  },
+  "infrastructure-design/assemble-a-namespace-platform/private-egress-state": {
+    ...conceptQuestionHistory["infrastructure-design/assemble-a-namespace-platform/private-egress-state"][1],
+    status: "active",
+  },
+  "infrastructure-design/assemble-a-namespace-platform/zone-failure-survival": {
+    ...conceptQuestionHistory["infrastructure-design/assemble-a-namespace-platform/zone-failure-survival"][1],
+    status: "active",
+  },
+  "infrastructure-design/assemble-a-namespace-platform/capacity-headroom-contract": {
+    ...conceptQuestionHistory["infrastructure-design/assemble-a-namespace-platform/capacity-headroom-contract"][1],
+    status: "active",
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"][1],
     status: "active",
@@ -1689,6 +1749,14 @@ export const infrastructureNetworkObservabilityQuestions = {
   "queue-role": conceptQuestionRegistry["infrastructure-design/network-observability-and-capacity/queue-role"],
 } as const;
 
+export const infrastructureNamespacePlatformQuestions = {
+  "evidence-reexecution": conceptQuestionRegistry["infrastructure-design/assemble-a-namespace-platform/evidence-reexecution"],
+  "public-ingress-boundary": conceptQuestionRegistry["infrastructure-design/assemble-a-namespace-platform/public-ingress-boundary"],
+  "private-egress-state": conceptQuestionRegistry["infrastructure-design/assemble-a-namespace-platform/private-egress-state"],
+  "zone-failure-survival": conceptQuestionRegistry["infrastructure-design/assemble-a-namespace-platform/zone-failure-survival"],
+  "capacity-headroom-contract": conceptQuestionRegistry["infrastructure-design/assemble-a-namespace-platform/capacity-headroom-contract"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -1768,6 +1836,9 @@ export const chapterRegistry = {
   },
   "infrastructure-design/network-observability-and-capacity": {
     questions: infrastructureNetworkObservabilityQuestions,
+  },
+  "infrastructure-design/assemble-a-namespace-platform": {
+    questions: infrastructureNamespacePlatformQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 
