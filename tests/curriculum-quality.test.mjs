@@ -28,17 +28,17 @@ test("makes the current executable-Python gap explicit", () => {
   assert.equal(pythonCells.training, 2);
   assert.equal(pythonCells.embeddings, 2);
   assert.equal(pythonCells.sequences, 2);
+  assert.equal(pythonCells["mini-transformer"], 2);
   for (const slug of [
     "attention",
     "self-attention",
     "transformer-block",
-    "mini-transformer",
   ]) {
     assert.equal(pythonCells[slug], 0, `${slug} baseline changed`);
   }
   assert.equal(
     report.targetGaps.filter((gap) => gap.includes("Python cells")).length,
-    4,
+    3,
   );
 });
 
@@ -51,5 +51,6 @@ test("renders a reviewable Markdown report with score and draft state", () => {
   assert.match(markdown, /딥러닝 학습 구조.*2.*45\/45.*draft/);
   assert.match(markdown, /토큰과 임베딩.*2.*45\/45.*draft/);
   assert.match(markdown, /순서가 있는 데이터.*2.*45\/45.*draft/);
+  assert.match(markdown, /Mini Transformer.*2.*45\/45.*draft/);
   assert.match(markdown, /Structural contract issues: 0/);
 });

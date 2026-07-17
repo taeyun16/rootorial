@@ -31,7 +31,7 @@ function watchHeavyRuntimeRequests(page: TestPage) {
 
 async function miniTransformerOverflow(page: TestPage) {
   return page.locator(
-    ".mini-transformer-chapter-shell, .mini-transformer-boundary-grid, .mini-transformer-formula-stack, .mini-transformer-flow, .mini-transformer-shift-example, .mini-transformer-decode-steps, .mini-transformer-workbench, .mini-transformer-preset-row, .mini-transformer-control-panel, .mini-transformer-run-actions, .mini-transformer-workbench .step-explorer, .mini-transformer-stage-panel, .mini-transformer-matrix-stack, .mini-transformer-matrix-stack .array-diagram, .mini-transformer-matrix-stack .array-diagram-scroll, .mini-transformer-stat-grid, .mini-transformer-generation-trace, .mini-transformer-evidence, .mini-transformer-debugger-lab, .mini-transformer-debug-progress, .mini-transformer-debug-grid, .mini-transformer-debug-card, .mini-transformer-debug-actions, .mini-transformer-debug-feedback, .mini-transformer-transfer-task, .mini-transformer-completion-checklist, .mini-transformer-chapter-shell .math-formula-display",
+    ".mini-transformer-chapter-shell, .mini-transformer-boundary-grid, .mini-transformer-formula-stack, .mini-transformer-flow, .mini-transformer-shift-example, .mini-transformer-decode-steps, .mini-transformer-workbench, .mini-transformer-preset-row, .mini-transformer-control-panel, .mini-transformer-run-actions, .mini-transformer-workbench .step-explorer, .mini-transformer-stage-panel, .mini-transformer-matrix-stack, .mini-transformer-matrix-stack .array-diagram, .mini-transformer-matrix-stack .array-diagram-scroll, .mini-transformer-stat-grid, .mini-transformer-generation-trace, .mini-transformer-evidence, .mini-transformer-python-bridge, .mini-transformer-python-bridge .notebook-cell, .mini-transformer-debugger-lab, .mini-transformer-debug-progress, .mini-transformer-debug-grid, .mini-transformer-debug-card, .mini-transformer-debug-actions, .mini-transformer-debug-feedback, .mini-transformer-transfer-task, .mini-transformer-completion-checklist, .mini-transformer-chapter-shell .math-formula-display",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({
@@ -100,6 +100,10 @@ test("completes five model challenges, four repairs, and concepts in the Korean 
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "Mini Transformer", exact: true })).toBeVisible();
   await expect(page.getByText("필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · COMPLETE MODEL REPAIR CONSOLE", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "shifted loss와 generation controller를 실제 NumPy로 분리해 검증합니다" })).toBeVisible();
+  await expect(page.getByText("shifted cross entropy와 LM-head 한 번 갱신", { exact: true })).toBeVisible();
+  await expect(page.getByText("append·recompute·stop generation controller 수리", { exact: true })).toBeVisible();
+  await expect(page.locator(".mini-transformer-python-bridge .notebook-cell")).toHaveCount(2);
 
   const completionButton = page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" });
   await expect(completionButton).toHaveAttribute("data-completion-ready", "false");
@@ -243,6 +247,10 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
     "Connect a deterministic tokenizer, embedding plus position, one pre-LayerNorm decoder block, final normalization, and vocabulary logits, then execute and debug shifted-target loss, one LM-head update, and EOS/max-length autoregressive decoding.",
   );
   await expect(page.getByRole("heading", { name: "Mini Transformer", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Verify shifted loss and the generation controller separately in real NumPy" })).toBeVisible();
+  await expect(page.getByText("Shifted cross entropy and one LM-head update", { exact: true })).toBeVisible();
+  await expect(page.getByText("Repair the append, recompute, and stop generation controller", { exact: true })).toBeVisible();
+  await expect(page.locator(".mini-transformer-python-bridge .notebook-cell")).toHaveCount(2);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];
