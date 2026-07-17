@@ -65,6 +65,7 @@ export function NetworkPolicyChapter({ learnerCount = 0 }: { learnerCount?: numb
     conceptsMastered,
   });
   const egressPreviewHref = `/admin/preview/curricula/${INFRASTRUCTURE_CURRICULUM_SLUG}/chapters/egress-nat-and-conntrack${isKo ? "" : "?lang=en"}`;
+  const serviceDiscoveryPreviewHref = `/admin/preview/curricula/${INFRASTRUCTURE_CURRICULUM_SLUG}/chapters/service-discovery-and-load-balancing${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell infrastructure-chapter-shell network-policy-chapter-shell">
@@ -256,7 +257,11 @@ conntrack -L -o extended`}</pre>
             ) : (
               <span>← {t("이전: egress·NAT·conntrack", "Previous: Egress, NAT, and conntrack")}</span>
             )}
-            <span>{t("다음: 서비스 탐색과 load balancing", "Next: Service discovery and load balancing")} →</span>
+            {preview ? (
+              <a href={serviceDiscoveryPreviewHref}>{t("다음: 서비스 탐색과 load balancing", "Next: Service discovery and load balancing")} →</a>
+            ) : (
+              <span>{t("다음: 서비스 탐색과 load balancing", "Next: Service discovery and load balancing")} →</span>
+            )}
           </nav>
           <noscript>{t(
             "policy 활동에는 JavaScript가 필요합니다. 위의 hook·default-deny·stateful reply 설명과 nftables 관찰 명령은 계속 읽을 수 있습니다.",
