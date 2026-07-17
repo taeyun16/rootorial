@@ -48,6 +48,10 @@ test("completes lookup evidence, four repairs, and concepts in the Korean admin 
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "토큰과 임베딩" })).toBeVisible();
   await expect(page.getByText("필수 LAB · TOKEN → ROW → GRADIENT", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · EMBEDDING CONTRACT DEBUGGER", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "forward gather와 backward scatter-add를 실제 NumPy로 연결합니다" })).toBeVisible();
+  await expect(page.getByText("lookup·one-hot·masked mean 동치 증명", { exact: true })).toBeVisible();
+  await expect(page.getByText("반복 token의 scatter-add 수리", { exact: true })).toBeVisible();
+  await expect(page.locator(".embeddings-python-bridge .notebook-cell")).toHaveCount(2);
 
   const lab = page.locator(".embeddings-lookup-lab");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
@@ -174,6 +178,10 @@ test("keeps the English draft keyboard-usable at 390px with fallback and no heav
   expect(response?.status()).toBe(200);
   await expect(page).toHaveTitle("[Preview] 05. Tokens and Embeddings · Rootorial");
   await expect(page.getByRole("heading", { name: "Tokens and Embeddings" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Connect forward gather to backward scatter-add in real NumPy" })).toBeVisible();
+  await expect(page.getByText("Prove lookup, one-hot, and masked-mean equivalence", { exact: true })).toBeVisible();
+  await expect(page.getByText("Repair scatter-add for repeated tokens", { exact: true })).toBeVisible();
+  await expect(page.locator(".embeddings-python-bridge .notebook-cell")).toHaveCount(2);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];
