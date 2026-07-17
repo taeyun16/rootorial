@@ -5,6 +5,12 @@ import {
   chaptersKo,
   TRANSFORMER_CURRICULUM_SLUG,
 } from "../../data/curriculum";
+import {
+  trainingAdamEpochCode,
+  trainingAdamEpochCodeEn,
+  trainingSoftmaxAxisRepairCode,
+  trainingSoftmaxAxisRepairCodeEn,
+} from "../../data/trainingNotebook";
 import { useLocale } from "../../features/localization/localization";
 import {
   canCompleteTrainingChapter,
@@ -17,6 +23,7 @@ import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { MatrixGrid } from "../interactive/MatrixGrid";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { PythonCode } from "../PythonCode";
@@ -31,6 +38,7 @@ const tocItems = {
     { id: "softmax-ce", label: "Softmax와 CE" },
     { id: "loop", label: "훈련 loop와 Adam" },
     { id: "batch-lab", label: "필수 mini-batch lab" },
+    { id: "numpy-bridge", label: "NumPy 훈련 bridge" },
     { id: "generalization", label: "검증과 Dropout" },
     { id: "debug", label: "훈련 loop 디버깅" },
     { id: "transfer", label: "Embedding으로 전이" },
@@ -41,6 +49,7 @@ const tocItems = {
     { id: "softmax-ce", label: "Softmax and CE" },
     { id: "loop", label: "Training loop and Adam" },
     { id: "batch-lab", label: "Required mini-batch lab" },
+    { id: "numpy-bridge", label: "NumPy training bridge" },
     { id: "generalization", label: "Validation and dropout" },
     { id: "debug", label: "Training-loop debugging" },
     { id: "transfer", label: "Transfer to embeddings" },
@@ -245,8 +254,55 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             <TrainingBatchLab onCompletionChange={setBatchLabComplete} />
           </div>
 
+          <section className="article-section training-python-bridge" id="numpy-bridge">
+            <div className="margin-label">05 — NUMPY BRIDGE · OPTIONAL</div>
+            <h2>{t("배치 실습의 두 경계를 실제 NumPy로 다시 실행합니다", "Re-execute two batch-lab boundaries in real NumPy")}</h2>
+            <p>{t(
+              "첫 셀은 class 축을 잘못 고른 Softmax가 행 합과 표본 독립성을 동시에 깨는 모습을 보여 주고, 한 줄을 고쳐 평균 CE까지 복구합니다. 두 번째 셀은 같은 7×2 데이터와 grouped batch 순서를 사용해 tail batch까지 한 epoch의 Adam trace를 실행합니다.",
+              "The first cell shows how choosing the wrong class axis breaks both row sums and sample independence, then repairs one line through mean CE. The second uses the same 7-by-2 data and grouped batch order to run a one-epoch Adam trace through the tail batch.",
+            )}</p>
+            <div className="concept-callout">
+              <span className="callout-mark">Py</span>
+              <div>
+                <strong>{t("선택 심화이며 필수 완료 증거와 분리됩니다", "Optional extension, separate from required completion evidence")}</strong>
+                <p>{t(
+                  "두 셀은 서로가 남긴 Python 상태에 의존하지 않고, 공유 Pyodide·NumPy 런타임을 필요할 때만 불러옵니다. 런타임 다운로드 실패는 mini-batch lab, debugger, 이해 확인이나 챕터 완료를 막지 않습니다.",
+                  "Neither cell depends on Python state left by the other, and the shared Pyodide and NumPy runtime loads only when needed. A runtime download failure does not block the mini-batch lab, debugger, concept check, or chapter completion.",
+                )}</p>
+              </div>
+            </div>
+            <NotebookCell
+              title={t("Softmax class 축 한 줄 수리", "Repair the Softmax class axis in one line")}
+              initialCode={isKo ? trainingSoftmaxAxisRepairCode : trainingSoftmaxAxisRepairCodeEn}
+              description={<p>{t(
+                "처음 실행하면 class_axis=0이 row_sums=[1.490457, 1.509543]을 만들고 다른 표본을 바꿀 때 첫 행도 움직여 assertion이 실패합니다. REPAIR의 축 한 줄만 고쳐 두 행의 합 1, 첫 행 변화 0, mean_ce=0.288726을 함께 통과시키세요.",
+                "The initial class_axis=0 produces row_sums=[1.490457, 1.509543] and lets another sample change the first row, so the assertion fails. Change only the REPAIR axis and pass row sums of one, zero first-row shift, and mean_ce=0.288726 together.",
+              )}</p>}
+              hint={<p>{t(
+                "logits shape [B,K]에서 서로 경쟁하는 K개 class는 어느 축에 놓여 있나요? sample 축을 따라 정규화하면 batch 구성 자체가 확률을 바꿉니다.",
+                "In logits shaped [B,K], which axis holds the K competing classes? Normalizing along the sample axis makes probabilities depend on batch composition.",
+              )}</p>}
+              editorMinHeight={620}
+              ariaLabel={t("Softmax class 축 수리 NumPy 코드", "NumPy code for repairing the Softmax class axis")}
+            />
+            <NotebookCell
+              title={t("한 epoch Adam 상태 trace", "Trace Adam state across one epoch")}
+              initialCode={isKo ? trainingAdamEpochCode : trainingAdamEpochCodeEn}
+              description={<p>{t(
+                "각 batch에서 grad_logits를 새 배열로 만들지만 m·v·step은 loop 밖에서 이어집니다. 출력에서 batch [6]인 마지막 1행도 처리되고, adam_step=4와 final_full_loss=0.225353에 도달하는지 확인하세요.",
+                "Each batch creates a fresh grad_logits array while m, v, and step persist outside the loop. Confirm that the final one-row batch [6] runs and reaches adam_step=4 with final_full_loss=0.225353.",
+              )}</p>}
+              hint={<p>{t(
+                "batches의 마지막 배열을 지우거나 Adam state 초기화를 for loop 안으로 옮겨 보세요. update 수, tail 처리, 최종 loss 중 어떤 계약이 먼저 깨지는지 비교할 수 있습니다.",
+                "Remove the final array from batches or move Adam-state initialization inside the for loop. Compare which contract breaks first: update count, tail handling, or final loss.",
+              )}</p>}
+              editorMinHeight={980}
+              ariaLabel={t("한 epoch Adam trace NumPy 코드", "NumPy code for a one-epoch Adam trace")}
+            />
+          </section>
+
           <section className="article-section" id="generalization">
-            <div className="margin-label">05 — VALIDATION</div>
+            <div className="margin-label">06 — VALIDATION</div>
             <h2>{t("train loss가 계속 내려가도 unseen data는 나빠질 수 있습니다", "Unseen data can worsen while training loss keeps falling")}</h2>
             <p>{t(
               "낮은 train loss 자체는 overfitting의 증거가 아닙니다. train은 좋아지지만 validation이 다시 올라 generalization gap이 벌어질 때 training data의 우연한 패턴까지 맞추고 있다고 판단합니다. test set은 checkpoint를 고르는 데 쓰지 않고 마지막 평가에 남겨 둡니다.",
@@ -290,7 +346,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">06 — DEBUG</div>
+            <div className="margin-label">07 — DEBUG</div>
             <h2>{t("훈련 loop의 경계는 실행 결과로 수리합니다", "Repair training-loop boundaries by executing their contracts")}</h2>
             <p>{t(
               "softmax 축, fused CE 입력, gradient와 Adam state의 수명, dropout train/eval 모드를 각각 고쳐 보세요. 모든 patch는 실제 수치를 다시 계산하고 구체적인 실패 원인을 돌려줍니다.",
@@ -300,7 +356,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
           </section>
 
           <section className="article-section" id="transfer">
-            <div className="margin-label">07 — TRANSFER</div>
+            <div className="margin-label">08 — TRANSFER</div>
             <h2>{t("다음 장의 embedding table도 같은 gradient loop로 학습됩니다", "The next chapter's embedding table learns through the same gradient loop")}</h2>
             <p>{t(
               "Embedding lookup은 token ID가 가리킨 table row를 꺼냅니다. forward에서 참조한 row에만 data-gradient 기여가 생기고, 같은 token이 여러 번 등장하면 그 row에 기여들이 더해집니다. 기여끼리 상쇄될 수는 있지만, 등장하지 않은 row는 그 batch의 data gradient가 0입니다.",
@@ -339,7 +395,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">08 — CHECK</div>
+            <div className="margin-label">09 — CHECK</div>
             <TrainingConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 
