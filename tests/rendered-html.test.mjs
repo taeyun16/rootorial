@@ -343,8 +343,10 @@ test("keeps completed infrastructure chapters unavailable on public URLs", async
     render("/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en"),
     render("/curricula/infrastructure-design/chapters/veth-bridges-and-routing"),
     render("/curricula/infrastructure-design/chapters/veth-bridges-and-routing?lang=en"),
+    render("/curricula/infrastructure-design/chapters/network-policy-and-firewalls"),
+    render("/curricula/infrastructure-design/chapters/network-policy-and-firewalls?lang=en"),
   ]);
-  assert.deepEqual(responses.map(({ status }) => status), [404, 404, 404, 404]);
+  assert.deepEqual(responses.map(({ status }) => status), [404, 404, 404, 404, 404, 404]);
   await Promise.all(responses.map((response) => response.text()));
 });
 
@@ -739,6 +741,69 @@ test("SSR-renders the bilingual veth and routing chapter with test-only publicat
   assert.match(englishHtml, /Repair the first failed invariant instead of applying a broad workaround/);
   assert.match(englishHtml, /data-testid="veth-routing-visualization"/);
   assert.match(englishHtml, /data-topology-mode="bridge"/);
+  assert.match(englishHtml, /data-grade-state="not-run"/);
+});
+
+test("SSR-renders the bilingual network policy chapter with test-only publication overrides", async () => {
+  const rows = [
+    {
+      resource_key: "curriculum:infrastructure-design",
+      resource_kind: "curriculum",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: null,
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+    {
+      resource_key: "chapter:infrastructure-design/network-policy-and-firewalls",
+      resource_kind: "chapter",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: "network-policy-and-firewalls",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/network-policy-and-firewalls",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /route·forwarding·NAT·conntrack으로 왕복 가능한 flow/);
+  assert.match(html, /06 — REQUIRED LEAST-ALLOW POLICY LAB/);
+  assert.match(html, /FORWARD와 INPUT policy를 각각 최소 허용으로 완성하세요/);
+  assert.match(html, /07 — DEBUG FOUR FIREWALL INCIDENTS/);
+  assert.match(html, /rule을 더 넓히기 전에 packet이 본 hook과 첫 terminal verdict를 찾습니다/);
+  assert.match(html, /data-testid="network-policy-visualization"/);
+  assert.match(html, /data-policy-mode="forward"/);
+  assert.match(html, /data-grade-state="not-run"/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/network-policy-and-firewalls?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /round-trip flow through routes, forwarding, NAT, and conntrack/);
+  assert.match(englishHtml, /06 — REQUIRED LEAST-ALLOW POLICY LAB/);
+  assert.match(englishHtml, /Complete FORWARD and INPUT as separate least-allow policies/);
+  assert.match(englishHtml, /07 — DEBUG FOUR FIREWALL INCIDENTS/);
+  assert.match(englishHtml, /Find the observed hook and first terminal verdict before widening a rule/);
+  assert.match(englishHtml, /data-testid="network-policy-visualization"/);
+  assert.match(englishHtml, /data-policy-mode="forward"/);
   assert.match(englishHtml, /data-grade-state="not-run"/);
 });
 

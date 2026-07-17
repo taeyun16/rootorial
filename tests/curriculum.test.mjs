@@ -53,7 +53,9 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
     [
       { status: "available", developmentStatus: "complete" },
       { status: "available", developmentStatus: "complete" },
-      ...Array.from({ length: 6 }, () => ({ status: "planned", developmentStatus: "planned" })),
+      { status: "planned", developmentStatus: "planned" },
+      { status: "available", developmentStatus: "complete" },
+      ...Array.from({ length: 4 }, () => ({ status: "planned", developmentStatus: "planned" })),
     ],
   );
   const koreanVethRouting = infrastructureChaptersKo[1];
@@ -108,6 +110,58 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
   );
   assert.match(koreanVethRouting.description, /겹치지 않는 CIDR.*return path/);
   assert.match(englishVethRouting.description, /non-overlapping CIDRs.*return paths/);
+  const koreanNetworkPolicy = infrastructureChaptersKo[3];
+  const englishNetworkPolicy = infrastructureChaptersEn[3];
+  assert.deepEqual(
+    {
+      number: koreanNetworkPolicy.number,
+      slug: koreanNetworkPolicy.slug,
+      title: koreanNetworkPolicy.title,
+      subtitle: koreanNetworkPolicy.subtitle,
+      runtime: koreanNetworkPolicy.runtime,
+      estimatedMinutes: koreanNetworkPolicy.estimatedMinutes,
+      status: koreanNetworkPolicy.status,
+      developmentStatus: koreanNetworkPolicy.developmentStatus,
+      concepts: koreanNetworkPolicy.concepts,
+    },
+    {
+      number: 4,
+      slug: "network-policy-and-firewalls",
+      title: "네트워크 정책과 firewall",
+      subtitle: "연결 가능성 위에 최소 허용 규칙 세우기",
+      runtime: "TypeScript 정책 모델 · 선택 nftables",
+      estimatedMinutes: 75,
+      status: "available",
+      developmentStatus: "complete",
+      concepts: ["default deny", "hook · direction", "stateful policy"],
+    },
+  );
+  assert.deepEqual(
+    {
+      number: englishNetworkPolicy.number,
+      slug: englishNetworkPolicy.slug,
+      title: englishNetworkPolicy.title,
+      subtitle: englishNetworkPolicy.subtitle,
+      runtime: englishNetworkPolicy.runtime,
+      estimatedMinutes: englishNetworkPolicy.estimatedMinutes,
+      status: englishNetworkPolicy.status,
+      developmentStatus: englishNetworkPolicy.developmentStatus,
+      concepts: englishNetworkPolicy.concepts,
+    },
+    {
+      number: 4,
+      slug: "network-policy-and-firewalls",
+      title: "Network Policy and Firewalls",
+      subtitle: "Add least-allow rules on top of reachability",
+      runtime: "TypeScript policy model · optional nftables",
+      estimatedMinutes: 75,
+      status: "available",
+      developmentStatus: "complete",
+      concepts: ["default deny", "hook · direction", "stateful policy"],
+    },
+  );
+  assert.match(koreanNetworkPolicy.description, /default-deny.*hook.*direction.*rule order/);
+  assert.match(englishNetworkPolicy.description, /default-deny.*hook.*direction.*rule order/);
   const curriculum = getCurriculum("infrastructure-design");
   assert.equal(curriculum?.status, "in-progress");
   assert.deepEqual(curriculum?.title, {

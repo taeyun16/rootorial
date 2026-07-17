@@ -96,6 +96,10 @@ const infrastructureVethRoutingKey = chapterPublicationKey(
   "infrastructure-design",
   "veth-bridges-and-routing",
 );
+const infrastructureNetworkPolicyKey = chapterPublicationKey(
+  "infrastructure-design",
+  "network-policy-and-firewalls",
+);
 const systemArchitectureKey = curriculumPublicationKey("system-architecture");
 
 function override(resourceKey, values = {}) {
@@ -434,6 +438,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   const infrastructure = catalog.resources[infrastructureKey];
   const namespaces = catalog.resources[infrastructureNamespacesKey];
   const vethRouting = catalog.resources[infrastructureVethRoutingKey];
+  const networkPolicy = catalog.resources[infrastructureNetworkPolicyKey];
 
   assert.equal(infrastructure.developmentStatus, "in-progress");
   assert.equal(infrastructure.contentReady, true);
@@ -465,6 +470,18 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(vethRouting.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructureVethRoutingKey), false);
   assert.equal(isPublicationListed(catalog, infrastructureVethRoutingKey), false);
+
+  assert.equal(networkPolicy.developmentStatus, "complete");
+  assert.equal(networkPolicy.previewReady, true);
+  assert.equal(networkPolicy.contentReady, true);
+  assert.equal(networkPolicy.source, "default");
+  assert.equal(networkPolicy.publicationStatus, "draft");
+  assert.equal(networkPolicy.effectivePublicationStatus, "draft");
+  assert.equal(networkPolicy.listing, "hidden");
+  assert.equal(networkPolicy.scheduledAt, null);
+  assert.equal(networkPolicy.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, infrastructureNetworkPolicyKey), false);
+  assert.equal(isPublicationListed(catalog, infrastructureNetworkPolicyKey), false);
 
   const announced = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "infrastructure-design",
