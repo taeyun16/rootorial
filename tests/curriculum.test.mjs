@@ -54,7 +54,11 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
       { status: "available", developmentStatus: "complete" },
       { status: "available", developmentStatus: "complete" },
       { status: "available", developmentStatus: "complete" },
-      ...Array.from({ length: 5 }, () => ({ status: "planned", developmentStatus: "planned" })),
+      { status: "planned", developmentStatus: "planned" },
+      { status: "available", developmentStatus: "complete" },
+      { status: "planned", developmentStatus: "planned" },
+      { status: "planned", developmentStatus: "planned" },
+      { status: "planned", developmentStatus: "planned" },
     ],
   );
   const koreanVethRouting = infrastructureChaptersKo[1];
@@ -117,6 +121,50 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
   assert.equal(englishEgressNat.title, "Egress, NAT, and Conntrack");
   assert.match(koreanEgressNat.description, /SNAT·MASQUERADE.*conntrack reply/);
   assert.match(englishEgressNat.description, /SNAT or masquerade.*conntrack reply/);
+  const koreanServiceDiscovery = infrastructureChaptersKo[4];
+  const englishServiceDiscovery = infrastructureChaptersEn[4];
+  assert.deepEqual(
+    {
+      number: koreanServiceDiscovery.number,
+      slug: koreanServiceDiscovery.slug,
+      title: koreanServiceDiscovery.title,
+      subtitle: koreanServiceDiscovery.subtitle,
+      runtime: koreanServiceDiscovery.runtime,
+      estimatedMinutes: koreanServiceDiscovery.estimatedMinutes,
+      status: koreanServiceDiscovery.status,
+      developmentStatus: koreanServiceDiscovery.developmentStatus,
+      concepts: koreanServiceDiscovery.concepts,
+    },
+    {
+      number: 5,
+      slug: "service-discovery-and-load-balancing",
+      title: "서비스 탐색과 load balancing",
+      subtitle: "변하는 endpoint를 안정적인 이름과 진입점 뒤에 두기",
+      runtime: "TypeScript service-path 모델",
+      estimatedMinutes: 80,
+      status: "available",
+      developmentStatus: "complete",
+      concepts: ["DNS · TTL", "health check", "L4 balancing · affinity"],
+    },
+  );
+  assert.deepEqual(
+    {
+      title: englishServiceDiscovery.title,
+      subtitle: englishServiceDiscovery.subtitle,
+      runtime: englishServiceDiscovery.runtime,
+      status: englishServiceDiscovery.status,
+      developmentStatus: englishServiceDiscovery.developmentStatus,
+    },
+    {
+      title: "Service Discovery and Load Balancing",
+      subtitle: "Place changing endpoints behind stable names and entry points",
+      runtime: "TypeScript service-path model",
+      status: "available",
+      developmentStatus: "complete",
+    },
+  );
+  assert.match(koreanServiceDiscovery.description, /DNS record 수명.*stale endpoint/);
+  assert.match(englishServiceDiscovery.description, /DNS record lifetime.*stale endpoints/);
   const curriculum = getCurriculum("infrastructure-design");
   assert.equal(curriculum?.status, "in-progress");
   assert.deepEqual(curriculum?.title, {

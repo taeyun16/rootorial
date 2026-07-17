@@ -77,6 +77,9 @@ test("publishes only available chapters that also have a renderer contract", () 
   assert.ok(
     registeredChapterIds.includes("infrastructure-design/egress-nat-and-conntrack"),
   );
+  assert.ok(
+    registeredChapterIds.includes("infrastructure-design/service-discovery-and-load-balancing"),
+  );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "vectors", "en")?.chapter.title,
     "Vectors and Tensors",
@@ -132,6 +135,14 @@ test("publishes only available chapters that also have a renderer contract", () 
       "en",
     )?.chapter.title,
     "Egress, NAT, and Conntrack",
+  );
+  assert.equal(
+    getPublishedChapter(
+      "infrastructure-design",
+      "service-discovery-and-load-balancing",
+      "en",
+    )?.chapter.title,
+    "Service Discovery and Load Balancing",
   );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
@@ -911,6 +922,63 @@ test("separates active question submissions from historical labels", () => {
   for (const questionId of Object.keys(egressNatQuestions)) {
     assert.equal(getConceptQuestionVersionEntry("infrastructure-design", "egress-nat-and-conntrack", questionId, 1)?.correctAnswer, egressNatQuestions[questionId].correctAnswer);
     assert.equal(getConceptQuestionVersionEntry("infrastructure-design", "egress-nat-and-conntrack", questionId, 2), undefined);
+  }
+  const serviceDiscoveryQuestions = chapterRegistry[
+    "infrastructure-design/service-discovery-and-load-balancing"
+  ].questions;
+  assert.equal(Object.keys(serviceDiscoveryQuestions).length, 5);
+  assert.ok(
+    Object.values(serviceDiscoveryQuestions).every(
+      (question) => question.status === "active" && question.version === 1,
+    ),
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(serviceDiscoveryQuestions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "dns-ttl-lifecycle": "cache-until-expiry-then-refresh",
+      "dns-health-boundary": "dns-answer-is-address-not-readiness",
+      "health-eligibility": "new-connections-use-healthy-nondraining-backends",
+      "l4-selection-unit": "l4-balancer-selects-connection-flows",
+      "affinity-failure": "remap-when-sticky-target-ineligible",
+    },
+  );
+  assert.deepEqual(
+    Object.values(serviceDiscoveryQuestions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 0, 2, 0, 1],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "infrastructure-design",
+      "service-discovery-and-load-balancing",
+      "affinity-failure",
+    )?.correctAnswer,
+    "remap-when-sticky-target-ineligible",
+  );
+  for (const questionId of Object.keys(serviceDiscoveryQuestions)) {
+    const versionEntry = getConceptQuestionVersionEntry(
+      "infrastructure-design",
+      "service-discovery-and-load-balancing",
+      questionId,
+      1,
+    );
+    assert.equal(versionEntry?.version, 1);
+    assert.equal(
+      versionEntry?.correctAnswer,
+      serviceDiscoveryQuestions[questionId].correctAnswer,
+    );
+    assert.equal(
+      getConceptQuestionVersionEntry(
+        "infrastructure-design",
+        "service-discovery-and-load-balancing",
+        questionId,
+        2,
+      ),
+      undefined,
+    );
   }
   assert.deepEqual(
     Object.fromEntries(

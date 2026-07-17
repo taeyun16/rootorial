@@ -818,6 +818,46 @@ export const conceptQuestionHistory = {
       answers: ["reply-must-cross-original-stateful-router", "any-router-can-reverse", "client-route-restores-state"],
     },
   },
+  "infrastructure-design/service-discovery-and-load-balancing/dns-ttl-lifecycle": {
+    1: {
+      version: 1,
+      label: "DNS cache와 TTL 경계",
+      correctAnswer: "cache-until-expiry-then-refresh",
+      answers: ["refresh-on-authority-change", "cache-until-expiry-then-refresh", "cache-forever"],
+    },
+  },
+  "infrastructure-design/service-discovery-and-load-balancing/dns-health-boundary": {
+    1: {
+      version: 1,
+      label: "DNS answer와 service health 경계",
+      correctAnswer: "dns-answer-is-address-not-readiness",
+      answers: ["dns-answer-is-address-not-readiness", "dns-ttl-is-health-probe", "dns-removes-failed-process"],
+    },
+  },
+  "infrastructure-design/service-discovery-and-load-balancing/health-eligibility": {
+    1: {
+      version: 1,
+      label: "신규 connection의 backend eligibility",
+      correctAnswer: "new-connections-use-healthy-nondraining-backends",
+      answers: ["all-registered-backends", "affinity-overrides-health", "new-connections-use-healthy-nondraining-backends"],
+    },
+  },
+  "infrastructure-design/service-discovery-and-load-balancing/l4-selection-unit": {
+    1: {
+      version: 1,
+      label: "L4 load balancer의 선택 단위",
+      correctAnswer: "l4-balancer-selects-connection-flows",
+      answers: ["l4-balancer-selects-connection-flows", "l4-balancer-selects-every-http-request", "dns-selects-every-packet"],
+    },
+  },
+  "infrastructure-design/service-discovery-and-load-balancing/affinity-failure": {
+    1: {
+      version: 1,
+      label: "affinity target이 unhealthy가 된 뒤",
+      correctAnswer: "remap-when-sticky-target-ineligible",
+      answers: ["keep-target-until-ttl", "remap-when-sticky-target-ineligible", "send-to-all-backends"],
+    },
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     1: {
       version: 1,
@@ -1258,6 +1298,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["infrastructure-design/egress-nat-and-conntrack/stateful-return-path"][1],
     status: "active",
   },
+  "infrastructure-design/service-discovery-and-load-balancing/dns-ttl-lifecycle": {
+    ...conceptQuestionHistory["infrastructure-design/service-discovery-and-load-balancing/dns-ttl-lifecycle"][1],
+    status: "active",
+  },
+  "infrastructure-design/service-discovery-and-load-balancing/dns-health-boundary": {
+    ...conceptQuestionHistory["infrastructure-design/service-discovery-and-load-balancing/dns-health-boundary"][1],
+    status: "active",
+  },
+  "infrastructure-design/service-discovery-and-load-balancing/health-eligibility": {
+    ...conceptQuestionHistory["infrastructure-design/service-discovery-and-load-balancing/health-eligibility"][1],
+    status: "active",
+  },
+  "infrastructure-design/service-discovery-and-load-balancing/l4-selection-unit": {
+    ...conceptQuestionHistory["infrastructure-design/service-discovery-and-load-balancing/l4-selection-unit"][1],
+    status: "active",
+  },
+  "infrastructure-design/service-discovery-and-load-balancing/affinity-failure": {
+    ...conceptQuestionHistory["infrastructure-design/service-discovery-and-load-balancing/affinity-failure"][1],
+    status: "active",
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"][1],
     status: "active",
@@ -1447,6 +1507,14 @@ export const infrastructureEgressNatQuestions = {
   "stateful-return-path": conceptQuestionRegistry["infrastructure-design/egress-nat-and-conntrack/stateful-return-path"],
 } as const;
 
+export const infrastructureServiceDiscoveryQuestions = {
+  "dns-ttl-lifecycle": conceptQuestionRegistry["infrastructure-design/service-discovery-and-load-balancing/dns-ttl-lifecycle"],
+  "dns-health-boundary": conceptQuestionRegistry["infrastructure-design/service-discovery-and-load-balancing/dns-health-boundary"],
+  "health-eligibility": conceptQuestionRegistry["infrastructure-design/service-discovery-and-load-balancing/health-eligibility"],
+  "l4-selection-unit": conceptQuestionRegistry["infrastructure-design/service-discovery-and-load-balancing/l4-selection-unit"],
+  "affinity-failure": conceptQuestionRegistry["infrastructure-design/service-discovery-and-load-balancing/affinity-failure"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -1514,6 +1582,9 @@ export const chapterRegistry = {
   },
   "infrastructure-design/egress-nat-and-conntrack": {
     questions: infrastructureEgressNatQuestions,
+  },
+  "infrastructure-design/service-discovery-and-load-balancing": {
+    questions: infrastructureServiceDiscoveryQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 
