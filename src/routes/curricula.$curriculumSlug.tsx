@@ -8,14 +8,18 @@ import { getPublicCurriculumPublication } from "../features/publication/publicat
 
 export const Route = createFileRoute("/curricula/$curriculumSlug")({
   loader: async ({ params }) => {
-    const item = await getPublicCurriculumPublication({
+    const page = await getPublicCurriculumPublication({
       data: { curriculumSlug: params.curriculumSlug },
     });
-    if (!item) throw notFound();
+    if (!page) throw notFound();
     const reach = await getCurriculumReach({
       data: { curriculumSlug: params.curriculumSlug },
     });
-    return { item, reach };
+    return {
+      item: page.item,
+      prerequisiteAvailable: page.prerequisiteAvailable,
+      reach,
+    };
   },
   head: ({ loaderData, match }) => {
     const locale = localeFromLanguage(
@@ -46,7 +50,7 @@ export const Route = createFileRoute("/curricula/$curriculumSlug")({
 
 function CurriculumRoute() {
   const { curriculumSlug } = Route.useParams();
-  const { item, reach } = Route.useLoaderData();
+  const { item, prerequisiteAvailable, reach } = Route.useLoaderData();
   const metadata = {
     ko: {
       title: `${item.curriculum.title.ko} · Rootorial`,
@@ -61,7 +65,11 @@ function CurriculumRoute() {
     <>
       <PageMetadataSync metadata={metadata} />
       <CourseAccessTracker curriculumSlug={curriculumSlug}>
-        <CurriculumHome item={item} reach={reach} />
+        <CurriculumHome
+          item={item}
+          prerequisiteAvailable={prerequisiteAvailable}
+          reach={reach}
+        />
       </CourseAccessTracker>
     </>
   );

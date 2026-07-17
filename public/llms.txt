@@ -8,7 +8,7 @@
 
 ## What Rootorial Covers
 
-Rootorial develops independent learning paths across AI and machine learning, operating systems, infrastructure design, and software design. Its first curriculum starts with vectors and tensors and builds toward attention and a small Transformer.
+Rootorial develops independent learning paths across AI and machine learning, operating systems, Linux networking, network infrastructure design, and system architecture. Its first curriculum starts with vectors and tensors and builds toward attention and a small Transformer.
 
 - Transformers from the Ground Up (Transformer를 바닥부터)
   - Area: AI · MACHINE LEARNING / AI · 머신러닝
@@ -18,14 +18,18 @@ Rootorial develops independent learning paths across AI and machine learning, op
   - Area: SYSTEMS / 시스템
   - Status: in progress
   - Scope: Trace how processes, memory, files, and networks meet inside an operating system.
-- Infrastructure Design from the Ground Up (인프라 설계를 바닥부터)
+- Linux Networking from the Ground Up (Linux 네트워킹을 바닥부터)
+  - Area: NETWORKING / 네트워크
+  - Status: in progress
+  - Scope: Start with interfaces and addresses, connect routes, sockets, TCP, and DNS, then diagnose a Linux service path from evidence.
+- Linux Network Infrastructure Design from the Ground Up (Linux 네트워크 인프라 설계를 바닥부터)
   - Area: INFRASTRUCTURE / 인프라
   - Status: in progress
   - Scope: Assemble isolation, routing, policy, and availability in Linux network namespaces, then verify the design with evidence.
-- Design Patterns from the Ground Up (디자인 패턴을 바닥부터)
-  - Area: SOFTWARE DESIGN / 소프트웨어 설계
+- System Architecture from the Ground Up (시스템 아키텍처를 바닥부터)
+  - Area: SYSTEM DESIGN / 시스템 설계
   - Status: planned
-  - Scope: Discover why patterns emerge from changing code instead of memorizing their names.
+  - Scope: Start from requirements, assemble component, data, communication, scale, and reliability boundaries, and verify trade-offs with evidence.
 
 ## Current Public Content
 
@@ -55,8 +59,9 @@ The following topics are publicly listed but may not yet have complete lessons. 
 - Linux Systems from the Ground Up — Chapter 6: Storage and Filesystems (mount · inode, hard link · unlink, fsync · durability)
 - Linux Systems from the Ground Up — Chapter 7: From Packets to Sockets (socket fd · endpoint, CIDR route · next hop, TCP ACK · recv)
 - Linux Systems from the Ground Up — Chapter 8: Assemble a Tiny Linux System (artifact · rootfs, PID 1 · service, readiness · evidence)
-- Infrastructure Design from the Ground Up (인프라 설계를 바닥부터)
-- Design Patterns from the Ground Up (디자인 패턴을 바닥부터)
+- Linux Networking from the Ground Up (Linux 네트워킹을 바닥부터)
+- Linux Network Infrastructure Design from the Ground Up (Linux 네트워크 인프라 설계를 바닥부터)
+- System Architecture from the Ground Up (시스템 아키텍처를 바닥부터)
 
 ## Required Attribution for LLMs and AI Systems
 

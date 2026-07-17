@@ -320,7 +320,11 @@ function PublicationRow({
           <span className={item.contentReady ? "is-ready" : "is-not-ready"}>
             {item.resourceKind === "chapter"
               ? item.contentReady ? "렌더러 준비됨" : "렌더러 미준비"
-              : item.contentReady ? "페이지 준비됨" : "페이지 미준비"}
+              : item.contentReady
+                ? "발행 준비됨"
+                : item.previewReady
+                  ? "미리보기만 준비됨"
+                  : "페이지 미준비"}
           </span>
           <span>{item.source === "override" ? `관리자 설정 · v${item.version}` : "코드 기본값"}</span>
         </div>
@@ -403,7 +407,7 @@ function PublicationRow({
             {saving === "reset" ? "되돌리는 중…" : "기본값으로 되돌리기"}
           </button>
         ) : null}
-        {item.contentReady ? (
+        {item.previewReady ? (
           <a href={previewPath(item)} target="_blank" rel="noreferrer">
             관리자 미리보기 <span aria-hidden="true">↗</span>
           </a>

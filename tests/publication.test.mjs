@@ -84,11 +84,15 @@ const linuxTinySystemKey = chapterPublicationKey(
   "linux-systems",
   "assemble-a-tiny-linux",
 );
+const linuxNetworkingCurriculumKey = curriculumPublicationKey(
+  "linux-networking",
+);
 const infrastructureKey = curriculumPublicationKey("infrastructure-design");
 const infrastructureNamespacesKey = chapterPublicationKey(
   "infrastructure-design",
   "network-namespaces-and-boundaries",
 );
+const systemArchitectureKey = curriculumPublicationKey("system-architecture");
 
 function override(resourceKey, values = {}) {
   const chapter = resourceKey.startsWith("chapter:");
@@ -380,6 +384,45 @@ test("publishes the existing Linux sample while keeping completed later chapters
     ({ curriculum }) => curriculum.slug === "linux-systems",
   );
   assert.equal(linuxCatalog?.chapters.length, 8);
+});
+
+test("lists the new curriculum keys as drafts while respecting page readiness", () => {
+  const catalog = resolvePublicationCatalog([], 1_000);
+  const linuxNetworking = catalog.resources[linuxNetworkingCurriculumKey];
+  const systemArchitecture = catalog.resources[systemArchitectureKey];
+
+  assert.equal(linuxNetworking.developmentStatus, "in-progress");
+  assert.equal(linuxNetworking.previewReady, true);
+  assert.equal(linuxNetworking.contentReady, false);
+  assert.equal(linuxNetworking.source, "default");
+  assert.equal(linuxNetworking.publicationStatus, "draft");
+  assert.equal(linuxNetworking.effectivePublicationStatus, "draft");
+  assert.equal(linuxNetworking.listing, "listed");
+  assert.equal(isPublicationListed(catalog, linuxNetworkingCurriculumKey), true);
+  assert.equal(
+    isPublicationAccessible(catalog, linuxNetworkingCurriculumKey),
+    false,
+  );
+
+  assert.equal(systemArchitecture.developmentStatus, "planned");
+  assert.equal(systemArchitecture.previewReady, true);
+  assert.equal(systemArchitecture.contentReady, false);
+  assert.equal(systemArchitecture.source, "default");
+  assert.equal(systemArchitecture.publicationStatus, "draft");
+  assert.equal(systemArchitecture.effectivePublicationStatus, "draft");
+  assert.equal(systemArchitecture.listing, "listed");
+  assert.equal(isPublicationListed(catalog, systemArchitectureKey), true);
+  assert.equal(isPublicationAccessible(catalog, systemArchitectureKey), false);
+
+  const publicCatalog = publicPublicationCatalog(catalog);
+  const linuxNetworkingCatalog = publicCatalog.curricula.find(
+    ({ curriculum }) => curriculum.slug === "linux-networking",
+  );
+  const systemArchitectureCatalog = publicCatalog.curricula.find(
+    ({ curriculum }) => curriculum.slug === "system-architecture",
+  );
+  assert.equal(linuxNetworkingCatalog?.chapters.length, 0);
+  assert.equal(systemArchitectureCatalog?.chapters.length, 0);
 });
 
 test("keeps the first infrastructure chapter complete but unpublished by default", () => {

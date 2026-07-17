@@ -35,6 +35,11 @@ export type Curriculum = {
   status: CurriculumStatus;
   accent: "violet" | "green" | "blue" | "orange";
   chapters: Record<Locale, CurriculumChapter[]>;
+  /** An advisory cross-curriculum foundation. It never gates access or progress. */
+  recommendedPrerequisite?: {
+    curriculumSlug: string;
+    reason: LocalizedText;
+  };
   experiment?: {
     href: "/experiments/linux";
     label: LocalizedText;
@@ -43,7 +48,9 @@ export type Curriculum = {
 
 export const TRANSFORMER_CURRICULUM_SLUG = "transformer-from-zero";
 export const LINUX_CURRICULUM_SLUG = "linux-systems";
+export const LINUX_NETWORKING_CURRICULUM_SLUG = "linux-networking";
 export const INFRASTRUCTURE_CURRICULUM_SLUG = "infrastructure-design";
+export const SYSTEM_ARCHITECTURE_CURRICULUM_SLUG = "system-architecture";
 
 export function chapterId(curriculumSlug: string, chapterSlug: string) {
   return `${curriculumSlug}/${chapterSlug}`;
@@ -479,6 +486,168 @@ export const linuxChaptersEn: Chapter[] = [
   },
 ];
 
+export const linuxNetworkingChaptersKo: Chapter[] = [
+  {
+    number: 1,
+    slug: "interfaces-addresses-and-loopback",
+    title: "인터페이스·주소·loopback",
+    subtitle: "한 호스트의 network view를 이루는 가장 작은 상태",
+    description:
+      "interface의 존재와 link state를 구분하고, MAC·IPv4 address·prefix와 loopback을 배치한 뒤 localhost가 어느 경계에 닫혀 있는지 관찰합니다.",
+    runtime: "TypeScript network-view 모델 · 선택 iproute2",
+    estimatedMinutes: 45,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["interface · link state", "address · prefix", "loopback · localhost"],
+  },
+  {
+    number: 2,
+    slug: "subnets-neighbors-and-gateways",
+    title: "subnet·neighbor·gateway",
+    subtitle: "목적지가 같은 link에 있는지 먼저 판정하기",
+    description:
+      "IPv4 address와 prefix로 same-link 여부를 계산하고, ARP neighbor와 default gateway가 remote destination으로 향하는 frame을 어떻게 결정하는지 실행합니다.",
+    runtime: "TypeScript subnet·neighbor 모델 · 선택 iproute2",
+    estimatedMinutes: 55,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["CIDR · same-link", "ARP · neighbor", "gateway · frame"],
+  },
+  {
+    number: 3,
+    slug: "routes-and-packet-paths",
+    title: "route와 packet path",
+    subtitle: "목적지에서 egress interface와 next hop까지",
+    description:
+      "route table의 longest-prefix match와 metric으로 egress·source address·next hop을 선택하고, router를 지나는 동안 link header와 TTL이 어떻게 바뀌는지 추적합니다.",
+    runtime: "TypeScript routing 모델 · 선택 iproute2",
+    estimatedMinutes: 55,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["longest-prefix route", "egress · next hop", "TTL · forwarding"],
+  },
+  {
+    number: 4,
+    slug: "sockets-ports-and-tcp",
+    title: "socket·port·TCP",
+    subtitle: "프로세스의 byte가 원격 application에 도착하는 경계",
+    description:
+      "fd와 kernel socket을 구분하고 bind·listen·connect·accept를 4-tuple에 연결한 뒤, TCP byte stream과 ACK·receive queue·recv의 전달 경계를 진단합니다.",
+    runtime: "TypeScript socket·TCP 모델 · 선택 ss",
+    estimatedMinutes: 60,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["socket fd · 4-tuple", "listen · accept", "TCP ACK · recv"],
+  },
+  {
+    number: 5,
+    slug: "dns-and-service-reachability",
+    title: "DNS와 서비스 도달 가능성",
+    subtitle: "이름을 endpoint로 바꾸고 실패한 경계를 구분하기",
+    description:
+      "resolver가 hostname을 address로 바꾸는 과정과 record TTL을 읽고, 이름 해석·route·TCP 연결·application response 실패를 서로 다른 증거로 분리합니다.",
+    runtime: "TypeScript resolver·service-path 모델 · 선택 dig·curl",
+    estimatedMinutes: 50,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["resolver · DNS record", "TTL · cache", "name · connect · response"],
+  },
+  {
+    number: 6,
+    slug: "diagnose-a-linux-network",
+    title: "Linux 네트워크 진단하기",
+    subtitle: "증상에서 interface·route·socket 경계를 순서대로 찾기",
+    description:
+      "ip link·address·route·neigh, ss, dig·getent, curl과 tcpdump 증거를 한 packet path에 정렬해 여러 결함이 섞인 서비스 도달 실패를 진단합니다.",
+    runtime: "TypeScript 진단 스튜디오 · 선택 Linux 관찰",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["layered evidence", "ip · ss · DNS", "tcpdump · fault isolation"],
+  },
+];
+
+export const linuxNetworkingChaptersEn: Chapter[] = [
+  {
+    number: 1,
+    slug: "interfaces-addresses-and-loopback",
+    title: "Interfaces, Addresses, and Loopback",
+    subtitle: "The smallest state that forms one host's network view",
+    description:
+      "Separate interface existence from link state, place MAC and IPv4 addresses with prefixes, and observe which boundary contains loopback and localhost.",
+    runtime: "TypeScript network-view model · optional iproute2",
+    estimatedMinutes: 45,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["interface · link state", "address · prefix", "loopback · localhost"],
+  },
+  {
+    number: 2,
+    slug: "subnets-neighbors-and-gateways",
+    title: "Subnets, Neighbors, and Gateways",
+    subtitle: "Decide whether a destination is on the same link first",
+    description:
+      "Compute same-link reachability from an IPv4 address and prefix, then execute how ARP neighbors and the default gateway determine the frame toward a remote destination.",
+    runtime: "TypeScript subnet and neighbor model · optional iproute2",
+    estimatedMinutes: 55,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["CIDR · same-link", "ARP · neighbor", "gateway · frame"],
+  },
+  {
+    number: 3,
+    slug: "routes-and-packet-paths",
+    title: "Routes and Packet Paths",
+    subtitle: "From a destination to an egress interface and next hop",
+    description:
+      "Select the egress, source address, and next hop with longest-prefix matching and metrics, then trace how link headers and TTL change across routers.",
+    runtime: "TypeScript routing model · optional iproute2",
+    estimatedMinutes: 55,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["longest-prefix route", "egress · next hop", "TTL · forwarding"],
+  },
+  {
+    number: 4,
+    slug: "sockets-ports-and-tcp",
+    title: "Sockets, Ports, and TCP",
+    subtitle: "The boundaries between process bytes and a remote application",
+    description:
+      "Separate an fd from its kernel socket, connect bind, listen, connect, and accept to a four-tuple, then diagnose TCP stream, ACK, receive-queue, and recv boundaries.",
+    runtime: "TypeScript socket and TCP model · optional ss",
+    estimatedMinutes: 60,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["socket fd · 4-tuple", "listen · accept", "TCP ACK · recv"],
+  },
+  {
+    number: 5,
+    slug: "dns-and-service-reachability",
+    title: "DNS and Service Reachability",
+    subtitle: "Turn a name into an endpoint and separate the failing boundary",
+    description:
+      "Read how a resolver turns a hostname into an address and applies record TTL, then separate name-resolution, route, TCP-connect, and application-response failures with distinct evidence.",
+    runtime: "TypeScript resolver and service-path model · optional dig and curl",
+    estimatedMinutes: 50,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["resolver · DNS record", "TTL · cache", "name · connect · response"],
+  },
+  {
+    number: 6,
+    slug: "diagnose-a-linux-network",
+    title: "Diagnose a Linux Network",
+    subtitle: "Locate interface, route, and socket boundaries from symptoms",
+    description:
+      "Align ip link, address, route, and neigh output with ss, dig or getent, curl, and tcpdump evidence to diagnose a service path containing several simultaneous faults.",
+    runtime: "TypeScript diagnosis studio · optional Linux observation",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["layered evidence", "ip · ss · DNS", "tcpdump · fault isolation"],
+  },
+];
+
 export const infrastructureChaptersKo: Chapter[] = [
   {
     number: 1,
@@ -693,6 +862,220 @@ export const infrastructureChaptersEn: Chapter[] = [
   },
 ];
 
+export const systemArchitectureChaptersKo: Chapter[] = [
+  {
+    number: 1,
+    slug: "requirements-and-quality-attributes",
+    title: "요구사항과 품질 속성",
+    subtitle: "기능보다 먼저 설계가 지켜야 할 숫자와 제약 정하기",
+    description:
+      "workload·latency·availability·durability·cost 요구를 측정 가능한 목표로 바꾸고, 서로 충돌하는 quality attribute의 우선순위를 정합니다.",
+    runtime: "TypeScript 요구사항·trade-off 모델",
+    estimatedMinutes: 55,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["workload · constraint", "quality attribute", "trade-off · budget"],
+  },
+  {
+    number: 2,
+    slug: "components-and-request-flows",
+    title: "컴포넌트 경계와 요청 흐름",
+    subtitle: "한 요청이 지나가는 책임·신뢰·실패 경계 그리기",
+    description:
+      "client에서 edge·service·data store까지 request path를 나누고, 각 component의 책임·API contract·trust boundary와 실패 전파를 검증합니다.",
+    runtime: "TypeScript request-flow 설계 보드",
+    estimatedMinutes: 60,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["component boundary", "request flow · contract", "trust · failure boundary"],
+  },
+  {
+    number: 3,
+    slug: "data-ownership-and-source-of-truth",
+    title: "데이터 소유권과 source of truth",
+    subtitle: "상태를 어디에 두고 누가 바꿀 수 있는지 결정하기",
+    description:
+      "entity와 access pattern에서 저장 경계를 만들고, source of truth·derived state·transaction boundary를 구분해 중복 쓰기와 소유권 충돌을 진단합니다.",
+    runtime: "TypeScript data-boundary 모델",
+    estimatedMinutes: 65,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["data ownership", "source of truth", "transaction · derived state"],
+  },
+  {
+    number: 4,
+    slug: "sync-async-and-idempotency",
+    title: "동기·비동기 통신과 idempotency",
+    subtitle: "응답 경로와 작업 경로를 분리해 실패를 흡수하기",
+    description:
+      "동기 호출과 queue 기반 비동기 흐름을 latency·coupling·delivery semantics로 비교하고, retry·deduplication·idempotency key로 중복 효과를 막습니다.",
+    runtime: "TypeScript message-flow 시뮬레이터",
+    estimatedMinutes: 70,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["sync · async", "queue · backpressure", "retry · idempotency"],
+  },
+  {
+    number: 5,
+    slug: "caching-and-consistency",
+    title: "cache와 consistency",
+    subtitle: "빠른 읽기와 최신 상태 사이의 계약 설계하기",
+    description:
+      "cache-aside와 write path를 실행하고 TTL·invalidation·stale read를 관찰한 뒤, 사용자 흐름에 필요한 consistency 수준과 복구 전략을 선택합니다.",
+    runtime: "TypeScript cache·consistency 모델",
+    estimatedMinutes: 65,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["cache-aside · TTL", "invalidation · stale read", "consistency contract"],
+  },
+  {
+    number: 6,
+    slug: "capacity-scaling-and-partitioning",
+    title: "용량·확장·partitioning",
+    subtitle: "평균이 아니라 peak와 병목에서 scale 계획 세우기",
+    description:
+      "traffic·storage·bandwidth budget을 계산하고 horizontal scaling과 partition key를 선택해 hot key·skew·rebalancing이 만드는 병목을 진단합니다.",
+    runtime: "TypeScript capacity·partition 시뮬레이터",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["capacity budget", "horizontal scale", "partition · hot key"],
+  },
+  {
+    number: 7,
+    slug: "reliability-observability-and-slos",
+    title: "신뢰성·관측성·SLO",
+    subtitle: "실패를 숨기지 않고 제한하고 측정하는 시스템 만들기",
+    description:
+      "timeout·retry·circuit breaker·degraded mode를 dependency graph에 적용하고, metric·log·trace와 error budget으로 실제 사용자 신뢰성을 판정합니다.",
+    runtime: "TypeScript failure·SLO 시뮬레이터",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["timeout · circuit breaker", "degraded mode", "SLO · error budget"],
+  },
+  {
+    number: 8,
+    slug: "design-and-review-a-system",
+    title: "시스템을 설계하고 리뷰하기",
+    subtitle: "요구사항에서 검증 가능한 architecture decision까지",
+    description:
+      "실제 서비스 요구에서 component·data·communication·scale·reliability 설계를 조립하고, failure scenario·cost·운영 증거로 architecture decision을 방어합니다.",
+    runtime: "TypeScript 시스템 아키텍처 스튜디오",
+    estimatedMinutes: 95,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["architecture decision", "failure · cost review", "evidence · trade-off"],
+  },
+];
+
+export const systemArchitectureChaptersEn: Chapter[] = [
+  {
+    number: 1,
+    slug: "requirements-and-quality-attributes",
+    title: "Requirements and Quality Attributes",
+    subtitle: "Set measurable constraints before choosing features or components",
+    description:
+      "Turn workload, latency, availability, durability, and cost requirements into measurable targets, then prioritize quality attributes that cannot all be maximized together.",
+    runtime: "TypeScript requirements and trade-off model",
+    estimatedMinutes: 55,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["workload · constraint", "quality attribute", "trade-off · budget"],
+  },
+  {
+    number: 2,
+    slug: "components-and-request-flows",
+    title: "Components and Request Flows",
+    subtitle: "Draw responsibility, trust, and failure boundaries along one request",
+    description:
+      "Split a request path across client, edge, services, and data stores, then verify each component's responsibility, API contract, trust boundary, and failure propagation.",
+    runtime: "TypeScript request-flow design board",
+    estimatedMinutes: 60,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["component boundary", "request flow · contract", "trust · failure boundary"],
+  },
+  {
+    number: 3,
+    slug: "data-ownership-and-source-of-truth",
+    title: "Data Ownership and Sources of Truth",
+    subtitle: "Decide where state lives and who is allowed to change it",
+    description:
+      "Derive storage boundaries from entities and access patterns, then separate sources of truth, derived state, and transaction boundaries to diagnose duplicate writes and ownership conflicts.",
+    runtime: "TypeScript data-boundary model",
+    estimatedMinutes: 65,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["data ownership", "source of truth", "transaction · derived state"],
+  },
+  {
+    number: 4,
+    slug: "sync-async-and-idempotency",
+    title: "Synchronous, Asynchronous, and Idempotent Work",
+    subtitle: "Separate response paths from work paths to absorb failure",
+    description:
+      "Compare synchronous calls and queue-based flows through latency, coupling, and delivery semantics, then prevent duplicate effects with retries, deduplication, and idempotency keys.",
+    runtime: "TypeScript message-flow simulator",
+    estimatedMinutes: 70,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["sync · async", "queue · backpressure", "retry · idempotency"],
+  },
+  {
+    number: 5,
+    slug: "caching-and-consistency",
+    title: "Caching and Consistency",
+    subtitle: "Design the contract between faster reads and fresher state",
+    description:
+      "Execute cache-aside and write paths, observe TTL, invalidation, and stale reads, then choose the consistency level and recovery strategy required by each user flow.",
+    runtime: "TypeScript cache and consistency model",
+    estimatedMinutes: 65,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["cache-aside · TTL", "invalidation · stale read", "consistency contract"],
+  },
+  {
+    number: 6,
+    slug: "capacity-scaling-and-partitioning",
+    title: "Capacity, Scaling, and Partitioning",
+    subtitle: "Plan for peaks and bottlenecks instead of averages",
+    description:
+      "Calculate traffic, storage, and bandwidth budgets, then choose horizontal scaling and partition keys while diagnosing hot keys, skew, and rebalancing bottlenecks.",
+    runtime: "TypeScript capacity and partition simulator",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["capacity budget", "horizontal scale", "partition · hot key"],
+  },
+  {
+    number: 7,
+    slug: "reliability-observability-and-slos",
+    title: "Reliability, Observability, and SLOs",
+    subtitle: "Contain and measure failure instead of hiding it",
+    description:
+      "Apply timeouts, retries, circuit breakers, and degraded modes to a dependency graph, then judge user-visible reliability with metrics, logs, traces, and error budgets.",
+    runtime: "TypeScript failure and SLO simulator",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["timeout · circuit breaker", "degraded mode", "SLO · error budget"],
+  },
+  {
+    number: 8,
+    slug: "design-and-review-a-system",
+    title: "Design and Review a System",
+    subtitle: "Move from requirements to defensible architecture decisions",
+    description:
+      "Assemble component, data, communication, scale, and reliability decisions for a real service, then defend them with failure scenarios, cost, and operational evidence.",
+    runtime: "TypeScript system architecture studio",
+    estimatedMinutes: 95,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["architecture decision", "failure · cost review", "evidence · trade-off"],
+  },
+];
+
 export const chapters = chaptersKo;
 
 export const availableChapterCount = chaptersKo.filter(
@@ -749,10 +1132,31 @@ export const curricula: Curriculum[] = [
     },
   },
   {
+    id: LINUX_NETWORKING_CURRICULUM_SLUG,
+    slug: LINUX_NETWORKING_CURRICULUM_SLUG,
+    category: { ko: "네트워크", en: "NETWORKING" },
+    title: { ko: "Linux 네트워킹을 바닥부터", en: "Linux Networking from the Ground Up" },
+    summary: {
+      ko: "interface와 주소에서 시작해 route·socket·TCP·DNS를 연결하고 Linux 서비스 경로를 증거로 진단합니다.",
+      en: "Start with interfaces and addresses, connect routes, sockets, TCP, and DNS, then diagnose a Linux service path from evidence.",
+    },
+    eyebrow: { ko: "새 커리큘럼", en: "NEW CURRICULUM" },
+    level: "beginner",
+    status: "in-progress",
+    accent: "green",
+    chapters: {
+      ko: scopeChapters(LINUX_NETWORKING_CURRICULUM_SLUG, linuxNetworkingChaptersKo),
+      en: scopeChapters(LINUX_NETWORKING_CURRICULUM_SLUG, linuxNetworkingChaptersEn),
+    },
+  },
+  {
     id: INFRASTRUCTURE_CURRICULUM_SLUG,
     slug: INFRASTRUCTURE_CURRICULUM_SLUG,
     category: { ko: "인프라", en: "INFRASTRUCTURE" },
-    title: { ko: "인프라 설계를 바닥부터", en: "Infrastructure Design from the Ground Up" },
+    title: {
+      ko: "Linux 네트워크 인프라 설계를 바닥부터",
+      en: "Linux Network Infrastructure Design from the Ground Up",
+    },
     summary: {
       ko: "Linux network namespace에서 격리·routing·정책·가용성을 직접 조립하고 증거로 설계를 검증합니다.",
       en: "Assemble isolation, routing, policy, and availability in Linux network namespaces, then verify the design with evidence.",
@@ -765,21 +1169,31 @@ export const curricula: Curriculum[] = [
       ko: scopeChapters(INFRASTRUCTURE_CURRICULUM_SLUG, infrastructureChaptersKo),
       en: scopeChapters(INFRASTRUCTURE_CURRICULUM_SLUG, infrastructureChaptersEn),
     },
+    recommendedPrerequisite: {
+      curriculumSlug: LINUX_NETWORKING_CURRICULUM_SLUG,
+      reason: {
+        ko: "interface·주소·route·socket의 기본 packet path를 먼저 익히면 namespace 격리와 연결 경계를 더 쉽게 설계할 수 있습니다.",
+        en: "Learn interfaces, addresses, routes, sockets, and the basic packet path first so namespace isolation and connectivity boundaries have a clear foundation.",
+      },
+    },
   },
   {
-    id: "design-patterns",
-    slug: "design-patterns",
-    category: { ko: "소프트웨어 설계", en: "SOFTWARE DESIGN" },
-    title: { ko: "디자인 패턴을 바닥부터", en: "Design Patterns from the Ground Up" },
+    id: SYSTEM_ARCHITECTURE_CURRICULUM_SLUG,
+    slug: SYSTEM_ARCHITECTURE_CURRICULUM_SLUG,
+    category: { ko: "시스템 설계", en: "SYSTEM DESIGN" },
+    title: { ko: "시스템 아키텍처를 바닥부터", en: "System Architecture from the Ground Up" },
     summary: {
-      ko: "패턴 이름을 외우기보다 변화하는 코드에서 패턴이 필요한 순간을 발견합니다.",
-      en: "Discover why patterns emerge from changing code instead of memorizing their names.",
+      ko: "요구사항에서 시작해 component·data·통신·확장·신뢰성의 경계를 조립하고 trade-off를 증거로 검증합니다.",
+      en: "Start from requirements, assemble component, data, communication, scale, and reliability boundaries, and verify trade-offs with evidence.",
     },
     eyebrow: { ko: "준비 중", en: "PLANNED" },
     level: "intermediate",
     status: "planned",
     accent: "orange",
-    chapters: { ko: [], en: [] },
+    chapters: {
+      ko: scopeChapters(SYSTEM_ARCHITECTURE_CURRICULUM_SLUG, systemArchitectureChaptersKo),
+      en: scopeChapters(SYSTEM_ARCHITECTURE_CURRICULUM_SLUG, systemArchitectureChaptersEn),
+    },
   },
 ];
 

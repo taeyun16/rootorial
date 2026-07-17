@@ -110,7 +110,7 @@ export function renderLlmsText(catalog: PublicationCatalog) {
 
 ## What Rootorial Covers
 
-Rootorial develops independent learning paths across AI and machine learning, operating systems, infrastructure design, and software design. Its first curriculum starts with vectors and tensors and builds toward attention and a small Transformer.
+Rootorial develops independent learning paths across AI and machine learning, operating systems, Linux networking, network infrastructure design, and system architecture. Its first curriculum starts with vectors and tensors and builds toward attention and a small Transformer.
 
 ${topics}
 

@@ -5,8 +5,8 @@ Technology, understood from the root.
 복잡한 기술을 바닥부터.
 
 직접 움직이고 실행하며 어려운 기술을 이해하는 인터랙티브 커리큘럼 플랫폼입니다.
-Transformer 시리즈는 Rootorial이 제공하는 첫 번째 커리큘럼이며, Linux 시스템,
-인프라 설계, 디자인 패턴 등 독립적인 학습 여정을 같은 구조에서 제공하도록 설계되어 있습니다.
+Transformer 시리즈는 Rootorial이 제공하는 첫 번째 커리큘럼이며, Linux 시스템과
+Linux 네트워킹, 네트워크 인프라 설계, 시스템 아키텍처 등 독립적인 학습 여정을 같은 구조에서 제공합니다.
 현재 앱은 TanStack Start 위에서 React로 렌더링되고 Cloudflare Workers에서
 실행되도록 구성되어 있습니다.
 

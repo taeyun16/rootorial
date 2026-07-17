@@ -1,6 +1,15 @@
 import { Link } from "@tanstack/react-router";
 import { useMemo } from "react";
-import { LINUX_CURRICULUM_SLUG } from "../data/curriculum";
+import {
+  getCurriculum,
+  INFRASTRUCTURE_CURRICULUM_SLUG,
+  LINUX_CURRICULUM_SLUG,
+  LINUX_NETWORKING_CURRICULUM_SLUG,
+  SYSTEM_ARCHITECTURE_CURRICULUM_SLUG,
+  TRANSFORMER_CURRICULUM_SLUG,
+  type Curriculum,
+  type Locale,
+} from "../data/curriculum";
 import { useLocale } from "../features/localization/localization";
 import { AuthControls } from "./AuthControls";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -47,6 +56,74 @@ const copy = {
   },
 } as const;
 
+type CurriculumPresentation = {
+  eyebrow: string;
+  runtime: string;
+  titleLead: string;
+  titleEm: string;
+  titleTail: string;
+  summary: string;
+  start: string;
+  journey: string;
+  overview: string;
+  principle: string;
+  principleTitle: string;
+  principles: readonly (readonly [string, string])[];
+  main: string;
+  road: string;
+  structure: string;
+  orbitLabels: readonly [string, string, string, string];
+};
+
+type LocalizedPresentation = Record<Locale, CurriculumPresentation>;
+
+const transformerPresentation = {
+  ko: {
+    eyebrow: "INTERACTIVE DEEP LEARNING TEXTBOOK",
+    runtime: copy.ko.runtime,
+    titleLead: copy.ko.titleLead,
+    titleEm: copy.ko.titleEm,
+    titleTail: copy.ko.titleTail,
+    summary: copy.ko.summary,
+    start: copy.ko.start,
+    journey: copy.ko.journey,
+    overview: copy.ko.overview,
+    principle: copy.ko.principle,
+    principleTitle: copy.ko.principleTitle,
+    principles: [
+      [copy.ko.intuition, copy.ko.intuitionBody],
+      [copy.ko.run, copy.ko.runBody],
+      [copy.ko.connection, copy.ko.connectionBody],
+    ],
+    main: copy.ko.main,
+    road: copy.ko.road,
+    structure: copy.ko.structure,
+    orbitLabels: ["Vector", "Gradient", "Embedding", "Attention"],
+  },
+  en: {
+    eyebrow: "INTERACTIVE DEEP LEARNING TEXTBOOK",
+    runtime: copy.en.runtime,
+    titleLead: copy.en.titleLead,
+    titleEm: copy.en.titleEm,
+    titleTail: copy.en.titleTail,
+    summary: copy.en.summary,
+    start: copy.en.start,
+    journey: copy.en.journey,
+    overview: copy.en.overview,
+    principle: copy.en.principle,
+    principleTitle: copy.en.principleTitle,
+    principles: [
+      [copy.en.intuition, copy.en.intuitionBody],
+      [copy.en.run, copy.en.runBody],
+      [copy.en.connection, copy.en.connectionBody],
+    ],
+    main: copy.en.main,
+    road: copy.en.road,
+    structure: copy.en.structure,
+    orbitLabels: ["Vector", "Gradient", "Embedding", "Attention"],
+  },
+} as const satisfies LocalizedPresentation;
+
 const linuxPresentation = {
   ko: {
     eyebrow: "INTERACTIVE LINUX SYSTEMS · SAMPLE",
@@ -92,14 +169,226 @@ const linuxPresentation = {
     structure: "The first chapter is a complete sample. Later chapters expand the same observable state into each layer of a real kernel.",
     orbitLabels: ["Path", "Process", "Memory", "Network"],
   },
+} as const satisfies LocalizedPresentation;
+
+const infrastructurePresentation = {
+  ko: {
+    eyebrow: "INTERACTIVE INFRASTRUCTURE DESIGN",
+    runtime: "브라우저 인프라 모델 + 선택 Linux 관찰",
+    titleLead: "Linux 네트워크 인프라를",
+    titleEm: "바닥부터",
+    titleTail: "설계하고 검증하기",
+    summary: "namespace 경계에서 시작해 routing, 정책, 가용성과 용량을 조립하고, 각 설계 결정을 실행 가능한 증거로 확인합니다.",
+    start: "첫 설계 챕터 시작하기",
+    journey: "전체 설계 경로 보기",
+    overview: "인프라 설계 커리큘럼 개요",
+    principle: "설계 방식",
+    principleTitle: "구성도보다 먼저 경계와 상태를 검증하기",
+    principles: [
+      ["경계부터 모델링", "프로세스, 인터페이스, route와 socket이 어느 경계에 속하는지 먼저 분리합니다."],
+      ["경로를 직접 실행", "연결, 정책과 실패 상태를 결정론적 모델에서 바꾸고 실제 결과를 비교합니다."],
+      ["증거로 결정", "ip, ss, packet path와 invariant를 설계 선택의 근거로 남깁니다."],
+    ],
+    main: "INFRASTRUCTURE DESIGN CURRICULUM",
+    road: "namespace 경계에서 검증 가능한 플랫폼까지",
+    structure: "각 장은 요구사항, 상태 모델, 실행 실습, 장애 진단과 설계 근거를 하나의 흐름으로 연결합니다.",
+    orbitLabels: ["Boundary", "Route", "Policy", "Evidence"],
+  },
+  en: {
+    eyebrow: "INTERACTIVE INFRASTRUCTURE DESIGN",
+    runtime: "Browser infrastructure models + optional Linux observation",
+    titleLead: "Design Linux network infrastructure",
+    titleEm: "from the ground up",
+    titleTail: "",
+    summary: "Start with namespace boundaries, assemble routing, policy, availability, and capacity, then verify every design decision with executable evidence.",
+    start: "Start the first design chapter",
+    journey: "See the full design path",
+    overview: "Infrastructure design curriculum overview",
+    principle: "HOW TO DESIGN",
+    principleTitle: "Verify boundaries and state before drawing the diagram",
+    principles: [
+      ["Model the boundary", "Separate which boundary owns each process, interface, route, and socket before connecting them."],
+      ["Execute the path", "Change connectivity, policy, and failure state in deterministic models, then compare the actual result."],
+      ["Decide from evidence", "Use ip, ss, packet paths, and invariants as the evidence behind each design choice."],
+    ],
+    main: "INFRASTRUCTURE DESIGN CURRICULUM",
+    road: "From namespace boundaries to a verifiable platform",
+    structure: "Each chapter joins requirements, a state model, executable practice, incident diagnosis, and design evidence into one path.",
+    orbitLabels: ["Boundary", "Route", "Policy", "Evidence"],
+  },
+} as const satisfies LocalizedPresentation;
+
+const linuxNetworkingPresentation = {
+  ko: {
+    eyebrow: "INTERACTIVE LINUX NETWORKING FOUNDATIONS",
+    runtime: "브라우저 네트워크 모델 + 선택 Linux 관찰",
+    titleLead: "Linux 네트워크를",
+    titleEm: "바닥부터",
+    titleTail: "이해하기",
+    summary: "interface와 주소에서 시작해 subnet, route, socket, TCP와 DNS 경계를 한 hop씩 추적하고 실제 Linux 관측으로 연결합니다.",
+    start: "첫 네트워크 챕터 시작하기",
+    journey: "전체 네트워크 경로 보기",
+    overview: "Linux 네트워크 기초 커리큘럼 개요",
+    principle: "학습 방식",
+    principleTitle: "명령어보다 먼저 한 packet의 경로를 읽기",
+    principles: [
+      ["한 경계씩 추적", "호스트의 interface에서 link와 router를 지나 peer application까지 상태를 나눠 봅니다."],
+      ["주소 역할 분리", "이름, IP, MAC, port와 next hop이 각각 어떤 범위의 결정을 내리는지 구분합니다."],
+      ["관측으로 확인", "ip, ss, ping과 packet capture가 어디까지 사실을 증명하는지 비교합니다."],
+    ],
+    main: "LINUX NETWORKING FOUNDATIONS",
+    road: "interface와 주소에서 서비스 경로 진단까지",
+    structure: "각 장은 작은 네트워크 상태를 예측하고 실행한 뒤, 같은 경계를 Linux 관측 도구로 다시 확인합니다.",
+    orbitLabels: ["Socket", "Address", "Route", "TCP"],
+  },
+  en: {
+    eyebrow: "INTERACTIVE LINUX NETWORKING FOUNDATIONS",
+    runtime: "Browser network models + optional Linux observation",
+    titleLead: "Understand Linux networking",
+    titleEm: "from the ground up",
+    titleTail: "",
+    summary: "Start with interfaces and addresses, trace subnets, routes, sockets, TCP, and DNS one hop at a time, then connect the model to real Linux observations.",
+    start: "Start the first networking chapter",
+    journey: "See the full network path",
+    overview: "Linux networking foundations overview",
+    principle: "HOW IT WORKS",
+    principleTitle: "Read one packet path before reaching for a command",
+    principles: [
+      ["Trace one boundary", "Separate the state from a host interface through links and routers to the peer application."],
+      ["Separate address roles", "Distinguish the decisions made by names, IPs, MACs, ports, and next hops."],
+      ["Verify by observation", "Compare how far ip, ss, ping, and packet captures can support a claim."],
+    ],
+    main: "LINUX NETWORKING FOUNDATIONS",
+    road: "From interfaces and addresses to service-path diagnosis",
+    structure: "Each chapter predicts and executes a small network state, then checks the same boundary with Linux observation tools.",
+    orbitLabels: ["Socket", "Address", "Route", "TCP"],
+  },
+} as const satisfies LocalizedPresentation;
+
+const systemArchitecturePresentation = {
+  ko: {
+    eyebrow: "INTERACTIVE SYSTEM ARCHITECTURE",
+    runtime: "브라우저 아키텍처 모델",
+    titleLead: "시스템 아키텍처를",
+    titleEm: "바닥부터",
+    titleTail: "설계하기",
+    summary: "요구사항과 SLO에서 출발해 서비스·데이터 경계, 통신 방식, 일관성, 확장성과 실패 복구를 하나의 검증 가능한 시스템으로 조립합니다.",
+    start: "첫 아키텍처 챕터 시작하기",
+    journey: "전체 설계 여정 보기",
+    overview: "시스템 아키텍처 커리큘럼 개요",
+    principle: "설계 방식",
+    principleTitle: "패턴 이름보다 먼저 요구사항과 trade-off 읽기",
+    principles: [
+      ["요구사항에서 시작", "기능, 부하, 지연, 가용성과 비용을 먼저 분리해 설계의 판단 기준을 만듭니다."],
+      ["경계와 데이터 연결", "서비스 책임, 데이터 소유권과 동기·비동기 경로를 한 상태 모델로 조립합니다."],
+      ["실패로 검증", "병목, 부분 실패와 복구 시나리오를 실행해 선택한 trade-off가 실제로 유지되는지 확인합니다."],
+    ],
+    main: "SYSTEM ARCHITECTURE CURRICULUM",
+    road: "요구사항에서 운영 가능한 시스템까지",
+    structure: "각 장은 요구사항, 후보 설계, 수치·상태 실험, failure review와 decision record를 반복합니다.",
+    orbitLabels: ["SLO", "Boundary", "Data", "Failure"],
+  },
+  en: {
+    eyebrow: "INTERACTIVE SYSTEM ARCHITECTURE",
+    runtime: "Browser architecture models",
+    titleLead: "Design system architecture",
+    titleEm: "from the ground up",
+    titleTail: "",
+    summary: "Begin with requirements and SLOs, then assemble service and data boundaries, communication, consistency, scaling, and recovery into one verifiable system.",
+    start: "Start the first architecture chapter",
+    journey: "See the full design journey",
+    overview: "System architecture curriculum overview",
+    principle: "HOW TO DESIGN",
+    principleTitle: "Read requirements and trade-offs before naming a pattern",
+    principles: [
+      ["Start from requirements", "Separate function, load, latency, availability, and cost into explicit decision criteria."],
+      ["Connect boundaries and data", "Assemble service ownership, data ownership, and synchronous or asynchronous paths in one state model."],
+      ["Verify through failure", "Run bottleneck, partial-failure, and recovery scenarios to test whether the chosen trade-off holds."],
+    ],
+    main: "SYSTEM ARCHITECTURE CURRICULUM",
+    road: "From requirements to an operable system",
+    structure: "Each chapter repeats requirements, candidate designs, numeric or state experiments, failure review, and a decision record.",
+    orbitLabels: ["SLO", "Boundary", "Data", "Failure"],
+  },
+} as const satisfies LocalizedPresentation;
+
+const presentationsByCurriculumSlug: Record<string, LocalizedPresentation> = {
+  [TRANSFORMER_CURRICULUM_SLUG]: transformerPresentation,
+  [LINUX_CURRICULUM_SLUG]: linuxPresentation,
+  [INFRASTRUCTURE_CURRICULUM_SLUG]: infrastructurePresentation,
+  [LINUX_NETWORKING_CURRICULUM_SLUG]: linuxNetworkingPresentation,
+  [SYSTEM_ARCHITECTURE_CURRICULUM_SLUG]: systemArchitecturePresentation,
+};
+
+const genericOrbitLabels = {
+  ko: ["관찰", "모델", "실행", "검증"],
+  en: ["Observe", "Model", "Run", "Verify"],
+} as const;
+
+function genericPresentation(
+  curriculum: Curriculum,
+  locale: Locale,
+): CurriculumPresentation {
+  const isKo = locale === "ko";
+  return {
+    eyebrow: curriculum.eyebrow[locale],
+    runtime: isKo ? "인터랙티브 브라우저 모델" : "Interactive browser models",
+    titleLead: curriculum.title[locale],
+    titleEm: isKo ? "직접 탐구하기" : "Explore it directly",
+    titleTail: "",
+    summary: curriculum.summary[locale],
+    start: isKo ? "첫 챕터 시작하기" : "Start the first chapter",
+    journey: isKo ? "전체 여정 보기" : "See the full journey",
+    overview: isKo ? `${curriculum.title.ko} 개요` : `${curriculum.title.en} overview`,
+    principle: isKo ? "학습 방식" : "HOW IT WORKS",
+    principleTitle: isKo ? "관찰하고 실행하며 근거를 남기기" : "Observe, execute, and keep the evidence",
+    principles: isKo
+      ? [
+          ["먼저 관찰", "현재 상태와 경계를 작은 단위로 나누어 읽습니다."],
+          ["직접 실행", "브라우저 모델에서 한 번에 한 조건을 바꾸고 결과를 비교합니다."],
+          ["근거로 연결", "관찰한 결과를 다음 개념과 실제 판단으로 연결합니다."],
+        ]
+      : [
+          ["Observe first", "Read the current state and boundaries in small, explicit units."],
+          ["Run it directly", "Change one condition at a time in the browser model and compare the result."],
+          ["Connect by evidence", "Carry each observation into the next concept and a real decision."],
+        ],
+    main: isKo ? "CURRICULUM" : "CURRICULUM",
+    road: curriculum.title[locale],
+    structure: isKo
+      ? "각 장은 설명, 실행 가능한 모델과 이해 확인을 하나의 흐름으로 연결합니다."
+      : "Each chapter connects explanation, an executable model, and a concept check in one path.",
+    orbitLabels: genericOrbitLabels[locale],
+  };
+}
+
+const readinessCopy = {
+  ko: {
+    eyebrow: "권장 선수 경로",
+    advisory: "선택 사항 · 현재 커리큘럼을 바로 시작할 수도 있습니다",
+    title: "시작 전 준비도를 높여 보세요",
+    summary: "선수 커리큘럼 범위",
+    open: "권장 선수 커리큘럼 보기",
+    draft: "선수 커리큘럼 공개 준비 중",
+  },
+  en: {
+    eyebrow: "RECOMMENDED PREREQUISITE",
+    advisory: "Optional · you can still start this curriculum now",
+    title: "Build readiness before you begin",
+    summary: "Prerequisite curriculum scope",
+    open: "View the recommended curriculum",
+    draft: "Prerequisite curriculum is still in draft",
+  },
 } as const;
 
 export function CurriculumHome({
   item,
+  prerequisiteAvailable = false,
   reach,
   preview = false,
 }: {
   item: PublicCurriculumCatalogItem;
+  prerequisiteAvailable?: boolean;
   reach: PublicCurriculumReach;
   preview?: boolean;
 }) {
@@ -121,30 +410,12 @@ export function CurriculumHome({
           publication.effectivePublicationStatus === "published" &&
           publication.listing !== "hidden";
   });
-  const presentation = curriculum.slug === LINUX_CURRICULUM_SLUG
-    ? linuxPresentation[locale]
-    : {
-        eyebrow: "INTERACTIVE DEEP LEARNING TEXTBOOK",
-        runtime: c.runtime,
-        titleLead: c.titleLead,
-        titleEm: c.titleEm,
-        titleTail: c.titleTail,
-        summary: c.summary,
-        start: c.start,
-        journey: c.journey,
-        overview: c.overview,
-        principle: c.principle,
-        principleTitle: c.principleTitle,
-        principles: [
-          [c.intuition, c.intuitionBody],
-          [c.run, c.runBody],
-          [c.connection, c.connectionBody],
-        ] as const,
-        main: c.main,
-        road: c.road,
-        structure: c.structure,
-        orbitLabels: ["Vector", "Gradient", "Embedding", "Attention"] as const,
-      };
+  const presentation = presentationsByCurriculumSlug[curriculum.slug]?.[locale]
+    ?? genericPresentation(curriculum, locale);
+  const recommendedPrerequisite = curriculum.recommendedPrerequisite;
+  const prerequisiteCurriculum = recommendedPrerequisite
+    ? getCurriculum(recommendedPrerequisite.curriculumSlug)
+    : undefined;
   const visibleChapterIds = new Set(chapters.map((chapter) => chapter.id));
   const completedInCurriculum = completed.filter((id) =>
     visibleChapterIds.has(id),
@@ -262,6 +533,59 @@ export function CurriculumHome({
           </div>
         </div>
       </section>
+
+      {recommendedPrerequisite && prerequisiteCurriculum ? (
+        <section
+          className="curriculum-readiness"
+          aria-labelledby="curriculum-readiness-title"
+          data-prerequisite="recommended"
+          data-required="false"
+        >
+          <div className="curriculum-readiness-heading">
+            <div>
+              <p className="section-index">{readinessCopy[locale].eyebrow}</p>
+              <h2 id="curriculum-readiness-title">{readinessCopy[locale].title}</h2>
+            </div>
+            <span className="curriculum-readiness-advisory">
+              {readinessCopy[locale].advisory}
+            </span>
+          </div>
+          <div className="curriculum-readiness-card">
+            <div className="curriculum-readiness-copy">
+              <h3>{prerequisiteCurriculum.title[locale]}</h3>
+              <p>{recommendedPrerequisite.reason[locale]}</p>
+              <div className="curriculum-readiness-scope">
+                <strong>{readinessCopy[locale].summary}</strong>
+                <span>{prerequisiteCurriculum.summary[locale]}</span>
+              </div>
+            </div>
+            {preview ? (
+              <a
+                className="curriculum-readiness-link"
+                href={`/admin/preview/curricula/${prerequisiteCurriculum.slug}${locale === "en" ? "?lang=en" : ""}`}
+              >
+                {readinessCopy[locale].open} <span aria-hidden="true">→</span>
+              </a>
+            ) : prerequisiteAvailable ? (
+              <Link
+                className="curriculum-readiness-link"
+                to="/curricula/$curriculumSlug"
+                params={{ curriculumSlug: prerequisiteCurriculum.slug }}
+                search={locale === "en" ? { lang: "en" } : {}}
+              >
+                {readinessCopy[locale].open} <span aria-hidden="true">→</span>
+              </Link>
+            ) : (
+              <span
+                className="curriculum-readiness-link is-disabled"
+                aria-disabled="true"
+              >
+                {readinessCopy[locale].draft}
+              </span>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       <section className="principles" id="how" aria-labelledby="how-title">
         <div>

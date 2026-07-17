@@ -30,7 +30,7 @@ export const Route = createRootRoute({
       {
         name: "description",
         content:
-          "AI, 시스템, 인프라와 소프트웨어 설계를 직접 움직이고 실행하며 바닥부터 이해하는 인터랙티브 커리큘럼.",
+          "AI, Linux 시스템과 네트워킹, 네트워크 인프라와 시스템 아키텍처를 직접 움직이고 실행하며 바닥부터 이해하는 인터랙티브 커리큘럼.",
       },
     ],
     links: [
