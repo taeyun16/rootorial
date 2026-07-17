@@ -1,0 +1,552 @@
+/* Infrastructure Chapter 8 · namespace platform capstone */
+.namespace-platform-chapter-shell {
+  --platform-chapter-accent: var(--accent);
+  --platform-chapter-soft: var(--accent-soft);
+}
+
+.namespace-platform-requirement-grid,
+.namespace-platform-control-grid,
+.namespace-platform-node-grid,
+.namespace-platform-edge-grid,
+.namespace-platform-capacity-grid,
+.namespace-platform-incident-grid,
+.namespace-platform-completion-checklist {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.namespace-platform-requirement-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 1.2rem 0;
+}
+
+.namespace-platform-requirement-grid article {
+  min-width: 0;
+  padding: 0.9rem;
+  border-left: 0.22rem solid var(--platform-chapter-accent);
+  background: var(--paper-subtle);
+  overflow-wrap: anywhere;
+}
+
+.namespace-platform-requirement-grid span,
+.namespace-platform-path-table span,
+.namespace-platform-decision-record strong {
+  display: block;
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.25 var(--mono);
+  letter-spacing: 0.06em;
+}
+
+.namespace-platform-requirement-grid strong {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--ink);
+}
+
+.namespace-platform-requirement-grid p {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-caption);
+}
+
+.namespace-platform-contract-code,
+.namespace-platform-evidence-workspace pre,
+.namespace-platform-incident-grid pre {
+  max-width: 100%;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.namespace-platform-contract-code {
+  margin: 1rem 0;
+}
+
+.namespace-platform-path-table,
+.namespace-platform-decision-record {
+  display: grid;
+  gap: 0;
+  margin: 1.2rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.namespace-platform-path-table > div,
+.namespace-platform-decision-record > div {
+  min-width: 0;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.namespace-platform-path-table code {
+  display: block;
+  margin-top: 0.35rem;
+  overflow-wrap: anywhere;
+}
+
+.namespace-platform-decision-record {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.25rem;
+}
+
+.namespace-platform-decision-record p {
+  margin: 0.35rem 0 0;
+  color: var(--text);
+}
+
+.namespace-platform-lab,
+.namespace-platform-incident-lab {
+  min-width: 0;
+  margin-top: 1.25rem;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid var(--line-strong);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--paper-raised) 94%, var(--platform-chapter-soft));
+  box-shadow: var(--shadow);
+}
+
+.namespace-platform-lab-header,
+.namespace-platform-incident-header,
+.namespace-platform-evidence-workspace > header,
+.namespace-platform-design-workspace > header,
+.namespace-platform-scenario-workspace > header,
+.namespace-platform-visual-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.namespace-platform-lab-header h3,
+.namespace-platform-incident-header h3,
+.namespace-platform-evidence-workspace h4,
+.namespace-platform-design-workspace h4,
+.namespace-platform-scenario-workspace h4 {
+  margin: 0.2rem 0 0;
+}
+
+.namespace-platform-lab-header > strong,
+.namespace-platform-incident-header > strong,
+.namespace-platform-evidence-workspace > header > strong,
+.namespace-platform-scenario-workspace > header > strong {
+  flex: 0 0 auto;
+  color: var(--platform-chapter-accent);
+  font: 700 1rem/1.2 var(--mono);
+}
+
+.namespace-platform-runtime-alert {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border: 1px solid var(--danger-border);
+  border-radius: 0.65rem;
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.namespace-platform-evidence-workspace,
+.namespace-platform-design-workspace,
+.namespace-platform-scenario-workspace {
+  min-width: 0;
+  margin-top: 1.35rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--line);
+}
+
+.namespace-platform-evidence-workspace > header span,
+.namespace-platform-design-workspace > header span,
+.namespace-platform-scenario-workspace > header span {
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.06em;
+}
+
+.namespace-platform-action-row,
+.namespace-platform-preset-row,
+.namespace-platform-scenario-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 0.9rem;
+}
+
+.namespace-platform-lab .button-secondary,
+.namespace-platform-incident-lab .button-secondary {
+  border-color: color-mix(in srgb, var(--platform-chapter-accent) 55%, var(--line));
+  background: var(--platform-chapter-soft);
+  color: var(--ink);
+}
+
+.namespace-platform-lab .button-ghost,
+.namespace-platform-incident-lab .button-ghost {
+  border-color: var(--line-strong);
+  background: transparent;
+  color: var(--text);
+}
+
+.namespace-platform-scenario-toolbar .button[aria-pressed="true"] {
+  border-color: var(--platform-chapter-accent);
+  background: var(--platform-chapter-soft);
+  color: var(--ink);
+  box-shadow: inset 0 -0.18rem 0 var(--platform-chapter-accent);
+}
+
+.namespace-platform-lab .button:disabled,
+.namespace-platform-incident-lab .button:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.namespace-platform-evidence-workspace pre {
+  max-height: 12rem;
+  margin: 0.9rem 0 0;
+}
+
+.namespace-platform-control-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 1rem;
+}
+
+.namespace-platform-control-grid label,
+.namespace-platform-incident-grid label {
+  display: grid;
+  min-width: 0;
+  gap: 0.35rem;
+}
+
+.namespace-platform-control-grid label > span,
+.namespace-platform-incident-grid label > span {
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.namespace-platform-control-grid select,
+.namespace-platform-incident-grid select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.58rem;
+  border: 1px solid var(--control-border);
+  border-radius: 0.45rem;
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.namespace-platform-visualization {
+  min-width: 0;
+  margin: 1rem 0 0;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: var(--paper-subtle);
+  overflow: hidden;
+}
+
+.namespace-platform-visual-header > div {
+  min-width: 0;
+}
+
+.namespace-platform-visual-header span {
+  display: block;
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.05em;
+}
+
+.namespace-platform-visual-header strong {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--ink);
+  font-size: var(--text-caption);
+}
+
+.namespace-platform-receipt-rail {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-top: 0.9rem;
+}
+
+.namespace-platform-receipt-rail span {
+  min-width: 0;
+  padding: 0.42rem 0.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.35rem;
+  background: var(--paper-raised);
+  color: var(--muted);
+  text-align: center;
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.namespace-platform-receipt-rail [data-receipt-status="verified"] {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.namespace-platform-receipt-rail [data-receipt-status="invalid"] {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.namespace-platform-map {
+  min-width: 0;
+  margin-top: 0.85rem;
+}
+
+.namespace-platform-map > svg {
+  display: block;
+  width: 100%;
+  height: 2.6rem;
+  color: var(--line-strong);
+}
+
+.namespace-platform-map line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.namespace-platform-map marker path {
+  fill: currentColor;
+}
+
+.namespace-platform-node-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.namespace-platform-node-grid article {
+  min-width: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-top: 0.2rem solid var(--platform-chapter-accent);
+  border-radius: 0.65rem;
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.namespace-platform-node-grid span {
+  color: var(--platform-chapter-accent);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.namespace-platform-node-grid strong,
+.namespace-platform-node-grid small {
+  display: block;
+  margin-top: 0.35rem;
+}
+
+.namespace-platform-node-grid small {
+  color: var(--muted);
+}
+
+.namespace-platform-edge-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 0.55rem;
+}
+
+.namespace-platform-edge-grid span,
+.namespace-platform-path-ledger span {
+  min-width: 0;
+  padding: 0.45rem 0.55rem;
+  border-radius: 0.4rem;
+  background: var(--paper-pressed);
+  color: var(--text);
+  font: 700 var(--text-meta)/1.3 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.namespace-platform-edge-grid [data-edge-state="configured"],
+.namespace-platform-path-ledger [data-stage-status="passed"] {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.namespace-platform-edge-grid [data-edge-state="broken"],
+.namespace-platform-path-ledger [data-stage-status="blocked"] {
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.namespace-platform-path-ledger {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+}
+
+.namespace-platform-path-ledger p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-caption);
+}
+
+.namespace-platform-capacity-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0.85rem;
+}
+
+.namespace-platform-capacity-grid article {
+  min-width: 0;
+  padding: 0.65rem;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  background: var(--paper-raised);
+}
+
+.namespace-platform-capacity-grid header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.45rem;
+  color: var(--ink);
+  font-size: var(--text-caption);
+}
+
+.namespace-platform-capacity-grid article > div {
+  height: 0.45rem;
+  margin-top: 0.55rem;
+  border-radius: 999px;
+  background: var(--paper-pressed);
+  overflow: hidden;
+}
+
+.namespace-platform-capacity-grid article > div span {
+  display: block;
+  height: 100%;
+  background: var(--platform-chapter-accent);
+  transition: width 180ms ease;
+}
+
+.namespace-platform-capacity-grid [data-utilization-state="over-budget"] > div span {
+  background: var(--danger-fg);
+}
+
+.namespace-platform-feedback,
+.namespace-platform-incident-feedback {
+  margin-top: 0.9rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.55rem;
+  background: var(--paper-raised);
+  color: var(--text);
+}
+
+.namespace-platform-feedback.is-success,
+.namespace-platform-incident-feedback.is-success {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.namespace-platform-feedback.is-error,
+.namespace-platform-incident-feedback.is-error {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.namespace-platform-incident-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 1rem 0;
+}
+
+.namespace-platform-incident-grid article {
+  min-width: 0;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.namespace-platform-incident-grid article > span {
+  color: var(--platform-chapter-accent);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.namespace-platform-incident-grid h4 {
+  margin: 0.4rem 0;
+}
+
+.namespace-platform-incident-grid pre {
+  margin: 0.65rem 0;
+}
+
+.namespace-platform-incident-grid button {
+  margin-top: 0.75rem;
+}
+
+.namespace-platform-completion-checklist {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 1rem 0;
+}
+
+.namespace-platform-completion-checklist span {
+  min-width: 0;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  background: var(--paper-subtle);
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.namespace-platform-completion-checklist .is-complete {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+@media (max-width: 760px) {
+  .namespace-platform-requirement-grid,
+  .namespace-platform-control-grid,
+  .namespace-platform-incident-grid,
+  .namespace-platform-decision-record {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .namespace-platform-node-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .namespace-platform-receipt-rail {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .namespace-platform-map > svg {
+    display: none;
+  }
+
+  .namespace-platform-lab-header,
+  .namespace-platform-incident-header,
+  .namespace-platform-evidence-workspace > header,
+  .namespace-platform-design-workspace > header,
+  .namespace-platform-scenario-workspace > header,
+  .namespace-platform-visual-header {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .namespace-platform-node-grid,
+  .namespace-platform-edge-grid,
+  .namespace-platform-capacity-grid,
+  .namespace-platform-completion-checklist {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .namespace-platform-receipt-rail {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .namespace-platform-action-row .button,
+  .namespace-platform-preset-row .button,
+  .namespace-platform-scenario-toolbar .button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .namespace-platform-capacity-grid article > div span {
+    transition: none;
+  }
+}

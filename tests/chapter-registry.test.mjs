@@ -89,6 +89,9 @@ test("publishes only available chapters that also have a renderer contract", () 
   assert.ok(
     registeredChapterIds.includes("infrastructure-design/network-observability-and-capacity"),
   );
+  assert.ok(
+    registeredChapterIds.includes("infrastructure-design/assemble-a-namespace-platform"),
+  );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "vectors", "en")?.chapter.title,
     "Vectors and Tensors",
@@ -168,6 +171,14 @@ test("publishes only available chapters that also have a renderer contract", () 
       "en",
     )?.chapter.title,
     "Network Observability and Capacity",
+  );
+  assert.equal(
+    getPublishedChapter(
+      "infrastructure-design",
+      "assemble-a-namespace-platform",
+      "en",
+    )?.chapter.title,
+    "Assemble a Namespace Platform",
   );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
@@ -1126,6 +1137,61 @@ test("separates active question submissions from historical labels", () => {
       getConceptQuestionVersionEntry(
         "infrastructure-design",
         "network-observability-and-capacity",
+        questionId,
+        2,
+      ),
+      undefined,
+    );
+  }
+  const platformQuestions = chapterRegistry[
+    "infrastructure-design/assemble-a-namespace-platform"
+  ].questions;
+  assert.equal(Object.keys(platformQuestions).length, 5);
+  assert.ok(
+    Object.values(platformQuestions).every(
+      (question) => question.status === "active" && question.version === 1,
+    ),
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(platformQuestions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "evidence-reexecution": "rerun-current-evaluators",
+      "public-ingress-boundary": "edge-443-only",
+      "private-egress-state": "edge-nat-conntrack-return",
+      "zone-failure-survival": "independent-zone-b-path",
+      "capacity-headroom-contract": "all-resource-ratios-at-most-0-7",
+    },
+  );
+  assert.deepEqual(
+    Object.values(platformQuestions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 0, 2, 1, 0],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "infrastructure-design",
+      "assemble-a-namespace-platform",
+      "evidence-reexecution",
+    )?.correctAnswer,
+    "rerun-current-evaluators",
+  );
+  for (const questionId of Object.keys(platformQuestions)) {
+    assert.equal(
+      getConceptQuestionVersionEntry(
+        "infrastructure-design",
+        "assemble-a-namespace-platform",
+        questionId,
+        1,
+      )?.correctAnswer,
+      platformQuestions[questionId].correctAnswer,
+    );
+    assert.equal(
+      getConceptQuestionVersionEntry(
+        "infrastructure-design",
+        "assemble-a-namespace-platform",
         questionId,
         2,
       ),

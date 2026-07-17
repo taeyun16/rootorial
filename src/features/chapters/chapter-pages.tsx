@@ -15,6 +15,7 @@ import { NetworkPolicyChapter } from "../../components/infrastructure/NetworkPol
 import { NetworkNamespacesChapter } from "../../components/infrastructure/NetworkNamespacesChapter";
 import { ServiceDiscoveryChapter } from "../../components/infrastructure/ServiceDiscoveryChapter";
 import { NetworkObservabilityCapacityChapter } from "../../components/infrastructure/NetworkObservabilityCapacityChapter";
+import { NamespacePlatformChapter } from "../../components/infrastructure/NamespacePlatformChapter";
 import { VethRoutingChapter } from "../../components/infrastructure/VethRoutingChapter";
 import { MiniTransformerChapter } from "../../components/mini-transformer/MiniTransformerChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
@@ -136,6 +137,10 @@ function NetworkObservabilityCapacityChapterPage({ learnerCount }: ChapterPagePr
   return <NetworkObservabilityCapacityChapter learnerCount={learnerCount} />;
 }
 
+function NamespacePlatformChapterPage({ learnerCount }: ChapterPageProps) {
+  return <NamespacePlatformChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
@@ -162,6 +167,7 @@ const chapterPages = {
   "infrastructure-design/service-discovery-and-load-balancing": ServiceDiscoveryChapterPage,
   "infrastructure-design/availability-and-failure-domains": AvailabilityFailureDomainsChapterPage,
   "infrastructure-design/network-observability-and-capacity": NetworkObservabilityCapacityChapterPage,
+  "infrastructure-design/assemble-a-namespace-platform": NamespacePlatformChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(

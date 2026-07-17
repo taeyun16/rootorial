@@ -116,6 +116,10 @@ const infrastructureObservabilityKey = chapterPublicationKey(
   "infrastructure-design",
   "network-observability-and-capacity",
 );
+const infrastructurePlatformKey = chapterPublicationKey(
+  "infrastructure-design",
+  "assemble-a-namespace-platform",
+);
 const systemArchitectureKey = curriculumPublicationKey("system-architecture");
 
 function override(resourceKey, values = {}) {
@@ -459,6 +463,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   const networkPolicy = catalog.resources[infrastructureNetworkPolicyKey];
   const availability = catalog.resources[infrastructureAvailabilityKey];
   const observability = catalog.resources[infrastructureObservabilityKey];
+  const platform = catalog.resources[infrastructurePlatformKey];
 
   assert.equal(infrastructure.developmentStatus, "in-progress");
   assert.equal(infrastructure.contentReady, true);
@@ -541,6 +546,17 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(observability.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructureObservabilityKey), false);
   assert.equal(isPublicationListed(catalog, infrastructureObservabilityKey), false);
+  assert.equal(platform.developmentStatus, "complete");
+  assert.equal(platform.previewReady, true);
+  assert.equal(platform.contentReady, true);
+  assert.equal(platform.source, "default");
+  assert.equal(platform.publicationStatus, "draft");
+  assert.equal(platform.effectivePublicationStatus, "draft");
+  assert.equal(platform.listing, "hidden");
+  assert.equal(platform.scheduledAt, null);
+  assert.equal(platform.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, infrastructurePlatformKey), false);
+  assert.equal(isPublicationListed(catalog, infrastructurePlatformKey), false);
 
   const announced = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "infrastructure-design",

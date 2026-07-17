@@ -353,10 +353,12 @@ test("keeps completed infrastructure chapters unavailable on public URLs", async
     render("/curricula/infrastructure-design/chapters/availability-and-failure-domains?lang=en"),
     render("/curricula/infrastructure-design/chapters/network-observability-and-capacity"),
     render("/curricula/infrastructure-design/chapters/network-observability-and-capacity?lang=en"),
+    render("/curricula/infrastructure-design/chapters/assemble-a-namespace-platform"),
+    render("/curricula/infrastructure-design/chapters/assemble-a-namespace-platform?lang=en"),
   ]);
   assert.deepEqual(
     responses.map(({ status }) => status),
-    [404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404],
+    [404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404],
   );
   await Promise.all(responses.map((response) => response.text()));
 });
@@ -1034,6 +1036,68 @@ test("SSR-renders the bilingual network observability and capacity chapter with 
   assert.match(englishHtml, /data-evidence-state="unaligned"/);
   assert.match(englishHtml, /data-bottleneck="not-run"/);
   assert.doesNotMatch(englishHtml, /path 밖 host view에 잘못 놓인 probe/);
+});
+
+test("SSR-renders the bilingual namespace platform capstone with test-only publication overrides", async () => {
+  const rows = [
+    {
+      resource_key: "curriculum:infrastructure-design",
+      resource_kind: "curriculum",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: null,
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+    {
+      resource_key: "chapter:infrastructure-design/assemble-a-namespace-platform",
+      resource_kind: "chapter",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: "assemble-a-namespace-platform",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/assemble-a-namespace-platform",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /client·edge·app·data namespace를 하나의 플랫폼으로 조립하고/);
+  assert.match(html, /06 — REQUIRED NAMESPACE PLATFORM STUDIO/);
+  assert.match(html, /Ch1–7 canonical evaluator 직접 재실행/);
+  assert.match(html, /07 — REPAIR FOUR ARCHITECTURE INCIDENTS/);
+  assert.match(html, /data-testid="namespace-platform-visualization"/);
+  assert.match(html, /data-evidence-state="not-run"/);
+  assert.match(html, /data-scenario="normal-request"/);
+  assert.match(html, /data-grade-state="not-run"/);
+  assert.match(html, /data-edge-state="not-run"/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/assemble-a-namespace-platform?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /assembles client, edge, app, and data namespaces into one platform/i);
+  assert.match(englishHtml, /Execute seven receipts and four scenarios in one workspace/);
+  assert.match(englishHtml, /Repair four platform incidents with minimal architecture changes/);
+  assert.match(englishHtml, /data-testid="namespace-platform-visualization"/);
+  assert.match(englishHtml, /data-evidence-state="not-run"/);
+  assert.match(englishHtml, /data-grade-state="not-run"/);
 });
 
 test("renders the interactive vectors chapter", async () => {

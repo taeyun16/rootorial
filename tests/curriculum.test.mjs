@@ -58,7 +58,7 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
       { status: "available", developmentStatus: "complete" },
       { status: "available", developmentStatus: "complete" },
       { status: "available", developmentStatus: "complete" },
-      { status: "planned", developmentStatus: "planned" },
+      { status: "available", developmentStatus: "complete" },
     ],
   );
   const koreanVethRouting = infrastructureChaptersKo[1];
@@ -250,6 +250,35 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
   assert.equal(englishObservability.developmentStatus, "complete");
   assert.match(koreanObservability.description, /ip·ss·tcpdump·counter.*포화/);
   assert.match(englishObservability.description, /ip, ss, tcpdump, and counter.*saturation/);
+  const koreanPlatform = infrastructureChaptersKo[7];
+  const englishPlatform = infrastructureChaptersEn[7];
+  assert.deepEqual(
+    {
+      number: koreanPlatform.number,
+      slug: koreanPlatform.slug,
+      title: koreanPlatform.title,
+      runtime: koreanPlatform.runtime,
+      estimatedMinutes: koreanPlatform.estimatedMinutes,
+      status: koreanPlatform.status,
+      developmentStatus: koreanPlatform.developmentStatus,
+      concepts: koreanPlatform.concepts,
+    },
+    {
+      number: 8,
+      slug: "assemble-a-namespace-platform",
+      title: "namespace 플랫폼 조립하기",
+      runtime: "TypeScript 인프라 설계 스튜디오",
+      estimatedMinutes: 95,
+      status: "available",
+      developmentStatus: "complete",
+      concepts: ["versioned evidence", "namespace platform · policy", "failure · capacity trade-off"],
+    },
+  );
+  assert.equal(englishPlatform.title, "Assemble a Namespace Platform");
+  assert.equal(englishPlatform.status, "available");
+  assert.equal(englishPlatform.developmentStatus, "complete");
+  assert.match(koreanPlatform.description, /client·edge·app·data.*failure evidence/);
+  assert.match(englishPlatform.description, /client, edge, app, and data.*failure evidence/);
   const curriculum = getCurriculum("infrastructure-design");
   assert.equal(curriculum?.status, "in-progress");
   assert.deepEqual(curriculum?.title, {
