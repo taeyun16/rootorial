@@ -12,6 +12,9 @@ async function signInAsAdmin(page: TestPage) {
 
 async function completeMode(lab: Locator, locale: "ko" | "en", mode: "snat" | "masquerade") {
   const ko = locale === "ko";
+  await expect(lab).toHaveAttribute("data-interactive-ready", "true", {
+    timeout: 20_000,
+  });
   if (mode === "snat") {
     await lab.getByRole("button", { name: /^SNAT/ }).click();
     await lab.getByLabel("router net.ipv4.ip_forward=1").check();

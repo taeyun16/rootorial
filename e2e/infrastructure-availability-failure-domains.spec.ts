@@ -8,6 +8,9 @@ async function signInAsAdmin(page: TestPage) { test.skip(!process.env.E2E_ADMIN_
 
 async function completeMode(lab: Locator, locale: "ko" | "en", mode: "placement" | "recovery") {
   const ko = locale === "ko";
+  await expect(lab).toHaveAttribute("data-interactive-ready", "true", {
+    timeout: 20_000,
+  });
   await lab.getByRole("button", { name: mode === "placement" ? /DOMAIN PLACEMENT/ : /DEPENDENCY RECOVERY/ }).click();
   if (mode === "placement") {
     await lab.getByLabel(ko ? "gateway failure domain" : "Gateway failure domains").selectOption("split-zones");
