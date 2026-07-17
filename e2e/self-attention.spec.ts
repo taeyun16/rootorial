@@ -31,7 +31,7 @@ function watchHeavyRuntimeRequests(page: TestPage) {
 
 async function selfAttentionOverflow(page: TestPage) {
   return page.locator(
-    ".self-attention-boundary-grid, .self-attention-shape-ladder, .self-attention-formula-stack, .self-attention-mask-table-wrap, .self-attention-workbench, .self-attention-preset-row, .self-attention-control-panel, .self-attention-run-actions, .self-attention-workbench .step-explorer, .self-attention-stage-panel, .self-attention-matrix-stack, .self-attention-matrix-stack .array-diagram, .self-attention-matrix-stack .array-diagram-scroll, .self-attention-masked-grid-wrap, .self-attention-evidence, .self-attention-debugger-lab, .self-attention-debug-grid, .self-attention-debug-card, .self-attention-debug-actions, .self-attention-debug-feedback, .self-attention-transfer-task, .self-attention-completion-checklist, .self-attention-chapter-shell .math-formula-display",
+    ".self-attention-boundary-grid, .self-attention-shape-ladder, .self-attention-worked-trace, .self-attention-formula-stack, .self-attention-mask-table-wrap, .self-attention-workbench, .self-attention-preset-row, .self-attention-control-panel, .self-attention-run-actions, .self-attention-workbench .step-explorer, .self-attention-stage-panel, .self-attention-matrix-stack, .self-attention-matrix-stack .array-diagram, .self-attention-matrix-stack .array-diagram-scroll, .self-attention-masked-grid-wrap, .self-attention-evidence, .self-attention-python-bridge, .self-attention-python-bridge .notebook-cell, .self-attention-debugger-lab, .self-attention-debug-grid, .self-attention-debug-card, .self-attention-debug-actions, .self-attention-debug-feedback, .self-attention-transfer-task, .self-attention-completion-checklist, .self-attention-chapter-shell .math-formula-display",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({
@@ -59,6 +59,16 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "Self-Attention", exact: true })).toBeVisible();
   await expect(page.getByText("필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · CAUSAL MULTI-HEAD REPAIR CONSOLE", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "sat query 한 행을 score에서 concat까지 끝까지 추적합니다" })).toBeVisible();
+  const workedTrace = page.locator(".self-attention-worked-trace");
+  await expect(workedTrace).toContainText("raw = [2, 1, 0, 1]");
+  await expect(workedTrace).toContainText("weights = [0.575975, 0.283995, 0.140029, 0]");
+  await expect(workedTrace).toContainText("context₁ = [0.716005, 0.424025]");
+  await expect(workedTrace).toContainText("concat = [0.744765, 0.503490, 0.716005, 0.424025]");
+  await expect(page.getByRole("heading", { name: "고정 trace와 mask repair를 실제 NumPy로 다시 실행합니다" })).toBeVisible();
+  await expect(page.getByText("Q/K/V 투영부터 two-head concat까지 실행", { exact: true })).toBeVisible();
+  await expect(page.getByText("Softmax 뒤 mask 버그 수리", { exact: true })).toBeVisible();
+  await expect(page.locator(".self-attention-python-bridge .notebook-cell")).toHaveCount(2);
 
   const completionButton = page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" });
   await expect(completionButton).toHaveAttribute("data-completion-ready", "false");
@@ -198,6 +208,14 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
     "Project Q, K, and V separately from the same input, compute scaled dot products for every token row, then execute causal-masking and multi-head split/merge contracts while debugging information leaks and shape defects.",
   );
   await expect(page.getByRole("heading", { name: "Self-Attention", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Trace one sat query row from scores through concatenation" })).toBeVisible();
+  const workedTrace = page.locator(".self-attention-worked-trace");
+  await expect(workedTrace).toContainText("masked = [1.414214, 0.707107, 0, -inf]");
+  await expect(workedTrace).toContainText("concat = [0.744765, 0.503490, 0.716005, 0.424025]");
+  await expect(page.getByRole("heading", { name: "Re-execute the fixed trace and mask repair in real NumPy" })).toBeVisible();
+  await expect(page.getByText("Run Q/K/V projections through two-head concat", { exact: true })).toBeVisible();
+  await expect(page.getByText("Repair the mask-after-softmax bug", { exact: true })).toBeVisible();
+  await expect(page.locator(".self-attention-python-bridge .notebook-cell")).toHaveCount(2);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];

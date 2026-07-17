@@ -370,7 +370,9 @@ test("SSR-renders the bilingual Self-Attention chapter with an explicit test-onl
     html,
     /한 query가 바깥 memory를 읽던 Attention을, 같은 token sequence의 모든 row가 서로를 읽는 계산으로 확장합니다/,
   );
-  assert.match(html, /07 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
+  assert.match(html, /raw = \[2, 1, 0, 1\]/);
+  assert.match(html, /고정 trace와 mask repair를 실제 NumPy로 다시 실행합니다/);
+  assert.match(html, /08 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
 
   const englishResponse = await renderWithPublicationRows(
     "/curricula/transformer-from-zero/chapters/self-attention?lang=en",
@@ -383,7 +385,9 @@ test("SSR-renders the bilingual Self-Attention chapter with an explicit test-onl
     englishHtml,
     /Extend Attention from one query reading external memory into every row of one token sequence reading that sequence/,
   );
-  assert.match(englishHtml, /07 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
+  assert.match(englishHtml, /raw = \[2, 1, 0, 1\]/);
+  assert.match(englishHtml, /Re-execute the fixed trace and mask repair in real NumPy/);
+  assert.match(englishHtml, /08 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
 });
 
 test("SSR-renders the bilingual Transformer Block chapter with an explicit test-only publication override", async () => {
