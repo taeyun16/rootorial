@@ -74,9 +74,13 @@ async function completeTopology(lab: Locator, locale: "ko" | "en") {
     listener: isKo ? "listener 생성 위치" : "listener creation namespace",
     probe: isKo ? "local health probe 위치" : "local health probe namespace",
   });
+  const visual = lab.getByTestId("network-namespace-visualization");
+  await expect(visual).toHaveAttribute("data-boundary-state", "working-boundaries");
+  await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await lab.getByRole("button", {
     name: isKo ? "reachability 실행·설계 판정" : "Run reachability and grade design",
   }).click();
+  await expect(visual).toHaveAttribute("data-grade-state", "passed");
 }
 
 async function repairAllIncidents(page: TestPage) {
@@ -101,7 +105,7 @@ async function repairAllIncidents(page: TestPage) {
 
 function namespaceOverflow(page: TestPage) {
   return page.locator(
-    ".network-namespaces-chapter-shell, .namespace-view-grid, .namespace-loopback-strip, .namespace-ownership-grid, .namespace-evidence-pipeline, .namespace-lab, .namespace-design-grid, .namespace-lab-grid, .namespace-reachability-grid, .namespace-incident-grid, .namespace-incident-card, .network-completion-checklist",
+    ".network-namespaces-chapter-shell, .namespace-view-grid, .namespace-loopback-strip, .namespace-ownership-grid, .namespace-evidence-pipeline, .namespace-lab, .namespace-design-grid, .namespace-lab-grid, .namespace-boundary-visualization, .namespace-kernel-boundary-map, .namespace-boundary-map-grid, .namespace-boundary-map-card, .namespace-boundary-object-lanes, .namespace-boundary-probe-list, .namespace-incident-grid, .namespace-incident-card, .network-completion-checklist",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({
@@ -141,22 +145,47 @@ test("completes the namespace topology, four incidents, and concepts in the Kore
   const topology = page.locator(".namespace-topology-lab");
   await expect(topology).toHaveAttribute("data-interactive-ready", "true");
   await expect(topology.getByRole("heading", { name: "namespace별 local health와 격리 행렬 설계" })).toBeVisible();
+  const visual = topology.getByTestId("network-namespace-visualization");
+  await expect(visual.getByRole("img", { name: /네트워크 namespace 경계 지도/ })).toBeVisible();
+  await expect(visual).toHaveAttribute("data-boundary-state", "collapsed");
+  await expect(visual).toHaveAttribute("data-grade-state", "not-run");
+  await expect(visual).toHaveAttribute("data-cross-namespace-path", "absent");
+  await expect(visual.locator('[data-object-id="app-listener"]')).toHaveAttribute("data-owner-namespace", "host");
+  await expect(visual.locator('[data-namespace-id="app"]')).toHaveAttribute("data-loopback-state", "down");
+  await expect(visual.locator('[data-namespace-id="data"]')).toHaveAttribute("data-loopback-state", "down");
+  await expect(visual.locator('[data-result="not-run"]')).toHaveCount(5);
   const appBoundary = topology.getByRole("group", { name: "APP · 127.0.0.1:8080" });
   await topology.getByRole("button", { name: "격리됨 · lo down" }).click();
   await expect(appBoundary.getByLabel("service process 위치")).toHaveValue("app");
+  await expect(visual).toHaveAttribute("data-boundary-state", "isolated-down");
+  await expect(visual.locator('[data-object-id="app-service"]')).toHaveAttribute("data-owner-namespace", "app");
+  await expect(visual.locator('[data-object-id="app-listener"]')).toHaveAttribute("data-owner-namespace", "app");
   await topology.getByRole("button", { name: "전체 초기화" }).click();
   await expect(appBoundary.getByLabel("service process 위치")).toHaveValue("host");
+  await expect(visual).toHaveAttribute("data-boundary-state", "collapsed");
   await topology.getByLabel("namespace 설계 결과 예측").selectOption("host-can-reach");
   await topology.getByRole("button", { name: "reachability 실행·설계 판정" }).click();
   await expect(topology.locator(".namespace-feedback")).toContainText("예측을 다시 보세요");
-  await expect(topology.locator(".namespace-reachability-card")).toHaveCount(5);
+  await expect(visual).toHaveAttribute("data-grade-state", "failed");
+  await expect(visual.locator(".namespace-boundary-probe-list > li")).toHaveCount(5);
   await expect(topology.locator(".namespace-feedback")).toHaveClass(/is-error/);
 
   await completeTopology(topology, "ko");
   await expect(topology.getByText("설계 통과", { exact: true })).toBeVisible();
   await expect(topology.locator(".namespace-feedback")).toContainText("app·data local health는 각자의 lo와 socket table에서 성공");
   await expect(topology.locator(".namespace-feedback")).toHaveClass(/is-success/);
-  await expect(topology.locator(".namespace-reachability-card")).toHaveCount(5);
+  await expect(visual.locator('[data-result="connected"]')).toHaveCount(2);
+  await expect(visual.locator('[data-result="connection-refused"]')).toHaveCount(3);
+
+  await appBoundary.getByLabel("listener 생성 위치").selectOption("host");
+  await expect(visual).toHaveAttribute("data-boundary-state", "misconfigured");
+  await expect(visual).toHaveAttribute("data-grade-state", "not-run");
+  await expect(visual.locator('[data-object-id="app-listener"]')).toHaveAttribute("data-owner-namespace", "host");
+  await expect(visual.locator('[data-result="not-run"]')).toHaveCount(5);
+  await appBoundary.getByLabel("listener 생성 위치").selectOption("app");
+  await expect(visual).toHaveAttribute("data-boundary-state", "working-boundaries");
+  await topology.getByRole("button", { name: "reachability 실행·설계 판정" }).click();
+  await expect(visual).toHaveAttribute("data-grade-state", "passed");
 
   await repairAllIncidents(page);
 
@@ -189,8 +218,11 @@ test("keeps the English draft keyboard-usable and resettable at 390px without ov
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  const response = await page.goto(`${previewPath}?lang=en`);
+  const response = await page.goto(previewPath);
   expect(response?.status()).toBe(200);
+  await expect(page.locator(".namespace-topology-lab")).toHaveAttribute("data-interactive-ready", "true");
+  await page.getByRole("button", { name: "EN", exact: true }).click();
+  await expect(page).toHaveURL(`${previewPath}?lang=en`);
   await expect(page).toHaveTitle("[Preview] 01. Network Namespaces and Isolation Boundaries · Rootorial");
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
@@ -232,12 +264,23 @@ test("keeps the English draft keyboard-usable and resettable at 390px without ov
 
   const topology = page.locator(".namespace-topology-lab");
   await expect(topology).toHaveAttribute("data-interactive-ready", "true");
+  const visual = topology.getByTestId("network-namespace-visualization");
+  await expect(visual.getByRole("img", { name: /Network namespace boundary map/ })).toBeVisible();
+  await expect(visual.getByRole("img")).toHaveCount(1);
+  await expect(visual).toHaveAttribute("data-boundary-state", "collapsed");
+  await expect(visual).toHaveAttribute("data-grade-state", "not-run");
+  await expect(visual).toHaveAttribute("data-cross-namespace-path", "absent");
   const isolatedPreset = topology.getByRole("button", { name: "Isolated · lo down" });
   await activate(isolatedPreset);
   await expect(isolatedPreset).toBeFocused();
   await expect(topology.getByLabel("app lo admin state")).not.toBeChecked();
+  await expect(visual).toHaveAttribute("data-boundary-state", "isolated-down");
   await completeTopology(topology, "en");
   await expect(topology.getByText("DESIGN PASSED", { exact: true })).toBeVisible();
+  await expect(visual.locator('[data-result="connected"]')).toHaveCount(2);
+  await expect(visual.locator('[data-result="connection-refused"]')).toHaveCount(3);
+  expect(await namespaceOverflow(page)).toEqual([]);
+  expect(await documentOverflow()).toBeLessThanOrEqual(1);
 
   const resetTopology = topology.getByRole("button", { name: "Reset all" });
   await activate(resetTopology);
@@ -245,7 +288,9 @@ test("keeps the English draft keyboard-usable and resettable at 390px without ov
   await expect(topology.getByLabel("Predict namespace design result")).toHaveValue("");
   await expect(topology.getByRole("group", { name: "APP · 127.0.0.1:8080" })
     .getByLabel("service process namespace")).toHaveValue("host");
-  await expect(topology.locator(".namespace-reachability-card")).toHaveCount(0);
+  await expect(visual).toHaveAttribute("data-boundary-state", "collapsed");
+  await expect(visual).toHaveAttribute("data-grade-state", "not-run");
+  await expect(visual.locator('[data-result="not-run"]')).toHaveCount(5);
 
   const firstIncident = page.locator(".namespace-incident-card").first();
   const repair = firstIncident.getByRole("combobox");
