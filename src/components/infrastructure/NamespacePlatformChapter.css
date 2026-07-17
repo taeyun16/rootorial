@@ -170,14 +170,14 @@
 
 .namespace-platform-lab .button-secondary,
 .namespace-platform-incident-lab .button-secondary {
-  border-color: color-mix(in srgb, var(--platform-chapter-accent) 55%, var(--line));
+  border: 1px solid color-mix(in srgb, var(--platform-chapter-accent) 55%, var(--line));
   background: var(--platform-chapter-soft);
   color: var(--ink);
 }
 
 .namespace-platform-lab .button-ghost,
 .namespace-platform-incident-lab .button-ghost {
-  border-color: var(--line-strong);
+  border: 1px solid var(--line-strong);
   background: transparent;
   color: var(--text);
 }

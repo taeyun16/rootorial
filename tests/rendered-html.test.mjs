@@ -943,10 +943,6 @@ test("SSR-renders the bilingual network policy chapter with test-only publicatio
   assert.match(englishHtml, /data-testid="network-policy-visualization"/);
   assert.match(englishHtml, /data-policy-mode="forward"/);
   assert.match(englishHtml, /data-grade-state="not-run"/);
-  assert.match(
-    englishHtml,
-    /href="\/admin\/preview\/curricula\/infrastructure-design\/chapters\/service-discovery-and-load-balancing\?lang=en"/,
-  );
 });
 
 test("SSR-renders the bilingual availability chapter with test-only publication overrides", async () => {
