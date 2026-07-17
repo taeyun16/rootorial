@@ -39,31 +39,61 @@ async function fillCorrectPrediction(page: TestPage) {
 
 async function completeJourney(page: TestPage) {
   const lab = page.locator(".network-journey-lab");
+  const visual = lab.getByTestId("network-packet-visualization");
+  const timeline = visual.getByRole("list", { name: "TCP ACK 타임라인" });
+  await expect(visual.getByRole("img", { name: /패킷 경로 토폴로지/ })).toBeVisible();
+  await expect(timeline).toBeVisible();
+  await expect(visual).toHaveAttribute("data-network-phase", "idle");
   await fillCorrectPrediction(page);
   await lab.getByRole("button", { name: /1 · 고정 hostname mapping 읽기/ }).click();
   await lab.getByRole("button", { name: /2 · socket\(\) → fd 4/ }).click();
   await lab.getByRole("button", { name: /3 · route · ARP · handshake/ }).click();
+  await expect(visual).toHaveAttribute("data-network-phase", "accept-queued");
+  await expect(visual).toContainText("10.0.0.1");
+  await expect(visual).toContainText("02:00:00:00:00:01");
+  await expect(visual).toContainText("203.0.113.20:443");
   await expect(lab.getByText("accept queue 1 · fd 미할당")).toBeVisible();
   await lab.getByRole("button", { name: /4 · accept\(fd 3\) → fd 5/ }).click();
   await expect(lab.getByText("accepted fd 5 · ESTABLISHED")).toBeVisible();
   await lab.getByRole("button", { name: /5 · send\(3000\)/ }).click();
+  await expect(visual).toHaveAttribute("data-network-phase", "queued");
+  await expect(timeline.locator("[data-segment-index]")).toHaveCount(3);
+  await expect(timeline.locator('[data-segment-index="1"]')).toContainText("[1001, 2461) · 1460 B");
+  await expect(timeline.locator('[data-segment-index="2"]')).toContainText("[2461, 3921) · 1460 B");
+  await expect(timeline.locator('[data-segment-index="3"]')).toContainText("[3921, 4001) · 80 B");
 
   const disposition = lab.getByRole("combobox", { name: "다음 segment 전달 또는 유실 선택" });
   const transmit = lab.getByRole("button", { name: /6–8 · 다음 segment 전송/ });
   await disposition.selectOption("deliver");
   await transmit.click();
+  await expect(visual).toHaveAttribute("data-network-phase", "transmitting");
+  await expect(timeline.locator('[data-segment-index="1"]')).toContainText("누적 ACK 완료");
+  await expect(visual.locator(".network-packet-current-state")).toContainText("ACK 2461");
   await expect(lab.getByText("receive queue 1460 B")).toBeVisible();
   await disposition.selectOption("drop");
   await transmit.click();
+  await expect(visual).toHaveAttribute("data-network-phase", "gap");
+  await expect(timeline.locator('[data-segment-index="2"]')).toContainText("첫 전송 유실");
+  await expect(timeline.locator('[data-segment-index="2"]')).toContainText("ACK 2461");
   await disposition.selectOption("deliver");
   await transmit.click();
+  await expect(timeline.locator('[data-segment-index="3"]')).toContainText("순서 밖 buffer");
+  await expect(timeline.locator('[data-segment-index="3"]')).toContainText("duplicate ACK 2461");
   await expect(lab.getByText("receiver next 2461")).toBeVisible();
 
   await lab.getByRole("button", { name: /9 · RTO · 첫 gap 재전송/ }).click();
+  await expect(visual).toHaveAttribute("data-network-phase", "recovered");
+  await expect(timeline.locator('[data-segment-index="2"]')).toHaveAttribute("data-segment-state", "recovered");
+  await expect(timeline.locator('[data-segment-index="2"]')).toContainText("RTO 재전송");
+  await expect(timeline.locator('[data-segment-index="2"]')).toContainText("tx 2");
+  await expect(visual.locator(".network-packet-current-state")).toContainText("누적 ACK 4001");
   await expect(lab.getByText("receive queue 3000 B")).toBeVisible();
   await lab.locator(".network-layer-tabs").getByRole("button", { name: "tcp", exact: true }).click();
   await lab.locator(".network-layer-tabs").getByRole("button", { name: "ip", exact: true }).click();
   await lab.getByRole("button", { name: /10 · accepted fd 5에서 recv 실행/ }).click();
+  await expect(visual).toHaveAttribute("data-network-phase", "received");
+  await expect(visual.locator(".network-packet-current-state")).toContainText("recv(fd 5)");
+  await expect(visual).toContainText("APPLICATION · 3000 B");
   await expect(lab.getByText("recv(fd 5) → 3000 B", { exact: true })).toBeVisible();
   await expect(lab.getByText("필수 실습 완료", { exact: false })).toBeVisible();
 }
@@ -108,6 +138,10 @@ async function completeIncidents(page: TestPage) {
 
 async function completeEnglishJourneyWithKeyboard(page: TestPage) {
   const lab = page.locator(".network-journey-lab");
+  const visual = lab.getByTestId("network-packet-visualization");
+  await expect(visual.getByRole("img", { name: /Packet path topology/ })).toBeVisible();
+  await expect(visual.getByRole("list", { name: "TCP ACK timeline" })).toBeVisible();
+  await expect(visual).toHaveAttribute("data-network-phase", "idle");
   await lab.getByRole("combobox", { name: "Predict socket syscall boundaries" }).selectOption("fd-handshake-queue");
   await lab.getByRole("combobox", { name: "Predict on-link route" }).selectOption("direct-24-peer");
   await lab.getByRole("combobox", { name: "Predict remote route and addressing boundaries" }).selectOption("default-gateway-preserve-ip");
@@ -140,6 +174,8 @@ async function completeEnglishJourneyWithKeyboard(page: TestPage) {
   await lab.locator(".network-layer-tabs").getByRole("button", { name: "tcp", exact: true }).click();
   await lab.locator(".network-layer-tabs").getByRole("button", { name: "ip", exact: true }).click();
   await lab.getByRole("button", { name: /10 · Run recv on accepted fd 5/ }).click();
+  await expect(visual).toHaveAttribute("data-network-phase", "received");
+  await expect(visual.locator(".network-packet-current-state")).toContainText("recv(fd 5)");
   await expect(lab.getByText("Required lab complete", { exact: false })).toBeVisible();
 }
 
@@ -273,6 +309,11 @@ test("keeps the English draft keyboard-usable at 390px without untranslated or h
   await expect(page.locator(".network-journey-lab").getByRole("combobox", { name: "Predict socket syscall boundaries" })).toHaveValue("");
 
   await completeEnglishJourneyWithKeyboard(page);
+  const markerMotion = await page.locator(".network-journey-lab [data-packet-marker]").evaluate((element) => {
+    const style = getComputedStyle(element);
+    return [style.animationName, style.transitionDuration];
+  });
+  expect(markerMotion).toEqual(["none", "0s"]);
   await completeEnglishIncidentsWithKeyboard(page);
   await page.locator('input[name="socket-boundary"][value="fd-references-kernel-socket"]').check();
   await page.locator('input[name="longest-prefix-route"][value="most-specific-prefix"]').check();
