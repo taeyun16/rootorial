@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  sequencesBatchedUnrollCode,
+  sequencesTemporalGradientRepairCode,
+} from "../src/data/sequencesNotebook.ts";
+import {
   canCompleteSequencesChapter,
   computeScalarRnnGradients,
   evaluateSequenceLabMastery,
@@ -16,6 +20,25 @@ import {
   sequenceRepairOptions,
   traceScalarRnn,
 } from "../src/features/sequences/sequence-model.ts";
+
+test("ships independent English-only Python bridges for batched unroll and temporal-gradient repair", () => {
+  assert.match(sequencesBatchedUnrollCode, /inputs = np\.array/);
+  assert.match(sequencesBatchedUnrollCode, /inputs\.shape\[0\], 1/);
+  assert.match(sequencesBatchedUnrollCode, /trace = np\.stack\(trace_steps, axis=1\)/);
+  assert.match(sequencesBatchedUnrollCode, /\[0\.761594, 0\.363399, -0\.674144\]/);
+  assert.match(sequencesBatchedUnrollCode, /PASS: equal token multisets can produce different final states/);
+
+  assert.match(sequencesTemporalGradientRepairCode, /sequence = np\.array\(\[1\.0, 0\.0, 0\.0, 0\.0, 0\.0, 0\.0, 0\.0\]\)/);
+  assert.match(sequencesTemporalGradientRepairCode, /analytic_gradient \*= 1 - current_hidden \*\* 2/);
+  assert.match(sequencesTemporalGradientRepairCode, /numerical_gradient =/);
+  assert.match(sequencesTemporalGradientRepairCode, /T-1 recurrent edges/);
+  assert.match(sequencesTemporalGradientRepairCode, /PASS: analytic early-input gradient matches finite differences/);
+
+  assert.match(sequencesBatchedUnrollCode, /hidden = np\.zeros/);
+  assert.match(sequencesTemporalGradientRepairCode, /def unroll\(values\):/);
+  assert.doesNotMatch(sequencesBatchedUnrollCode, /[가-힣]/);
+  assert.doesNotMatch(sequencesTemporalGradientRepairCode, /[가-힣]/);
+});
 
 function close(actual, expected, tolerance = 1e-9) {
   assert.ok(
