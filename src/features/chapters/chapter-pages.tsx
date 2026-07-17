@@ -11,6 +11,7 @@ import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter"
 import { LinuxTinySystemChapter } from "../../components/linux/LinuxTinySystemChapter";
 import { NetworkNamespacesChapter } from "../../components/infrastructure/NetworkNamespacesChapter";
 import { EgressNatChapter } from "../../components/infrastructure/EgressNatChapter";
+import { AvailabilityFailureDomainsChapter } from "../../components/infrastructure/AvailabilityFailureDomainsChapter";
 import { VethRoutingChapter } from "../../components/infrastructure/VethRoutingChapter";
 import { MiniTransformerChapter } from "../../components/mini-transformer/MiniTransformerChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
@@ -116,6 +117,10 @@ function EgressNatChapterPage({ learnerCount }: ChapterPageProps) {
   return <EgressNatChapter learnerCount={learnerCount} />;
 }
 
+function AvailabilityFailureDomainsChapterPage({ learnerCount }: ChapterPageProps) {
+  return <AvailabilityFailureDomainsChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
@@ -138,6 +143,7 @@ const chapterPages = {
   "infrastructure-design/network-namespaces-and-boundaries": NetworkNamespacesChapterPage,
   "infrastructure-design/veth-bridges-and-routing": VethRoutingChapterPage,
   "infrastructure-design/egress-nat-and-conntrack": EgressNatChapterPage,
+  "infrastructure-design/availability-and-failure-domains": AvailabilityFailureDomainsChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(

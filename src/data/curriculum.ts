@@ -723,8 +723,8 @@ export const infrastructureChaptersKo: Chapter[] = [
       "서비스 replica와 gateway를 서로 다른 failure domain에 배치하고 dependency budget·failover·degraded mode의 실제 가용성을 계산합니다.",
     runtime: "TypeScript failure 시뮬레이터",
     estimatedMinutes: 75,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["failure domain", "redundancy · failover", "dependency budget"],
   },
   {
@@ -830,8 +830,8 @@ export const infrastructureChaptersEn: Chapter[] = [
       "Place service replicas and gateways across failure domains, then compute actual availability from dependency budgets, failover, and degraded modes.",
     runtime: "TypeScript failure simulator",
     estimatedMinutes: 75,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["failure domain", "redundancy · failover", "dependency budget"],
   },
   {
