@@ -102,6 +102,10 @@ test("completes XOR, network surgery, and concepts in the Korean admin draft pre
   await expect(page.getByText("별도 활동 · NETWORK SURGERY", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "시뮬레이터의 XOR을 실제 NumPy forward pass로 옮깁니다" })).toBeVisible();
   await expect(page.getByText("직선 하나로 XOR을 탐색", { exact: true })).toBeVisible();
+  const collapseTrace = page.getByRole("group", { name: "activation이 없을 때 두 affine이 하나로 합쳐지는 수치 추적" });
+  await expect(collapseTrace.getByRole("heading", { name: "유효 가중치 [0, 0], 유효 편향 52" })).toBeVisible();
+  await expect(collapseTrace.getByRole("heading", { name: "logits = [52, 52, 52, 52]" })).toBeVisible();
+  await expect(collapseTrace).toContainText("2/4에 머뭅니다");
   await expect(page.getByText("빠진 hidden activation 수리", { exact: true })).toBeVisible();
 
   await completeXorLab(page, { includeWrongPrediction: true });
@@ -158,6 +162,10 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   await expect(page.getByRole("heading", { name: "Classification and Neural Networks" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Move the simulator's XOR into a real NumPy forward pass" })).toBeVisible();
   await expect(page.getByText("Search XOR with one line", { exact: true })).toBeVisible();
+  const collapseTrace = page.getByRole("group", { name: "Numeric trace of two affine maps collapsing without an activation" });
+  await expect(collapseTrace.getByRole("heading", { name: "Effective weights [0, 0], effective bias 52" })).toBeVisible();
+  await expect(collapseTrace.getByRole("heading", { name: "logits = [52, 52, 52, 52]" })).toBeVisible();
+  await expect(collapseTrace).toContainText("accuracy stops at 2/4");
   await expect(page.getByText("Repair the missing hidden activation", { exact: true })).toBeVisible();
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {

@@ -68,6 +68,23 @@ b2 = -12.0
 
 hidden_logits = X @ W1 + b1
 
+# With an identity hidden function, the two affine maps collapse into one.
+identity_effective_weights = W1 @ W2
+identity_effective_bias = float((b1 @ W2).item() + b2)
+identity_logits = (X @ identity_effective_weights).reshape(-1) + identity_effective_bias
+identity_predictions = (sigmoid(identity_logits) >= 0.5).astype(int)
+identity_correct = int(np.sum(identity_predictions == y))
+
+print("identity_effective_weights=", identity_effective_weights.reshape(-1).tolist())
+print(f"identity_effective_bias={identity_effective_bias:g}")
+print("identity_logits=", identity_logits.tolist())
+print("identity_predictions=", identity_predictions.tolist())
+print(f"identity_correct={identity_correct}/4")
+
+assert np.allclose(identity_effective_weights.reshape(-1), [0.0, 0.0])
+assert identity_effective_bias == 52.0
+assert identity_correct == 2
+
 # REPAIR: this skips the hidden activation and collapses two affine maps.
 hidden = hidden_logits
 

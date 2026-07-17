@@ -22,6 +22,10 @@ test("ships self-contained Python bridges for bounded linear search and hidden r
   assert.match(neuralNetworksLinearBoundaryCode, /assert best_correct == 3/);
   assert.match(neuralNetworksLinearBoundaryCode, /bounded search matches the geometric XOR limit/);
   assert.match(neuralNetworksHiddenRepairCode, /hidden = hidden_logits/);
+  assert.match(neuralNetworksHiddenRepairCode, /identity_effective_weights = W1 @ W2/);
+  assert.match(neuralNetworksHiddenRepairCode, /identity_effective_bias/);
+  assert.match(neuralNetworksHiddenRepairCode, /identity_correct=\{identity_correct\}\/4/);
+  assert.match(neuralNetworksHiddenRepairCode, /assert identity_correct == 2/);
   assert.match(neuralNetworksHiddenRepairCode, /assert correct == 4/);
   assert.match(neuralNetworksHiddenRepairCode, /assert mean_bce < 0\.1/);
   assert.doesNotMatch(neuralNetworksLinearBoundaryCode, /[가-힣]/);

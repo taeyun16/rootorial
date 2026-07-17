@@ -46,6 +46,6 @@ test("renders a reviewable Markdown report with score and draft state", () => {
   const markdown = renderCurriculumQualityMarkdown(analyzeCurriculumQuality());
 
   assert.match(markdown, /벡터와 텐서.*2.*45\/45.*published/);
-  assert.match(markdown, /분류와 신경망.*2.*44\/45.*draft/);
+  assert.match(markdown, /분류와 신경망.*2.*45\/45.*draft/);
   assert.match(markdown, /Structural contract issues: 0/);
 });

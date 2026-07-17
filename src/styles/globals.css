@@ -15347,6 +15347,23 @@ textarea:focus-visible {
   margin-top: 30px;
 }
 
+.neural-affine-collapse-trace {
+  margin-top: 30px;
+  margin-bottom: 0;
+}
+
+.neural-affine-collapse-trace .math-formula-display {
+  margin: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  font-size: clamp(13px, 1.5vw, 17px);
+}
+
+.neural-affine-collapse-trace h3 {
+  overflow-wrap: anywhere;
+}
+
 .neural-xor-lab .interactive-lab-header,
 .neural-debugger-lab .interactive-lab-header {
   border-bottom: 1px solid var(--line-strong);

@@ -229,7 +229,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
               <span className="callout-mark">Py</span>
               <div>
                 <strong>{t("선택 심화이며 각 셀은 독립적으로 실행됩니다", "Optional extension; each cell runs independently")}</strong>
-                <p>{t("브라우저가 공유 Pyodide 런타임과 NumPy를 지연 로드합니다. 다운로드 실패는 필수 XOR 실습이나 챕터 완료를 막지 않습니다. 두 셀은 서로의 변수에 의존하지 않으므로 어떤 순서로 실행해도 됩니다.", "The browser lazily loads the shared Pyodide runtime and NumPy. A download failure never blocks the required XOR lab or chapter completion. The cells do not share variables, so either can run first.")}</p>
+                <p>{t("브라우저가 공유 Pyodide 런타임과 NumPy를 지연 로드합니다. 다운로드 실패는 필수 XOR 실습이나 챕터 완료를 막지 않습니다. 어느 셀도 다른 셀이 남긴 상태에 의존하지 않으므로 어떤 순서로 실행해도 됩니다.", "The browser lazily loads the shared Pyodide runtime and NumPy. A download failure never blocks the required XOR lab or chapter completion. Neither cell depends on state left by the other, so either can run first.")}</p>
               </div>
             </div>
             <NotebookCell
@@ -240,6 +240,31 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
               editorMinHeight={430}
               ariaLabel={t("단일 affine XOR 한계 NumPy 코드", "NumPy code for the single-affine XOR limit")}
             />
+            <div
+              className="concept-definition-grid neural-affine-collapse-trace"
+              role="group"
+              aria-label={t("activation이 없을 때 두 affine이 하나로 합쳐지는 수치 추적", "Numeric trace of two affine maps collapsing without an activation")}
+            >
+              <article>
+                <span>STEP 1 · COMPOSE</span>
+                <h3>{t("두 affine을 하나로 접습니다", "Compose the two affine maps")}</h3>
+                <MathFormula
+                  latex={String.raw`(XW^1+b^1)W^2+b^2=X(W^1W^2)+(b^1W^2+b^2)`}
+                  display
+                  ariaLabel={t("괄호 X W1 더하기 b1 괄호 곱하기 W2 더하기 b2는 X 곱하기 괄호 W1 W2 괄호 더하기 괄호 b1 W2 더하기 b2 괄호", "X W one plus b one, times W two plus b two, equals X times W one W two, plus b one W two plus b two")}
+                />
+              </article>
+              <article>
+                <span>STEP 2 · EFFECTIVE PARAMETERS</span>
+                <h3 aria-label={t("유효 가중치 [0, 0], 유효 편향 52", "Effective weights [0, 0], effective bias 52")}>W<sub>eff</sub> = [0, 0] · b<sub>eff</sub> = 52</h3>
+                <p>{t("W¹W²의 두 성분은 각각 8×8 + (−8)×8 = 0이고, b¹W²+b² = (−4)×8 + 12×8 − 12 = 52입니다.", "Each component of W¹W² is 8×8 + (−8)×8 = 0, while b¹W²+b² = (−4)×8 + 12×8 − 12 = 52.")}</p>
+              </article>
+              <article>
+                <span>STEP 3 · XOR CONSEQUENCE</span>
+                <h3>logits = [52, 52, 52, 52]</h3>
+                <p>{t("네 입력이 모두 같은 확률과 예측 1을 얻습니다. 예측 [1,1,1,1]은 XOR 네 행 중 양성 두 행만 맞혀 2/4에 머뭅니다.", "All four inputs receive the same probability and class 1. Predictions [1,1,1,1] match only the two positive XOR rows, so accuracy stops at 2/4.")}</p>
+              </article>
+            </div>
             <NotebookCell
               title={t("빠진 hidden activation 수리", "Repair the missing hidden activation")}
               initialCode={isKo ? neuralNetworksHiddenRepairCode : neuralNetworksHiddenRepairCodeEn}
