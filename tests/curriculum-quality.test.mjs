@@ -27,9 +27,9 @@ test("makes the current executable-Python gap explicit", () => {
   assert.equal(pythonCells["neural-networks"], 2);
   assert.equal(pythonCells.training, 2);
   assert.equal(pythonCells.embeddings, 2);
+  assert.equal(pythonCells.attention, 2);
   for (const slug of [
     "sequences",
-    "attention",
     "self-attention",
     "transformer-block",
     "mini-transformer",
@@ -38,7 +38,7 @@ test("makes the current executable-Python gap explicit", () => {
   }
   assert.equal(
     report.targetGaps.filter((gap) => gap.includes("Python cells")).length,
-    6,
+    4,
   );
 });
 
@@ -50,5 +50,6 @@ test("renders a reviewable Markdown report with score and draft state", () => {
   assert.match(markdown, /분류와 신경망.*2.*45\/45.*draft/);
   assert.match(markdown, /딥러닝 학습 구조.*2.*45\/45.*draft/);
   assert.match(markdown, /토큰과 임베딩.*2.*45\/45.*draft/);
+  assert.match(markdown, /Attention.*2.*45\/45.*draft/);
   assert.match(markdown, /Structural contract issues: 0/);
 });
