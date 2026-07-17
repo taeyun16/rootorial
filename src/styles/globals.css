@@ -18624,6 +18624,8 @@ textarea:focus-visible {
 .embeddings-pooling-cases article + article { border-left: 1px solid var(--line); background: var(--embedding-mint); }
 .embeddings-pooling-cases article strong { display: block; margin-top: 8px; font: 800 14px var(--mono); overflow-wrap: anywhere; }
 
+.embeddings-python-bridge .notebook-cell { margin-top: 30px; }
+
 .embeddings-order-transfer { grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
 .embeddings-order-transfer article { min-width: 0; padding: 18px; border: 1px solid var(--line); background: white; }
 .embeddings-order-transfer article strong { display: block; margin-top: 8px; color: var(--embedding-ink); font: 800 14px var(--mono); overflow-wrap: anywhere; }

@@ -6,6 +6,10 @@ import {
   TRANSFORMER_CURRICULUM_SLUG,
 } from "../../data/curriculum";
 import {
+  embeddingsLookupMaskedMeanCode,
+  embeddingsScatterAddRepairCode,
+} from "../../data/embeddingsNotebook";
+import {
   baseEmbeddingTable,
   canCompleteEmbeddingsChapter,
   cosineSimilarity,
@@ -20,6 +24,7 @@ import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { MatrixGrid } from "../interactive/MatrixGrid";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
@@ -35,6 +40,7 @@ const tocItems = {
     { id: "gradient", label: "row gradient" },
     { id: "geometry", label: "cosine geometry" },
     { id: "pooling", label: "masked mean" },
+    { id: "numpy-bridge", label: "NumPy로 다시 증명" },
     { id: "debug", label: "계약 디버깅" },
     { id: "transfer", label: "순서로 전이" },
     { id: "check", label: "이해 확인" },
@@ -46,6 +52,7 @@ const tocItems = {
     { id: "gradient", label: "Row gradients" },
     { id: "geometry", label: "Cosine geometry" },
     { id: "pooling", label: "Masked mean" },
+    { id: "numpy-bridge", label: "Recheck in NumPy" },
     { id: "debug", label: "Contract debugging" },
     { id: "transfer", label: "Transfer to order" },
     { id: "check", label: "Concept check" },
@@ -294,8 +301,43 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
             </div>
           </section>
 
+          <section className="article-section embeddings-python-bridge" id="numpy-bridge">
+            <div className="margin-label">07 — NUMPY BRIDGE · OPTIONAL</div>
+            <h2>{t("forward gather와 backward scatter-add를 실제 NumPy로 연결합니다", "Connect forward gather to backward scatter-add in real NumPy")}</h2>
+            <p>{t(
+              "forward의 E[ids]는 token 위치마다 table row를 gather합니다. backward는 그 경로를 거꾸로 따라 각 위치의 upstream gradient를 원래 row에 scatter-add하며, 같은 ID가 반복되면 한 row에 모든 기여가 누적되어야 합니다. 첫 셀은 lookup·one-hot·masked mean을 한 trace로 검증하고, 둘째 셀은 반복 index 누적 버그를 직접 수리합니다.",
+              "Forward E[ids] gathers one table row per token position. Backward follows those paths in reverse and scatter-adds each upstream gradient into its source row, so repeated IDs must accumulate every contribution in one row. The first cell verifies lookup, one-hot equivalence, and masked mean in one trace; the second repairs a repeated-index accumulation bug.",
+            )}</p>
+            <div className="concept-callout">
+              <span className="callout-mark">Py</span>
+              <div>
+                <strong>{t("선택 심화이며 두 셀은 각각 완결된 실험입니다", "Optional extension; both cells are self-contained experiments")}</strong>
+                <p>{t(
+                  "브라우저가 공유 Pyodide 런타임과 NumPy를 처음 실행할 때만 지연 로드합니다. 다운로드가 실패해도 필수 lookup lab, 디버거, 챕터 완료에는 영향이 없습니다. 각 셀은 필요한 fixture를 모두 다시 만들므로 다른 셀이 남긴 상태에 의존하지 않습니다.",
+                  "The browser lazily loads the shared Pyodide runtime and NumPy only when a cell first runs. A download failure never blocks the required lookup lab, debugger, or chapter completion. Each cell rebuilds every fixture it needs and does not depend on state left by the other.",
+                )}</p>
+              </div>
+            </div>
+            <NotebookCell
+              title={t("lookup·one-hot·masked mean 동치 증명", "Prove lookup, one-hot, and masked-mean equivalence")}
+              initialCode={embeddingsLookupMaskedMeanCode}
+              description={<p>{t("교육용 E[11,2]와 IDs[2,3]를 직접 실행합니다. direct lookup과 one-hot 곱의 최대 차이가 0인지, PAD 0을 뺀 두 문장의 평균이 [2,2] shape인지 확인하세요.", "Execute the didactic E[11,2] and IDs[2,3]. Verify that direct lookup and one-hot multiplication have zero maximum difference, then confirm that excluding PAD 0 produces two means with shape [2,2].")}</p>}
+              hint={<p>{t("둘째 문장의 마지막 ID 0을 3으로 바꿔 mask와 분모가 결과에 어떻게 반영되는지 비교한 뒤 셀을 초기화하세요.", "Change the final ID in the second sentence from 0 to 3, compare how the mask and denominator affect the result, then reset the cell.")}</p>}
+              editorMinHeight={650}
+              ariaLabel={t("embedding lookup과 masked mean NumPy 코드", "NumPy code for embedding lookup and masked mean")}
+            />
+            <NotebookCell
+              title={t("반복 token의 scatter-add 수리", "Repair scatter-add for repeated tokens")}
+              initialCode={embeddingsScatterAddRepairCode}
+              description={<p>{t("처음 실행하면 gradient[ids] += upstream이 반복 ID 2의 첫 기여를 덮어 row 2가 [0.2,-0.1]에 머물고 assertion이 실패합니다. REPAIR 아래 한 줄을 np.add.at을 쓰도록 바꿔 두 기여를 [0.4,-0.2]로 누적하세요.", "The initial run fails because gradient[ids] += upstream overwrites one contribution for repeated ID 2, leaving row 2 at [0.2,-0.1]. Change the line below REPAIR to use np.add.at so both contributions accumulate to [0.4,-0.2].")}</p>}
+              hint={<p>{t("np.add.at의 첫 인자는 destination, 둘째는 반복 가능한 row index, 셋째는 위치별 upstream 값입니다: np.add.at(destination, ids, values).", "The three np.add.at arguments are the destination, repeated row indices, and per-position upstream values: np.add.at(destination, ids, values).")}</p>}
+              editorMinHeight={500}
+              ariaLabel={t("반복 embedding gradient scatter-add 수리 NumPy 코드", "NumPy code for repairing repeated embedding-gradient scatter-add")}
+            />
+          </section>
+
           <section className="article-section" id="debug">
-            <div className="margin-label">07 — DEBUG</div>
+            <div className="margin-label">08 — DEBUG</div>
             <h2>{t("lookup·gradient·geometry·pooling 경계를 숫자로 복구합니다", "Restore lookup, gradient, geometry, and pooling boundaries with numbers")}</h2>
             <p>{t(
               "각 사건의 repair는 실제 vector를 다시 계산합니다. softmax로 embedding 좌표를 확률화하거나 반복 token을 dedupe하는 등 그럴듯한 오답이 어떤 불변식을 깨는지 확인하세요.",
@@ -305,7 +347,7 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
           </section>
 
           <section className="article-section" id="transfer">
-            <div className="margin-label">08 — TRANSFER TO SEQUENCES</div>
+            <div className="margin-label">09 — TRANSFER TO SEQUENCES</div>
             <h2>{t("lookup은 순서를 남기지만 plain mean은 순서를 지웁니다", "Lookup retains order, but a plain mean erases it")}</h2>
             <p>{t(
               "[dog,runs,cat]과 [cat,runs,dog]는 lookup row 배열이 다릅니다. 그러나 같은 row multiset을 더해 평균하면 교환법칙 때문에 결과가 정확히 같습니다.",
@@ -329,7 +371,7 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">09 — CHECK</div>
+            <div className="margin-label">10 — CHECK</div>
             <EmbeddingsConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 
