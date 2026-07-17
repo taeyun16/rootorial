@@ -16,7 +16,7 @@ test("tracks every Transformer chapter without structural contract drift", () =>
   assert.deepEqual(report.issues, []);
 });
 
-test("makes the current executable-Python gap explicit", () => {
+test("closes the executable-Python gap across every Transformer chapter", () => {
   const report = analyzeCurriculumQuality();
   const pythonCells = Object.fromEntries(
     report.chapters.map(({ slug, pythonCells: count }) => [slug, count]),
@@ -31,14 +31,10 @@ test("makes the current executable-Python gap explicit", () => {
   assert.equal(pythonCells.attention, 2);
   assert.equal(pythonCells["self-attention"], 2);
   assert.equal(pythonCells["transformer-block"], 2);
-  for (const slug of [
-    "mini-transformer",
-  ]) {
-    assert.equal(pythonCells[slug], 0, `${slug} baseline changed`);
-  }
+  assert.equal(pythonCells["mini-transformer"], 2);
   assert.equal(
     report.targetGaps.filter((gap) => gap.includes("Python cells")).length,
-    1,
+    0,
   );
 });
 
@@ -54,5 +50,6 @@ test("renders a reviewable Markdown report with score and draft state", () => {
   assert.match(markdown, /Attention.*2.*45\/45.*draft/);
   assert.match(markdown, /Self-Attention.*2.*45\/45.*draft/);
   assert.match(markdown, /Transformer 블록.*2.*45\/45.*draft/);
+  assert.match(markdown, /Mini Transformer.*2.*45\/45.*draft/);
   assert.match(markdown, /Structural contract issues: 0/);
 });

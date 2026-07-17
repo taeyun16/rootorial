@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  miniTransformerGenerationRepairCode,
+  miniTransformerLmHeadUpdateCode,
+} from "../src/data/miniTransformerNotebook.ts";
+import {
   MINI_TRANSFORMER_BOS_ID,
   MINI_TRANSFORMER_DEFAULT_MAX_NEW_TOKENS,
   MINI_TRANSFORMER_EOS_ID,
@@ -41,6 +45,32 @@ import {
 } from "../src/features/mini-transformer/mini-transformer-model.ts";
 
 const TOLERANCE = 1e-10;
+
+test("ships independent English-only NumPy bridges for shifted loss and generation repair", () => {
+  assert.match(miniTransformerLmHeadUpdateCode, /token_ids = np\.array\(\[0, 1, 2, 3, 4\]\)/);
+  assert.match(miniTransformerLmHeadUpdateCode, /target_ids = np\.array\(\[1, 2, 3, 4, 5\]\)/);
+  assert.match(miniTransformerLmHeadUpdateCode, /logits_before = hidden @ vocab_projection \+ vocab_bias/);
+  assert.match(miniTransformerLmHeadUpdateCode, /gradient_logits\[np\.arange\(len\(target_ids\)\), target_ids\] -= 1/);
+  assert.match(miniTransformerLmHeadUpdateCode, /updated_projection = vocab_projection - learning_rate \* gradient_projection/);
+  assert.match(miniTransformerLmHeadUpdateCode, /1\.6559665206/);
+  assert.match(miniTransformerLmHeadUpdateCode, /0\.7281635913/);
+  assert.match(miniTransformerLmHeadUpdateCode, /1\.5525973714/);
+  assert.match(miniTransformerLmHeadUpdateCode, /1\.7646455697/);
+  assert.match(miniTransformerLmHeadUpdateCode, /PASS: one gradient-descent LM-head update lowers same-batch loss/);
+
+  assert.match(miniTransformerGenerationRepairCode, /prefix = tokenize_fixed\("the cat"\)/);
+  assert.match(miniTransformerGenerationRepairCode, /logits = recompute_full_prefix\(prefix\)/);
+  assert.match(miniTransformerGenerationRepairCode, /prefix\[-1\] = next_token_id/);
+  assert.match(miniTransformerGenerationRepairCode, /prefix\.append\(next_token_id\)/);
+  assert.match(miniTransformerGenerationRepairCode, /\["sat", "\.", "cat", "cat", "cat"\]/);
+  assert.match(miniTransformerGenerationRepairCode, /prefix_lengths == \[3, 4, 5, 6, 7\]/);
+  assert.match(miniTransformerGenerationRepairCode, /stop_reason == "max-length"/);
+  assert.match(miniTransformerGenerationRepairCode, /there is no KV cache/);
+  assert.match(miniTransformerGenerationRepairCode, /PASS: greedy decoding appends, recomputes, and obeys the stop boundary/);
+
+  assert.doesNotMatch(miniTransformerLmHeadUpdateCode, /[가-힣]/);
+  assert.doesNotMatch(miniTransformerGenerationRepairCode, /[가-힣]/);
+});
 
 function close(actual, expected, tolerance = TOLERANCE) {
   assert.ok(

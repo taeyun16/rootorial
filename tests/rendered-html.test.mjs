@@ -462,7 +462,9 @@ test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-o
     html,
     /앞의 아홉 장을 작은 decoder-only next-token 모델 하나로 닫습니다/,
   );
-  assert.match(html, /07 — MODEL BOUNDARY REPAIR CONSOLE/);
+  assert.match(html, /07 — NUMPY BRIDGE · OPTIONAL/);
+  assert.match(html, /shifted loss와 generation controller를 실제 NumPy로 분리해 검증합니다/);
+  assert.match(html, /08 — MODEL BOUNDARY REPAIR CONSOLE/);
   assert.match(html, /필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT/);
 
   const englishResponse = await renderWithPublicationRows(
@@ -476,7 +478,9 @@ test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-o
     englishHtml,
     /Close the previous nine chapters by assembling one tiny decoder-only next-token model/,
   );
-  assert.match(englishHtml, /07 — MODEL BOUNDARY REPAIR CONSOLE/);
+  assert.match(englishHtml, /07 — NUMPY BRIDGE · OPTIONAL/);
+  assert.match(englishHtml, /Verify shifted loss and the generation controller separately in real NumPy/);
+  assert.match(englishHtml, /08 — MODEL BOUNDARY REPAIR CONSOLE/);
   assert.match(englishHtml, /REQUIRED LAB · PREDICT → CONFIGURE → RUN → INSPECT/);
 });
 
