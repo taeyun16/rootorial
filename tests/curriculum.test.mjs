@@ -53,7 +53,9 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
     [
       { status: "available", developmentStatus: "complete" },
       { status: "available", developmentStatus: "complete" },
-      ...Array.from({ length: 6 }, () => ({ status: "planned", developmentStatus: "planned" })),
+      ...Array.from({ length: 4 }, () => ({ status: "planned", developmentStatus: "planned" })),
+      { status: "available", developmentStatus: "complete" },
+      { status: "planned", developmentStatus: "planned" },
     ],
   );
   const koreanVethRouting = infrastructureChaptersKo[1];
@@ -108,6 +110,35 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
   );
   assert.match(koreanVethRouting.description, /겹치지 않는 CIDR.*return path/);
   assert.match(englishVethRouting.description, /non-overlapping CIDRs.*return paths/);
+  const koreanObservability = infrastructureChaptersKo[6];
+  const englishObservability = infrastructureChaptersEn[6];
+  assert.deepEqual(
+    {
+      number: koreanObservability.number,
+      slug: koreanObservability.slug,
+      title: koreanObservability.title,
+      runtime: koreanObservability.runtime,
+      estimatedMinutes: koreanObservability.estimatedMinutes,
+      status: koreanObservability.status,
+      developmentStatus: koreanObservability.developmentStatus,
+      concepts: koreanObservability.concepts,
+    },
+    {
+      number: 7,
+      slug: "network-observability-and-capacity",
+      title: "네트워크 관측과 용량",
+      runtime: "TypeScript 증거·용량 모델 · 선택 Linux 관찰",
+      estimatedMinutes: 75,
+      status: "available",
+      developmentStatus: "complete",
+      concepts: ["namespace-scoped evidence", "queue · saturation", "headroom · capacity"],
+    },
+  );
+  assert.equal(englishObservability.title, "Network Observability and Capacity");
+  assert.equal(englishObservability.status, "available");
+  assert.equal(englishObservability.developmentStatus, "complete");
+  assert.match(koreanObservability.description, /ip·ss·tcpdump·counter.*포화/);
+  assert.match(englishObservability.description, /ip, ss, tcpdump, and counter.*saturation/);
   const curriculum = getCurriculum("infrastructure-design");
   assert.equal(curriculum?.status, "in-progress");
   assert.deepEqual(curriculum?.title, {

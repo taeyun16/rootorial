@@ -343,8 +343,10 @@ test("keeps completed infrastructure chapters unavailable on public URLs", async
     render("/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en"),
     render("/curricula/infrastructure-design/chapters/veth-bridges-and-routing"),
     render("/curricula/infrastructure-design/chapters/veth-bridges-and-routing?lang=en"),
+    render("/curricula/infrastructure-design/chapters/network-observability-and-capacity"),
+    render("/curricula/infrastructure-design/chapters/network-observability-and-capacity?lang=en"),
   ]);
-  assert.deepEqual(responses.map(({ status }) => status), [404, 404, 404, 404]);
+  assert.deepEqual(responses.map(({ status }) => status), [404, 404, 404, 404, 404, 404]);
   await Promise.all(responses.map((response) => response.text()));
 });
 
@@ -740,6 +742,70 @@ test("SSR-renders the bilingual veth and routing chapter with test-only publicat
   assert.match(englishHtml, /data-testid="veth-routing-visualization"/);
   assert.match(englishHtml, /data-topology-mode="bridge"/);
   assert.match(englishHtml, /data-grade-state="not-run"/);
+});
+
+test("SSR-renders the bilingual network observability and capacity chapter with test-only publication overrides", async () => {
+  const rows = [
+    {
+      resource_key: "curriculum:infrastructure-design",
+      resource_kind: "curriculum",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: null,
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+    {
+      resource_key: "chapter:infrastructure-design/network-observability-and-capacity",
+      resource_kind: "chapter",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: "network-observability-and-capacity",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/network-observability-and-capacity",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /장애 증상을 한 packet path의 동일한 flow·시간 window에 정렬하고/);
+  assert.match(html, /06 — REQUIRED EVIDENCE · CAPACITY LAB/);
+  assert.match(html, /REQUIRED LAB · ALIGN → CALCULATE → PLAN/);
+  assert.match(html, /07 — REPAIR FOUR OBSERVABILITY INCIDENTS/);
+  assert.match(html, /data-testid="network-observability-visualization"/);
+  assert.match(html, /data-evidence-state="unaligned"/);
+  assert.match(html, /data-capacity-scenario="bandwidth-saturation"/);
+  assert.match(html, /data-bottleneck="not-run"/);
+  assert.match(html, /data-grade-state="not-run"/);
+  assert.match(html, /path 밖 host view에 잘못 놓인 probe/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/network-observability-and-capacity?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /align symptoms to one packet path, flow, and time window/);
+  assert.match(englishHtml, /Align four receipts and calculate three limiting resources/);
+  assert.match(englishHtml, /Repair four evidence and capacity incidents at the first failed invariant/);
+  assert.match(englishHtml, /data-testid="network-observability-visualization"/);
+  assert.match(englishHtml, /data-evidence-state="unaligned"/);
+  assert.match(englishHtml, /data-bottleneck="not-run"/);
+  assert.doesNotMatch(englishHtml, /path 밖 host view에 잘못 놓인 probe/);
 });
 
 test("renders the interactive vectors chapter", async () => {
