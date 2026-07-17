@@ -71,6 +71,9 @@ test("requires every available catalog chapter to have a runtime registration", 
 });
 
 test("publishes only available chapters that also have a renderer contract", () => {
+  assert.ok(
+    registeredChapterIds.includes("infrastructure-design/veth-bridges-and-routing"),
+  );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "vectors", "en")?.chapter.title,
     "Vectors and Tensors",
@@ -110,6 +113,14 @@ test("publishes only available chapters that also have a renderer contract", () 
       "en",
     )?.chapter.title,
     "Network Namespaces and Isolation Boundaries",
+  );
+  assert.equal(
+    getPublishedChapter(
+      "infrastructure-design",
+      "veth-bridges-and-routing",
+      "en",
+    )?.chapter.title,
+    "Assemble Topologies with veth, Bridges, and Routing",
   );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
@@ -809,6 +820,66 @@ test("separates active question submissions from historical labels", () => {
     ),
     undefined,
   );
+  const vethRoutingQuestions = chapterRegistry[
+    "infrastructure-design/veth-bridges-and-routing"
+  ].questions;
+  assert.equal(Object.keys(vethRoutingQuestions).length, 5);
+  assert.ok(
+    Object.values(vethRoutingQuestions).every(
+      (question) => question.status === "active" && question.version === 1,
+    ),
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(vethRoutingQuestions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "veth-pair-contract": "two-linked-interface-objects",
+      "bridge-forwarding-scope": "same-l2-domain-only",
+      "gateway-reachability": "gateway-must-be-on-link",
+      "router-forwarding": "enable-ip-forwarding",
+      "return-path": "reply-needs-route-back",
+    },
+  );
+  assert.deepEqual(
+    Object.values(vethRoutingQuestions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 0, 0, 0, 0],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "infrastructure-design",
+      "veth-bridges-and-routing",
+      "return-path",
+    )?.correctAnswer,
+    "reply-needs-route-back",
+  );
+  for (const questionId of Object.keys(vethRoutingQuestions)) {
+    const versionEntry = getConceptQuestionVersionEntry(
+      "infrastructure-design",
+      "veth-bridges-and-routing",
+      questionId,
+      1,
+    );
+    assert.equal(
+      versionEntry?.version,
+      1,
+    );
+    assert.equal(
+      versionEntry?.correctAnswer,
+      vethRoutingQuestions[questionId].correctAnswer,
+    );
+    assert.equal(
+      getConceptQuestionVersionEntry(
+        "infrastructure-design",
+        "veth-bridges-and-routing",
+        questionId,
+        2,
+      ),
+      undefined,
+    );
+  }
   assert.deepEqual(
     Object.fromEntries(
       Object.entries(chapterRegistry["linux-systems/assemble-a-tiny-linux"].questions)

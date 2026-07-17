@@ -10,6 +10,7 @@ import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter";
 import { LinuxTinySystemChapter } from "../../components/linux/LinuxTinySystemChapter";
 import { NetworkNamespacesChapter } from "../../components/infrastructure/NetworkNamespacesChapter";
+import { VethRoutingChapter } from "../../components/infrastructure/VethRoutingChapter";
 import { MiniTransformerChapter } from "../../components/mini-transformer/MiniTransformerChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
 import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
@@ -106,6 +107,10 @@ function NetworkNamespacesChapterPage({ learnerCount }: ChapterPageProps) {
   return <NetworkNamespacesChapter learnerCount={learnerCount} />;
 }
 
+function VethRoutingChapterPage({ learnerCount }: ChapterPageProps) {
+  return <VethRoutingChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
@@ -126,6 +131,7 @@ const chapterPages = {
   "linux-systems/networking-from-a-packet": LinuxNetworkingChapterPage,
   "linux-systems/assemble-a-tiny-linux": LinuxTinySystemChapterPage,
   "infrastructure-design/network-namespaces-and-boundaries": NetworkNamespacesChapterPage,
+  "infrastructure-design/veth-bridges-and-routing": VethRoutingChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(

@@ -52,9 +52,62 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
     infrastructureChaptersKo.map(({ status, developmentStatus }) => ({ status, developmentStatus })),
     [
       { status: "available", developmentStatus: "complete" },
-      ...Array.from({ length: 7 }, () => ({ status: "planned", developmentStatus: "planned" })),
+      { status: "available", developmentStatus: "complete" },
+      ...Array.from({ length: 6 }, () => ({ status: "planned", developmentStatus: "planned" })),
     ],
   );
+  const koreanVethRouting = infrastructureChaptersKo[1];
+  const englishVethRouting = infrastructureChaptersEn[1];
+  assert.deepEqual(
+    {
+      number: koreanVethRouting.number,
+      slug: koreanVethRouting.slug,
+      title: koreanVethRouting.title,
+      subtitle: koreanVethRouting.subtitle,
+      runtime: koreanVethRouting.runtime,
+      estimatedMinutes: koreanVethRouting.estimatedMinutes,
+      status: koreanVethRouting.status,
+      developmentStatus: koreanVethRouting.developmentStatus,
+      concepts: koreanVethRouting.concepts,
+    },
+    {
+      number: 2,
+      slug: "veth-bridges-and-routing",
+      title: "veth·bridge·routing으로 토폴로지 조립",
+      subtitle: "격리된 network view 사이에 의도한 경로만 연결하기",
+      runtime: "TypeScript 토폴로지 모델 · 선택 iproute2",
+      estimatedMinutes: 80,
+      status: "available",
+      developmentStatus: "complete",
+      concepts: ["veth pair · bridge", "CIDR · gateway", "forwarding · return path"],
+    },
+  );
+  assert.deepEqual(
+    {
+      number: englishVethRouting.number,
+      slug: englishVethRouting.slug,
+      title: englishVethRouting.title,
+      subtitle: englishVethRouting.subtitle,
+      runtime: englishVethRouting.runtime,
+      estimatedMinutes: englishVethRouting.estimatedMinutes,
+      status: englishVethRouting.status,
+      developmentStatus: englishVethRouting.developmentStatus,
+      concepts: englishVethRouting.concepts,
+    },
+    {
+      number: 2,
+      slug: "veth-bridges-and-routing",
+      title: "Assemble Topologies with veth, Bridges, and Routing",
+      subtitle: "Connect only the intended paths between isolated network views",
+      runtime: "TypeScript topology model · optional iproute2",
+      estimatedMinutes: 80,
+      status: "available",
+      developmentStatus: "complete",
+      concepts: ["veth pair · bridge", "CIDR · gateway", "forwarding · return path"],
+    },
+  );
+  assert.match(koreanVethRouting.description, /겹치지 않는 CIDR.*return path/);
+  assert.match(englishVethRouting.description, /non-overlapping CIDRs.*return paths/);
   const curriculum = getCurriculum("infrastructure-design");
   assert.equal(curriculum?.status, "in-progress");
   assert.deepEqual(curriculum?.title, {
