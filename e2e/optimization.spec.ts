@@ -67,6 +67,10 @@ test("completes both optimization activities in the admin draft preview", async 
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "학습과 최적화" })).toBeVisible();
   await expect(page.getByText("필수 실습 · LEARNING-RATE REPAIR", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · ONE-STEP DEBUGGER", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "실제 NumPy에서 trace와 gradient 계약을 함께 확인하세요" })).toBeVisible();
+  await expect(page.getByText("NumPy로 MSE gradient descent 실행", { exact: true })).toBeVisible();
+  await expect(page.getByText("finite difference로 MSE gradient 수리", { exact: true })).toBeVisible();
+  await expect(page.locator(".optimization-notebook-section .notebook-cell")).toHaveCount(2);
 
   await completeLearningRateRepair(page);
   const descentLab = page.locator(".optimization-descent-lab");
@@ -103,6 +107,7 @@ test("completes both optimization activities in the admin draft preview", async 
   await page.locator('input[name="gradient-direction"][value="subtract-gradient"]').check();
   await page.locator('input[name="learning-rate"][value="overshoot-diverge"]').check();
   await page.locator('input[name="gradient-shape"][value="same-as-weights"]').check();
+  await page.locator('input[name="sse-mse-scale"][value="divide-by-batch-size"]').check();
   await page.getByRole("button", { name: "최적화 흐름 확인하기" }).click();
   await expect(page.getByText("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.")).toBeVisible();
 
@@ -127,6 +132,9 @@ test("keeps the English draft keyboard-usable at 390px and its public URL closed
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto(`${previewPath}?lang=en`);
   await expect(page.getByRole("heading", { name: "Learning and Optimization" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Check both the trace and gradient contract in real NumPy" })).toBeVisible();
+  await expect(page.getByText("Repair the MSE gradient with finite differences", { exact: true })).toBeVisible();
+  await expect(page.locator(".optimization-notebook-section .notebook-cell")).toHaveCount(2);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];
@@ -152,6 +160,13 @@ test("keeps the English draft keyboard-usable at 390px and its public URL closed
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(overflow).toBeLessThanOrEqual(1);
+  const notebookBounds = await page.locator(".optimization-notebook-section .notebook-cell").evaluateAll((cells) =>
+    cells.map((cell) => {
+      const rect = cell.getBoundingClientRect();
+      return { left: rect.left, right: rect.right };
+    }),
+  );
+  expect(notebookBounds.every(({ left, right }) => left >= 0 && right <= 390.5)).toBe(true);
   await expect(page.getByRole("img", { name: "Prediction line before and after updates" })).toHaveCount(0);
 
   await expect(page.locator('[data-interactive-ready="true"]')).toHaveCount(1, {
