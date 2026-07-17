@@ -31,7 +31,7 @@ function watchHeavyRuntimeRequests(page: TestPage) {
 
 async function attentionOverflow(page: TestPage) {
   return page.locator(
-    ".attention-routing-lab, .attention-prediction-workspace, .attention-query-controls, .attention-prediction-controls, .attention-pipeline-workspace, .attention-memory-stage, .attention-stage-visual, .attention-contribution-stage, .attention-slot-inspections, .attention-counterfactual, .attention-evidence, .attention-debugger-lab, .attention-debug-grid, .attention-debug-card, .attention-chapter-shell .math-formula-display",
+    ".attention-routing-lab, .attention-prediction-workspace, .attention-query-controls, .attention-prediction-controls, .attention-pipeline-workspace, .attention-memory-stage, .attention-stage-visual, .attention-contribution-stage, .attention-slot-inspections, .attention-counterfactual, .attention-evidence, .attention-causal-ledger, .attention-ledger-example, .attention-python-bridge, .attention-python-bridge .notebook-cell, .attention-debugger-lab, .attention-debug-grid, .attention-debug-card, .attention-chapter-shell .math-formula-display",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({
@@ -59,6 +59,11 @@ test("completes routing evidence, four repairs, and concepts in the Korean draft
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "Attention" })).toBeVisible();
   await expect(page.getByText("필수 LAB · PREDICT → ROUTE → INSPECT", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · ATTENTION ROUTING DEBUGGER", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "한 역할만 바꾸고 score·weight·context의 이동을 추적합니다" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "세 query의 routing과 value read를 실제 NumPy로 연결합니다" })).toBeVisible();
+  await expect(page.getByText("세 query의 Attention routing trace", { exact: true })).toBeVisible();
+  await expect(page.getByText("weights·V context 한 줄 수리", { exact: true })).toBeVisible();
+  await expect(page.locator(".attention-python-bridge .notebook-cell")).toHaveCount(2);
 
   const completionButton = page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" });
   await expect(completionButton).toHaveAttribute("data-completion-ready", "false");
@@ -191,6 +196,11 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   expect(response?.status()).toBe(200);
   await expect(page).toHaveTitle("[Preview] 07. Attention · Rootorial");
   await expect(page.getByRole("heading", { name: "Attention" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Change one role at a time and trace scores, weights, and context" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Connect three-query routing to value reads in real NumPy" })).toBeVisible();
+  await expect(page.getByText("Trace Attention routing for three queries", { exact: true })).toBeVisible();
+  await expect(page.getByText("Repair weights-times-V context in one line", { exact: true })).toBeVisible();
+  await expect(page.locator(".attention-python-bridge .notebook-cell")).toHaveCount(2);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];

@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  attentionThreeQueryCode,
+  attentionValueReadRepairCode,
+} from "../src/data/attentionNotebook.ts";
+import {
   ATTENTION_KEY_DIMENSION,
   ATTENTION_MEMORY_SLOT_COUNT,
   ATTENTION_VALUE_DIMENSION,
@@ -60,6 +64,21 @@ function validEvidence() {
     ],
   };
 }
+
+test("ships independent Python bridges for three-query routing and value-read repair", () => {
+  assert.match(attentionThreeQueryCode, /scores = Q @ K\.T/);
+  assert.match(attentionThreeQueryCode, /stable_softmax\(scores\)/);
+  assert.match(attentionThreeQueryCode, /contexts = weights @ V/);
+  assert.match(attentionThreeQueryCode, /row_sums = np\.sum\(weights, axis=1\)/);
+  assert.match(attentionThreeQueryCode, /\["subject", "place", "action"\]/);
+  assert.match(attentionValueReadRepairCode, /return weights @ K/);
+  assert.match(attentionValueReadRepairCode, /changed_V\[2\]/);
+  assert.match(attentionValueReadRepairCode, /scores_stable = np\.allclose/);
+  assert.match(attentionValueReadRepairCode, /context\.shape == \(3, 3\)/);
+  assert.match(attentionValueReadRepairCode, /Changing only V must change/);
+  assert.doesNotMatch(attentionThreeQueryCode, /[가-힣]/);
+  assert.doesNotMatch(attentionValueReadRepairCode, /[가-힣]/);
+});
 
 test("publishes three immutable named memory slots and three query presets", () => {
   assert.equal(ATTENTION_MEMORY_SLOT_COUNT, 3);

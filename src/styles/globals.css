@@ -20488,13 +20488,15 @@ textarea:focus-visible {
 .attention-path-comparison,
 .attention-role-grid,
 .attention-worked-inputs,
-.attention-routing-formulas {
+.attention-routing-formulas,
+.attention-causal-ledger {
   margin: 24px 0;
   display: grid;
   gap: 12px;
 }
 
-.attention-path-comparison {
+.attention-path-comparison,
+.attention-causal-ledger {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -20505,7 +20507,8 @@ textarea:focus-visible {
 }
 
 .attention-path-comparison article,
-.attention-role-grid article {
+.attention-role-grid article,
+.attention-causal-ledger article {
   padding: 18px;
   border: 1px solid var(--line-strong);
   background: var(--paper-raised);
@@ -20520,6 +20523,7 @@ textarea:focus-visible {
 
 .attention-path-comparison span,
 .attention-role-grid span,
+.attention-causal-ledger span,
 .attention-transfer-task > strong {
   color: var(--annotation);
   font: 850 10px/1.4 var(--mono);
@@ -20527,18 +20531,59 @@ textarea:focus-visible {
 }
 
 .attention-path-comparison strong,
-.attention-role-grid strong {
+.attention-role-grid strong,
+.attention-causal-ledger strong {
   margin-top: 8px;
   display: block;
   font: 800 13px/1.55 var(--mono);
 }
 
 .attention-path-comparison p,
-.attention-role-grid p {
+.attention-role-grid p,
+.attention-causal-ledger p {
   margin: 8px 0 0;
   color: var(--muted);
   font-size: 12px;
   line-height: 1.65;
+}
+
+.attention-causal-ledger article:nth-child(3) {
+  border-color: var(--success-border);
+  box-shadow: inset 4px 0 0 var(--success-fg);
+  background: var(--success-bg);
+}
+
+.attention-causal-ledger article:nth-child(4) {
+  border-color: var(--info-border);
+  box-shadow: inset 4px 0 0 var(--info-fg);
+  background: var(--info-bg);
+}
+
+.attention-ledger-example {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid var(--info-border);
+  box-shadow: inset 4px 0 0 var(--info-fg);
+  background: var(--info-bg);
+  overflow-wrap: anywhere;
+}
+
+.attention-ledger-example > strong {
+  color: var(--info-fg);
+  font: 850 10px/1.4 var(--mono);
+  letter-spacing: .07em;
+}
+
+.attention-ledger-example > p {
+  margin: 10px 0 0;
+  font-size: 12px;
+  line-height: 1.75;
+}
+
+.attention-python-bridge,
+.attention-python-bridge .notebook-cell {
+  max-inline-size: 100%;
+  min-inline-size: 0;
 }
 
 .attention-prerequisite a,
@@ -21254,6 +21299,7 @@ textarea:focus-visible {
 
 @media (max-width: 700px) {
   .attention-path-comparison,
+  .attention-causal-ledger,
   .attention-shape-ladder,
   .attention-transfer-shapes,
   .attention-prediction-workspace,

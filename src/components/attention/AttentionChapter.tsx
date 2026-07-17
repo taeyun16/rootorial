@@ -5,6 +5,10 @@ import {
   chaptersKo,
   TRANSFORMER_CURRICULUM_SLUG,
 } from "../../data/curriculum";
+import {
+  attentionThreeQueryCode,
+  attentionValueReadRepairCode,
+} from "../../data/attentionNotebook";
 import { canCompleteAttentionChapter } from "../../features/attention/attention-model";
 import { useLocale } from "../../features/localization/localization";
 import { AttentionPipelineExplorer } from "../AttentionPipelineExplorer";
@@ -15,6 +19,7 @@ import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { MatrixGrid } from "../interactive/MatrixGrid";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
@@ -27,6 +32,8 @@ const tocItems = {
     { id: "roles", label: "Query · Key · Value" },
     { id: "routing", label: "score · softmax · context" },
     { id: "attention-lab", label: "필수 Attention lab" },
+    { id: "causal-ledger", label: "Q·K·V 변화 원장" },
+    { id: "numpy-bridge", label: "NumPy routing bridge" },
     { id: "debug", label: "routing 계약 디버깅" },
     { id: "transfer", label: "Self-Attention으로 전이" },
     { id: "check", label: "이해 확인" },
@@ -36,6 +43,8 @@ const tocItems = {
     { id: "roles", label: "Query, key, and value" },
     { id: "routing", label: "Score, softmax, and context" },
     { id: "attention-lab", label: "Required Attention lab" },
+    { id: "causal-ledger", label: "Q/K/V causal ledger" },
+    { id: "numpy-bridge", label: "NumPy routing bridge" },
     { id: "debug", label: "Debug routing contracts" },
     { id: "transfer", label: "Transfer to Self-Attention" },
     { id: "check", label: "Concept check" },
@@ -218,8 +227,105 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
             <AttentionPipelineExplorer onCompletionChange={setLabComplete} />
           </div>
 
+          <section className="article-section" id="causal-ledger">
+            <div className="margin-label">05 — Q · K · V CAUSAL LEDGER</div>
+            <h2>{t("한 역할만 바꾸고 score·weight·context의 이동을 추적합니다", "Change one role at a time and trace scores, weights, and context")}</h2>
+            <p>{t(
+              "Attention을 디버깅할 때는 마지막 context만 비교하면 원인을 놓치기 쉽습니다. scores=QKᵀ, weights=softmax(scores), context=weights·V를 세 개의 연속된 장부로 두고, 어느 입력을 바꿨는지에 따라 처음 달라져야 하는 장부를 찾으세요.",
+              "When debugging Attention, comparing only the final context can hide the cause. Treat scores=QK transpose, weights=softmax(scores), and context=weights times V as three consecutive ledgers, then identify which ledger should change first for the input you edited.",
+            )}</p>
+            <div className="attention-causal-ledger" role="list" aria-label={t("Q K V 변화에 따른 Attention 인과관계", "Attention causality under Q, K, and V edits")}>
+              <article role="listitem">
+                <span>CHANGE Q</span>
+                <strong>scores → weights → context</strong>
+                <p>{t(
+                  "질문 방향을 바꾸면 모든 key와의 비교가 다시 계산됩니다. 따라서 top slot과 혼합 비율이 달라지고, 같은 V에서도 보통 다른 context를 읽습니다.",
+                  "Changing the question direction recomputes every key comparison. The top slot and mixture can therefore move, usually producing a different context even with the same V.",
+                )}</p>
+              </article>
+              <article role="listitem">
+                <span>CHANGE K</span>
+                <strong>routing changes first</strong>
+                <p>{t(
+                  "key는 주소입니다. 한 key를 바꾸면 그 열의 score가 먼저 바뀌고 softmax routing이 다시 배분되므로, value 내용이 그대로여도 context가 달라질 수 있습니다.",
+                  "Keys are addresses. Editing one key first changes its score column and redistributes softmax routing, so context can change even when value content stays fixed.",
+                )}</p>
+              </article>
+              <article role="listitem">
+                <span>CHANGE V ONLY</span>
+                <strong>scores = · weights = · context ≠</strong>
+                <p>{t(
+                  "Q와 K를 고정하면 score와 weight는 비트 단위로 같아야 합니다. 바뀐 value에 0이 아닌 weight가 있었다면 context만 달라지는 것이 올바른 반사실입니다.",
+                  "With Q and K fixed, scores and weights must stay identical. If the edited value had nonzero weight, changing only V must change context and nothing upstream.",
+                )}</p>
+              </article>
+              <article role="listitem">
+                <span>REORDER K + V TOGETHER</span>
+                <strong>{t("열 순서 ≠ 의미 변화", "column order is not a meaning change")}</strong>
+                <p>{t(
+                  "같은 permutation으로 K와 V row를 함께 옮기면 score·weight 열도 함께 재정렬되지만 주소-내용 결합은 보존되고 context는 같습니다. K 또는 V만 옮기면 그 결합이 깨집니다.",
+                  "Applying the same permutation to K and V rows reorders score and weight columns together, but preserves address-content pairing and the resulting context. Moving only K or only V breaks that pairing.",
+                )}</p>
+              </article>
+            </div>
+            <div className="attention-ledger-example">
+              <strong>{t("두 row 미니 증명", "TWO-ROW MINI PROOF")}</strong>
+              <p>{t(
+                "원래 읽기가 0.7A+0.3B라면 K/V를 함께 뒤집은 뒤 weight와 value는 각각 [0.3,0.7], [B,A]가 됩니다. 가중합은 0.3B+0.7A로 같지만, V만 [B,A]로 뒤집으면 0.7B+0.3A가 되어 의미가 달라집니다.",
+                "If the original read is 0.7A+0.3B, jointly reversing K and V yields weights [0.3,0.7] over values [B,A]. The sum 0.3B+0.7A is unchanged; reversing only V instead yields 0.7B+0.3A and changes the meaning.",
+              )}</p>
+            </div>
+          </section>
+
+          <section className="article-section attention-python-bridge" id="numpy-bridge">
+            <div className="margin-label">06 — NUMPY BRIDGE · OPTIONAL</div>
+            <h2>{t("세 query의 routing과 value read를 실제 NumPy로 연결합니다", "Connect three-query routing to value reads in real NumPy")}</h2>
+            <p>{t(
+              "첫 셀은 subject·place·action query를 한 Q[3,2]에 쌓아 QKᵀ, query별 key축 stable softmax, weights·V를 순서대로 실행합니다. 둘째 셀은 weight로 key 주소를 다시 읽는 버그를 한 줄 수리하고, V-only 반사실의 shape와 인과관계를 assertion으로 확인합니다.",
+              "The first cell stacks subject, place, and action queries into Q[3,2], then executes QK transpose, stable key-axis softmax per query, and weights times V. The second repairs a one-line bug that reads key addresses with the weights, then asserts the shape and causality of a V-only counterfactual.",
+            )}</p>
+            <div className="concept-callout">
+              <span className="callout-mark">Py</span>
+              <div>
+                <strong>{t("선택 심화이며 필수 완료 경로와 분리됩니다", "Optional extension, separate from the required completion path")}</strong>
+                <p>{t(
+                  "각 셀은 Q·K·V와 stable softmax를 모두 다시 정의하므로 서로의 Python 상태에 의존하지 않습니다. 공유 Pyodide·NumPy runtime은 실행할 때만 지연 로드되며, 다운로드 실패는 필수 routing lab, debugger, 이해 확인이나 챕터 완료를 막지 않습니다.",
+                  "Each cell rebuilds Q, K, V, and stable softmax, so neither depends on Python state left by the other. The shared Pyodide and NumPy runtime loads lazily only when run; a download failure does not block the required routing lab, debugger, concept check, or chapter completion.",
+                )}</p>
+              </div>
+            </div>
+            <NotebookCell
+              title={t("세 query의 Attention routing trace", "Trace Attention routing for three queries")}
+              initialCode={attentionThreeQueryCode}
+              description={<p>{t(
+                "scores·weights·contexts가 모두 [3,3]인지, 세 weight row의 합이 1인지, top slot이 subject·place·action 순서인지 확인하세요. 출력 context는 hard lookup이 아니라 세 value의 soft mixture입니다.",
+                "Verify that scores, weights, and contexts are all [3,3], every weight row sums to one, and top slots are subject, place, then action. Each output context is a soft mixture of three values, not a hard lookup.",
+              )}</p>}
+              hint={<p>{t(
+                "Q의 첫 두 row를 맞바꾸거나 마지막 query를 [-0.2,-0.2]로 약하게 만들어 top slot과 mixture가 어떻게 변하는지 비교한 뒤 셀을 초기화하세요.",
+                "Swap the first two Q rows or weaken the final query to [-0.2,-0.2], compare how top slots and mixtures change, then reset the cell.",
+              )}</p>}
+              editorMinHeight={790}
+              ariaLabel={t("세 query Attention routing NumPy 코드", "NumPy code for three-query Attention routing")}
+            />
+            <NotebookCell
+              title={t("weights·V context 한 줄 수리", "Repair weights-times-V context in one line")}
+              initialCode={attentionValueReadRepairCode}
+              description={<p>{t(
+                "처음 실행하면 read_context가 weights@K를 반환해 context.shape=(3,2)가 되고, V-only 변경도 context에 나타나지 않아 assertion이 실패합니다. REPAIR 아래 K를 올바른 함수 인자로 바꿔 [3,3] value read와 context 변화를 함께 복구하세요.",
+                "The initial read_context returns weights@K, producing context.shape=(3,2) and hiding the V-only edit, so the assertion fails. Replace K below REPAIR with the correct function argument to restore both the [3,3] value read and the context change.",
+              )}</p>}
+              hint={<p>{t(
+                "함수는 weights와 values를 인자로 받지만 현재 values를 사용하지 않습니다. score 비교용 주소와 context에 보낼 내용을 다시 구분하세요.",
+                "The function receives weights and values but currently ignores values. Separate the addresses used for score comparisons from the content sent into context.",
+              )}</p>}
+              editorMinHeight={820}
+              ariaLabel={t("Attention value read 수리 NumPy 코드", "NumPy code for repairing the Attention value read")}
+            />
+          </section>
+
           <section className="article-section" id="debug">
-            <div className="margin-label">05 — ROUTING CONTRACT DEBUGGER</div>
+            <div className="margin-label">07 — ROUTING CONTRACT DEBUGGER</div>
             <h2>{t("Softmax 축·QK 방향·context 재료·query 독립성을 실행 결과로 수리합니다", "Repair the softmax axis, QK direction, context source, and query independence from executed results")}</h2>
             <p>{t(
               "그럴듯한 이름을 고르는 활동이 아닙니다. 고정된 Q·K·V로 각 후보 연산을 실제 실행하고, 네 사건에 걸쳐 score shape, query별 weight 행 합, top source row와 context 폭을 검사해 key축 Softmax·QKᵀ·αV·독립 query row 계약을 판정합니다.",
@@ -229,7 +335,7 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
           </section>
 
           <section className="article-section" id="transfer">
-            <div className="margin-label">06 — TRANSFER TO SELF-ATTENTION</div>
+            <div className="margin-label">08 — TRANSFER TO SELF-ATTENTION</div>
             <h2>{t("query 하나를 이해한 뒤에만 모든 token query를 쌓습니다", "Stack all-token queries only after understanding one query")}</h2>
             <p>{t(
               "이번 장은 decoder query 하나가 encoder source K/V를 읽는 cross-attention으로 경계를 고정했습니다. 다음 장에서는 같은 sequence의 모든 token이 query를 만들고, 그 sequence에서 learned Q/K/V projection을 구성합니다. 차원에 따른 score scaling, autoregressive decoder의 causal mask, 여러 head를 나누고 합치는 계약도 다음 장에서 실행합니다. 이 장의 완료 경로에는 어느 것도 필요하지 않습니다.",
@@ -248,7 +354,7 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">07 — CONCEPT CHECK</div>
+            <div className="margin-label">09 — CONCEPT CHECK</div>
             <AttentionConceptCheck onMasteryChange={setConceptsMastered} />
             <div className="attention-completion-checklist" role="status" aria-live="polite">
               <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("필수 Attention routing lab", "Required Attention routing lab")}</span>
