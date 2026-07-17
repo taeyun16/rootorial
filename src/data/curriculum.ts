@@ -684,8 +684,8 @@ export const infrastructureChaptersKo: Chapter[] = [
       "router namespace의 forwarding, SNAT·MASQUERADE와 conntrack reply 경로를 연결하고 asymmetric path와 stale state를 진단합니다.",
     runtime: "TypeScript packet-state 모델 · 선택 nftables",
     estimatedMinutes: 80,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["IP forwarding", "SNAT · MASQUERADE", "conntrack · reply path"],
   },
   {
@@ -791,8 +791,8 @@ export const infrastructureChaptersEn: Chapter[] = [
       "Connect forwarding, SNAT or masquerade, and conntrack reply paths in a router namespace, then diagnose asymmetric paths and stale state.",
     runtime: "TypeScript packet-state model · optional nftables",
     estimatedMinutes: 80,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["IP forwarding", "SNAT · MASQUERADE", "conntrack · reply path"],
   },
   {

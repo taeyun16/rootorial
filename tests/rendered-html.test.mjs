@@ -343,8 +343,10 @@ test("keeps completed infrastructure chapters unavailable on public URLs", async
     render("/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en"),
     render("/curricula/infrastructure-design/chapters/veth-bridges-and-routing"),
     render("/curricula/infrastructure-design/chapters/veth-bridges-and-routing?lang=en"),
+    render("/curricula/infrastructure-design/chapters/egress-nat-and-conntrack"),
+    render("/curricula/infrastructure-design/chapters/egress-nat-and-conntrack?lang=en"),
   ]);
-  assert.deepEqual(responses.map(({ status }) => status), [404, 404, 404, 404]);
+  assert.deepEqual(responses.map(({ status }) => status), [404, 404, 404, 404, 404, 404]);
   await Promise.all(responses.map((response) => response.text()));
 });
 
@@ -739,6 +741,66 @@ test("SSR-renders the bilingual veth and routing chapter with test-only publicat
   assert.match(englishHtml, /Repair the first failed invariant instead of applying a broad workaround/);
   assert.match(englishHtml, /data-testid="veth-routing-visualization"/);
   assert.match(englishHtml, /data-topology-mode="bridge"/);
+  assert.match(englishHtml, /data-grade-state="not-run"/);
+});
+
+test("SSR-renders the bilingual egress NAT chapter with test-only publication overrides", async () => {
+  const rows = [
+    {
+      resource_key: "curriculum:infrastructure-design",
+      resource_kind: "curriculum",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: null,
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+    {
+      resource_key: "chapter:infrastructure-design/egress-nat-and-conntrack",
+      resource_kind: "chapter",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: "egress-nat-and-conntrack",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/egress-nat-and-conntrack",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /앞 장에서 완성한 왕복 route 위에 source translation/);
+  assert.match(html, /05 — REQUIRED EGRESS FLOW LAB/);
+  assert.match(html, /static SNAT와 dynamic MASQUERADE flow를 모두 조립하세요/);
+  assert.match(html, /06 — DEBUG FOUR NAT AND CONNTRACK INCIDENTS/);
+  assert.match(html, /data-testid="nat-conntrack-visualization"/);
+  assert.match(html, /data-nat-mode="snat"/);
+  assert.match(html, /data-grade-state="not-run"/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/egress-nat-and-conntrack?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /Add one source-translation layer to the round-trip route/);
+  assert.match(englishHtml, /Assemble both static-SNAT and dynamic-masquerade flows/);
+  assert.match(englishHtml, /Repair the first failed translation invariant/);
+  assert.match(englishHtml, /data-testid="nat-conntrack-visualization"/);
+  assert.match(englishHtml, /data-nat-mode="snat"/);
   assert.match(englishHtml, /data-grade-state="not-run"/);
 });
 
