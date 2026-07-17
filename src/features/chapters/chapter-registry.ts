@@ -898,6 +898,21 @@ export const conceptQuestionHistory = {
       answers: ["firewall-does-not-repair-route-or-nat", "drop-policy-creates-return-route", "accept-policy-enables-forwarding"],
     },
   },
+  "infrastructure-design/availability-and-failure-domains/failure-domain-diversity": {
+    1: { version: 1, label: "replica와 failure domain 독립성", correctAnswer: "replicas-must-span-failure-domains", answers: ["replica-count-is-enough", "replicas-must-span-failure-domains", "load-balancer-removes-zone-risk"] },
+  },
+  "infrastructure-design/availability-and-failure-domains/gateway-diversity": {
+    1: { version: 1, label: "front door의 failure domain", correctAnswer: "front-door-remains-correlated", answers: ["front-door-remains-correlated", "gateway-size-prevents-outage", "dns-ttl-creates-gateway"] },
+  },
+  "infrastructure-design/availability-and-failure-domains/failover-budget": {
+    1: { version: 1, label: "failover recovery budget", correctAnswer: "bound-recovery-and-request-loss", answers: ["retry-until-success", "hide-loss-from-metric", "bound-recovery-and-request-loss"] },
+  },
+  "infrastructure-design/availability-and-failure-domains/dependency-budget": {
+    1: { version: 1, label: "optional dependency degraded mode", correctAnswer: "optional-dependency-has-degraded-mode", answers: ["make-every-dependency-required", "optional-dependency-has-degraded-mode", "retry-multiplies-availability"] },
+  },
+  "infrastructure-design/availability-and-failure-domains/availability-math": {
+    1: { version: 1, label: "served request 기반 가용성", correctAnswer: "served-over-total-is-99-6", answers: ["served-over-total-is-99-6", "replicas-over-zones-is-150", "failover-seconds-is-percent"] },
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     1: {
       version: 1,
@@ -1378,6 +1393,21 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["infrastructure-design/network-policy-and-firewalls/firewall-vs-reachability"][1],
     status: "active",
   },
+  "infrastructure-design/availability-and-failure-domains/failure-domain-diversity": {
+    ...conceptQuestionHistory["infrastructure-design/availability-and-failure-domains/failure-domain-diversity"][1], status: "active",
+  },
+  "infrastructure-design/availability-and-failure-domains/gateway-diversity": {
+    ...conceptQuestionHistory["infrastructure-design/availability-and-failure-domains/gateway-diversity"][1], status: "active",
+  },
+  "infrastructure-design/availability-and-failure-domains/failover-budget": {
+    ...conceptQuestionHistory["infrastructure-design/availability-and-failure-domains/failover-budget"][1], status: "active",
+  },
+  "infrastructure-design/availability-and-failure-domains/dependency-budget": {
+    ...conceptQuestionHistory["infrastructure-design/availability-and-failure-domains/dependency-budget"][1], status: "active",
+  },
+  "infrastructure-design/availability-and-failure-domains/availability-math": {
+    ...conceptQuestionHistory["infrastructure-design/availability-and-failure-domains/availability-math"][1], status: "active",
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"][1],
     status: "active",
@@ -1583,6 +1613,14 @@ export const infrastructureNetworkPolicyQuestions = {
   "firewall-vs-reachability": conceptQuestionRegistry["infrastructure-design/network-policy-and-firewalls/firewall-vs-reachability"],
 } as const;
 
+export const infrastructureAvailabilityQuestions = {
+  "failure-domain-diversity": conceptQuestionRegistry["infrastructure-design/availability-and-failure-domains/failure-domain-diversity"],
+  "gateway-diversity": conceptQuestionRegistry["infrastructure-design/availability-and-failure-domains/gateway-diversity"],
+  "failover-budget": conceptQuestionRegistry["infrastructure-design/availability-and-failure-domains/failover-budget"],
+  "dependency-budget": conceptQuestionRegistry["infrastructure-design/availability-and-failure-domains/dependency-budget"],
+  "availability-math": conceptQuestionRegistry["infrastructure-design/availability-and-failure-domains/availability-math"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -1656,6 +1694,9 @@ export const chapterRegistry = {
   },
   "infrastructure-design/network-policy-and-firewalls": {
     questions: infrastructureNetworkPolicyQuestions,
+  },
+  "infrastructure-design/availability-and-failure-domains": {
+    questions: infrastructureAvailabilityQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

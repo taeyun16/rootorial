@@ -83,6 +83,9 @@ test("publishes only available chapters that also have a renderer contract", () 
   assert.ok(
     registeredChapterIds.includes("infrastructure-design/network-policy-and-firewalls"),
   );
+  assert.ok(
+    registeredChapterIds.includes("infrastructure-design/availability-and-failure-domains"),
+  );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "vectors", "en")?.chapter.title,
     "Vectors and Tensors",
@@ -1046,6 +1049,20 @@ test("separates active question submissions from historical labels", () => {
       undefined,
     );
   }
+  const availabilityQuestions = chapterRegistry[
+    "infrastructure-design/availability-and-failure-domains"
+  ].questions;
+  assert.deepEqual(
+    Object.fromEntries(Object.entries(availabilityQuestions).map(([id, question]) => [id, question.correctAnswer])),
+    {
+      "failure-domain-diversity": "replicas-must-span-failure-domains",
+      "gateway-diversity": "front-door-remains-correlated",
+      "failover-budget": "bound-recovery-and-request-loss",
+      "dependency-budget": "optional-dependency-has-degraded-mode",
+      "availability-math": "served-over-total-is-99-6",
+    },
+  );
+  assert.deepEqual(Object.values(availabilityQuestions).map((question) => question.answers.indexOf(question.correctAnswer)), [1, 0, 2, 1, 0]);
   assert.deepEqual(
     Object.fromEntries(
       Object.entries(chapterRegistry["linux-systems/assemble-a-tiny-linux"].questions)

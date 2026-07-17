@@ -1,0 +1,38 @@
+.availability-chapter-shell, .availability-chapter-shell * { box-sizing: border-box; }
+.availability-lesson-hero { --chapter-accent: #90c9a7; }
+.availability-principle, .availability-toolbar, .availability-lab-header, .availability-run, .availability-visual > header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+.availability-principle { padding: 1rem; border: 1px solid var(--border-color, #384657); font: 700 .85rem ui-monospace, monospace; }
+.availability-lab, .availability-incident-lab { margin-top: 1.5rem; overflow: hidden; }
+.availability-toolbar { margin: 1rem 0; justify-content: flex-start; }
+.availability-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; }
+.availability-controls label, .availability-run label, .availability-incident-grid label { display: grid; gap: .4rem; min-width: 0; }
+.availability-controls select, .availability-run select, .availability-incident-grid select { width: 100%; min-height: 2.7rem; }
+.availability-visual { margin: 1.25rem 0; padding: 1rem; border: 1px solid #445469; background: color-mix(in srgb, var(--surface, #111827) 94%, #24734b 6%); }
+.availability-visual > header > strong { font: 700 .74rem ui-monospace, monospace; text-transform: uppercase; }
+.availability-map { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 1rem 0; }
+.availability-zone { min-width: 0; padding: .8rem; border: 1px solid #526174; }
+.availability-zone > h5 { margin-top: 0; font: 800 .74rem ui-monospace, monospace; }
+.availability-zone article { display: grid; gap: .2rem; margin-top: .55rem; padding: .65rem; border-left: 3px solid #79bf96; background: rgba(5, 15, 25, .5); }
+.availability-zone[data-zone="a"] article small { color: #ff8a80; }
+.availability-zone article > span { color: #9ecfb2; font: 700 .62rem ui-monospace, monospace; }
+.availability-meter { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .7rem; }
+.availability-meter > div { padding: .75rem; border: 1px solid #455266; }
+.availability-meter span, .availability-meter strong { display: block; }
+.availability-meter span { font-size: .75rem; }
+.availability-checks { list-style: none; padding: 0; }
+.availability-checks li { display: flex; justify-content: space-between; gap: .8rem; padding: .55rem; border-bottom: 1px solid #3d485a; }
+.availability-checks li[data-check-status="passed"] { color: #83d1a0; }
+.availability-checks li[data-check-status="blocked"] { color: #ff8a80; }
+.availability-run { align-items: end; }
+.availability-run label { flex: 1 1 18rem; }
+.availability-feedback { margin-top: .8rem; padding: .8rem; border-left: 3px solid #758196; }
+.availability-feedback.is-success { border-color: #57bd7b; }
+.availability-feedback.is-error { border-color: #e16f65; }
+.availability-incident-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.availability-incident-grid article { min-width: 0; padding: 1rem; border: 1px solid #445469; }
+.availability-incident-grid article > span { color: #9ecfb2; font: 700 .66rem ui-monospace, monospace; }
+.availability-incident-grid pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.availability-incident-grid .button { margin-top: .8rem; }
+@media (max-width: 850px) { .availability-controls, .availability-map { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .availability-meter, .availability-incident-grid { grid-template-columns: 1fr; } .availability-visual, .availability-incident-grid article { padding: .75rem; } }
+@media (prefers-reduced-motion: reduce) { .availability-chapter-shell *, .availability-chapter-shell *::before, .availability-chapter-shell *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; scroll-behavior: auto !important; } }

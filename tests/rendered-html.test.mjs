@@ -349,8 +349,13 @@ test("keeps completed infrastructure chapters unavailable on public URLs", async
     render("/curricula/infrastructure-design/chapters/service-discovery-and-load-balancing?lang=en"),
     render("/curricula/infrastructure-design/chapters/network-policy-and-firewalls"),
     render("/curricula/infrastructure-design/chapters/network-policy-and-firewalls?lang=en"),
+    render("/curricula/infrastructure-design/chapters/availability-and-failure-domains"),
+    render("/curricula/infrastructure-design/chapters/availability-and-failure-domains?lang=en"),
   ]);
-  assert.deepEqual(responses.map(({ status }) => status), [404, 404, 404, 404, 404, 404, 404, 404, 404, 404]);
+  assert.deepEqual(
+    responses.map(({ status }) => status),
+    [404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404, 404],
+  );
   await Promise.all(responses.map((response) => response.text()));
 });
 
@@ -933,6 +938,31 @@ test("SSR-renders the bilingual network policy chapter with test-only publicatio
   assert.match(englishHtml, /Find the observed hook and first terminal verdict before widening a rule/);
   assert.match(englishHtml, /data-testid="network-policy-visualization"/);
   assert.match(englishHtml, /data-policy-mode="forward"/);
+  assert.match(englishHtml, /data-grade-state="not-run"/);
+});
+
+test("SSR-renders the bilingual availability chapter with test-only publication overrides", async () => {
+  const rows = [
+    { resource_key: "curriculum:infrastructure-design", resource_kind: "curriculum", curriculum_slug: "infrastructure-design", chapter_slug: null, publication_status: "published", listing: "listed", scheduled_at: null, published_at: 1, version: 1, updated_by_user_id: "user_test", created_at: 1, updated_at: 1 },
+    { resource_key: "chapter:infrastructure-design/availability-and-failure-domains", resource_kind: "chapter", curriculum_slug: "infrastructure-design", chapter_slug: "availability-and-failure-domains", publication_status: "published", listing: "listed", scheduled_at: null, published_at: 1, version: 1, updated_by_user_id: "user_test", created_at: 1, updated_at: 1 },
+  ];
+  const response = await renderWithPublicationRows("/curricula/infrastructure-design/chapters/availability-and-failure-domains", rows);
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /replica 수를 늘리는 데서 멈추지 않고/);
+  assert.match(html, /05 — REQUIRED FAILURE-DOMAIN LAB/);
+  assert.match(html, /placement와 dependency recovery 두 mode를 통과하세요/);
+  assert.match(html, /06 — DEBUG FOUR AVAILABILITY INCIDENTS/);
+  assert.match(html, /data-testid="availability-failure-domain-visualization"/);
+  assert.match(html, /data-grade-state="not-run"/);
+  const englishResponse = await renderWithPublicationRows("/curricula/infrastructure-design/chapters/availability-and-failure-domains?lang=en", rows);
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /Go beyond replica counts/);
+  assert.match(englishHtml, /Pass both placement and dependency-recovery modes/);
+  assert.match(englishHtml, /Separate correlated boundaries instead of scaling up/);
+  assert.match(englishHtml, /data-testid="availability-failure-domain-visualization"/);
   assert.match(englishHtml, /data-grade-state="not-run"/);
 });
 

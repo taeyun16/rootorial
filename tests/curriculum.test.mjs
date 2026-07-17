@@ -56,7 +56,7 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
       { status: "available", developmentStatus: "complete" },
       { status: "available", developmentStatus: "complete" },
       { status: "available", developmentStatus: "complete" },
-      { status: "planned", developmentStatus: "planned" },
+      { status: "available", developmentStatus: "complete" },
       { status: "planned", developmentStatus: "planned" },
       { status: "planned", developmentStatus: "planned" },
     ],
@@ -217,6 +217,10 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
   );
   assert.match(koreanServiceDiscovery.description, /DNS record 수명.*stale endpoint/);
   assert.match(englishServiceDiscovery.description, /DNS record lifetime.*stale endpoints/);
+  assert.equal(infrastructureChaptersKo[5].title, "가용성과 failure domain");
+  assert.equal(infrastructureChaptersEn[5].title, "Availability and Failure Domains");
+  assert.equal(infrastructureChaptersKo[5].status, "available");
+  assert.equal(infrastructureChaptersEn[5].developmentStatus, "complete");
   const curriculum = getCurriculum("infrastructure-design");
   assert.equal(curriculum?.status, "in-progress");
   assert.deepEqual(curriculum?.title, {

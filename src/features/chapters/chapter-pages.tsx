@@ -9,6 +9,7 @@ import { LinuxNetworkingChapter } from "../../components/linux/LinuxNetworkingCh
 import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter";
 import { LinuxTinySystemChapter } from "../../components/linux/LinuxTinySystemChapter";
+import { AvailabilityFailureDomainsChapter } from "../../components/infrastructure/AvailabilityFailureDomainsChapter";
 import { EgressNatChapter } from "../../components/infrastructure/EgressNatChapter";
 import { NetworkPolicyChapter } from "../../components/infrastructure/NetworkPolicyChapter";
 import { NetworkNamespacesChapter } from "../../components/infrastructure/NetworkNamespacesChapter";
@@ -126,6 +127,10 @@ function ServiceDiscoveryChapterPage({ learnerCount }: ChapterPageProps) {
   return <ServiceDiscoveryChapter learnerCount={learnerCount} />;
 }
 
+function AvailabilityFailureDomainsChapterPage({ learnerCount }: ChapterPageProps) {
+  return <AvailabilityFailureDomainsChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
@@ -150,6 +155,7 @@ const chapterPages = {
   "infrastructure-design/veth-bridges-and-routing": VethRoutingChapterPage,
   "infrastructure-design/egress-nat-and-conntrack": EgressNatChapterPage,
   "infrastructure-design/service-discovery-and-load-balancing": ServiceDiscoveryChapterPage,
+  "infrastructure-design/availability-and-failure-domains": AvailabilityFailureDomainsChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(
