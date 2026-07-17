@@ -351,12 +351,26 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                 />
               </Discussable>
             </div>
-            <div className="concept-callout">
-              <span className="callout-mark">→</span>
-              <div>
-                <strong>{t("다음 챕터들을 위한 한 문장", "One sentence for later chapters")}</strong>
-                <p>{t("두 벡터의 내적은 관계를 하나의 점수로 바꿉니다. Attention에서는 이 점수를 어떻게 만들고 사용할지 7장과 8장에서 단계별로 배웁니다.", "A dot product turns the relationship between two vectors into one score. Chapters 7 and 8 will build and use those scores step by step in Attention.")}</p>
-              </div>
+            <div
+              className="concept-definition-grid vector-transfer-grid"
+              aria-label={t("벡터에서 학습과 Attention으로의 전이", "Transfer from vectors to learning and Attention")}
+            >
+              <article>
+                <span>NEXT · CHAPTER 02</span>
+                <h3>{t("같은 shape의 벡터가 파라미터를 갱신합니다", "Same-shaped vectors update parameters")}</h3>
+                <p>
+                  {isKo ? <>
+                    파라미터 <MathFormula latex={String.raw`\mathbf{W}`} />와 gradient <MathFormula latex={String.raw`\nabla L`} />는 같은 shape의 벡터입니다. <PythonCode>W = [0.20, -0.40]</PythonCode>, <PythonCode>grad = [-0.60, 0.30]</PythonCode>, <PythonCode>eta = 0.10</PythonCode>이면 <MathFormula latex={String.raw`\mathbf{W}_{next}=\mathbf{W}-\eta\nabla L`} />의 좌표별 뺄셈 결과는 <PythonCode>[0.26, -0.43]</PythonCode>입니다.
+                  </> : <>
+                    A parameter vector <MathFormula latex={String.raw`\mathbf{W}`} /> and its gradient <MathFormula latex={String.raw`\nabla L`} /> have the same shape. With <PythonCode>W = [0.20, -0.40]</PythonCode>, <PythonCode>grad = [-0.60, 0.30]</PythonCode>, and <PythonCode>eta = 0.10</PythonCode>, coordinate-wise subtraction in <MathFormula latex={String.raw`\mathbf{W}_{next}=\mathbf{W}-\eta\nabla L`} /> gives <PythonCode>[0.26, -0.43]</PythonCode>.
+                  </>}
+                </p>
+              </article>
+              <article>
+                <span>LATER · CHAPTERS 07–08</span>
+                <h3>{t("내적이 token 관계 점수가 됩니다", "A dot product becomes a token-relation score")}</h3>
+                <p>{t("두 벡터의 내적은 관계를 하나의 점수로 바꿉니다. Attention에서는 query와 key의 내적을 여러 token에 대해 계산하고, 그 점수를 어느 value를 얼마나 읽을지 결정하는 weight로 바꿉니다.", "A dot product turns the relationship between two vectors into one score. Attention computes query-key dot products across tokens, then turns those scores into weights that decide how much of each value to read.")}</p>
+              </article>
             </div>
           </section>
 

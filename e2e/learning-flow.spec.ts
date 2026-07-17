@@ -65,6 +65,14 @@ test("runs Python and persists anonymous chapter progress", async ({ page }) => 
   );
   await expect(firstCell.locator(".notebook-cell-figure img")).toBeVisible();
 
+  const cosineCell = page.locator(".notebook-cell").nth(1);
+  await cosineCell.getByRole("button", { name: /각도를 코사인 유사도로 바꾸기 실행$/ }).click();
+  await expect(cosineCell.locator(".notebook-cell-output-text")).toContainText(
+    /90° -> cosine\s+0\.000/,
+    { timeout: 90_000 },
+  );
+  await expect(cosineCell.locator(".notebook-cell-figure img")).toBeVisible();
+
   const finishButton = page.getByRole("button", { name: /이 챕터 완료하기/ });
   await expect(finishButton).toBeDisabled();
 

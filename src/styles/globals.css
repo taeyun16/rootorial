@@ -3618,6 +3618,10 @@ textarea:focus-visible {
   line-height: 1.7;
 }
 
+.vector-transfer-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .equation-block-compact {
   justify-content: flex-start;
   padding: 28px 32px;
