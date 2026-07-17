@@ -17084,6 +17084,10 @@ textarea:focus-visible {
   background: #ebe7f5;
 }
 
+.training-python-bridge .notebook-cell {
+  margin-top: 30px;
+}
+
 .training-preset-bar {
   min-inline-size: 0;
   padding: 14px 18px;

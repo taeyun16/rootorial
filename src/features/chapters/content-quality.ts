@@ -149,12 +149,14 @@ export const transformerContentQualityContracts = {
     sourceFile: "src/components/training/TrainingChapter.tsx",
     e2eFile: "e2e/training.spec.ts",
     expectedConceptQuestions: 5,
-    targetPythonCells: 1,
+    targetPythonCells: 2,
     expectedDefaultPublication: "draft",
     activities: [
       activity("batch-prediction", "predict", "TrainingBatchLab", 2, true),
       activity("batch-experiment", "experiment", "TrainingBatchLab", 3, true),
       activity("loop-debugger", "debug", "TrainingLoopDebugger", 4, true),
+      activity("softmax-axis-python", "code", "NotebookCell", 1, false, "python"),
+      activity("adam-epoch-python", "code", "NotebookCell", 0, false, "python"),
     ],
     editorialReview: {
       conceptDepth: 5,
