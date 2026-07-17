@@ -710,8 +710,8 @@ export const infrastructureChaptersKo: Chapter[] = [
       "DNS record 수명, health 상태와 L4 load-balancer 선택을 namespace 서비스 토폴로지에 연결하고 stale endpoint를 진단합니다.",
     runtime: "TypeScript service-path 모델",
     estimatedMinutes: 80,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["DNS · TTL", "health check", "L4 balancing · affinity"],
   },
   {
@@ -817,8 +817,8 @@ export const infrastructureChaptersEn: Chapter[] = [
       "Connect DNS record lifetime, health state, and L4 load-balancer choices to a namespace service topology, then diagnose stale endpoints.",
     runtime: "TypeScript service-path model",
     estimatedMinutes: 80,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["DNS · TTL", "health check", "L4 balancing · affinity"],
   },
   {

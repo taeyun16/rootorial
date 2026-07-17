@@ -343,8 +343,10 @@ test("keeps completed infrastructure chapters unavailable on public URLs", async
     render("/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en"),
     render("/curricula/infrastructure-design/chapters/veth-bridges-and-routing"),
     render("/curricula/infrastructure-design/chapters/veth-bridges-and-routing?lang=en"),
+    render("/curricula/infrastructure-design/chapters/service-discovery-and-load-balancing"),
+    render("/curricula/infrastructure-design/chapters/service-discovery-and-load-balancing?lang=en"),
   ]);
-  assert.deepEqual(responses.map(({ status }) => status), [404, 404, 404, 404]);
+  assert.deepEqual(responses.map(({ status }) => status), [404, 404, 404, 404, 404, 404]);
   await Promise.all(responses.map((response) => response.text()));
 });
 
@@ -739,6 +741,71 @@ test("SSR-renders the bilingual veth and routing chapter with test-only publicat
   assert.match(englishHtml, /Repair the first failed invariant instead of applying a broad workaround/);
   assert.match(englishHtml, /data-testid="veth-routing-visualization"/);
   assert.match(englishHtml, /data-topology-mode="bridge"/);
+  assert.match(englishHtml, /data-grade-state="not-run"/);
+});
+
+test("SSR-renders the bilingual service discovery chapter with test-only publication overrides", async () => {
+  const rows = [
+    {
+      resource_key: "curriculum:infrastructure-design",
+      resource_kind: "curriculum",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: null,
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+    {
+      resource_key: "chapter:infrastructure-design/service-discovery-and-load-balancing",
+      resource_kind: "chapter",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: "service-discovery-and-load-balancing",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/service-discovery-and-load-balancing",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /움직이는 app endpoint를 직접 외우지 않고/);
+  assert.match(html, /06 — REQUIRED SERVICE-PATH LAB/);
+  assert.match(html, /TTL handoff와 health-aware affinity를 둘 다 실행하세요/);
+  assert.match(html, /07 — DEBUG FOUR SERVICE-PATH INCIDENTS/);
+  assert.match(html, /stale endpoint 증상을 최초 실패 control-plane invariant로 수리합니다/);
+  assert.match(html, /data-testid="service-path-visualization"/);
+  assert.match(html, /data-service-mode="dns-lifecycle"/);
+  assert.match(html, /data-cache-state="stale-after-expiry"/);
+  assert.match(html, /data-grade-state="not-run"/);
+  assert.match(html, /data-path-state="not-run"/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/service-discovery-and-load-balancing?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /place changing app endpoints behind a stable name and VIP/i);
+  assert.match(englishHtml, /06 — REQUIRED SERVICE-PATH LAB/);
+  assert.match(englishHtml, /Execute both TTL handoff and health-aware affinity/);
+  assert.match(englishHtml, /07 — DEBUG FOUR SERVICE-PATH INCIDENTS/);
+  assert.match(englishHtml, /Repair stale-endpoint symptoms at the first failed control-plane invariant/);
+  assert.match(englishHtml, /data-testid="service-path-visualization"/);
+  assert.match(englishHtml, /data-service-mode="dns-lifecycle"/);
   assert.match(englishHtml, /data-grade-state="not-run"/);
 });
 
