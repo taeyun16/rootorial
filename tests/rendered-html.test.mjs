@@ -569,6 +569,53 @@ test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-o
   assert.match(englishHtml, /CORE LAB · 3 CORE \+ 2 OPTIONAL/);
 });
 
+test("SSR-renders the bilingual packet topology and ACK timeline from the initial NetworkMachine", async () => {
+  const rows = [
+    {
+      resource_key: "chapter:linux-systems/networking-from-a-packet",
+      resource_kind: "chapter",
+      curriculum_slug: "linux-systems",
+      chapter_slug: "networking-from-a-packet",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/linux-systems/chapters/networking-from-a-packet",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /data-testid="network-packet-visualization"/);
+  assert.match(html, /data-network-phase="idle"/);
+  assert.match(html, /<title[^>]*>패킷 경로 토폴로지<\/title>/);
+  assert.match(html, /aria-label="TCP ACK 타임라인"/);
+  assert.match(html, /remote listener fd 3만 LISTEN 중입니다/);
+  assert.match(html, /아직 segment 없음 · send queue도 비어 있음/);
+  assert.match(html, /ETHERNET dst/);
+  assert.match(html, /IPv4 dst/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/linux-systems/chapters/networking-from-a-packet?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /data-testid="network-packet-visualization"/);
+  assert.match(englishHtml, /<title[^>]*>Packet path topology<\/title>/);
+  assert.match(englishHtml, /aria-label="TCP ACK timeline"/);
+  assert.match(englishHtml, /Only remote listener fd 3 is in LISTEN/);
+  assert.match(englishHtml, /No segments yet · send queue is empty/);
+  assert.doesNotMatch(englishHtml, /<title[^>]*>패킷 경로 토폴로지<\/title>/);
+});
+
 test("SSR-renders the bilingual network namespace chapter with test-only publication overrides", async () => {
   const rows = [
     {

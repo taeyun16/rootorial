@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   NETWORK_GATEWAY_ADDRESS,
   NETWORK_GATEWAY_MAC,
@@ -29,6 +29,7 @@ import {
 } from "../../features/linux-runtime/networking-from-a-packet";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { NetworkPacketTopologyView } from "./NetworkPacketTopologyView";
 
 type Feedback = { correct: boolean; text: string };
 type Layer = "socket" | "tcp" | "ip" | "ethernet";
@@ -76,6 +77,7 @@ export function LinuxPacketJourneyLab({ onCompletionChange }: { onCompletionChan
   const [evidence, setEvidence] = useState<NetworkLabEvidence>(emptyNetworkLabEvidence);
   const [localRouteCorrect, setLocalRouteCorrect] = useState(false);
   const [inspectedLayers, setInspectedLayers] = useState<Layer[]>([]);
+  const inspectedLayersRef = useRef<Layer[]>([]);
   const [selectedLayer, setSelectedLayer] = useState<Layer>("socket");
   const [segmentDisposition, setSegmentDisposition] = useState<"" | "deliver" | "drop">("");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -107,6 +109,7 @@ export function LinuxPacketJourneyLab({ onCompletionChange }: { onCompletionChan
     setEvidence(emptyNetworkLabEvidence);
     setLocalRouteCorrect(false);
     setInspectedLayers([]);
+    inspectedLayersRef.current = [];
     setSelectedLayer("socket");
     setSegmentDisposition("");
     setFeedback(null);
@@ -121,6 +124,7 @@ export function LinuxPacketJourneyLab({ onCompletionChange }: { onCompletionChan
     setLocalRouteCorrect(false);
     setMachine(createNetworkingMachine());
     setInspectedLayers([]);
+    inspectedLayersRef.current = [];
     setSegmentDisposition("");
     onCompletionChange(false);
   };
@@ -216,7 +220,9 @@ export function LinuxPacketJourneyLab({ onCompletionChange }: { onCompletionChan
   const fireRto = () => applyTransition("RTO", (current) => fireTcpRetransmissionTimeout(current, NETWORK_CLIENT_SOCKET_FD));
 
   const inspectLayer = (layer: Layer) => {
-    const nextLayers = inspectedLayers.includes(layer) ? inspectedLayers : [...inspectedLayers, layer];
+    const currentLayers = inspectedLayersRef.current;
+    const nextLayers = currentLayers.includes(layer) ? currentLayers : [...currentLayers, layer];
+    inspectedLayersRef.current = nextLayers;
     setSelectedLayer(layer);
     setInspectedLayers(nextLayers);
     publishCompletion(machine, evidence, localRouteCorrect, nextLayers);
@@ -318,6 +324,8 @@ export function LinuxPacketJourneyLab({ onCompletionChange }: { onCompletionChan
         <button type="button" className="button button-secondary" aria-disabled={!canTransmitNext} aria-describedby="network-step-guidance" onClick={() => runWhen(canTransmitNext, "send(3000)으로 세 sequence range를 먼저 만드세요.", "Create the three sequence ranges with send(3000) first.", transmitNext)}>6–8 · {t("다음 segment 전송", "Transmit next segment")}</button>
         <button type="button" className="button button-primary" aria-disabled={!canFireRto} aria-describedby="network-step-guidance" onClick={() => runWhen(canFireRto, "세 segment의 첫 wire 결과를 모두 결정한 뒤 gap timeout을 실행하세요.", "Choose the first wire result for all three segments before firing the gap timeout.", fireRto)}>9 · RTO · {t("첫 gap 재전송", "Retransmit first gap")}</button>
       </div>
+
+      <NetworkPacketTopologyView machine={machine} locale={locale} />
 
       <div className="network-state-grid" role="group" aria-label={t("socket, route와 TCP 상태", "Socket, route, and TCP state")}>
         <article><span>CLIENT PID 73</span><strong>fd 3 {t("regular file", "regular file")} → buffer → fd 4 socket</strong><p>{t("fd 번호는 이 프로세스 안에서만 의미가 있습니다.", "Fd numbers have meaning only inside this process.")}</p></article>

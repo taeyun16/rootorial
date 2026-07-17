@@ -45,6 +45,7 @@ import {
   sendTcpPayload,
   transmitTcpSegment,
 } from "../src/features/linux-runtime/networking-from-a-packet.ts";
+import { buildNetworkPacketVisualState } from "../src/features/linux-runtime/network-packet-visual.ts";
 
 const correctPrediction = {
   socketBoundary: "process-fd",
@@ -132,6 +133,107 @@ function completeNetworkLab() {
   assert.equal(received.reason, "application-received");
   return { machine: received.machine, fd: recovered.fd };
 }
+
+test("projects the packet path, ACK gap, retransmission, and recv without separate UI state", () => {
+  const initialMachine = createNetworkingMachine();
+  const initial = buildNetworkPacketVisualState(initialMachine);
+  assert.equal(initial.phase, "idle");
+  assert.deepEqual(initial.client, {
+    fd: null,
+    state: "missing",
+    localAddress: null,
+    localPort: null,
+    remoteAddress: null,
+    remotePort: null,
+  });
+  assert.equal(initial.server.listenerFd, NETWORK_SERVER_LISTENER_FD);
+  assert.equal(initial.server.listenerState, "listen");
+  assert.deepEqual(initial.segments, []);
+
+  let { machine, fd } = prepareHandshakeMachine();
+  let visual = buildNetworkPacketVisualState(machine);
+  assert.equal(visual.phase, "accept-queued");
+  assert.deepEqual(visual.route, {
+    selected: true,
+    interfaceId: "eth0",
+    prefixLength: 0,
+    nextHop: NETWORK_GATEWAY_ADDRESS,
+    nextHopMac: NETWORK_GATEWAY_MAC,
+    resolution: "arp",
+  });
+  assert.equal(visual.client.remoteAddress, NETWORK_REMOTE_ADDRESS);
+  assert.equal(visual.server.acceptQueueDepth, 1);
+
+  machine = acceptTcpConnection(machine, NETWORK_SERVER_LISTENER_FD).machine;
+  assert.equal(buildNetworkPacketVisualState(machine).phase, "accepted");
+  machine = sendTcpPayload(machine, fd, NETWORK_LAB_PAYLOAD_BYTES).machine;
+  visual = buildNetworkPacketVisualState(machine);
+  assert.equal(visual.phase, "queued");
+  assert.deepEqual(visual.segments.map(({ sequenceStart, sequenceEnd, payloadBytes, status }) => ({
+    sequenceStart,
+    sequenceEnd,
+    payloadBytes,
+    status,
+  })), [
+    { sequenceStart: 1001, sequenceEnd: 2461, payloadBytes: 1460, status: "queued" },
+    { sequenceStart: 2461, sequenceEnd: 3921, payloadBytes: 1460, status: "queued" },
+    { sequenceStart: 3921, sequenceEnd: 4001, payloadBytes: 80, status: "queued" },
+  ]);
+
+  machine = transmitTcpSegment(machine, fd, 0, "deliver").machine;
+  visual = buildNetworkPacketVisualState(machine);
+  assert.equal(visual.phase, "transmitting");
+  assert.equal(visual.transport.latestAcknowledgement, 2461);
+  assert.equal(visual.server.receiveQueueBytes, 1460);
+  assert.deepEqual(visual.segments.map((segment) => segment.status), [
+    "acknowledged",
+    "queued",
+    "queued",
+  ]);
+
+  machine = transmitTcpSegment(machine, fd, 1, "drop").machine;
+  visual = buildNetworkPacketVisualState(machine);
+  assert.equal(visual.phase, "gap");
+  assert.equal(visual.segments[1].status, "dropped");
+  assert.equal(visual.transport.latestAcknowledgement, 2461);
+
+  machine = transmitTcpSegment(machine, fd, 2, "deliver").machine;
+  visual = buildNetworkPacketVisualState(machine);
+  assert.equal(visual.phase, "gap");
+  assert.equal(visual.segments[2].status, "buffered");
+  assert.deepEqual(visual.transport.receiverBufferedRanges, [{ start: 3921, end: 4001 }]);
+  assert.deepEqual(visual.transport.acknowledgements.map(({ value, duplicate }) => ({
+    value,
+    duplicate,
+  })), [
+    { value: 2461, duplicate: false },
+    { value: 2461, duplicate: true },
+  ]);
+
+  machine = fireTcpRetransmissionTimeout(machine, fd).machine;
+  visual = buildNetworkPacketVisualState(machine);
+  assert.equal(visual.phase, "recovered");
+  assert.equal(visual.transport.timeoutSequence, 2461);
+  assert.equal(visual.transport.latestAcknowledgement, 4001);
+  assert.deepEqual(visual.transport.receiverBufferedRanges, []);
+  assert.equal(visual.server.receiveQueueBytes, NETWORK_LAB_PAYLOAD_BYTES);
+  assert.deepEqual(visual.segments.map(({ status, transmissions }) => ({ status, transmissions })), [
+    { status: "acknowledged", transmissions: 1 },
+    { status: "recovered", transmissions: 2 },
+    { status: "acknowledged", transmissions: 1 },
+  ]);
+
+  machine = receiveTcpApplication(
+    machine,
+    NETWORK_SERVER_ACCEPTED_FD,
+    NETWORK_LAB_PAYLOAD_BYTES,
+  ).machine;
+  visual = buildNetworkPacketVisualState(machine);
+  assert.equal(visual.phase, "received");
+  assert.equal(visual.server.receiveQueueBytes, 0);
+  assert.equal(visual.server.applicationReceivedBytes, NETWORK_LAB_PAYLOAD_BYTES);
+  assert.deepEqual(buildNetworkPacketVisualState(createNetworkingMachine()), initial);
+});
 
 test("parses IPv4 addresses strictly and selects longest prefix, then metric, then route order", () => {
   assert.equal(parseIpv4Address("0.0.0.0"), 0);
