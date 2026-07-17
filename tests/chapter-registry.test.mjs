@@ -74,6 +74,9 @@ test("publishes only available chapters that also have a renderer contract", () 
   assert.ok(
     registeredChapterIds.includes("infrastructure-design/veth-bridges-and-routing"),
   );
+  assert.ok(
+    registeredChapterIds.includes("infrastructure-design/egress-nat-and-conntrack"),
+  );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "vectors", "en")?.chapter.title,
     "Vectors and Tensors",
@@ -121,6 +124,14 @@ test("publishes only available chapters that also have a renderer contract", () 
       "en",
     )?.chapter.title,
     "Assemble Topologies with veth, Bridges, and Routing",
+  );
+  assert.equal(
+    getPublishedChapter(
+      "infrastructure-design",
+      "egress-nat-and-conntrack",
+      "en",
+    )?.chapter.title,
+    "Egress, NAT, and Conntrack",
   );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
@@ -879,6 +890,27 @@ test("separates active question submissions from historical labels", () => {
       ),
       undefined,
     );
+  }
+  const egressNatQuestions = chapterRegistry[
+    "infrastructure-design/egress-nat-and-conntrack"
+  ].questions;
+  assert.deepEqual(
+    Object.fromEntries(Object.entries(egressNatQuestions).map(([id, question]) => [id, question.correctAnswer])),
+    {
+      "nat-after-routing": "source-nat-runs-on-selected-egress",
+      "snat-vs-masquerade": "static-snat-dynamic-masquerade",
+      "conntrack-reply-tuple": "reply-maps-to-original-private-flow",
+      "nat-not-routing": "routing-and-forwarding-remain-required",
+      "stateful-return-path": "reply-must-cross-original-stateful-router",
+    },
+  );
+  assert.deepEqual(
+    Object.values(egressNatQuestions).map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 0, 2, 1, 0],
+  );
+  for (const questionId of Object.keys(egressNatQuestions)) {
+    assert.equal(getConceptQuestionVersionEntry("infrastructure-design", "egress-nat-and-conntrack", questionId, 1)?.correctAnswer, egressNatQuestions[questionId].correctAnswer);
+    assert.equal(getConceptQuestionVersionEntry("infrastructure-design", "egress-nat-and-conntrack", questionId, 2), undefined);
   }
   assert.deepEqual(
     Object.fromEntries(

@@ -53,7 +53,8 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
     [
       { status: "available", developmentStatus: "complete" },
       { status: "available", developmentStatus: "complete" },
-      ...Array.from({ length: 6 }, () => ({ status: "planned", developmentStatus: "planned" })),
+      { status: "available", developmentStatus: "complete" },
+      ...Array.from({ length: 5 }, () => ({ status: "planned", developmentStatus: "planned" })),
     ],
   );
   const koreanVethRouting = infrastructureChaptersKo[1];
@@ -108,6 +109,14 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
   );
   assert.match(koreanVethRouting.description, /겹치지 않는 CIDR.*return path/);
   assert.match(englishVethRouting.description, /non-overlapping CIDRs.*return paths/);
+  const koreanEgressNat = infrastructureChaptersKo[2];
+  const englishEgressNat = infrastructureChaptersEn[2];
+  assert.equal(koreanEgressNat.slug, "egress-nat-and-conntrack");
+  assert.equal(koreanEgressNat.status, "available");
+  assert.equal(koreanEgressNat.developmentStatus, "complete");
+  assert.equal(englishEgressNat.title, "Egress, NAT, and Conntrack");
+  assert.match(koreanEgressNat.description, /SNAT·MASQUERADE.*conntrack reply/);
+  assert.match(englishEgressNat.description, /SNAT or masquerade.*conntrack reply/);
   const curriculum = getCurriculum("infrastructure-design");
   assert.equal(curriculum?.status, "in-progress");
   assert.deepEqual(curriculum?.title, {

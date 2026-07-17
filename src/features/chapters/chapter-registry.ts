@@ -778,6 +778,46 @@ export const conceptQuestionHistory = {
       answers: ["reply-needs-route-back", "forward-route-is-enough", "tcp-discovers-route-automatically"],
     },
   },
+  "infrastructure-design/egress-nat-and-conntrack/nat-after-routing": {
+    1: {
+      version: 1,
+      label: "source NAT와 route lookup 순서",
+      correctAnswer: "source-nat-runs-on-selected-egress",
+      answers: ["nat-creates-route", "source-nat-runs-on-selected-egress", "conntrack-skips-routing"],
+    },
+  },
+  "infrastructure-design/egress-nat-and-conntrack/snat-vs-masquerade": {
+    1: {
+      version: 1,
+      label: "address lifetime에 맞는 NAT target",
+      correctAnswer: "static-snat-dynamic-masquerade",
+      answers: ["static-snat-dynamic-masquerade", "snat-always-follows-interface", "both-ignore-address-lifetime"],
+    },
+  },
+  "infrastructure-design/egress-nat-and-conntrack/conntrack-reply-tuple": {
+    1: {
+      version: 1,
+      label: "conntrack reply tuple과 reverse translation",
+      correctAnswer: "reply-maps-to-original-private-flow",
+      answers: ["remote-knows-private-address", "tcp-creates-private-route", "reply-maps-to-original-private-flow"],
+    },
+  },
+  "infrastructure-design/egress-nat-and-conntrack/nat-not-routing": {
+    1: {
+      version: 1,
+      label: "NAT와 route forwarding 경계",
+      correctAnswer: "routing-and-forwarding-remain-required",
+      answers: ["nat-enables-forwarding", "routing-and-forwarding-remain-required", "translation-opens-listener"],
+    },
+  },
+  "infrastructure-design/egress-nat-and-conntrack/stateful-return-path": {
+    1: {
+      version: 1,
+      label: "stateful NAT의 return path",
+      correctAnswer: "reply-must-cross-original-stateful-router",
+      answers: ["reply-must-cross-original-stateful-router", "any-router-can-reverse", "client-route-restores-state"],
+    },
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     1: {
       version: 1,
@@ -1198,6 +1238,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["infrastructure-design/veth-bridges-and-routing/return-path"][1],
     status: "active",
   },
+  "infrastructure-design/egress-nat-and-conntrack/nat-after-routing": {
+    ...conceptQuestionHistory["infrastructure-design/egress-nat-and-conntrack/nat-after-routing"][1],
+    status: "active",
+  },
+  "infrastructure-design/egress-nat-and-conntrack/snat-vs-masquerade": {
+    ...conceptQuestionHistory["infrastructure-design/egress-nat-and-conntrack/snat-vs-masquerade"][1],
+    status: "active",
+  },
+  "infrastructure-design/egress-nat-and-conntrack/conntrack-reply-tuple": {
+    ...conceptQuestionHistory["infrastructure-design/egress-nat-and-conntrack/conntrack-reply-tuple"][1],
+    status: "active",
+  },
+  "infrastructure-design/egress-nat-and-conntrack/nat-not-routing": {
+    ...conceptQuestionHistory["infrastructure-design/egress-nat-and-conntrack/nat-not-routing"][1],
+    status: "active",
+  },
+  "infrastructure-design/egress-nat-and-conntrack/stateful-return-path": {
+    ...conceptQuestionHistory["infrastructure-design/egress-nat-and-conntrack/stateful-return-path"][1],
+    status: "active",
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"][1],
     status: "active",
@@ -1379,6 +1439,14 @@ export const infrastructureVethRoutingQuestions = {
   "return-path": conceptQuestionRegistry["infrastructure-design/veth-bridges-and-routing/return-path"],
 } as const;
 
+export const infrastructureEgressNatQuestions = {
+  "nat-after-routing": conceptQuestionRegistry["infrastructure-design/egress-nat-and-conntrack/nat-after-routing"],
+  "snat-vs-masquerade": conceptQuestionRegistry["infrastructure-design/egress-nat-and-conntrack/snat-vs-masquerade"],
+  "conntrack-reply-tuple": conceptQuestionRegistry["infrastructure-design/egress-nat-and-conntrack/conntrack-reply-tuple"],
+  "nat-not-routing": conceptQuestionRegistry["infrastructure-design/egress-nat-and-conntrack/nat-not-routing"],
+  "stateful-return-path": conceptQuestionRegistry["infrastructure-design/egress-nat-and-conntrack/stateful-return-path"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -1443,6 +1511,9 @@ export const chapterRegistry = {
   },
   "infrastructure-design/veth-bridges-and-routing": {
     questions: infrastructureVethRoutingQuestions,
+  },
+  "infrastructure-design/egress-nat-and-conntrack": {
+    questions: infrastructureEgressNatQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

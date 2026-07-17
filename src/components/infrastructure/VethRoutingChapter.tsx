@@ -62,6 +62,7 @@ export function VethRoutingChapter({ learnerCount = 0 }: { learnerCount?: number
     conceptsMastered,
   });
   const namespacePreviewHref = `/admin/preview/curricula/${INFRASTRUCTURE_CURRICULUM_SLUG}/chapters/network-namespaces-and-boundaries${isKo ? "" : "?lang=en"}`;
+  const egressNatPreviewHref = `/admin/preview/curricula/${INFRASTRUCTURE_CURRICULUM_SLUG}/chapters/egress-nat-and-conntrack${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell infrastructure-chapter-shell veth-routing-chapter-shell">
@@ -241,7 +242,11 @@ ip netns exec app ss -lnt '( sport = :8080 )'`}</pre>
             ) : (
               <span>← {t("이전: network namespace", "Previous: Network namespaces")}</span>
             )}
-            <span>{t("다음: egress·NAT·conntrack", "Next: Egress, NAT, and conntrack")} →</span>
+            {preview ? (
+              <a href={egressNatPreviewHref}>{t("다음: egress·NAT·conntrack", "Next: Egress, NAT, and conntrack")} →</a>
+            ) : (
+              <span>{t("다음: egress·NAT·conntrack", "Next: Egress, NAT, and conntrack")} →</span>
+            )}
           </nav>
           <noscript>{t(
             "topology 활동에는 JavaScript가 필요합니다. 위의 veth·bridge·route 설명과 iproute2 관찰 명령은 계속 읽을 수 있습니다.",

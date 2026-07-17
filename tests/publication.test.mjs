@@ -96,6 +96,10 @@ const infrastructureVethRoutingKey = chapterPublicationKey(
   "infrastructure-design",
   "veth-bridges-and-routing",
 );
+const infrastructureEgressNatKey = chapterPublicationKey(
+  "infrastructure-design",
+  "egress-nat-and-conntrack",
+);
 const systemArchitectureKey = curriculumPublicationKey("system-architecture");
 
 function override(resourceKey, values = {}) {
@@ -434,6 +438,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   const infrastructure = catalog.resources[infrastructureKey];
   const namespaces = catalog.resources[infrastructureNamespacesKey];
   const vethRouting = catalog.resources[infrastructureVethRoutingKey];
+  const egressNat = catalog.resources[infrastructureEgressNatKey];
 
   assert.equal(infrastructure.developmentStatus, "in-progress");
   assert.equal(infrastructure.contentReady, true);
@@ -465,6 +470,15 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(vethRouting.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructureVethRoutingKey), false);
   assert.equal(isPublicationListed(catalog, infrastructureVethRoutingKey), false);
+
+  assert.equal(egressNat.developmentStatus, "complete");
+  assert.equal(egressNat.previewReady, true);
+  assert.equal(egressNat.contentReady, true);
+  assert.equal(egressNat.publicationStatus, "draft");
+  assert.equal(egressNat.effectivePublicationStatus, "draft");
+  assert.equal(egressNat.listing, "hidden");
+  assert.equal(isPublicationAccessible(catalog, infrastructureEgressNatKey), false);
+  assert.equal(isPublicationListed(catalog, infrastructureEgressNatKey), false);
 
   const announced = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "infrastructure-design",
