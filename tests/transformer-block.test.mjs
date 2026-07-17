@@ -2,6 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  transformerBlockResidualRepairCode,
+  transformerBlockStageLedgerCode,
+} from "../src/data/transformerBlockNotebook.ts";
+
+import {
   TRANSFORMER_BLOCK_FFN_DIMENSION,
   TRANSFORMER_BLOCK_HEAD_COUNT,
   TRANSFORMER_BLOCK_HEAD_DIMENSION,
@@ -50,6 +55,22 @@ function assertMatrixClose(actual, expected, tolerance = TOLERANCE) {
     close(value, expected[rowIndex][columnIndex], tolerance);
   }));
 }
+
+test("ships self-contained NumPy bridges for the block ledger and second residual repair", () => {
+  assert.match(transformerBlockStageLedgerCode, /def layer_norm_rows\(matrix\):/);
+  assert.match(transformerBlockStageLedgerCode, /mean = matrix\.mean\(axis=1, keepdims=True\)/);
+  assert.match(transformerBlockStageLedgerCode, /x1 = x0 \+ attention_output/);
+  assert.match(transformerBlockStageLedgerCode, /y = x1 \+ ffn_output/);
+  assert.match(transformerBlockStageLedgerCode, /token0\.variance=/);
+  assert.match(transformerBlockStageLedgerCode, /3\.438475, 0\.113746, 1\.676509, 0\.039093/);
+  assert.match(transformerBlockStageLedgerCode, /DOES NOT PROVE:/);
+  assert.match(transformerBlockResidualRepairCode, /y = x0 \+ F/);
+  assert.match(transformerBlockResidualRepairCode, /max_skip_error/);
+  assert.match(transformerBlockResidualRepairCode, /Second residual must use x1, not x0/);
+  assert.match(transformerBlockResidualRepairCode, /PASS: y = x1 \+ F/);
+  assert.doesNotMatch(transformerBlockStageLedgerCode, /[가-힣]/);
+  assert.doesNotMatch(transformerBlockResidualRepairCode, /[가-힣]/);
+});
 
 function validEvidence() {
   let sequence = 0;

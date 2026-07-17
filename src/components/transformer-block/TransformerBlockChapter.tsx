@@ -5,6 +5,10 @@ import {
   chaptersKo,
   TRANSFORMER_CURRICULUM_SLUG,
 } from "../../data/curriculum";
+import {
+  transformerBlockResidualRepairCode,
+  transformerBlockStageLedgerCode,
+} from "../../data/transformerBlockNotebook";
 import { canCompleteTransformerBlockChapter } from "../../features/transformer-block/transformer-block-model";
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
@@ -12,6 +16,7 @@ import { ChapterToc } from "../ChapterToc";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
@@ -28,6 +33,7 @@ const tocItems = {
     { id: "layernorm", label: "Token별 LayerNorm" },
     { id: "ffn", label: "Position-wise FFN" },
     { id: "transformer-block-lab", label: "필수 블록 조립 lab" },
+    { id: "numpy-bridge", label: "NumPy 블록 원장" },
     { id: "debug", label: "블록 계약 디버깅" },
     { id: "transfer", label: "Mini Transformer로 전이" },
     { id: "check", label: "이해 확인" },
@@ -40,6 +46,7 @@ const tocItems = {
     { id: "layernorm", label: "LayerNorm per token" },
     { id: "ffn", label: "Position-wise FFN" },
     { id: "transformer-block-lab", label: "Required block assembly lab" },
+    { id: "numpy-bridge", label: "NumPy block ledger" },
     { id: "debug", label: "Debug block contracts" },
     { id: "transfer", label: "Transfer to the Mini Transformer" },
     { id: "check", label: "Concept check" },
@@ -186,8 +193,49 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
 
           <div id="transformer-block-lab"><TransformerBlockLab onCompletionChange={setLabComplete} /></div>
 
+          <section className="article-section transformer-block-python-bridge" id="numpy-bridge">
+            <div className="margin-label">08 — NUMPY BLOCK LEDGER · OPTIONAL</div>
+            <h2>{t("한 token을 E+P부터 두 번째 residual까지 숫자로 추적합니다", "Trace one token numerically from E+P through the second residual")}</h2>
+            <p>{t(
+              "첫 셀은 token 0의 E=[1,0,2,0]과 P=[0,1,0,1]에서 시작합니다. x₀=[1,1,2,1]의 feature 평균 1.25와 분산 0.1875를 직접 계산한 뒤, pre-norm attention branch와 row-wise ReLU FFN을 거쳐 y=[3.438475,0.113746,1.676509,0.039093]까지 같은 [4,4] shape로 이어지는 stage 원장을 검증합니다.",
+              "The first cell starts token 0 at E=[1,0,2,0] and P=[0,1,0,1]. It computes feature mean 1.25 and variance 0.1875 for x0=[1,1,2,1], then verifies a stage ledger through the pre-norm attention branch and row-wise ReLU FFN to y=[3.438475,0.113746,1.676509,0.039093], always preserving shape [4,4].",
+            )}</p>
+            <p>{t(
+              "이 고정 fixture는 이 장의 axis·순서·shape 계약을 증명하지만, 학습된 실제 모델의 품질이나 attention 의미를 증명하지는 않습니다. 둘째 셀은 그 경계를 더 좁혀 첫 residual에서 만든 x₁을 건너뛰고 x₀를 다시 더하는 버그를 실행 실패로 드러냅니다.",
+              "This fixed fixture proves the chapter's axis, order, and shape contract; it does not prove the quality or semantics of a trained model. The second cell narrows the boundary further by exposing, as an executed failure, the bug of skipping x1 from the first residual and adding x0 again.",
+            )}</p>
+            <div className="concept-callout">
+              <span className="callout-mark">Py</span>
+              <div>
+                <strong>{t("선택 실습이며 각 셀은 독립 실행됩니다", "Optional practice; each cell runs independently")}</strong>
+                <p>{t(
+                  "공유 Pyodide·NumPy 런타임은 첫 실행 때만 지연 로드됩니다. 다운로드 실패나 수리 미완료는 필수 블록 lab, 디버거, 이해 확인, 챕터 완료를 막지 않습니다.",
+                  "The shared Pyodide and NumPy runtime loads lazily on first execution. A download failure or unfinished repair never blocks the required block lab, debugger, concept check, or chapter completion.",
+                )}</p>
+              </div>
+            </div>
+            <div className="notebook-stack">
+              <NotebookCell
+                title={t("Pre-norm 블록 stage 원장 검증", "Verify the pre-norm block stage ledger")}
+                initialCode={transformerBlockStageLedgerCode}
+                description={<p>{t("실행 후 token0.LN(x0), token0.x1, token0.FFN, token0.y와 일곱 개 [4,4] stage shape를 손계산 표와 대조하세요.", "Run the cell, then compare token0.LN(x0), token0.x1, token0.FFN, token0.y, and all seven [4,4] stage shapes with the hand-worked ledger.")}</p>}
+                hint={<p>{t("x0_fixture의 첫 행에서 2를 3으로 바꾸면 mean·variance·정규화 좌표와 뒤 stage가 함께 어떻게 변하는지 관찰한 뒤 초기화하세요.", "Change 2 to 3 in the first row of x0_fixture, observe how the mean, variance, normalized coordinates, and downstream stages move together, then reset.")}</p>}
+                editorMinHeight={940}
+                ariaLabel={t("Transformer block stage 원장 NumPy 코드", "NumPy code for the Transformer block stage ledger")}
+              />
+              <NotebookCell
+                title={t("두 번째 residual 기준 수리", "Repair the second residual base")}
+                initialCode={transformerBlockResidualRepairCode}
+                description={<p>{t("처음 실행하면 y=x₀+F 때문에 max_skip_error=1.732005와 함께 assertion이 실패합니다. REPAIR 아래 한 줄에서 x₀를 x₁으로 바꿔 첫 attention update가 최종 y에 보존되도록 하세요.", "The initial run fails with max_skip_error=1.732005 because y=x0+F. On the line below REPAIR, replace x0 with x1 so the first attention update is preserved in final y.")}</p>}
+                hint={<p>{t("두 번째 skip source는 FFN 입력을 만들었던 state와 같습니다: norm2는 x₁을 읽고 residual도 x₁을 더합니다.", "The second skip source is the same state used to form the FFN input: norm2 reads x1, and the residual also adds x1.")}</p>}
+                editorMinHeight={720}
+                ariaLabel={t("Transformer block 두 번째 residual 수리 NumPy 코드", "NumPy code for repairing the Transformer block second residual")}
+              />
+            </div>
+          </section>
+
           <section className="article-section" id="debug">
-            <div className="margin-label">08 — BLOCK CONTRACT REPAIR CONSOLE</div>
+            <div className="margin-label">09 — BLOCK CONTRACT REPAIR CONSOLE</div>
             <h2>{t("position·axis·skip source·FFN 경계를 실행 결과로 수리합니다", "Repair position, axis, skip-source, and FFN boundaries from executed results")}</h2>
             <p>{t(
               "각 사건은 후보 조립을 같은 fixture에 적용하고 위치 차이, row 통계, residual identity, token 독립성, 최종 shape를 다시 계산합니다. option 이름이 아니라 결과 invariant가 맞아야 통과합니다.",
@@ -197,7 +245,7 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
           </section>
 
           <section className="article-section" id="transfer">
-            <div className="margin-label">09 — TRANSFER TO A MINI TRANSFORMER</div>
+            <div className="margin-label">10 — TRANSFER TO A MINI TRANSFORMER</div>
             <h2>{t("한 block의 [T,d_model] state를 logits 경계로 넘기고 stack 확장을 설계합니다", "Hand one block's [T,d_model] state to the logits boundary and design stack scaling")}</h2>
             <div className="transformer-block-transfer-task"><strong>{t("전이 과제", "TRANSFER TASK")}</strong><p>{t(
               "두 번째 block을 쌓는다고 가정하세요. position P를 다시 더하지 않고 첫 block의 y를 다음 x로 넘긴 뒤, 어떤 두 LN→sublayer→ADD가 반복되는지 쓰세요. 마지막 token의 next-token logits를 만들려면 block 밖에서 어떤 final norm과 vocabulary projection이 더 필요한지도 구분하세요.",
@@ -206,7 +254,7 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
           </section>
 
           <section className="article-section" id="check">
-            <div className="margin-label">10 — CONCEPT CHECK</div>
+            <div className="margin-label">11 — CONCEPT CHECK</div>
             <TransformerBlockConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 
