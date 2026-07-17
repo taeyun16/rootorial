@@ -1,0 +1,561 @@
+.network-policy-chapter-shell,
+.network-policy-chapter-shell *,
+.network-policy-lab,
+.network-policy-lab *,
+.network-policy-incident-lab,
+.network-policy-incident-lab * {
+  min-inline-size: 0;
+}
+
+.network-policy-preflight,
+.network-policy-hook-grid {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 1rem;
+}
+
+.network-policy-preflight {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.network-policy-preflight span {
+  padding: 0.65rem;
+  border: 1px solid var(--success-border);
+  border-radius: 0.65rem;
+  background: var(--success-bg);
+  color: var(--success-fg);
+  font: 700 var(--text-meta)/1.3 var(--mono);
+  text-align: center;
+}
+
+.network-policy-hook-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.network-policy-hook-grid article {
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--paper-raised);
+}
+
+.network-policy-hook-grid article > span,
+.network-policy-hook-grid article > strong,
+.network-policy-hook-grid article > p {
+  display: block;
+}
+
+.network-policy-hook-grid article > span {
+  color: var(--chapter-accent);
+  font: 800 var(--text-caption)/1.2 var(--mono);
+}
+
+.network-policy-hook-grid article > strong {
+  margin-top: 0.35rem;
+  color: var(--ink);
+  font-family: var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.network-policy-hook-grid article > p {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-caption);
+}
+
+.network-policy-lab,
+.network-policy-incident-lab {
+  margin-top: 1.25rem;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--line-strong);
+  border-radius: 1rem;
+  background: var(--paper-subtle);
+}
+
+.network-policy-lab-header,
+.network-policy-visual-header {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.network-policy-lab-header h3 {
+  margin: 0.35rem 0 0;
+}
+
+.network-policy-lab-header p:last-child {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+}
+
+.network-policy-lab-header > strong {
+  flex: 0 0 auto;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--info-border);
+  border-radius: 999px;
+  background: var(--info-bg);
+  color: var(--info-fg);
+  font-family: var(--mono);
+}
+
+.network-policy-mode-toolbar,
+.network-policy-lab-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.network-policy-mode-toolbar .button[aria-pressed="true"] {
+  border-color: var(--chapter-accent);
+  background: var(--chapter-accent-soft);
+  color: var(--chapter-accent);
+}
+
+.network-policy-control-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.network-policy-control-grid fieldset {
+  display: grid;
+  align-content: start;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--paper-raised);
+}
+
+.network-policy-control-grid legend {
+  padding: 0 0.35rem;
+  color: var(--ink);
+  font: 700 var(--text-caption)/1.2 var(--mono);
+}
+
+.network-policy-control-grid label:not(.network-policy-check-control) > span,
+.network-policy-run-row label > span,
+.network-policy-incident-card label > span {
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--muted);
+  font-size: var(--text-meta);
+  font-weight: 700;
+}
+
+.network-policy-control-grid select,
+.network-policy-run-row select,
+.network-policy-incident-card select {
+  width: 100%;
+  max-width: 100%;
+}
+
+.network-policy-check-control {
+  display: flex;
+  min-height: 2.75rem;
+  gap: 0.55rem;
+  align-items: center;
+  color: var(--text);
+  font-size: var(--text-caption);
+  overflow-wrap: anywhere;
+}
+
+.network-policy-check-control input {
+  flex: 0 0 auto;
+}
+
+.network-policy-derived-state {
+  margin: 0;
+  padding: 0.65rem;
+  border-left: 0.25rem solid var(--info-border);
+  background: var(--info-bg);
+  color: var(--info-fg);
+  font-size: var(--text-meta);
+}
+
+.network-policy-visualization {
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.network-policy-visual-header {
+  flex-wrap: wrap;
+  margin-bottom: 0.75rem;
+}
+
+.network-policy-visual-header > div > span,
+.network-policy-chain > div > span,
+.network-policy-probes > div > span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.network-policy-visual-header > div > strong,
+.network-policy-chain > div > strong,
+.network-policy-probes > div > strong {
+  display: block;
+  color: var(--ink);
+  font-size: var(--text-support);
+}
+
+.network-policy-visual-verdict {
+  padding: 0.35rem 0.55rem;
+  border: 1px solid var(--info-border);
+  border-radius: 999px;
+  background: var(--info-bg);
+  color: var(--info-fg);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.network-policy-visual-verdict.is-passed {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.network-policy-visual-verdict.is-failed {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.network-policy-map {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) minmax(4rem, 0.4fr) minmax(11rem, 1fr) minmax(4rem, 0.4fr) minmax(10rem, 1fr);
+  gap: 0.55rem;
+  align-items: center;
+  padding: clamp(0.7rem, 2vw, 1rem);
+  border: 1px solid var(--line-strong);
+  border-radius: 0.9rem;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--chapter-accent) 4%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--chapter-accent) 4%, transparent) 1px, transparent 1px),
+    var(--paper-subtle);
+  background-size: 1.5rem 1.5rem;
+}
+
+.network-policy-boundary {
+  display: flex;
+  min-height: 8rem;
+  padding: 0.75rem;
+  border: 2px solid color-mix(in srgb, var(--chapter-accent) 45%, var(--line));
+  border-radius: 0.75rem;
+  background: var(--paper-raised);
+  flex-direction: column;
+  justify-content: center;
+  overflow-wrap: anywhere;
+}
+
+.network-policy-boundary.is-firewall {
+  border-color: var(--chapter-accent);
+  background: color-mix(in srgb, var(--paper-raised) 92%, var(--chapter-accent-soft));
+}
+
+.network-policy-boundary > span,
+.network-policy-boundary > strong,
+.network-policy-boundary > small {
+  display: block;
+}
+
+.network-policy-boundary > span {
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.network-policy-boundary > strong {
+  margin-top: 0.35rem;
+  color: var(--ink);
+  font-family: var(--mono);
+}
+
+.network-policy-boundary > small {
+  margin-top: 0.35rem;
+  color: var(--chapter-accent);
+  font-size: var(--text-meta);
+  font-weight: 700;
+}
+
+.network-policy-connector {
+  width: 100%;
+  color: var(--chapter-accent);
+  overflow: visible;
+}
+
+.network-policy-connector path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+.network-policy-trace-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.network-policy-chain,
+.network-policy-probes {
+  padding: 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--paper-raised);
+}
+
+.network-policy-chain ol,
+.network-policy-probes ul {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0.7rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.network-policy-chain li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.5rem;
+  border-left: 0.25rem solid var(--line-strong);
+  background: var(--paper-subtle);
+}
+
+.network-policy-chain li > span,
+.network-policy-chain li > b,
+.network-policy-chain li > code {
+  font-size: var(--text-meta);
+}
+
+.network-policy-chain li > span,
+.network-policy-chain li > b {
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.network-policy-chain li > code {
+  color: var(--ink);
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.network-policy-probes li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0.45rem;
+  align-items: center;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-left: 0.25rem solid var(--line-strong);
+  border-radius: 0.45rem;
+  background: var(--paper-subtle);
+}
+
+.network-policy-probes li[data-probe-verdict="accept"] {
+  border-left-color: var(--success-border);
+}
+
+.network-policy-probes li[data-probe-verdict="drop"] {
+  border-left-color: var(--danger-border);
+}
+
+.network-policy-probes li > span {
+  color: var(--ink);
+  font-size: var(--text-meta);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.network-policy-probes li > small,
+.network-policy-probes li > b {
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.network-policy-command-evidence {
+  margin-top: 0.8rem;
+}
+
+.network-policy-command-evidence > span {
+  display: block;
+  margin-bottom: 0.35rem;
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.network-policy-command-evidence pre,
+.network-policy-incident-card pre {
+  max-width: 100%;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.network-policy-run-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: end;
+  margin-top: 0.9rem;
+}
+
+.network-policy-feedback {
+  margin-top: 0.75rem;
+  padding: 0.7rem 0.8rem;
+  border-left: 0.25rem solid var(--line-strong);
+  background: var(--paper-raised);
+  color: var(--text);
+}
+
+.network-policy-feedback.is-success {
+  border-left-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.network-policy-feedback.is-error {
+  border-left-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.network-policy-incident-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.network-policy-incident-card {
+  display: flex;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--paper-raised);
+  flex-direction: column;
+}
+
+.network-policy-incident-card > span {
+  color: var(--chapter-accent);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.network-policy-incident-card h4 {
+  margin: 0.45rem 0 0.6rem;
+}
+
+.network-policy-incident-card > p {
+  color: var(--muted);
+  font-size: var(--text-caption);
+}
+
+.network-policy-incident-actions {
+  margin-top: 0.65rem;
+}
+
+.network-policy-incident-card .network-policy-feedback {
+  margin-top: auto;
+  padding-top: 0.65rem;
+}
+
+@media (max-width: 1040px) {
+  .network-policy-map {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .network-policy-boundary {
+    min-height: 0;
+  }
+
+  .network-policy-connector {
+    width: 3.5rem;
+    height: 3.5rem;
+    justify-self: center;
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 920px) {
+  .network-policy-control-grid,
+  .network-policy-trace-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .network-policy-preflight {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .network-policy-hook-grid,
+  .network-policy-incident-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .network-policy-lab-header,
+  .network-policy-visual-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .network-policy-visual-verdict {
+    align-self: flex-start;
+  }
+
+  .network-policy-run-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .network-policy-run-row .button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 430px) {
+  .network-policy-lab,
+  .network-policy-incident-lab {
+    padding: 0.85rem;
+  }
+
+  .network-policy-mode-toolbar .button,
+  .network-policy-lab-toolbar .button {
+    width: 100%;
+  }
+
+  .network-policy-preflight {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .network-policy-chain li,
+  .network-policy-probes li {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .network-policy-chain li > b,
+  .network-policy-probes li > b,
+  .network-policy-probes li > small {
+    grid-column: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .network-policy-chapter-shell *,
+  .network-policy-lab *,
+  .network-policy-incident-lab * {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}

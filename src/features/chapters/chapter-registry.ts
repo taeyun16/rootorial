@@ -858,6 +858,46 @@ export const conceptQuestionHistory = {
       answers: ["keep-target-until-ttl", "remap-when-sticky-target-ineligible", "send-to-all-backends"],
     },
   },
+  "infrastructure-design/network-policy-and-firewalls/filter-hook-scope": {
+    1: {
+      version: 1,
+      label: "transit packet과 local packet의 filter hook",
+      correctAnswer: "transit-packet-uses-forward-hook",
+      answers: ["router-local-input-uses-forward", "transit-packet-uses-forward-hook", "all-ingress-uses-input"],
+    },
+  },
+  "infrastructure-design/network-policy-and-firewalls/default-deny-contract": {
+    1: {
+      version: 1,
+      label: "default-deny와 명시적 allow",
+      correctAnswer: "explicit-allow-else-drop",
+      answers: ["explicit-allow-else-drop", "accept-then-deny-known-ports", "nat-implies-deny"],
+    },
+  },
+  "infrastructure-design/network-policy-and-firewalls/terminal-verdict-order": {
+    1: {
+      version: 1,
+      label: "ordered rule의 terminal verdict",
+      correctAnswer: "first-matching-terminal-verdict-controls-chain",
+      answers: ["rule-order-only-affects-counters", "last-rule-always-wins", "first-matching-terminal-verdict-controls-chain"],
+    },
+  },
+  "infrastructure-design/network-policy-and-firewalls/stateful-reply-rule": {
+    1: {
+      version: 1,
+      label: "conntrack state와 reply 허용",
+      correctAnswer: "ct-established-allows-mapped-reply",
+      answers: ["reply-is-new-to-opposite-port", "ct-established-allows-mapped-reply", "allow-all-ephemeral-ports"],
+    },
+  },
+  "infrastructure-design/network-policy-and-firewalls/firewall-vs-reachability": {
+    1: {
+      version: 1,
+      label: "firewall과 route NAT의 책임 경계",
+      correctAnswer: "firewall-does-not-repair-route-or-nat",
+      answers: ["firewall-does-not-repair-route-or-nat", "drop-policy-creates-return-route", "accept-policy-enables-forwarding"],
+    },
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     1: {
       version: 1,
@@ -1318,6 +1358,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["infrastructure-design/service-discovery-and-load-balancing/affinity-failure"][1],
     status: "active",
   },
+  "infrastructure-design/network-policy-and-firewalls/filter-hook-scope": {
+    ...conceptQuestionHistory["infrastructure-design/network-policy-and-firewalls/filter-hook-scope"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-policy-and-firewalls/default-deny-contract": {
+    ...conceptQuestionHistory["infrastructure-design/network-policy-and-firewalls/default-deny-contract"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-policy-and-firewalls/terminal-verdict-order": {
+    ...conceptQuestionHistory["infrastructure-design/network-policy-and-firewalls/terminal-verdict-order"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-policy-and-firewalls/stateful-reply-rule": {
+    ...conceptQuestionHistory["infrastructure-design/network-policy-and-firewalls/stateful-reply-rule"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-policy-and-firewalls/firewall-vs-reachability": {
+    ...conceptQuestionHistory["infrastructure-design/network-policy-and-firewalls/firewall-vs-reachability"][1],
+    status: "active",
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"][1],
     status: "active",
@@ -1515,6 +1575,14 @@ export const infrastructureServiceDiscoveryQuestions = {
   "affinity-failure": conceptQuestionRegistry["infrastructure-design/service-discovery-and-load-balancing/affinity-failure"],
 } as const;
 
+export const infrastructureNetworkPolicyQuestions = {
+  "filter-hook-scope": conceptQuestionRegistry["infrastructure-design/network-policy-and-firewalls/filter-hook-scope"],
+  "default-deny-contract": conceptQuestionRegistry["infrastructure-design/network-policy-and-firewalls/default-deny-contract"],
+  "terminal-verdict-order": conceptQuestionRegistry["infrastructure-design/network-policy-and-firewalls/terminal-verdict-order"],
+  "stateful-reply-rule": conceptQuestionRegistry["infrastructure-design/network-policy-and-firewalls/stateful-reply-rule"],
+  "firewall-vs-reachability": conceptQuestionRegistry["infrastructure-design/network-policy-and-firewalls/firewall-vs-reachability"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -1585,6 +1653,9 @@ export const chapterRegistry = {
   },
   "infrastructure-design/service-discovery-and-load-balancing": {
     questions: infrastructureServiceDiscoveryQuestions,
+  },
+  "infrastructure-design/network-policy-and-firewalls": {
+    questions: infrastructureNetworkPolicyQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

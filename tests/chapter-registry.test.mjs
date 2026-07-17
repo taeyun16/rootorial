@@ -80,6 +80,9 @@ test("publishes only available chapters that also have a renderer contract", () 
   assert.ok(
     registeredChapterIds.includes("infrastructure-design/service-discovery-and-load-balancing"),
   );
+  assert.ok(
+    registeredChapterIds.includes("infrastructure-design/network-policy-and-firewalls"),
+  );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "vectors", "en")?.chapter.title,
     "Vectors and Tensors",
@@ -143,6 +146,14 @@ test("publishes only available chapters that also have a renderer contract", () 
       "en",
     )?.chapter.title,
     "Service Discovery and Load Balancing",
+  );
+  assert.equal(
+    getPublishedChapter(
+      "infrastructure-design",
+      "network-policy-and-firewalls",
+      "en",
+    )?.chapter.title,
+    "Network Policy and Firewalls",
   );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
@@ -974,6 +985,61 @@ test("separates active question submissions from historical labels", () => {
       getConceptQuestionVersionEntry(
         "infrastructure-design",
         "service-discovery-and-load-balancing",
+        questionId,
+        2,
+      ),
+      undefined,
+    );
+  }
+  const networkPolicyQuestions = chapterRegistry[
+    "infrastructure-design/network-policy-and-firewalls"
+  ].questions;
+  assert.equal(Object.keys(networkPolicyQuestions).length, 5);
+  assert.ok(
+    Object.values(networkPolicyQuestions).every(
+      (question) => question.status === "active" && question.version === 1,
+    ),
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(networkPolicyQuestions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "filter-hook-scope": "transit-packet-uses-forward-hook",
+      "default-deny-contract": "explicit-allow-else-drop",
+      "terminal-verdict-order": "first-matching-terminal-verdict-controls-chain",
+      "stateful-reply-rule": "ct-established-allows-mapped-reply",
+      "firewall-vs-reachability": "firewall-does-not-repair-route-or-nat",
+    },
+  );
+  assert.deepEqual(
+    Object.values(networkPolicyQuestions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 0, 2, 1, 0],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "infrastructure-design",
+      "network-policy-and-firewalls",
+      "stateful-reply-rule",
+    )?.correctAnswer,
+    "ct-established-allows-mapped-reply",
+  );
+  for (const questionId of Object.keys(networkPolicyQuestions)) {
+    assert.equal(
+      getConceptQuestionVersionEntry(
+        "infrastructure-design",
+        "network-policy-and-firewalls",
+        questionId,
+        1,
+      )?.correctAnswer,
+      networkPolicyQuestions[questionId].correctAnswer,
+    );
+    assert.equal(
+      getConceptQuestionVersionEntry(
+        "infrastructure-design",
+        "network-policy-and-firewalls",
         questionId,
         2,
       ),

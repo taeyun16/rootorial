@@ -10,6 +10,7 @@ import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
 import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter";
 import { LinuxTinySystemChapter } from "../../components/linux/LinuxTinySystemChapter";
 import { EgressNatChapter } from "../../components/infrastructure/EgressNatChapter";
+import { NetworkPolicyChapter } from "../../components/infrastructure/NetworkPolicyChapter";
 import { NetworkNamespacesChapter } from "../../components/infrastructure/NetworkNamespacesChapter";
 import { ServiceDiscoveryChapter } from "../../components/infrastructure/ServiceDiscoveryChapter";
 import { VethRoutingChapter } from "../../components/infrastructure/VethRoutingChapter";
@@ -109,6 +110,10 @@ function NetworkNamespacesChapterPage({ learnerCount }: ChapterPageProps) {
   return <NetworkNamespacesChapter learnerCount={learnerCount} />;
 }
 
+function NetworkPolicyChapterPage({ learnerCount }: ChapterPageProps) {
+  return <NetworkPolicyChapter learnerCount={learnerCount} />;
+}
+
 function VethRoutingChapterPage({ learnerCount }: ChapterPageProps) {
   return <VethRoutingChapter learnerCount={learnerCount} />;
 }
@@ -140,6 +145,7 @@ const chapterPages = {
   "linux-systems/storage-and-filesystems": LinuxStorageChapterPage,
   "linux-systems/networking-from-a-packet": LinuxNetworkingChapterPage,
   "linux-systems/assemble-a-tiny-linux": LinuxTinySystemChapterPage,
+  "infrastructure-design/network-policy-and-firewalls": NetworkPolicyChapterPage,
   "infrastructure-design/network-namespaces-and-boundaries": NetworkNamespacesChapterPage,
   "infrastructure-design/veth-bridges-and-routing": VethRoutingChapterPage,
   "infrastructure-design/egress-nat-and-conntrack": EgressNatChapterPage,

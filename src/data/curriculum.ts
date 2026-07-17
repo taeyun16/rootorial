@@ -697,8 +697,8 @@ export const infrastructureChaptersKo: Chapter[] = [
       "namespace 경계마다 default-deny 정책을 세우고 stateful nftables chain의 hook·direction·rule order를 검증합니다.",
     runtime: "TypeScript 정책 모델 · 선택 nftables",
     estimatedMinutes: 75,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["default deny", "hook · direction", "stateful policy"],
   },
   {
@@ -804,8 +804,8 @@ export const infrastructureChaptersEn: Chapter[] = [
       "Establish default-deny policy at namespace boundaries and verify hook, direction, and rule order in stateful nftables chains.",
     runtime: "TypeScript policy model · optional nftables",
     estimatedMinutes: 75,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["default deny", "hook · direction", "stateful policy"],
   },
   {

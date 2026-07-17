@@ -104,6 +104,10 @@ const infrastructureServiceDiscoveryKey = chapterPublicationKey(
   "infrastructure-design",
   "service-discovery-and-load-balancing",
 );
+const infrastructureNetworkPolicyKey = chapterPublicationKey(
+  "infrastructure-design",
+  "network-policy-and-firewalls",
+);
 const systemArchitectureKey = curriculumPublicationKey("system-architecture");
 
 function override(resourceKey, values = {}) {
@@ -444,6 +448,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   const vethRouting = catalog.resources[infrastructureVethRoutingKey];
   const egressNat = catalog.resources[infrastructureEgressNatKey];
   const serviceDiscovery = catalog.resources[infrastructureServiceDiscoveryKey];
+  const networkPolicy = catalog.resources[infrastructureNetworkPolicyKey];
 
   assert.equal(infrastructure.developmentStatus, "in-progress");
   assert.equal(infrastructure.contentReady, true);
@@ -496,6 +501,18 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(serviceDiscovery.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructureServiceDiscoveryKey), false);
   assert.equal(isPublicationListed(catalog, infrastructureServiceDiscoveryKey), false);
+
+  assert.equal(networkPolicy.developmentStatus, "complete");
+  assert.equal(networkPolicy.previewReady, true);
+  assert.equal(networkPolicy.contentReady, true);
+  assert.equal(networkPolicy.source, "default");
+  assert.equal(networkPolicy.publicationStatus, "draft");
+  assert.equal(networkPolicy.effectivePublicationStatus, "draft");
+  assert.equal(networkPolicy.listing, "hidden");
+  assert.equal(networkPolicy.scheduledAt, null);
+  assert.equal(networkPolicy.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, infrastructureNetworkPolicyKey), false);
+  assert.equal(isPublicationListed(catalog, infrastructureNetworkPolicyKey), false);
 
   const announced = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "infrastructure-design",
