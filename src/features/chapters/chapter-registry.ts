@@ -738,6 +738,46 @@ export const conceptQuestionHistory = {
       answers: ["host-ss-shows-everything", "ping-proves-listener", "execute-observer-in-target-namespace"],
     },
   },
+  "infrastructure-design/veth-bridges-and-routing/veth-pair-contract": {
+    1: {
+      version: 1,
+      label: "veth pair의 interface 객체",
+      correctAnswer: "two-linked-interface-objects",
+      answers: ["one-interface-in-two-namespaces", "two-linked-interface-objects", "bridge-created-automatically"],
+    },
+  },
+  "infrastructure-design/veth-bridges-and-routing/bridge-forwarding-scope": {
+    1: {
+      version: 1,
+      label: "Linux bridge의 forwarding 범위",
+      correctAnswer: "same-l2-domain-only",
+      answers: ["same-l2-domain-only", "routes-between-any-cidr", "enables-nat-by-default"],
+    },
+  },
+  "infrastructure-design/veth-bridges-and-routing/gateway-reachability": {
+    1: {
+      version: 1,
+      label: "route gateway의 on-link 조건",
+      correctAnswer: "gateway-must-be-on-link",
+      answers: ["gateway-must-be-on-link", "gateway-may-be-any-address", "destination-must-equal-gateway"],
+    },
+  },
+  "infrastructure-design/veth-bridges-and-routing/router-forwarding": {
+    1: {
+      version: 1,
+      label: "router namespace의 packet 전달 조건",
+      correctAnswer: "enable-ip-forwarding",
+      answers: ["enable-ip-forwarding", "attach-both-links-to-loopback", "bind-listener-on-router"],
+    },
+  },
+  "infrastructure-design/veth-bridges-and-routing/return-path": {
+    1: {
+      version: 1,
+      label: "왕복 연결의 return route",
+      correctAnswer: "reply-needs-route-back",
+      answers: ["reply-needs-route-back", "forward-route-is-enough", "tcp-discovers-route-automatically"],
+    },
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     1: {
       version: 1,
@@ -1138,6 +1178,26 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["infrastructure-design/network-namespaces-and-boundaries/observation-scope"][1],
     status: "active",
   },
+  "infrastructure-design/veth-bridges-and-routing/veth-pair-contract": {
+    ...conceptQuestionHistory["infrastructure-design/veth-bridges-and-routing/veth-pair-contract"][1],
+    status: "active",
+  },
+  "infrastructure-design/veth-bridges-and-routing/bridge-forwarding-scope": {
+    ...conceptQuestionHistory["infrastructure-design/veth-bridges-and-routing/bridge-forwarding-scope"][1],
+    status: "active",
+  },
+  "infrastructure-design/veth-bridges-and-routing/gateway-reachability": {
+    ...conceptQuestionHistory["infrastructure-design/veth-bridges-and-routing/gateway-reachability"][1],
+    status: "active",
+  },
+  "infrastructure-design/veth-bridges-and-routing/router-forwarding": {
+    ...conceptQuestionHistory["infrastructure-design/veth-bridges-and-routing/router-forwarding"][1],
+    status: "active",
+  },
+  "infrastructure-design/veth-bridges-and-routing/return-path": {
+    ...conceptQuestionHistory["infrastructure-design/veth-bridges-and-routing/return-path"][1],
+    status: "active",
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"][1],
     status: "active",
@@ -1311,6 +1371,14 @@ export const infrastructureNamespaceQuestions = {
   "observation-scope": conceptQuestionRegistry["infrastructure-design/network-namespaces-and-boundaries/observation-scope"],
 } as const;
 
+export const infrastructureVethRoutingQuestions = {
+  "veth-pair-contract": conceptQuestionRegistry["infrastructure-design/veth-bridges-and-routing/veth-pair-contract"],
+  "bridge-forwarding-scope": conceptQuestionRegistry["infrastructure-design/veth-bridges-and-routing/bridge-forwarding-scope"],
+  "gateway-reachability": conceptQuestionRegistry["infrastructure-design/veth-bridges-and-routing/gateway-reachability"],
+  "router-forwarding": conceptQuestionRegistry["infrastructure-design/veth-bridges-and-routing/router-forwarding"],
+  "return-path": conceptQuestionRegistry["infrastructure-design/veth-bridges-and-routing/return-path"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -1372,6 +1440,9 @@ export const chapterRegistry = {
   },
   "infrastructure-design/network-namespaces-and-boundaries": {
     questions: infrastructureNamespaceQuestions,
+  },
+  "infrastructure-design/veth-bridges-and-routing": {
+    questions: infrastructureVethRoutingQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

@@ -671,8 +671,8 @@ export const infrastructureChaptersKo: Chapter[] = [
       "veth pair와 bridge 또는 router namespace를 선택하고, 겹치지 않는 CIDR·address·default route·return path를 조립합니다.",
     runtime: "TypeScript 토폴로지 모델 · 선택 iproute2",
     estimatedMinutes: 80,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["veth pair · bridge", "CIDR · gateway", "forwarding · return path"],
   },
   {
@@ -778,8 +778,8 @@ export const infrastructureChaptersEn: Chapter[] = [
       "Choose veth pairs, a bridge, or a router namespace, then assemble non-overlapping CIDRs, addresses, default routes, and return paths.",
     runtime: "TypeScript topology model · optional iproute2",
     estimatedMinutes: 80,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["veth pair · bridge", "CIDR · gateway", "forwarding · return path"],
   },
   {

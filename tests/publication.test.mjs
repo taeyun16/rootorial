@@ -92,6 +92,10 @@ const infrastructureNamespacesKey = chapterPublicationKey(
   "infrastructure-design",
   "network-namespaces-and-boundaries",
 );
+const infrastructureVethRoutingKey = chapterPublicationKey(
+  "infrastructure-design",
+  "veth-bridges-and-routing",
+);
 const systemArchitectureKey = curriculumPublicationKey("system-architecture");
 
 function override(resourceKey, values = {}) {
@@ -425,10 +429,11 @@ test("lists the new curriculum keys as drafts while respecting page readiness", 
   assert.equal(systemArchitectureCatalog?.chapters.length, 0);
 });
 
-test("keeps the first infrastructure chapter complete but unpublished by default", () => {
+test("keeps completed infrastructure chapters unpublished by default", () => {
   const catalog = resolvePublicationCatalog([], 1_000);
   const infrastructure = catalog.resources[infrastructureKey];
   const namespaces = catalog.resources[infrastructureNamespacesKey];
+  const vethRouting = catalog.resources[infrastructureVethRoutingKey];
 
   assert.equal(infrastructure.developmentStatus, "in-progress");
   assert.equal(infrastructure.contentReady, true);
@@ -448,11 +453,24 @@ test("keeps the first infrastructure chapter complete but unpublished by default
   assert.equal(namespaces.scheduledAt, null);
   assert.equal(namespaces.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructureNamespacesKey), false);
+
+  assert.equal(vethRouting.developmentStatus, "complete");
+  assert.equal(vethRouting.previewReady, true);
+  assert.equal(vethRouting.contentReady, true);
+  assert.equal(vethRouting.source, "default");
+  assert.equal(vethRouting.publicationStatus, "draft");
+  assert.equal(vethRouting.effectivePublicationStatus, "draft");
+  assert.equal(vethRouting.listing, "hidden");
+  assert.equal(vethRouting.scheduledAt, null);
+  assert.equal(vethRouting.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, infrastructureVethRoutingKey), false);
+  assert.equal(isPublicationListed(catalog, infrastructureVethRoutingKey), false);
+
   const announced = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "infrastructure-design",
   );
   assert.equal(announced?.publication.effectivePublicationStatus, "draft");
-  assert.equal(announced?.chapters.length, 0);
+  assert.deepEqual(announced?.chapters.map(({ chapter }) => chapter.slug), []);
 });
 
 test("fails closed when the durable publication store is unavailable", async () => {

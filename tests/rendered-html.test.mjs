@@ -337,16 +337,15 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   ]);
 });
 
-test("keeps the completed infrastructure chapter unavailable on its public URL", async () => {
-  const korean = await render(
-    "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries",
-  );
-  const english = await render(
-    "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en",
-  );
-  assert.equal(korean.status, 404);
-  assert.equal(english.status, 404);
-  await Promise.all([korean.text(), english.text()]);
+test("keeps completed infrastructure chapters unavailable on public URLs", async () => {
+  const responses = await Promise.all([
+    render("/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries"),
+    render("/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en"),
+    render("/curricula/infrastructure-design/chapters/veth-bridges-and-routing"),
+    render("/curricula/infrastructure-design/chapters/veth-bridges-and-routing?lang=en"),
+  ]);
+  assert.deepEqual(responses.map(({ status }) => status), [404, 404, 404, 404]);
+  await Promise.all(responses.map((response) => response.text()));
 });
 
 test("keeps the new curriculum roadmaps draft-only on public URLs", async () => {
@@ -678,6 +677,69 @@ test("SSR-renders the bilingual network namespace chapter with test-only publica
   assert.match(englishHtml, /data-boundary-state="collapsed"/);
   assert.match(englishHtml, /Network namespace boundary map/);
   assert.match(englishHtml, /No data path connects the namespaces yet/);
+});
+
+test("SSR-renders the bilingual veth and routing chapter with test-only publication overrides", async () => {
+  const rows = [
+    {
+      resource_key: "curriculum:infrastructure-design",
+      resource_kind: "curriculum",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: null,
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+    {
+      resource_key: "chapter:infrastructure-design/veth-bridges-and-routing",
+      resource_kind: "chapter",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: "veth-bridges-and-routing",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/veth-bridges-and-routing",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /두 endpoint로 이루어진 veth를 배치하고/);
+  assert.match(html, /05 — REQUIRED TOPOLOGY BUILDER/);
+  assert.match(html, /같은 두 service를 bridge와 router 두 방식으로 연결하세요/);
+  assert.match(html, /06 — DEBUG FOUR TOPOLOGY INCIDENTS/);
+  assert.match(html, /증상을 넓은 우회책이 아니라 최초 실패 invariant로 수리합니다/);
+  assert.match(html, /data-testid="veth-routing-visualization"/);
+  assert.match(html, /data-topology-mode="bridge"/);
+  assert.match(html, /data-grade-state="not-run"/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/veth-bridges-and-routing?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /place the two endpoints of each veth pair/);
+  assert.match(englishHtml, /05 — REQUIRED TOPOLOGY BUILDER/);
+  assert.match(englishHtml, /Connect the same two services through both a bridge and a router/);
+  assert.match(englishHtml, /06 — DEBUG FOUR TOPOLOGY INCIDENTS/);
+  assert.match(englishHtml, /Repair the first failed invariant instead of applying a broad workaround/);
+  assert.match(englishHtml, /data-testid="veth-routing-visualization"/);
+  assert.match(englishHtml, /data-topology-mode="bridge"/);
+  assert.match(englishHtml, /data-grade-state="not-run"/);
 });
 
 test("renders the interactive vectors chapter", async () => {

@@ -62,6 +62,7 @@ export function NetworkNamespacesChapter({ learnerCount = 0 }: { learnerCount?: 
     conceptsMastered,
   });
   const linuxNetworkingPreviewHref = `/admin/preview/curricula/${LINUX_CURRICULUM_SLUG}/chapters/networking-from-a-packet${isKo ? "" : "?lang=en"}`;
+  const vethRoutingPreviewHref = `/admin/preview/curricula/${INFRASTRUCTURE_CURRICULUM_SLUG}/chapters/veth-bridges-and-routing${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell infrastructure-chapter-shell network-namespaces-chapter-shell">
@@ -317,7 +318,11 @@ sudo ip netns exec app ss -lnt '( sport = :8080 )'`}</pre>
             ) : (
               <span>← {t("선행: Linux 네트워킹", "Prerequisite: Linux networking")}</span>
             )}
-            <span>{t("다음: veth·bridge·routing으로 토폴로지 조립", "Next: Assemble topologies with veth, bridges, and routing")} →</span>
+            {preview ? (
+              <a href={vethRoutingPreviewHref}>{t("다음: veth·bridge·routing으로 토폴로지 조립", "Next: Assemble topologies with veth, bridges, and routing")} →</a>
+            ) : (
+              <span>{t("다음: veth·bridge·routing으로 토폴로지 조립", "Next: Assemble topologies with veth, bridges, and routing")} →</span>
+            )}
           </nav>
           <noscript>{t(
             "namespace 활동에는 JavaScript가 필요합니다. 위 설명, ownership 표와 iproute2 관찰 명령은 계속 읽을 수 있습니다.",
