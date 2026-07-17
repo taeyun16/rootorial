@@ -460,12 +460,11 @@ export function evaluateEmbeddingRepair(
 
 export function canCompleteEmbeddingsChapter({
   lookupLabComplete,
-  debuggerComplete,
   conceptsMastered,
 }: {
   lookupLabComplete: boolean;
-  debuggerComplete: boolean;
+  debuggerComplete?: boolean;
   conceptsMastered: boolean;
 }) {
-  return lookupLabComplete && debuggerComplete && conceptsMastered;
+  return lookupLabComplete && conceptsMastered;
 }

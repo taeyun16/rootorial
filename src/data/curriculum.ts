@@ -43,6 +43,7 @@ export type Curriculum = {
 
 export const TRANSFORMER_CURRICULUM_SLUG = "transformer-from-zero";
 export const LINUX_CURRICULUM_SLUG = "linux-systems";
+export const INFRASTRUCTURE_CURRICULUM_SLUG = "infrastructure-design";
 
 export function chapterId(curriculumSlug: string, chapterSlug: string) {
   return `${curriculumSlug}/${chapterSlug}`;
@@ -66,6 +67,7 @@ export const LINUX_MEMORY_CHAPTER_ESTIMATED_MINUTES = 65;
 export const LINUX_STORAGE_CHAPTER_ESTIMATED_MINUTES = 65;
 export const LINUX_NETWORKING_CHAPTER_ESTIMATED_MINUTES = 65;
 export const LINUX_TINY_SYSTEM_CHAPTER_ESTIMATED_MINUTES = 75;
+export const INFRASTRUCTURE_NAMESPACE_CHAPTER_ESTIMATED_MINUTES = 65;
 
 export const chaptersKo: Chapter[] = [
   {
@@ -477,6 +479,220 @@ export const linuxChaptersEn: Chapter[] = [
   },
 ];
 
+export const infrastructureChaptersKo: Chapter[] = [
+  {
+    number: 1,
+    slug: "network-namespaces-and-boundaries",
+    title: "네트워크 namespace와 격리 경계",
+    subtitle: "같은 커널 안에서 서로 다른 localhost를 설계하는 법",
+    description:
+      "프로세스, 인터페이스, route와 socket을 namespace별 network view에 배치하고, loopback과 listener 경계를 직접 실행하며 격리 실패를 진단합니다.",
+    runtime: "TypeScript namespace 모델 · 선택 iproute2",
+    estimatedMinutes: INFRASTRUCTURE_NAMESPACE_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["network namespace · ownership", "loopback · listener", "reachability · evidence"],
+  },
+  {
+    number: 2,
+    slug: "veth-bridges-and-routing",
+    title: "veth·bridge·routing으로 토폴로지 조립",
+    subtitle: "격리된 network view 사이에 의도한 경로만 연결하기",
+    description:
+      "veth pair와 bridge 또는 router namespace를 선택하고, 겹치지 않는 CIDR·address·default route·return path를 조립합니다.",
+    runtime: "TypeScript 토폴로지 모델 · 선택 iproute2",
+    estimatedMinutes: 80,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["veth pair · bridge", "CIDR · gateway", "forwarding · return path"],
+  },
+  {
+    number: 3,
+    slug: "egress-nat-and-conntrack",
+    title: "egress·NAT·conntrack",
+    subtitle: "사설 주소의 흐름을 경계에서 상태 있게 번역하기",
+    description:
+      "router namespace의 forwarding, SNAT·MASQUERADE와 conntrack reply 경로를 연결하고 asymmetric path와 stale state를 진단합니다.",
+    runtime: "TypeScript packet-state 모델 · 선택 nftables",
+    estimatedMinutes: 80,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["IP forwarding", "SNAT · MASQUERADE", "conntrack · reply path"],
+  },
+  {
+    number: 4,
+    slug: "network-policy-and-firewalls",
+    title: "네트워크 정책과 firewall",
+    subtitle: "연결 가능성 위에 최소 허용 규칙 세우기",
+    description:
+      "namespace 경계마다 default-deny 정책을 세우고 stateful nftables chain의 hook·direction·rule order를 검증합니다.",
+    runtime: "TypeScript 정책 모델 · 선택 nftables",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["default deny", "hook · direction", "stateful policy"],
+  },
+  {
+    number: 5,
+    slug: "service-discovery-and-load-balancing",
+    title: "서비스 탐색과 load balancing",
+    subtitle: "변하는 endpoint를 안정적인 이름과 진입점 뒤에 두기",
+    description:
+      "DNS record 수명, health 상태와 L4 load-balancer 선택을 namespace 서비스 토폴로지에 연결하고 stale endpoint를 진단합니다.",
+    runtime: "TypeScript service-path 모델",
+    estimatedMinutes: 80,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["DNS · TTL", "health check", "L4 balancing · affinity"],
+  },
+  {
+    number: 6,
+    slug: "availability-and-failure-domains",
+    title: "가용성과 failure domain",
+    subtitle: "복제 수가 아니라 독립적인 실패 경계를 설계하기",
+    description:
+      "서비스 replica와 gateway를 서로 다른 failure domain에 배치하고 dependency budget·failover·degraded mode의 실제 가용성을 계산합니다.",
+    runtime: "TypeScript failure 시뮬레이터",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["failure domain", "redundancy · failover", "dependency budget"],
+  },
+  {
+    number: 7,
+    slug: "network-observability-and-capacity",
+    title: "네트워크 관측과 용량",
+    subtitle: "증상에서 namespace 경계와 병목을 찾기",
+    description:
+      "ip·ss·tcpdump·counter 증거를 한 packet path에 정렬하고 queue·bandwidth·connection limit의 포화 지점을 추정합니다.",
+    runtime: "TypeScript 증거·용량 모델 · 선택 Linux 관찰",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["namespace-scoped evidence", "queue · saturation", "SLO · capacity"],
+  },
+  {
+    number: 8,
+    slug: "assemble-a-namespace-platform",
+    title: "namespace 플랫폼 조립하기",
+    subtitle: "격리·연결·정책·가용성을 하나의 검증 가능한 설계로",
+    description:
+      "client·edge·app·data namespace를 요구사항에서 조립하고 route, NAT, policy, discovery와 failure evidence로 설계 결정을 검증합니다.",
+    runtime: "TypeScript 인프라 설계 스튜디오",
+    estimatedMinutes: 95,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["requirements · topology", "policy · availability", "evidence · trade-off"],
+  },
+];
+
+export const infrastructureChaptersEn: Chapter[] = [
+  {
+    number: 1,
+    slug: "network-namespaces-and-boundaries",
+    title: "Network Namespaces and Isolation Boundaries",
+    subtitle: "Designing different localhost views inside one kernel",
+    description:
+      "Place processes, interfaces, routes, and sockets into namespace-local network views, execute loopback and listener boundaries, and diagnose failed isolation.",
+    runtime: "TypeScript namespace model · optional iproute2",
+    estimatedMinutes: INFRASTRUCTURE_NAMESPACE_CHAPTER_ESTIMATED_MINUTES,
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["network namespace · ownership", "loopback · listener", "reachability · evidence"],
+  },
+  {
+    number: 2,
+    slug: "veth-bridges-and-routing",
+    title: "Assemble Topologies with veth, Bridges, and Routing",
+    subtitle: "Connect only the intended paths between isolated network views",
+    description:
+      "Choose veth pairs, a bridge, or a router namespace, then assemble non-overlapping CIDRs, addresses, default routes, and return paths.",
+    runtime: "TypeScript topology model · optional iproute2",
+    estimatedMinutes: 80,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["veth pair · bridge", "CIDR · gateway", "forwarding · return path"],
+  },
+  {
+    number: 3,
+    slug: "egress-nat-and-conntrack",
+    title: "Egress, NAT, and Conntrack",
+    subtitle: "Translate private-address flows statefully at a boundary",
+    description:
+      "Connect forwarding, SNAT or masquerade, and conntrack reply paths in a router namespace, then diagnose asymmetric paths and stale state.",
+    runtime: "TypeScript packet-state model · optional nftables",
+    estimatedMinutes: 80,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["IP forwarding", "SNAT · MASQUERADE", "conntrack · reply path"],
+  },
+  {
+    number: 4,
+    slug: "network-policy-and-firewalls",
+    title: "Network Policy and Firewalls",
+    subtitle: "Add least-allow rules on top of reachability",
+    description:
+      "Establish default-deny policy at namespace boundaries and verify hook, direction, and rule order in stateful nftables chains.",
+    runtime: "TypeScript policy model · optional nftables",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["default deny", "hook · direction", "stateful policy"],
+  },
+  {
+    number: 5,
+    slug: "service-discovery-and-load-balancing",
+    title: "Service Discovery and Load Balancing",
+    subtitle: "Place changing endpoints behind stable names and entry points",
+    description:
+      "Connect DNS record lifetime, health state, and L4 load-balancer choices to a namespace service topology, then diagnose stale endpoints.",
+    runtime: "TypeScript service-path model",
+    estimatedMinutes: 80,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["DNS · TTL", "health check", "L4 balancing · affinity"],
+  },
+  {
+    number: 6,
+    slug: "availability-and-failure-domains",
+    title: "Availability and Failure Domains",
+    subtitle: "Design independent failure boundaries, not just replica counts",
+    description:
+      "Place service replicas and gateways across failure domains, then compute actual availability from dependency budgets, failover, and degraded modes.",
+    runtime: "TypeScript failure simulator",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["failure domain", "redundancy · failover", "dependency budget"],
+  },
+  {
+    number: 7,
+    slug: "network-observability-and-capacity",
+    title: "Network Observability and Capacity",
+    subtitle: "Find namespace boundaries and bottlenecks from evidence",
+    description:
+      "Align ip, ss, tcpdump, and counter evidence along one packet path, then estimate queue, bandwidth, and connection-limit saturation.",
+    runtime: "TypeScript evidence and capacity model · optional Linux observation",
+    estimatedMinutes: 75,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["namespace-scoped evidence", "queue · saturation", "SLO · capacity"],
+  },
+  {
+    number: 8,
+    slug: "assemble-a-namespace-platform",
+    title: "Assemble a Namespace Platform",
+    subtitle: "Combine isolation, connectivity, policy, and availability into a verifiable design",
+    description:
+      "Assemble client, edge, app, and data namespaces from requirements, then verify design decisions with route, NAT, policy, discovery, and failure evidence.",
+    runtime: "TypeScript infrastructure design studio",
+    estimatedMinutes: 95,
+    developmentStatus: "planned",
+    status: "planned",
+    concepts: ["requirements · topology", "policy · availability", "evidence · trade-off"],
+  },
+];
+
 export const chapters = chaptersKo;
 
 export const availableChapterCount = chaptersKo.filter(
@@ -533,19 +749,22 @@ export const curricula: Curriculum[] = [
     },
   },
   {
-    id: "infrastructure-design",
-    slug: "infrastructure-design",
+    id: INFRASTRUCTURE_CURRICULUM_SLUG,
+    slug: INFRASTRUCTURE_CURRICULUM_SLUG,
     category: { ko: "인프라", en: "INFRASTRUCTURE" },
     title: { ko: "인프라 설계를 바닥부터", en: "Infrastructure Design from the Ground Up" },
     summary: {
-      ko: "요구사항에서 출발해 확장성, 가용성, 비용 사이의 선택을 실제 구조로 만듭니다.",
-      en: "Turn requirements into concrete choices across scale, availability, and cost.",
+      ko: "Linux network namespace에서 격리·routing·정책·가용성을 직접 조립하고 증거로 설계를 검증합니다.",
+      en: "Assemble isolation, routing, policy, and availability in Linux network namespaces, then verify the design with evidence.",
     },
-    eyebrow: { ko: "준비 중", en: "PLANNED" },
+    eyebrow: { ko: "새 커리큘럼", en: "NEW CURRICULUM" },
     level: "intermediate",
-    status: "planned",
+    status: "in-progress",
     accent: "blue",
-    chapters: { ko: [], en: [] },
+    chapters: {
+      ko: scopeChapters(INFRASTRUCTURE_CURRICULUM_SLUG, infrastructureChaptersKo),
+      en: scopeChapters(INFRASTRUCTURE_CURRICULUM_SLUG, infrastructureChaptersEn),
+    },
   },
   {
     id: "design-patterns",

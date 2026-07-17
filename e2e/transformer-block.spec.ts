@@ -31,7 +31,7 @@ function watchHeavyRuntimeRequests(page: TestPage) {
 
 async function transformerBlockOverflow(page: TestPage) {
   return page.locator(
-    ".transformer-block-boundary-grid, .transformer-block-formula-stack, .transformer-block-flow, .transformer-block-prerequisite, .transformer-block-workbench, .transformer-block-preset-row, .transformer-block-control-panel, .transformer-block-run-actions, .transformer-block-workbench .step-explorer, .transformer-block-stage-panel, .transformer-block-matrix-stack, .transformer-block-matrix-stack .array-diagram, .transformer-block-matrix-stack .array-diagram-scroll, .transformer-block-stat-grid, .transformer-block-handoff-note, .transformer-block-evidence, .transformer-block-debugger-lab, .transformer-block-debug-progress, .transformer-block-debug-grid, .transformer-block-debug-card, .transformer-block-debug-actions, .transformer-block-debug-feedback, .transformer-block-transfer-task, .transformer-block-completion-checklist, .transformer-block-chapter-shell .math-formula-display",
+    ".transformer-block-boundary-grid, .transformer-block-formula-stack, .transformer-block-flow, .transformer-block-prerequisite, .transformer-block-workbench, .transformer-block-preset-row, .transformer-block-control-panel, .transformer-block-run-actions, .transformer-block-workbench .step-explorer, .transformer-block-stage-panel, .transformer-block-matrix-stack, .transformer-block-matrix-stack .array-diagram, .transformer-block-matrix-stack .array-diagram-scroll, .transformer-block-stat-grid, .transformer-block-handoff-note, .transformer-block-evidence, .transformer-block-python-bridge, .transformer-block-python-bridge .notebook-cell, .transformer-block-debugger-lab, .transformer-block-debug-progress, .transformer-block-debug-grid, .transformer-block-debug-card, .transformer-block-debug-actions, .transformer-block-debug-feedback, .transformer-block-transfer-task, .transformer-block-completion-checklist, .transformer-block-chapter-shell .math-formula-display",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({
@@ -85,6 +85,10 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "Transformer 블록", exact: true })).toBeVisible();
   await expect(page.getByText("필수 LAB · PREDICT → CONFIGURE → ASSEMBLE → INSPECT", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · PRE-NORM BLOCK REPAIR CONSOLE", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "한 token을 E+P부터 두 번째 residual까지 숫자로 추적합니다" })).toBeVisible();
+  await expect(page.getByText("Pre-norm 블록 stage 원장 검증", { exact: true })).toBeVisible();
+  await expect(page.getByText("두 번째 residual 기준 수리", { exact: true })).toBeVisible();
+  await expect(page.locator(".transformer-block-python-bridge .notebook-cell")).toHaveCount(2);
 
   const completionButton = page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" });
   await expect(completionButton).toHaveAttribute("data-completion-ready", "false");
@@ -226,6 +230,10 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
     "Add a deterministic absolute positional signal once before the first block, then execute and debug a decoder-only pre-LayerNorm block whose causal self-attention and position-wise FFN preserve [T,d_model] through residual paths.",
   );
   await expect(page.getByRole("heading", { name: "The Transformer Block", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Trace one token numerically from E+P through the second residual" })).toBeVisible();
+  await expect(page.getByText("Verify the pre-norm block stage ledger", { exact: true })).toBeVisible();
+  await expect(page.getByText("Repair the second residual base", { exact: true })).toBeVisible();
+  await expect(page.locator(".transformer-block-python-bridge .notebook-cell")).toHaveCount(2);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];
@@ -295,11 +303,11 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(prediction).toBeFocused();
   await expect(lab.locator(".transformer-block-live-feedback")).toContainText("Prediction and executed contract match");
 
-  const normStage = lab.locator(".step-explorer").getByRole("button", { name: "02 LN(x₀)", exact: true });
+  const normStage = lab.locator(".step-explorer").getByRole("tab", { name: "02 LN(x₀)", exact: true });
   await normStage.focus();
   await normStage.press("Enter");
   await expect(normStage).toBeFocused();
-  await expect(normStage).toHaveAttribute("aria-pressed", "true");
+  await expect(normStage).toHaveAttribute("aria-selected", "true");
   const normCell = lab.getByRole("button", { name: /^target LN\(x₀\) \[4,4\], cat, d2:/ });
   await normCell.focus();
   await normCell.press("Enter");

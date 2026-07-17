@@ -669,6 +669,12 @@ export const transformerBlockChallengeIds = Object.freeze([
   "block-handoff",
 ] as const) satisfies readonly TransformerBlockChallengeId[];
 
+export const transformerBlockCoreChallengeIds = deepFreeze([
+  "layernorm",
+  "positionwise-ffn",
+  "block-handoff",
+] as const) satisfies readonly TransformerBlockChallengeId[];
+
 export const transformerBlockPredictions = Object.freeze([
   "position-added-before-attention",
   "position-added-after-output",
@@ -900,7 +906,7 @@ export const emptyTransformerBlockLabEvidence: TransformerBlockLabEvidence = Obj
 
 export type TransformerBlockLabMastery = Readonly<{
   mastered: boolean;
-  reason: "mastered" | "invalid-evidence" | "complete-five-challenges";
+  reason: "mastered" | "invalid-evidence" | "complete-core-challenges";
   completedChallengeIds: readonly TransformerBlockChallengeId[];
 }>;
 
@@ -999,9 +1005,9 @@ export function evaluateTransformerBlockLabMastery(
     }
     return masteryResult("invalid-evidence", completed);
   }
-  return completed.size === transformerBlockChallengeIds.length
+  return transformerBlockCoreChallengeIds.every((challengeId) => completed.has(challengeId))
     ? masteryResult("mastered", completed)
-    : masteryResult("complete-five-challenges", completed);
+    : masteryResult("complete-core-challenges", completed);
 }
 
 export type TransformerBlockDebuggerScenarioId =
@@ -1340,12 +1346,11 @@ export function evaluateTransformerBlockRepair(
 
 export function canCompleteTransformerBlockChapter({
   labComplete,
-  debuggerComplete,
   conceptsMastered,
 }: {
   labComplete: boolean;
-  debuggerComplete: boolean;
+  debuggerComplete?: boolean;
   conceptsMastered: boolean;
 }) {
-  return labComplete && debuggerComplete && conceptsMastered;
+  return labComplete && conceptsMastered;
 }

@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  embeddingsLookupMaskedMeanCode,
+  embeddingsScatterAddRepairCode,
+} from "../src/data/embeddingsNotebook.ts";
+import {
   applyEmbeddingGradient,
   baseEmbeddingTable,
   canCompleteEmbeddingsChapter,
@@ -18,6 +22,19 @@ import {
   vectorDelta,
   vectorsApproximatelyEqual,
 } from "../src/features/embeddings/embedding-model.ts";
+
+test("ships self-contained Python bridges for lookup, masked mean, and scatter-add repair", () => {
+  assert.match(embeddingsLookupMaskedMeanCode, /E = np\.array/);
+  assert.match(embeddingsLookupMaskedMeanCode, /ids = np\.array/);
+  assert.match(embeddingsLookupMaskedMeanCode, /one_hot = np\.eye\(E\.shape\[0\]\)\[ids\]/);
+  assert.match(embeddingsLookupMaskedMeanCode, /masked_mean =/);
+  assert.match(embeddingsLookupMaskedMeanCode, /PASS: direct lookup equals one-hot multiplication/);
+  assert.match(embeddingsScatterAddRepairCode, /gradient\[ids\] \+= upstream/);
+  assert.match(embeddingsScatterAddRepairCode, /gradient\[2\],\n    \[0\.4, -0\.2\]/);
+  assert.match(embeddingsScatterAddRepairCode, /PASS: scatter-add accumulates every repeated-token contribution/);
+  assert.doesNotMatch(embeddingsLookupMaskedMeanCode, /[가-힣]/);
+  assert.doesNotMatch(embeddingsScatterAddRepairCode, /[가-힣]/);
+});
 
 test("tokenizes known words deterministically and exposes unknown whole words", () => {
   assert.deepEqual(
@@ -139,7 +156,7 @@ test("grades four debugger incidents from computed embedding invariants", () => 
   assert.equal(evaluateEmbeddingRepair("masked-pooling", "include-pad").correct, false);
 });
 
-test("requires lookup evidence, debugger repairs, and concepts for chapter completion", () => {
+test("requires lookup evidence and concepts while keeping debugger remediation optional", () => {
   assert.deepEqual(evaluateEmbeddingLabMastery({
     correctShapePrediction: true,
     lookupEquivalenceInspected: true,
@@ -148,12 +165,16 @@ test("requires lookup evidence, debugger repairs, and concepts for chapter compl
   }), { mastered: true, reason: "mastered" });
   assert.equal(canCompleteEmbeddingsChapter({
     lookupLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
     conceptsMastered: true,
   }), true);
   assert.equal(canCompleteEmbeddingsChapter({
-    lookupLabComplete: true,
+    lookupLabComplete: false,
     debuggerComplete: false,
     conceptsMastered: true,
+  }), false);
+  assert.equal(canCompleteEmbeddingsChapter({
+    lookupLabComplete: true,
+    conceptsMastered: false,
   }), false);
 });

@@ -17,6 +17,12 @@ import {
   stableSoftmax,
   updatesPerEpoch,
 } from "../src/features/training/training-simulator.ts";
+import {
+  trainingAdamEpochCode,
+  trainingAdamEpochCodeEn,
+  trainingSoftmaxAxisRepairCode,
+  trainingSoftmaxAxisRepairCodeEn,
+} from "../src/data/trainingNotebook.ts";
 
 function close(actual, expected, tolerance = 1e-9) {
   assert.ok(
@@ -24,6 +30,22 @@ function close(actual, expected, tolerance = 1e-9) {
     `expected ${actual} to be within ${tolerance} of ${expected}`,
   );
 }
+
+test("ships independent Python bridges for Softmax-axis repair and a full Adam epoch", () => {
+  assert.equal(trainingSoftmaxAxisRepairCodeEn, trainingSoftmaxAxisRepairCode);
+  assert.equal(trainingAdamEpochCodeEn, trainingAdamEpochCode);
+  assert.match(trainingSoftmaxAxisRepairCode, /class_axis = 0/);
+  assert.match(trainingSoftmaxAxisRepairCode, /np\.allclose\(row_sums, np\.ones\(2\)\)/);
+  assert.match(trainingSoftmaxAxisRepairCode, /first_row_shift < 1e-12/);
+  assert.match(trainingSoftmaxAxisRepairCode, /0\.288725992/);
+  assert.match(trainingAdamEpochCode, /np\.array\(\[6\]\)/);
+  assert.match(trainingAdamEpochCode, /grad_logits = probabilities\.copy\(\)/);
+  assert.match(trainingAdamEpochCode, /m_W = beta_1 \* m_W/);
+  assert.match(trainingAdamEpochCode, /assert step == 4/);
+  assert.match(trainingAdamEpochCode, /0\.225353/);
+  assert.doesNotMatch(trainingSoftmaxAxisRepairCode, /[가-힣]/);
+  assert.doesNotMatch(trainingAdamEpochCode, /[가-힣]/);
+});
 
 test("computes stable row softmax without coupling samples", () => {
   const first = stableSoftmax([1000, 998, 997]);
@@ -216,25 +238,24 @@ test("applies shared semantic graders to computed outputs, independent of option
   }).reason, "stochastic-validation");
 });
 
-test("requires the batch lab, debugger, and concept mastery together", () => {
+test("requires the batch lab and concepts while keeping debugger remediation optional", () => {
   assert.equal(canCompleteTrainingChapter({
     batchLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
+    conceptsMastered: true,
+  }), true);
+  assert.equal(canCompleteTrainingChapter({
+    batchLabComplete: true,
     conceptsMastered: true,
   }), true);
   assert.equal(canCompleteTrainingChapter({
     batchLabComplete: false,
-    debuggerComplete: true,
-    conceptsMastered: true,
-  }), false);
-  assert.equal(canCompleteTrainingChapter({
-    batchLabComplete: true,
     debuggerComplete: false,
     conceptsMastered: true,
   }), false);
   assert.equal(canCompleteTrainingChapter({
     batchLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
     conceptsMastered: false,
   }), false);
 });

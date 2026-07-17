@@ -58,12 +58,20 @@ test("runs Python and persists anonymous chapter progress", async ({ page }) => 
   await clerk.loaded({ page });
 
   const firstCell = page.locator(".notebook-cell").first();
-  await firstCell.getByRole("button", { name: /벡터를 만들고 크기와 방향 확인하기 실행$/ }).click();
+  await firstCell.getByRole("button", { name: /코드 실행: 벡터를 만들고 크기와 방향 확인하기$/ }).click();
   await expect(firstCell.locator(".notebook-cell-output-text")).toContainText(
     "shape: (2,)",
     { timeout: 90_000 },
   );
   await expect(firstCell.locator(".notebook-cell-figure img")).toBeVisible();
+
+  const cosineCell = page.locator(".notebook-cell").nth(1);
+  await cosineCell.getByRole("button", { name: /코드 실행: 각도를 코사인 유사도로 바꾸기$/ }).click();
+  await expect(cosineCell.locator(".notebook-cell-output-text")).toContainText(
+    /90° -> cosine\s+0\.000/,
+    { timeout: 90_000 },
+  );
+  await expect(cosineCell.locator(".notebook-cell-figure img")).toBeVisible();
 
   const finishButton = page.getByRole("button", { name: /이 챕터 완료하기/ });
   await expect(finishButton).toBeDisabled();

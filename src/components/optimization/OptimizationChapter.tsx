@@ -6,6 +6,8 @@ import {
   TRANSFORMER_CURRICULUM_SLUG,
 } from "../../data/curriculum";
 import {
+  optimizationGradientRepairCode,
+  optimizationGradientRepairCodeEn,
   optimizationNumpyCode,
   optimizationNumpyCodeEn,
 } from "../../data/optimizationNotebook";
@@ -21,6 +23,7 @@ import { NotebookCell } from "../NotebookCell";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { PythonCode } from "../PythonCode";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { OptimizationConceptCheck } from "./OptimizationConceptCheck";
 import { OptimizationDebuggerLab } from "./OptimizationDebuggerLab";
 import { OptimizationDescentLab } from "./OptimizationDescentLab";
@@ -31,7 +34,7 @@ const tocItems = {
     { id: "measure", label: "여러 오차를 하나의 손실로" },
     { id: "gradient", label: "Gradient 방향" },
     { id: "descent", label: "필수 경사하강 실습" },
-    { id: "debug", label: "업데이트 디버깅" },
+    { id: "debug", label: "선택 · 업데이트 디버깅" },
     { id: "transfer", label: "뉴런으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -40,7 +43,7 @@ const tocItems = {
     { id: "measure", label: "Many errors, one loss" },
     { id: "gradient", label: "Gradient direction" },
     { id: "descent", label: "Required descent lab" },
-    { id: "debug", label: "Debug updates" },
+    { id: "debug", label: "Optional · Debug updates" },
     { id: "transfer", label: "Transfer to neurons" },
     { id: "check", label: "Concept check" },
   ],
@@ -116,6 +119,8 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
               </ul>
             </div>
           </header>
+
+          <TransformerLearningGuide chapterSlug="optimization" />
 
           <section className="article-section" id="predict">
             <div className="margin-label">01 — PREDICT</div>
@@ -216,20 +221,50 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
 
           <section className="article-section optimization-notebook-section" id="numpy-check">
             <div className="margin-label">05 — NUMPY · OPTIONAL</div>
-            <h2>{t("선택 심화에서 같은 trace를 실제 NumPy로 확인하세요", "Optionally reproduce the same trace in real NumPy")}</h2>
-            <p>{t("필수 활동은 네트워크 없이 브라우저 수학 모델로 끝낼 수 있습니다. 아래 셀은 기존 공유 Pyodide worker에서 NumPy를 불러오므로 선택 사항이며, 런타임 다운로드가 실패해도 챕터 완료에는 영향이 없습니다.", "The required activities finish in a network-free browser math model. This optional cell loads NumPy in the existing shared Pyodide worker; a runtime download failure does not affect chapter completion.")}</p>
-            <NotebookCell
-              title={t("NumPy로 MSE gradient descent 실행", "Run MSE gradient descent with NumPy")}
-              initialCode={isKo ? optimizationNumpyCode : optimizationNumpyCodeEn}
-              description={<p>{t("필수 실습과 같은 X, y, W, η를 사용하고 각 step의 W, loss, gradient를 출력합니다.", "Uses the same X, y, W, and η as the required lab and prints W, loss, and gradient at every step.")}</p>}
-              hint={<p>{t("learning_rate를 0.02와 1.10으로 바꾸고 loss 열이 어떻게 달라지는지 비교하세요.", "Change learning_rate to 0.02 and 1.10 and compare the loss column.")}</p>}
-              editorMinHeight={360}
-              ariaLabel={t("최적화 NumPy 코드", "Optimization NumPy code")}
-            />
+            <h2>{t("실제 NumPy에서 trace와 gradient 계약을 함께 확인하세요", "Check both the trace and gradient contract in real NumPy")}</h2>
+            <p>{t("첫 셀은 필수 실습과 같은 경사하강 trace를 재현합니다. 두 번째 셀은 analytic gradient를 중앙차분 수치 gradient와 대조하고, SSE 식을 MSE에 그대로 쓴 한 줄을 직접 수리하게 합니다. 두 셀은 독립적이며 실행 순서가 결과를 바꾸지 않습니다.", "The first cell reproduces the required gradient-descent trace. The second compares an analytic gradient with a central finite-difference probe and asks you to repair one line that incorrectly carries an SSE expression into MSE. The cells are independent, so execution order does not change their results.")}</p>
+            <div className="concept-callout">
+              <span className="callout-mark">ε</span>
+              <div>
+                <strong>{t("같은 loss를 미분한 두 측정은 일치해야 합니다", "Two measurements of the same loss derivative must agree")}</strong>
+                <p>
+                  {isKo ? <>
+                    중앙차분은 <MathFormula latex={String.raw`g_j\approx\frac{L(W+\epsilon e_j)-L(W-\epsilon e_j)}{2\epsilon}`} />로 각 성분을 흔듭니다. 현재 세 표본에서 수치값은 <PythonCode>[-6, -4]</PythonCode>입니다. <PythonCode>X.T @ residual</PythonCode>만 쓰면 <PythonCode>[-9, -6]</PythonCode>이므로, 제곱의 미분 <PythonCode>2</PythonCode>와 평균의 <PythonCode>1 / n</PythonCode>을 모두 복구해야 합니다.
+                  </> : <>
+                    Central difference perturbs each component with <MathFormula latex={String.raw`g_j\approx\frac{L(W+\epsilon e_j)-L(W-\epsilon e_j)}{2\epsilon}`} />. For these three samples the numerical result is <PythonCode>[-6, -4]</PythonCode>. Using only <PythonCode>X.T @ residual</PythonCode> gives <PythonCode>[-9, -6]</PythonCode>, so the repair must restore both the square derivative <PythonCode>2</PythonCode> and the mean factor <PythonCode>1 / n</PythonCode>.
+                  </>}
+                </p>
+              </div>
+            </div>
+            <div className="concept-callout">
+              <span className="callout-mark">Py</span>
+              <div>
+                <strong>{t("선택 심화는 완료 조건과 분리됩니다", "The optional extension stays outside the completion gate")}</strong>
+                <p>{t("두 셀은 공유 Pyodide worker와 NumPy를 처음 실행할 때만 지연 로드합니다. 런타임 다운로드 실패는 필수 실습이나 챕터 완료를 막지 않습니다.", "Both cells lazily load the shared Pyodide worker and NumPy only when first run. A runtime download failure never blocks the required lab or chapter completion.")}</p>
+              </div>
+            </div>
+            <div className="notebook-stack">
+              <NotebookCell
+                title={t("NumPy로 MSE gradient descent 실행", "Run MSE gradient descent with NumPy")}
+                initialCode={isKo ? optimizationNumpyCode : optimizationNumpyCodeEn}
+                description={<p>{t("필수 실습과 같은 X, y, W, η를 사용하고 각 step의 W, loss, gradient를 출력합니다.", "Uses the same X, y, W, and η as the required lab and prints W, loss, and gradient at every step.")}</p>}
+                hint={<p>{t("learning_rate를 0.02와 1.10으로 바꾸고 loss 열이 어떻게 달라지는지 비교하세요.", "Change learning_rate to 0.02 and 1.10 and compare the loss column.")}</p>}
+                editorMinHeight={360}
+                ariaLabel={t("최적화 NumPy 코드", "Optimization NumPy code")}
+              />
+              <NotebookCell
+                title={t("finite difference로 MSE gradient 수리", "Repair the MSE gradient with finite differences")}
+                initialCode={isKo ? optimizationGradientRepairCode : optimizationGradientRepairCodeEn}
+                description={<p>{t("첫 실행은 analytic [-9, -6]과 numerical [-6, -4]가 달라 assertion이 실패합니다. REPAIR 아래 한 줄만 바꿔 두 gradient를 일치시키세요.", "The first run fails because analytic [-9, -6] disagrees with numerical [-6, -4]. Change only the line below REPAIR so the two gradients agree.")}</p>}
+                hint={<p>{t("MSE는 squared error의 합이 아니라 평균입니다. gradient = (2 / len(y)) * X.T @ residual을 완성한 뒤 다시 실행하세요.", "MSE is the mean, not the sum, of squared errors. Complete gradient = (2 / len(y)) * X.T @ residual, then run again.")}</p>}
+                editorMinHeight={500}
+                ariaLabel={t("MSE gradient finite difference 수리 코드", "MSE gradient finite-difference repair code")}
+              />
+            </div>
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">06 — DEBUG</div>
+            <div className="margin-label">06 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("공식을 외우는 대신 다음 loss로 업데이트를 검증합니다", "Verify an update by its next loss, not by memorizing a formula")}</h2>
             <p>{t("올바른 부호만으로는 충분하지 않습니다. gradient와 반대 방향이어도 학습률이 너무 크면 최솟값을 건너뛸 수 있습니다. 아래 활동은 제안한 update를 실제 loss 함수에 넣어 판정합니다.", "The correct sign is not enough. Even a direction opposite the gradient can overshoot when the learning rate is too large. The activity below substitutes each proposed update into the actual loss function.")}</p>
             <OptimizationDebuggerLab onCompletionChange={setDebuggerComplete} />
@@ -256,19 +291,19 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
           <section className="chapter-finish">
             <p className="eyebrow">CHECKPOINT</p>
             <h2>{t("이제 loss trace를 읽고 한 번의 update를 설명할 수 있습니다", "You can now read a loss trace and explain one update")}</h2>
-            <p>{t("나쁜 학습률을 관찰해 안정적인 값으로 복구하고, 네 optimizer 사건을 실제 loss 변화로 해결하고, gradient의 shape와 부호를 설명하면 챕터 목표에 도달했습니다.", "You have reached the goal when you can repair a bad learning rate, solve four optimizer incidents using actual loss changes, and explain gradient shape and sign.")}</p>
+            <p>{t("나쁜 학습률을 관찰해 안정적인 값으로 복구하고 gradient의 shape와 부호를 설명하면 핵심 목표에 도달합니다. 더 연습하고 싶을 때만 optimizer 사건을 이어서 해결하세요.", "You reach the core goal when you can repair a bad learning rate and explain gradient shape and sign. Continue with the optimizer incidents only when you want more practice.")}</p>
             <div className="optimization-completion-checklist" role="status" aria-live="polite">
               <span className={descentLabComplete ? "is-complete" : undefined}>{descentLabComplete ? "✓" : "○"} {t("학습률 복구 실습", "Learning-rate repair lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("업데이트 디버깅 4개", "Four update incidents")}</span>
-              <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 4문제", "Four concept questions")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("업데이트 디버깅 4개", "Four update incidents")}</span>
+              <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
               curriculumSlug={TRANSFORMER_CURRICULUM_SLUG}
               slug="optimization"
               canComplete={canComplete}
               lockedMessage={t(
-                "학습률 복구 실습, 업데이트 디버깅 네 사건과 이해 확인 네 문제를 모두 마치면 완료할 수 있습니다.",
-                "Finish the learning-rate repair lab, all four update incidents, and all four concept questions to complete the chapter.",
+                "학습률 복구 실습과 이해 확인 다섯 문제를 마치면 완료할 수 있습니다. 디버깅은 선택 보강입니다.",
+                "Finish the learning-rate repair lab and all five concept questions. Debugging is optional remediation.",
               )}
             />
           </section>

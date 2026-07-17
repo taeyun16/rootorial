@@ -11,6 +11,9 @@ import {
   FEEDBACK_MESSAGE_MAX_LENGTH,
   type FeedbackKind,
 } from "../features/feedback/feedback";
+import {
+  CONTENT_FEEDBACK_REQUEST_EVENT,
+} from "../features/feedback/content-feedback-events";
 
 type FeedbackAuthState = {
   clerkEnabled: boolean;
@@ -85,6 +88,28 @@ function ContentFeedbackCore({
     return () => window.removeEventListener("keydown", closeOnEscape);
   }, [open]);
 
+  useEffect(() => {
+    const openContextualFeedback = (
+      event: WindowEventMap[typeof CONTENT_FEEDBACK_REQUEST_EVENT],
+    ) => {
+      setKind(event.detail.kind ?? "confusing");
+      setMessage(event.detail.message ?? "");
+      setNotice("");
+      setSubmitted(false);
+      setOpen(true);
+    };
+    window.addEventListener(
+      CONTENT_FEEDBACK_REQUEST_EVENT,
+      openContextualFeedback,
+    );
+    return () => {
+      window.removeEventListener(
+        CONTENT_FEEDBACK_REQUEST_EVENT,
+        openContextualFeedback,
+      );
+    };
+  }, []);
+
   function closePanel() {
     setOpen(false);
     requestAnimationFrame(() => toggleRef.current?.focus());
@@ -104,7 +129,7 @@ function ContentFeedbackCore({
         data: {
           kind,
           message,
-          pagePath: `${window.location.pathname}${window.location.search}`,
+          pagePath: `${window.location.pathname}${window.location.search}${window.location.hash}`,
           pageTitle: document.title,
         },
       });

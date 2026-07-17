@@ -12,6 +12,25 @@ import {
   runXorNetwork,
   stableSigmoid,
 } from "../src/features/neural-networks/forward-pass.ts";
+import {
+  neuralNetworksHiddenRepairCode,
+  neuralNetworksLinearBoundaryCode,
+} from "../src/data/neuralNetworksNotebook.ts";
+
+test("ships self-contained Python bridges for bounded linear search and hidden repair", () => {
+  assert.match(neuralNetworksLinearBoundaryCode, /grid_search_best/);
+  assert.match(neuralNetworksLinearBoundaryCode, /assert best_correct == 3/);
+  assert.match(neuralNetworksLinearBoundaryCode, /bounded search matches the geometric XOR limit/);
+  assert.match(neuralNetworksHiddenRepairCode, /hidden = hidden_logits/);
+  assert.match(neuralNetworksHiddenRepairCode, /identity_effective_weights = W1 @ W2/);
+  assert.match(neuralNetworksHiddenRepairCode, /identity_effective_bias/);
+  assert.match(neuralNetworksHiddenRepairCode, /identity_correct=\{identity_correct\}\/4/);
+  assert.match(neuralNetworksHiddenRepairCode, /assert identity_correct == 2/);
+  assert.match(neuralNetworksHiddenRepairCode, /assert correct == 4/);
+  assert.match(neuralNetworksHiddenRepairCode, /assert mean_bce < 0\.1/);
+  assert.doesNotMatch(neuralNetworksLinearBoundaryCode, /[가-힣]/);
+  assert.doesNotMatch(neuralNetworksHiddenRepairCode, /[가-힣]/);
+});
 
 test("maps extreme logits to stable probabilities and keeps BCE finite", () => {
   assert.equal(stableSigmoid(1000), 1);
@@ -89,25 +108,24 @@ test("grades network surgery from shape and forward semantics", () => {
   );
 });
 
-test("requires both semantic activities and concept mastery for completion", () => {
+test("requires the XOR lab and concepts while keeping debugger remediation optional", () => {
   assert.equal(canCompleteNeuralNetworksChapter({
     xorLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
+    conceptsMastered: true,
+  }), true);
+  assert.equal(canCompleteNeuralNetworksChapter({
+    xorLabComplete: true,
     conceptsMastered: true,
   }), true);
   assert.equal(canCompleteNeuralNetworksChapter({
     xorLabComplete: false,
-    debuggerComplete: true,
-    conceptsMastered: true,
-  }), false);
-  assert.equal(canCompleteNeuralNetworksChapter({
-    xorLabComplete: true,
     debuggerComplete: false,
     conceptsMastered: true,
   }), false);
   assert.equal(canCompleteNeuralNetworksChapter({
     xorLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
     conceptsMastered: false,
   }), false);
 });

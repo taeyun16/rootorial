@@ -5,6 +5,10 @@ import {
   chaptersKo,
   TRANSFORMER_CURRICULUM_SLUG,
 } from "../../data/curriculum";
+import {
+  miniTransformerGenerationRepairCode,
+  miniTransformerLmHeadUpdateCode,
+} from "../../data/miniTransformerNotebook";
 import { canCompleteMiniTransformerChapter } from "../../features/mini-transformer/mini-transformer-model";
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
@@ -12,9 +16,11 @@ import { ChapterToc } from "../ChapterToc";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { MiniTransformerConceptCheck } from "./MiniTransformerConceptCheck";
 import { MiniTransformerDebuggerLab } from "./MiniTransformerDebuggerLab";
 import { MiniTransformerLab } from "./MiniTransformerLab";
@@ -26,8 +32,9 @@ const tocItems = {
     { id: "forward", label: "ID에서 logits까지" },
     { id: "loss", label: "Softmax·loss·한 update" },
     { id: "decode", label: "Autoregressive decode" },
-    { id: "mini-transformer-lab", label: "필수 전체 경로 lab" },
-    { id: "debug", label: "모델 경계 디버깅" },
+    { id: "mini-transformer-lab", label: "핵심 3 challenge lab" },
+    { id: "numpy-bridge", label: "NumPy로 경계 검증" },
+    { id: "debug", label: "선택 · 모델 경계 디버깅" },
     { id: "transfer", label: "실제 모델로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -37,8 +44,9 @@ const tocItems = {
     { id: "forward", label: "From IDs to logits" },
     { id: "loss", label: "Softmax, loss, one update" },
     { id: "decode", label: "Autoregressive decoding" },
-    { id: "mini-transformer-lab", label: "Required end-to-end lab" },
-    { id: "debug", label: "Debug model boundaries" },
+    { id: "mini-transformer-lab", label: "Three-core-challenge lab" },
+    { id: "numpy-bridge", label: "Verify boundaries in NumPy" },
+    { id: "debug", label: "Optional · Debug model boundaries" },
     { id: "transfer", label: "Transfer to real models" },
     { id: "check", label: "Concept check" },
   ],
@@ -101,6 +109,8 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
               </ul>
             </div>
           </header>
+
+          <TransformerLearningGuide chapterSlug="mini-transformer" />
 
           <section className="article-section" id="boundary">
             <div className="margin-label">01 — CAPSTONE BOUNDARY</div>
@@ -180,8 +190,53 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
 
           <div id="mini-transformer-lab"><MiniTransformerLab onCompletionChange={setLabComplete} /></div>
 
+          <section className="article-section mini-transformer-python-bridge" id="numpy-bridge">
+            <div className="margin-label">07 — NUMPY BRIDGE · OPTIONAL</div>
+            <h2>{t("shifted loss와 generation controller를 실제 NumPy로 분리해 검증합니다", "Verify shifted loss and the generation controller separately in real NumPy")}</h2>
+            <p>{t(
+              "첫 셀은 고정 tokenizer가 만든 [BOS,the,cat,sat,.] ID와 챕터 fixture에서 손으로 옮긴 final-LayerNorm hidden state를 사용합니다. [5,8] LM-head logits에서 row별 stable Softmax와 shifted cross entropy를 계산한 뒤, hidden state는 고정하고 vocabulary projection과 bias만 gradient descent로 한 번 갱신합니다. 둘째 셀은 \"the cat\" prefix에서 greedy token을 append하고 전체 prefix를 매번 다시 계산하며 EOS 또는 max-length에서 멈추는 controller를 수리합니다.",
+              "The first cell uses IDs from the fixed tokenizer—[BOS, the, cat, sat, .]—and final-LayerNorm hidden states copied by hand from the chapter fixture. It computes row-wise stable softmax and shifted cross entropy over [5,8] LM-head logits, freezes the hidden states, and applies one gradient-descent update only to the vocabulary projection and bias. The second cell repairs a controller that must append each greedy token to the \"the cat\" prefix, recompute the full prefix, and stop on EOS or at max length.",
+            )}</p>
+            <div className="concept-callout">
+              <span className="callout-mark">Py</span>
+              <div>
+                <strong>{t("선택 심화이며 각 셀은 독립적입니다", "Optional extension; each cell is independent")}</strong>
+                <p>{t(
+                  "공유 Pyodide 런타임과 NumPy는 첫 실행 때만 지연 로드됩니다. 두 셀은 입력·함수·검증값을 각각 다시 만들며 필수 lab, debugger, 이해 확인, 완료 조건에 포함되지 않습니다. 런타임 다운로드가 실패해도 챕터 완료에는 영향이 없습니다.",
+                  "The shared Pyodide runtime and NumPy load lazily on first execution. Each cell rebuilds its own inputs, functions, and assertions, and neither is part of the required lab, debugger, concept check, or completion gate. A runtime download failure cannot block chapter completion.",
+                )}</p>
+              </div>
+            </div>
+            <NotebookCell
+              title={t("shifted cross entropy와 LM-head 한 번 갱신", "Shifted cross entropy and one LM-head update")}
+              initialCode={miniTransformerLmHeadUpdateCode}
+              description={<p>{t("입력 ID [0,1,2,3,4]를 target [1,2,3,4,5]와 맞춥니다. logits shape (5,8), loss 1.655967, gradient L2 0.728164를 확인하고 learning rate 0.2의 올바른 뺄셈 update가 같은 batch loss를 1.552597로 낮추는지 실행하세요. 반대로 gradient를 더하면 1.764646으로 오릅니다.", "Align input IDs [0,1,2,3,4] with targets [1,2,3,4,5]. Run the cell to verify logits shape (5,8), loss 1.655967, and gradient L2 0.728164, then confirm that a correct subtractive update at learning rate 0.2 lowers same-batch loss to 1.552597. Adding the gradient instead raises it to 1.764646.")}</p>}
+              hint={<p>{t("target 위치에서 1을 뺀 probability gradient를 다섯 row로 평균한 뒤 W와 b에서 빼야 합니다. learning_rate 부호를 바꿔 ascent 대조값도 확인해 보세요.", "Subtract one at each target position, average the probability gradient over five rows, then subtract the resulting gradients from W and b. Flip the learning-rate sign to inspect the ascent counterexample.")}</p>}
+              editorMinHeight={820}
+              ariaLabel={t("shifted cross entropy와 LM-head 갱신 NumPy 코드", "NumPy code for shifted cross entropy and an LM-head update")}
+            />
+            <NotebookCell
+              title={t("append·recompute·stop generation controller 수리", "Repair the append, recompute, and stop generation controller")}
+              initialCode={miniTransformerGenerationRepairCode}
+              description={<p>{t("기본 코드는 새 token으로 prefix 마지막 항목을 덮어써 길이를 계속 3으로 유지합니다. REPAIR 아래 한 줄을 prefix.append(next_token_id)로 바꾸면 sat → . → cat → cat → cat을 생성하고 prefix 길이가 3→4→5→6→7로 자라며 max-length에서 멈춥니다.", "The default code overwrites the final prefix item, so its length remains three. Change the line below REPAIR to prefix.append(next_token_id): generation becomes sat → . → cat → cat → cat, prefix lengths grow 3→4→5→6→7, and the controller stops at max length.")}</p>}
+              hint={<p>{t("greedy argmax는 현재 전체 prefix의 마지막 logits row에서 고릅니다. 이 fixture에는 KV cache가 없으므로 token을 append한 뒤 다음 loop에서 전체 prefix를 다시 전달해야 합니다.", "Greedy argmax selects from the last logits row of the current full prefix. This fixture has no KV cache, so append the token and pass the whole enlarged prefix again on the next loop.")}</p>}
+              editorMinHeight={780}
+              ariaLabel={t("generation controller 수리 NumPy 코드", "NumPy code for repairing the generation controller")}
+            />
+            <div className="concept-callout misconception-callout">
+              <span className="callout-mark">≠</span>
+              <div>
+                <strong>{t("이 두 probe가 증명하는 것과 증명하지 않는 것을 구분하세요", "Separate what these probes prove from what they do not prove")}</strong>
+                <p>{t(
+                  "이 실행은 shifted pair, vocabulary-axis CE, 한 LM-head update의 방향, greedy append/recompute/stop 불변식을 증명합니다. tokenizer 품질, 전체 block의 end-to-end 학습, 일반적인 문장 생성 품질, 학습된 언어 모델, KV cache의 정확성은 증명하지 않습니다. generation token은 학습 결과가 아니라 손으로 정한 fixture입니다.",
+                  "These executions prove shifted pairs, vocabulary-axis cross entropy, the direction of one LM-head update, and greedy append/recompute/stop invariants. They do not prove tokenizer quality, end-to-end block training, general generation quality, a learned language model, or KV-cache correctness. Generation tokens come from a hand-authored fixture, not training.",
+                )}</p>
+              </div>
+            </div>
+          </section>
+
           <section className="article-section" id="debug">
-            <div className="margin-label">07 — MODEL BOUNDARY REPAIR CONSOLE</div>
+            <div className="margin-label">08 — OPTIONAL REMEDIATION · REPAIR CONSOLE</div>
             <h2>{t("tokenizer·causality·LM head·decode loop를 실행 결과로 수리합니다", "Repair tokenizer, causality, the LM head, and the decoding loop from executed results")}</h2>
             <p>{t(
               "각 사건은 후보 조립을 같은 tiny fixture에 실제 적용하고 shifted IDs, future leakage, row probability sum, loss 변화, prefix replay와 stop reason을 다시 계산합니다. 설명처럼 들리는 option이 아니라 수치 invariant가 맞아야 통과합니다.",
@@ -191,7 +246,7 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
           </section>
 
           <section className="article-section" id="transfer">
-            <div className="margin-label">08 — TRANSFER BEYOND THE FIXTURE</div>
+            <div className="margin-label">09 — TRANSFER BEYOND THE FIXTURE</div>
             <h2>{t("크기가 커져도 경계는 유지되고 구현 전략이 추가됩니다", "The boundaries remain as scale grows; implementation strategies are added")}</h2>
             <div className="mini-transformer-transfer-task"><strong>{t("전이 과제", "TRANSFER TASK")}</strong><p>{t(
               "block을 12개로 늘리고 tied embedding, subword vocabulary, KV cache, temperature sampling을 추가한다고 가정하세요. [T,d_model]을 유지하는 부분, [T,V]가 처음 생기는 부분, training에서만 필요한 shifted loss, generation에서만 필요한 append/stop controller를 네 범주로 분류하세요. cache는 결과 의미를 바꾸지 않고 중복 계산만 줄여야 합니다.",
@@ -200,18 +255,18 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
           </section>
 
           <section className="article-section" id="check">
-            <div className="margin-label">09 — CONCEPT CHECK</div>
+            <div className="margin-label">10 — CONCEPT CHECK</div>
             <MiniTransformerConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 
           <section className="chapter-completion-section">
             <div className="mini-transformer-completion-checklist" role="status" aria-live="polite">
               <strong>{t("완료 조건", "COMPLETION GATE")}</strong>
-              <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("필수 전체 경로 lab", "Required end-to-end lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("별도 debugger 4사건", "Four separate debugger incidents")}</span>
+              <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("핵심 challenge 3개", "Three core challenges")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("별도 debugger 4사건", "Four separate debugger incidents")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
-            <CompleteChapter curriculumSlug={TRANSFORMER_CURRICULUM_SLUG} slug="mini-transformer" canComplete={canComplete} lockedMessage={t("필수 lab, 네 debugger 사건과 다섯 개념 확인을 모두 완료하세요.", "Complete the required lab, all four debugger incidents, and all five concept checks.")} />
+            <CompleteChapter curriculumSlug={TRANSFORMER_CURRICULUM_SLUG} slug="mini-transformer" canComplete={canComplete} lockedMessage={t("핵심 challenge 세 개와 다섯 개념 확인을 완료하세요. 나머지 challenge와 debugger는 선택입니다.", "Complete the three core challenges and all five concept checks. The remaining challenges and debugger are optional.")} />
           </section>
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>

@@ -110,6 +110,29 @@ export function OptimizationConceptCheck({
         "Loss is a scalar, but each parameter needs its own movement signal. The gradient therefore matches the parameter shape.",
       ),
     },
+    {
+      id: "sse-mse-scale",
+      index: "05",
+      prompt: t(
+        "표본 n개의 squared error를 더한 SSE에서 평균을 낸 MSE로 바꾸면 같은 W에서 gradient는 어떻게 달라질까요?",
+        "When a sum of squared errors over n samples is changed from SSE to its mean, MSE, how does the gradient at the same W change?",
+      ),
+      options: [
+        { value: "divide-by-batch-size", label: t("SSE gradient를 표본 수 n으로 나눈다", "Divide the SSE gradient by the sample count n") },
+        { value: "unchanged", label: t("최솟값이 같으므로 gradient도 그대로다", "It stays unchanged because the minimum is the same") },
+        { value: "multiply-by-batch-size", label: t("SSE gradient에 표본 수 n을 곱한다", "Multiply the SSE gradient by the sample count n") },
+      ],
+      correctAnswer: optimizationQuestions["sse-mse-scale"].correctAnswer,
+      answerLabel: t("정답: n으로 나눈다", "Answer: divide by n"),
+      correctFeedback: t(
+        "맞았습니다. MSE = SSE / n이므로 gradient도 같은 1/n 배율을 받습니다. 최솟값 위치는 같지만 update 보폭은 달라집니다.",
+        "Right. Because MSE = SSE / n, its gradient receives the same 1/n factor. The minimum stays put, but the update step scale changes.",
+      ),
+      incorrectFeedback: t(
+        "평균은 loss 전체에 1/n을 곱합니다. 미분해도 그 상수는 남으므로 MSE gradient는 SSE gradient의 1/n입니다.",
+        "Taking a mean multiplies the entire loss by 1/n. That constant survives differentiation, so the MSE gradient is 1/n of the SSE gradient.",
+      ),
+    },
   ];
 
   return (
@@ -120,13 +143,13 @@ export function OptimizationConceptCheck({
       copy={{
         kicker: "READ THE UPDATE",
         title: t("손실·gradient·학습률을 하나의 학습 루프로 연결하세요", "Connect loss, gradient, and learning rate into one learning loop"),
-        description: t("네 문제와 두 필수 활동을 모두 마치면 챕터 완료 조건이 열립니다.", "Finish all four questions and both required activities to unlock the chapter gate."),
+        description: t("다섯 문제와 두 필수 활동을 모두 마치면 챕터 완료 조건이 열립니다.", "Finish all five questions and both required activities to unlock the chapter gate."),
         correct: t("학습 흐름을 정확히 읽었습니다", "Training flow read correctly"),
         incorrect: t("업데이트 근거를 다시 확인하세요", "Recheck the update evidence"),
         checkAnswers: t("최적화 흐름 확인하기", "Check the optimization loop"),
         completed: t("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", "Concept check complete — now confirm both activity states."),
         retry: t("아직 섞인 역할이 있습니다. loss는 값, gradient는 방향, η는 보폭입니다.", "Some roles are still mixed up: loss is a value, the gradient gives direction, and η sets step size."),
-        idle: t("네 답을 고른 뒤 학습 루프를 확인하세요.", "Choose all four answers, then check the learning loop."),
+        idle: t("다섯 답을 고른 뒤 학습 루프를 확인하세요.", "Choose all five answers, then check the learning loop."),
       }}
     />
   );

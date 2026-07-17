@@ -331,6 +331,18 @@ test("keeps completed Transformer drafts unavailable on their public URLs", asyn
   ]);
 });
 
+test("keeps the completed infrastructure chapter unavailable on its public URL", async () => {
+  const korean = await render(
+    "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries",
+  );
+  const english = await render(
+    "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en",
+  );
+  assert.equal(korean.status, 404);
+  assert.equal(english.status, 404);
+  await Promise.all([korean.text(), english.text()]);
+});
+
 test("SSR-renders the bilingual Self-Attention chapter with an explicit test-only publication override", async () => {
   const rows = [
     {
@@ -358,7 +370,10 @@ test("SSR-renders the bilingual Self-Attention chapter with an explicit test-onl
     html,
     /한 query가 바깥 memory를 읽던 Attention을, 같은 token sequence의 모든 row가 서로를 읽는 계산으로 확장합니다/,
   );
-  assert.match(html, /07 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
+  assert.match(html, /raw = \[2, 1, 0, 1\]/);
+  assert.match(html, /고정 trace와 mask repair를 실제 NumPy로 다시 실행합니다/);
+  assert.match(html, /08 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(html, /CORE LAB · 핵심 3 \+ 선택 2/);
 
   const englishResponse = await renderWithPublicationRows(
     "/curricula/transformer-from-zero/chapters/self-attention?lang=en",
@@ -371,7 +386,10 @@ test("SSR-renders the bilingual Self-Attention chapter with an explicit test-onl
     englishHtml,
     /Extend Attention from one query reading external memory into every row of one token sequence reading that sequence/,
   );
-  assert.match(englishHtml, /07 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
+  assert.match(englishHtml, /raw = \[2, 1, 0, 1\]/);
+  assert.match(englishHtml, /Re-execute the fixed trace and mask repair in real NumPy/);
+  assert.match(englishHtml, /08 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(englishHtml, /CORE LAB · 3 CORE \+ 2 OPTIONAL/);
 });
 
 test("SSR-renders the bilingual Transformer Block chapter with an explicit test-only publication override", async () => {
@@ -401,7 +419,9 @@ test("SSR-renders the bilingual Transformer Block chapter with an explicit test-
     html,
     /직전 장의 causal multi-head routing을 완성된 decoder block으로 조립합니다/,
   );
-  assert.match(html, /08 — BLOCK CONTRACT REPAIR CONSOLE/);
+  assert.match(html, /08 — NUMPY BLOCK LEDGER · OPTIONAL/);
+  assert.match(html, /09 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(html, /CORE LAB · 핵심 3 \+ 선택 2/);
 
   const englishResponse = await renderWithPublicationRows(
     "/curricula/transformer-from-zero/chapters/transformer-block?lang=en",
@@ -414,7 +434,9 @@ test("SSR-renders the bilingual Transformer Block chapter with an explicit test-
     englishHtml,
     /Assemble the prior chapter(?:'|&#x27;)s causal multi-head routing into a complete decoder block/,
   );
-  assert.match(englishHtml, /08 — BLOCK CONTRACT REPAIR CONSOLE/);
+  assert.match(englishHtml, /08 — NUMPY BLOCK LEDGER · OPTIONAL/);
+  assert.match(englishHtml, /09 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(englishHtml, /CORE LAB · 3 CORE \+ 2 OPTIONAL/);
 });
 
 test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-only publication override", async () => {
@@ -444,8 +466,10 @@ test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-o
     html,
     /앞의 아홉 장을 작은 decoder-only next-token 모델 하나로 닫습니다/,
   );
-  assert.match(html, /07 — MODEL BOUNDARY REPAIR CONSOLE/);
-  assert.match(html, /필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT/);
+  assert.match(html, /07 — NUMPY BRIDGE · OPTIONAL/);
+  assert.match(html, /shifted loss와 generation controller를 실제 NumPy로 분리해 검증합니다/);
+  assert.match(html, /08 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(html, /CORE LAB · 핵심 3 \+ 선택 2/);
 
   const englishResponse = await renderWithPublicationRows(
     "/curricula/transformer-from-zero/chapters/mini-transformer?lang=en",
@@ -458,8 +482,64 @@ test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-o
     englishHtml,
     /Close the previous nine chapters by assembling one tiny decoder-only next-token model/,
   );
-  assert.match(englishHtml, /07 — MODEL BOUNDARY REPAIR CONSOLE/);
-  assert.match(englishHtml, /REQUIRED LAB · PREDICT → CONFIGURE → RUN → INSPECT/);
+  assert.match(englishHtml, /07 — NUMPY BRIDGE · OPTIONAL/);
+  assert.match(englishHtml, /Verify shifted loss and the generation controller separately in real NumPy/);
+  assert.match(englishHtml, /08 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(englishHtml, /CORE LAB · 3 CORE \+ 2 OPTIONAL/);
+});
+
+test("SSR-renders the bilingual network namespace chapter with test-only publication overrides", async () => {
+  const rows = [
+    {
+      resource_key: "curriculum:infrastructure-design",
+      resource_kind: "curriculum",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: null,
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+    {
+      resource_key: "chapter:infrastructure-design/network-namespaces-and-boundaries",
+      resource_kind: "chapter",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: "network-namespaces-and-boundaries",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /같은 kernel 안에 여러 network view를 만들고/);
+  assert.match(html, /REQUIRED LAB · DESIGN THE BOUNDARY/);
+  assert.match(html, /REQUIRED ACTIVITY · INCIDENT CONSOLE/);
+  assert.match(html, /veth·bridge·routing으로 토폴로지 조립/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /create several network views inside the same kernel/);
+  assert.match(englishHtml, /Design namespace-local health and the isolation matrix/);
+  assert.match(englishHtml, /Repair four incidents through observation scope and object ownership/);
 });
 
 test("renders the interactive vectors chapter", async () => {

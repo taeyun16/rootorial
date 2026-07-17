@@ -48,6 +48,10 @@ test("completes memory evidence, four repairs, and concepts in the Korean draft 
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "순서가 있는 데이터" })).toBeVisible();
   await expect(page.getByText("필수 LAB · ORDER → STATE → MEMORY", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · SEQUENCE CONTRACT DEBUGGER", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "시간축 recurrence와 gradient 경로를 실제 NumPy로 다시 펼칩니다" })).toBeVisible();
+  await expect(page.getByText("batch에서 순서 민감성 증명", { exact: true })).toBeVisible();
+  await expect(page.getByText("긴 recurrent 경로의 gradient 수리", { exact: true })).toBeVisible();
+  await expect(page.locator(".sequences-python-bridge .notebook-cell")).toHaveCount(2);
 
   const lab = page.locator(".sequences-memory-lab");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
@@ -189,6 +193,10 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   expect(response?.status()).toBe(200);
   await expect(page).toHaveTitle("[Preview] 06. Sequential Data · Rootorial");
   await expect(page.getByRole("heading", { name: "Sequential Data" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Re-unroll temporal recurrence and its gradient path in real NumPy" })).toBeVisible();
+  await expect(page.getByText("Prove order sensitivity in a batch", { exact: true })).toBeVisible();
+  await expect(page.getByText("Repair the gradient through a long recurrent path", { exact: true })).toBeVisible();
+  await expect(page.locator(".sequences-python-bridge .notebook-cell")).toHaveCount(2);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];

@@ -84,6 +84,11 @@ const linuxTinySystemKey = chapterPublicationKey(
   "linux-systems",
   "assemble-a-tiny-linux",
 );
+const infrastructureKey = curriculumPublicationKey("infrastructure-design");
+const infrastructureNamespacesKey = chapterPublicationKey(
+  "infrastructure-design",
+  "network-namespaces-and-boundaries",
+);
 
 function override(resourceKey, values = {}) {
   const chapter = resourceKey.startsWith("chapter:");
@@ -375,6 +380,36 @@ test("publishes the existing Linux sample while keeping completed later chapters
     ({ curriculum }) => curriculum.slug === "linux-systems",
   );
   assert.equal(linuxCatalog?.chapters.length, 8);
+});
+
+test("keeps the first infrastructure chapter complete but unpublished by default", () => {
+  const catalog = resolvePublicationCatalog([], 1_000);
+  const infrastructure = catalog.resources[infrastructureKey];
+  const namespaces = catalog.resources[infrastructureNamespacesKey];
+
+  assert.equal(infrastructure.developmentStatus, "in-progress");
+  assert.equal(infrastructure.contentReady, true);
+  assert.equal(infrastructure.source, "default");
+  assert.equal(infrastructure.publicationStatus, "draft");
+  assert.equal(infrastructure.effectivePublicationStatus, "draft");
+  assert.equal(infrastructure.listing, "listed");
+  assert.equal(infrastructure.scheduledAt, null);
+  assert.equal(isPublicationAccessible(catalog, infrastructureKey), false);
+
+  assert.equal(namespaces.developmentStatus, "complete");
+  assert.equal(namespaces.contentReady, true);
+  assert.equal(namespaces.source, "default");
+  assert.equal(namespaces.publicationStatus, "draft");
+  assert.equal(namespaces.effectivePublicationStatus, "draft");
+  assert.equal(namespaces.listing, "hidden");
+  assert.equal(namespaces.scheduledAt, null);
+  assert.equal(namespaces.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, infrastructureNamespacesKey), false);
+  const announced = publicPublicationCatalog(catalog).curricula.find(
+    ({ curriculum }) => curriculum.slug === "infrastructure-design",
+  );
+  assert.equal(announced?.publication.effectivePublicationStatus, "draft");
+  assert.equal(announced?.chapters.length, 0);
 });
 
 test("fails closed when the durable publication store is unavailable", async () => {

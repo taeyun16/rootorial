@@ -810,12 +810,11 @@ export function evaluateAttentionLabMastery(evidence: AttentionLabEvidence): Att
 
 export function canCompleteAttentionChapter({
   labComplete,
-  debuggerComplete,
   conceptsMastered,
 }: {
   labComplete: boolean;
-  debuggerComplete: boolean;
+  debuggerComplete?: boolean;
   conceptsMastered: boolean;
 }) {
-  return labComplete && debuggerComplete && conceptsMastered;
+  return labComplete && conceptsMastered;
 }

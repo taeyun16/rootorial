@@ -1,6 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  optimizationGradientRepairCode,
+  optimizationGradientRepairCodeEn,
+  optimizationNumpyCode,
+} from "../src/data/optimizationNotebook.ts";
+import {
   applyGradientStep,
   canMasterDescentRepair,
   canCompleteOptimizationChapter,
@@ -17,6 +22,17 @@ const closeTo = (actual, expected, tolerance = 1e-10) => {
     `expected ${actual} to be within ${tolerance} of ${expected}`,
   );
 };
+
+test("publishes two independent English-only NumPy cells with an explicit gradient repair", () => {
+  assert.match(optimizationNumpyCode, /gradient = \(2 \/ len\(y\)\) \* X\.T @ residual/);
+  assert.match(optimizationGradientRepairCode, /def mse\(weights\):/);
+  assert.match(optimizationGradientRepairCode, /epsilon = 1e-6/);
+  assert.match(optimizationGradientRepairCode, /gradient = X\.T @ residual/);
+  assert.match(optimizationGradientRepairCode, /np\.allclose\(gradient, numerical_gradient/);
+  assert.match(optimizationGradientRepairCode, /PASS: analytic MSE gradient matches the finite-difference probe/);
+  assert.equal(optimizationGradientRepairCodeEn, optimizationGradientRepairCode);
+  assert.doesNotMatch(optimizationGradientRepairCode, /[가-힣]/);
+});
 
 test("computes the linear MSE and its weight-shaped gradient", () => {
   const weights = { bias: -2, slope: -1 };
@@ -165,16 +181,20 @@ test("grades optimizer repairs from the resulting loss, not an answer key", () =
   assert.ok(smallStep.nextLoss < smallStep.previousLoss);
 });
 
-test("requires both semantic activities and the concept check for completion", () => {
+test("requires the core lab and concept check while keeping debugger remediation optional", () => {
   assert.equal(canCompleteOptimizationChapter({
     descentLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
     conceptsMastered: true,
   }), true);
-  for (const missing of ["descentLabComplete", "debuggerComplete", "conceptsMastered"]) {
+  assert.equal(canCompleteOptimizationChapter({
+    descentLabComplete: true,
+    conceptsMastered: true,
+  }), true);
+  for (const missing of ["descentLabComplete", "conceptsMastered"]) {
     const state = {
       descentLabComplete: true,
-      debuggerComplete: true,
+      debuggerComplete: false,
       conceptsMastered: true,
       [missing]: false,
     };

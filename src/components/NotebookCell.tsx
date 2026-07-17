@@ -20,6 +20,15 @@ type NotebookCellStatus =
   | "stopped"
   | "error";
 
+type NotebookErrorCategory =
+  | "syntax"
+  | "name"
+  | "type"
+  | "index"
+  | "module"
+  | "runtime"
+  | "execution";
+
 export type NotebookCellProps = {
   initialCode: string;
   title?: string;
@@ -62,6 +71,55 @@ function executionPrompt(
   return `In [${executionCount ?? " "}]`;
 }
 
+function classifyNotebookError(caughtError: unknown): NotebookErrorCategory {
+  const message = caughtError instanceof Error ? caughtError.message : String(caughtError);
+
+  if (caughtError instanceof NotebookExecutionError && caughtError.code === "runtime") {
+    return "runtime";
+  }
+  if (/SyntaxError|IndentationError|TabError/i.test(message)) return "syntax";
+  if (/NameError|UnboundLocalError/i.test(message)) return "name";
+  if (/TypeError|ValueError/i.test(message)) return "type";
+  if (/IndexError|KeyError/i.test(message)) return "index";
+  if (/ModuleNotFoundError|ImportError/i.test(message)) return "module";
+  return "execution";
+}
+
+function notebookErrorNextAction(category: NotebookErrorCategory, isKo: boolean) {
+  const messages: Record<NotebookErrorCategory, { ko: string; en: string }> = {
+    syntax: {
+      ko: "오류가 난 줄의 괄호, 콜론, 들여쓰기를 확인한 뒤 다시 실행하세요.",
+      en: "Check brackets, colons, and indentation on the reported line, then run again.",
+    },
+    name: {
+      ko: "변수 이름의 철자와 그 변수가 앞에서 정의되었는지 확인하세요.",
+      en: "Check the variable spelling and make sure it is defined before this line.",
+    },
+    type: {
+      ko: "오류가 난 연산에 전달한 값의 자료형과 shape을 확인하세요.",
+      en: "Check the value type and shape passed to the failing operation.",
+    },
+    index: {
+      ko: "배열의 shape과 사용한 행·열 인덱스 범위를 확인하세요.",
+      en: "Check the array shape and the row or column index range.",
+    },
+    module: {
+      ko: "모듈 이름을 확인하세요. 이 브라우저 실습은 셀에 준비된 라이브러리만 지원합니다.",
+      en: "Check the module name. This browser lab supports the libraries prepared in the cell.",
+    },
+    runtime: {
+      ko: "네트워크 연결을 확인한 뒤 잠시 후 코드 실행을 다시 누르세요.",
+      en: "Check your network connection, wait a moment, then choose Run code again.",
+    },
+    execution: {
+      ko: "오류 메시지의 마지막 줄을 확인하고 해당 코드를 수정한 뒤 다시 실행하세요.",
+      en: "Read the last line of the error, fix that part of the code, then run again.",
+    },
+  };
+
+  return isKo ? messages[category].ko : messages[category].en;
+}
+
 export function NotebookCell({
   initialCode,
   title = "Python 코드 셀",
@@ -82,6 +140,7 @@ export function NotebookCell({
   const [status, setStatus] = useState<NotebookCellStatus>("idle");
   const [output, setOutput] = useState("");
   const [error, setError] = useState("");
+  const [errorCategory, setErrorCategory] = useState<NotebookErrorCategory | null>(null);
   const [figures, setFigures] = useState<string[]>([]);
   const [executionCount, setExecutionCount] = useState<number | null>(null);
   const runVersionRef = useRef(0);
@@ -106,6 +165,7 @@ export function NotebookCell({
     setStatus("idle");
     setOutput("");
     setError("");
+    setErrorCategory(null);
     setFigures([]);
     setExecutionCount(null);
   }, [initialCode]);
@@ -124,6 +184,7 @@ export function NotebookCell({
     setStatus("loading");
     setOutput("");
     setError("");
+    setErrorCategory(null);
     setFigures([]);
 
     const onPhase = (phase: NotebookRunPhase) => {
@@ -148,6 +209,7 @@ export function NotebookCell({
         setExecutionCount(caughtError.executionCount ?? null);
         if (caughtError.code === "stopped" || caughtError.code === "disposed") {
           setError("");
+          setErrorCategory(null);
           setStatus("stopped");
           return;
         }
@@ -159,6 +221,7 @@ export function NotebookCell({
             : (isKo ? "Python 코드를 실행하지 못했습니다." : "Could not run the Python code."),
         );
       }
+      setErrorCategory(classifyNotebookError(caughtError));
       setStatus("error");
     } finally {
       if (runVersionRef.current === runVersion) {
@@ -176,6 +239,7 @@ export function NotebookCell({
     setStatus("stopped");
     setOutput("");
     setError("");
+    setErrorCategory(null);
     setFigures([]);
     setExecutionCount(null);
   }
@@ -187,6 +251,7 @@ export function NotebookCell({
     setStatus("idle");
     setOutput("");
     setError("");
+    setErrorCategory(null);
     setFigures([]);
     setExecutionCount(null);
   }
@@ -247,9 +312,11 @@ export function NotebookCell({
               onFocus={busy ? undefined : prepareRuntime}
               aria-describedby={statusId}
               aria-controls={outputId}
-              aria-label={busy ? (isKo ? `${title} 실행 중지` : `Stop ${title}`) : (isKo ? `${title} 실행` : `Run ${title}`)}
+              aria-label={busy
+                ? (isKo ? `실행 중지: ${title}` : `Stop code: ${title}`)
+                : (isKo ? `코드 실행: ${title}` : `Run code: ${title}`)}
             >
-              {busy ? (isKo ? "중지" : "Stop") : (isKo ? "실행" : "Run")}
+              {busy ? (isKo ? "실행 중지" : "Stop code") : (isKo ? "코드 실행" : "Run code")}
             </button>
           </div>
         </div>
@@ -257,6 +324,12 @@ export function NotebookCell({
         {description ? (
           <div className="notebook-cell-description">{description}</div>
         ) : null}
+
+        <p className="notebook-cell-instruction">
+          {isKo
+            ? "선택: 코드 수정 → 코드 실행 (Shift+Enter)"
+            : "Optional: edit code → Run code (Shift+Enter)"}
+        </p>
 
         <div className="notebook-cell-editor-shell">
           <NotebookCodeEditor
@@ -272,7 +345,13 @@ export function NotebookCell({
           {statusLabels[status]}
         </span>
 
-        <div className="notebook-cell-output" id={outputId}>
+        <div
+          className="notebook-cell-output"
+          id={outputId}
+          aria-label={isKo ? `${title} 실행 결과` : `${title} output`}
+          aria-live="polite"
+          aria-atomic="false"
+        >
           {hasResult ? (
             <>
               <div className="notebook-cell-output-heading">
@@ -294,8 +373,14 @@ export function NotebookCell({
                 </p>
               ) : null}
 
-              {error ? (
-                <pre className="notebook-cell-error">{error}</pre>
+              {error && errorCategory ? (
+                <div className="notebook-cell-error-region">
+                  <p className="notebook-cell-error-guidance">
+                    <strong>{isKo ? "다음 행동" : "Next action"}</strong>{" "}
+                    {notebookErrorNextAction(errorCategory, isKo)}
+                  </p>
+                  <pre className="notebook-cell-error">{error}</pre>
+                </div>
               ) : null}
 
               {figures.length > 0 ? (

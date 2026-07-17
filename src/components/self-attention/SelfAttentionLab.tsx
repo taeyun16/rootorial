@@ -8,6 +8,7 @@ import {
   runSelfAttention,
   selfAttentionChallengeDefaults,
   selfAttentionChallengeIds,
+  selfAttentionCoreChallengeIds,
   selfAttentionTokens,
   type SelfAttentionChallengeId,
   type SelfAttentionInspectStage,
@@ -311,19 +312,29 @@ export function SelfAttentionLab({ onCompletionChange }: { onCompletionChange: (
   const rowLabels = [...selfAttentionTokens];
   const headColumns = ["d0", "d1"];
   const keyColumns = selfAttentionTokens.map((_, index) => `k${index}`);
+  const targetCell = successfulAttempt?.challengeId === challengeId
+    ? challengeId === "causal-mask"
+      ? { row: 1, column: 2 }
+      : challengeId === "padding-key"
+        ? { row: 0, column: 3 }
+        : null
+    : null;
 
   return (
     <InteractiveLab
-      kicker={t("필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT", "REQUIRED LAB · PREDICT → CONFIGURE → RUN → INSPECT")}
+      kicker={t("CORE LAB · 핵심 3 + 선택 2 · PREDICT → CONFIGURE → RUN → INSPECT", "CORE LAB · 3 CORE + 2 OPTIONAL · PREDICT → CONFIGURE → RUN → INSPECT")}
       title={t("Self-Attention Workbench", "Self-Attention Workbench")}
-      description={t("같은 X에서 projection을 만들고, scaling·causal/padding visibility·두 head의 concat을 다섯 preset으로 증명하세요.", "Use five presets to prove projections from one X, scaling, causal and padding visibility, and two-head concatenation.")}
+      description={t("핵심 preset 세 개를 완료하면 통과합니다. Scaling과 padding preset은 더 확인하고 싶을 때 선택하세요.", "Complete three core presets. Choose the scaling and padding presets only when you want deeper verification.")}
       className="self-attention-workbench"
       actions={<button ref={resetButtonRef} type="button" className="button button-ghost" aria-label={t("Self-Attention lab 전체 초기화", "Reset the entire Self-Attention lab")} onClick={resetAll}>{t("전체 lab 초기화", "Reset entire lab")}</button>}
     >
       <div data-interactive-ready={interactiveReady ? "true" : "false"}>
         <div className="self-attention-preset-row" role="group" aria-label={t("Self-Attention challenge preset", "Self-Attention challenge presets")}>
           <span>{t("CHALLENGE PRESETS", "CHALLENGE PRESETS")}</span>
-          {selfAttentionChallengeIds.map((id) => <button type="button" data-self-attention-preset={id} aria-pressed={challengeId === id} onClick={() => chooseChallenge(id)} key={id}>{challengeCopy[id].label}</button>)}
+          {selfAttentionChallengeIds.map((id) => {
+            const core = selfAttentionCoreChallengeIds.some((coreId) => coreId === id);
+            return <button type="button" data-self-attention-preset={id} data-core-challenge={core ? "true" : "false"} aria-pressed={challengeId === id} onClick={() => chooseChallenge(id)} key={id}>{core ? t("핵심", "Core") : t("선택", "Optional")} · {challengeCopy[id].label}</button>;
+          })}
         </div>
 
         <div className="self-attention-control-panel">
@@ -363,11 +374,11 @@ export function SelfAttentionLab({ onCompletionChange }: { onCompletionChange: (
           </> : null}
           {trace && head && activeStage === "mask" ? <>
             <header><span>MASKED LOGITS</span><strong>{t("차단 셀은 0점이 아니라 Softmax 후보에서 제외됩니다", "A blocked cell is excluded from softmax, not assigned a score of zero")}</strong><p>{t("causal challenge는 query 1의 future key 셀을 직접 누르세요.", "For the causal challenge, select a future-key cell in query row 1.")}</p></header>
-            <div className="self-attention-masked-grid-wrap"><table className="self-attention-masked-grid"><caption>{t(`head ${selectedHead} masked score · 행=query, 열=key`, `head ${selectedHead} masked scores · rows=query, columns=key`)}</caption><thead><tr><th scope="col">q\k</th>{selfAttentionTokens.map((token, index) => <th scope="col" key={token}>k{index}</th>)}</tr></thead><tbody>{head.maskedScores.map((row, rowIndex) => <tr key={rowIndex}><th scope="row">q{rowIndex}</th>{row.map((value, columnIndex) => { const blocked = value === null; const pressed = selectedCell?.row === rowIndex && selectedCell.column === columnIndex; return <td key={columnIndex}><button type="button" className={blocked ? "is-blocked" : undefined} aria-pressed={pressed} aria-label={blocked ? t(`query ${rowIndex}의 미래 또는 padding key ${columnIndex} 차단`, `future or padding key ${columnIndex} blocked for query ${rowIndex}`) : t(`query ${rowIndex}, key ${columnIndex} scaled score ${formatValue(value)}`, `query ${rowIndex}, key ${columnIndex}, scaled score ${formatValue(value)}`)} onClick={() => recordInspection("mask", { row: rowIndex, column: columnIndex })}>{blocked ? t("차단", "blocked") : formatValue(value)}</button></td>; })}</tr>)}</tbody></table></div>
+            <div className="self-attention-masked-grid-wrap"><table className="self-attention-masked-grid"><caption>{t(`head ${selectedHead} masked score · 행=query, 열=key`, `head ${selectedHead} masked scores · rows=query, columns=key`)}</caption><thead><tr><th scope="col">q\k</th>{selfAttentionTokens.map((token, index) => <th scope="col" key={token}>k{index}</th>)}</tr></thead><tbody>{head.maskedScores.map((row, rowIndex) => <tr key={rowIndex}><th scope="row">q{rowIndex}</th>{row.map((value, columnIndex) => { const blocked = value === null; const pressed = selectedCell?.row === rowIndex && selectedCell.column === columnIndex; const target = targetCell?.row === rowIndex && targetCell.column === columnIndex; return <td key={columnIndex}><button type="button" className={[blocked ? "is-blocked" : "", target ? "matrix-cell-target" : ""].filter(Boolean).join(" ") || undefined} aria-pressed={pressed} aria-label={blocked ? t(`query ${rowIndex}의 미래 또는 padding key ${columnIndex} 차단`, `future or padding key ${columnIndex} blocked for query ${rowIndex}`) : t(`query ${rowIndex}, key ${columnIndex} scaled score ${formatValue(value)}`, `query ${rowIndex}, key ${columnIndex}, scaled score ${formatValue(value)}`)} onClick={() => recordInspection("mask", { row: rowIndex, column: columnIndex })}>{blocked ? t("차단", "blocked") : formatValue(value)}</button></td>; })}</tr>)}</tbody></table></div>
           </> : null}
           {trace && head && activeStage === "weights" ? <>
             <header><span>ROW SOFTMAX WEIGHTS</span><strong>{t("active query의 key mass와 inactive padding query를 함께 확인하세요", "Inspect active-query key mass and the inactive padding query together")}</strong><p>{t("padding challenge는 query 0, key 3의 weight를 직접 선택하세요.", "For the padding challenge, select the weight at query 0, key 3.")}</p></header>
-            <MatrixGrid values={head.weights as number[][]} label={`weights · head ${selectedHead}`} rowLabels={rowLabels} columnLabels={keyColumns} selectedRow={selectedQuery} selectedCell={selectedCell} tone="indigo" formatValue={formatValue} onSelectCell={(row, column) => recordInspection("weights", { row, column })} />
+            <MatrixGrid values={head.weights as number[][]} label={`weights · head ${selectedHead}`} rowLabels={rowLabels} columnLabels={keyColumns} selectedRow={selectedQuery} selectedCell={selectedCell} targetCell={challengeId === "padding-key" ? targetCell : null} tone="indigo" formatValue={formatValue} onSelectCell={(row, column) => recordInspection("weights", { row, column })} />
             <div className="self-attention-stage-inspection">{t(`선택 query row 합: ${head.rowSums[selectedQuery].toFixed(6)} · padding query row 합: ${head.rowSums[3].toFixed(6)}`, `Selected query row sum: ${head.rowSums[selectedQuery].toFixed(6)} · padding query row sum: ${head.rowSums[3].toFixed(6)}`)}</div>
           </> : null}
           {trace && activeStage === "output" ? <>
@@ -379,7 +390,11 @@ export function SelfAttentionLab({ onCompletionChange }: { onCompletionChange: (
 
         <div className="self-attention-evidence" data-mastered={mastery.mastered ? "true" : "false"} role="status" aria-live="polite">
           <strong>{t("MASTERY EVIDENCE · prediction → run → numeric inspection", "MASTERY EVIDENCE · prediction → run → numeric inspection")}</strong>
-          {selfAttentionChallengeIds.map((id) => <span className={mastery.completedChallengeIds.includes(id) ? "is-complete" : undefined} key={id}>{mastery.completedChallengeIds.includes(id) ? "✓" : "○"} {challengeCopy[id].label}</span>)}
+          {selfAttentionChallengeIds.map((id) => {
+            const core = selfAttentionCoreChallengeIds.some((coreId) => coreId === id);
+            const complete = mastery.completedChallengeIds.includes(id);
+            return <span className={`${core ? "is-core" : "is-optional"}${complete ? " is-complete" : ""}`} key={id}>{complete ? "✓" : core ? "○" : t("선택", "Optional")} {challengeCopy[id].label}</span>;
+          })}
         </div>
       </div>
     </InteractiveLab>

@@ -5,6 +5,10 @@ import {
   chaptersKo,
   TRANSFORMER_CURRICULUM_SLUG,
 } from "../../data/curriculum";
+import {
+  sequencesBatchedUnrollCode,
+  sequencesTemporalGradientRepairCode,
+} from "../../data/sequencesNotebook";
 import { canCompleteSequencesChapter } from "../../features/sequences/sequence-model";
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
@@ -13,9 +17,11 @@ import { CompleteChapter } from "../CompleteChapter";
 import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { SequenceDebuggerLab } from "./SequenceDebuggerLab";
 import { SequenceMemoryLab } from "./SequenceMemoryLab";
 import { SequencesConceptCheck } from "./SequencesConceptCheck";
@@ -25,9 +31,10 @@ const tocItems = {
     { id: "order", label: "순서와 state" },
     { id: "recurrence", label: "RNN unroll" },
     { id: "memory-lab", label: "필수 memory lab" },
-    { id: "gradient", label: "시간축 gradient" },
-    { id: "gates", label: "LSTM gates" },
-    { id: "debug", label: "계약 디버깅" },
+    { id: "gradient", label: "선택 · 시간축 gradient" },
+    { id: "numpy-bridge", label: "NumPy로 다시 증명" },
+    { id: "gates", label: "선택 · LSTM gates" },
+    { id: "debug", label: "선택 · 계약 디버깅" },
     { id: "transfer", label: "Attention으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -35,9 +42,10 @@ const tocItems = {
     { id: "order", label: "Order and state" },
     { id: "recurrence", label: "RNN unroll" },
     { id: "memory-lab", label: "Required memory lab" },
-    { id: "gradient", label: "Temporal gradients" },
-    { id: "gates", label: "LSTM gates" },
-    { id: "debug", label: "Contract debugging" },
+    { id: "gradient", label: "Optional · Temporal gradients" },
+    { id: "numpy-bridge", label: "Recheck in NumPy" },
+    { id: "gates", label: "Optional · LSTM gates" },
+    { id: "debug", label: "Optional · Contract debugging" },
     { id: "transfer", label: "Transfer to Attention" },
     { id: "check", label: "Concept check" },
   ],
@@ -122,6 +130,8 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
             </div>
           </header>
 
+          <TransformerLearningGuide chapterSlug="sequences" />
+
           <section className="article-section" id="order">
             <div className="margin-label">01 — ORDERED ROWS</div>
             <h2>{t("평균이 지운 순서를 state update가 다시 모델링합니다", "State updates model the order that a mean erased")}</h2>
@@ -192,7 +202,7 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
           </div>
 
           <section className="article-section" id="gradient">
-            <div className="margin-label">04 — TEMPORAL GRADIENT</div>
+            <div className="margin-label">04 — OPTIONAL DEEP DIVE · TEMPORAL GRADIENT</div>
             <h2>{t("먼 신호에 대한 final-state 민감도는 시간축 미분을 연속으로 곱합니다", "Final-state sensitivity to a distant signal multiplies derivatives through time")}</h2>
             <p>{t(
               "마지막 state h_T가 첫 입력 x₀에 얼마나 민감한지는 중간 state들을 건너뛰지 않습니다. tanh의 local derivative와 recurrent gain이 recurrent edge마다 하나씩 곱해집니다. loss gradient는 여기에 upstream ∂L/∂h_T를 한 번 더 곱하며, 이 lab은 state 경로 자체를 보기 위해 그 upstream factor를 1로 둡니다.",
@@ -215,8 +225,43 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
             </div>
           </section>
 
+          <section className="article-section sequences-python-bridge" id="numpy-bridge">
+            <div className="margin-label">05 — NUMPY BRIDGE · OPTIONAL</div>
+            <h2>{t("시간축 recurrence와 gradient 경로를 실제 NumPy로 다시 펼칩니다", "Re-unroll temporal recurrence and its gradient path in real NumPy")}</h2>
+            <p>{t(
+              "브라우저 lab의 scalar recurrence를 batch [B,T,D] 계산으로 옮기면, 같은 token multiset도 읽는 순서에 따라 서로 다른 hidden trace와 final state를 만듭니다. backward에서는 첫 입력이 h₁로 들어가는 local derivative와 그 뒤 T−1개 recurrent edge를 구분해야 합니다. 첫 셀은 정방향과 역방향을 한 batch에서 펼치고, 둘째 셀은 빠진 recurrent gain 때문에 과대평가된 긴 경로 gradient를 finite difference로 수리합니다.",
+              "Moving the browser lab's scalar recurrence into a batched [B,T,D] calculation shows that the same token multiset can produce different hidden traces and final states when read in a different order. Backward reasoning must distinguish the first input's local path into h_1 from the following T−1 recurrent edges. The first cell unrolls forward and reverse sequences in one batch; the second uses finite differences to repair a long-path gradient inflated by missing recurrent gains.",
+            )}</p>
+            <div className="concept-callout">
+              <span className="callout-mark">Py</span>
+              <div>
+                <strong>{t("선택 심화이며 두 셀은 각각 완결된 실험입니다", "Optional extension; both cells are self-contained experiments")}</strong>
+                <p>{t(
+                  "공유 Pyodide 런타임과 NumPy는 셀을 처음 실행할 때만 지연 로드됩니다. 다운로드가 실패해도 필수 memory lab, 디버거, 이해 확인, 챕터 완료에는 영향이 없습니다. 각 셀은 입력·함수·검증값을 모두 다시 정의하므로 다른 셀이 남긴 상태에 의존하지 않습니다.",
+                  "The shared Pyodide runtime and NumPy load lazily only when a cell first runs. A download failure never blocks the required memory lab, debugger, concept check, or chapter completion. Each cell recreates its inputs, functions, and checks, so neither depends on state left by the other.",
+                )}</p>
+              </div>
+            </div>
+            <NotebookCell
+              title={t("batch에서 순서 민감성 증명", "Prove order sensitivity in a batch")}
+              initialCode={sequencesBatchedUnrollCode}
+              description={<p>{t("[1,0,−1]과 역순 [−1,0,1]을 [2,3,1] batch로 묶고 r=0.5인 shared cell을 시간축으로 펼칩니다. 두 row의 원소 multiset은 같지만 trace가 각각 [0.761594,0.363399,−0.674144]와 그 부호 반전이 되고 final [2,1]도 달라지는지 확인하세요.", "Batch [1,0,−1] and its reverse [−1,0,1] as [2,3,1], then unroll one shared cell with r=0.5 over time. Confirm that equal element multisets yield traces [0.761594,0.363399,−0.674144] and its sign reversal, plus different final states with shape [2,1].")}</p>}
+              hint={<p>{t("첫 축은 두 sequence를 함께 계산하는 batch이고 둘째 축만 시간입니다. recurrent update는 batch 축을 섞지 않습니다.", "The first axis batches two independent sequences while only the second axis is time. The recurrent update must not mix examples across the batch axis.")}</p>}
+              editorMinHeight={640}
+              ariaLabel={t("batch RNN unroll NumPy 코드", "NumPy code for a batched RNN unroll")}
+            />
+            <NotebookCell
+              title={t("긴 recurrent 경로의 gradient 수리", "Repair the gradient through a long recurrent path")}
+              initialCode={sequencesTemporalGradientRepairCode}
+              description={<p>{t("기본 코드는 첫 입력의 local derivative 뒤에 이어지는 여섯 recurrent edge에서 r=0.5를 빠뜨려 analytic gradient 0.348985를 냅니다. REPAIR 아래 곱셈 한 줄에 recurrent_gain을 추가해 finite-difference 0.005453과 일치시키세요.", "The default code omits r=0.5 on the six recurrent edges after the first input's local derivative, producing analytic gradient 0.348985. Add recurrent_gain to the multiplication below REPAIR so it matches the finite-difference value 0.005453.")}</p>}
+              hint={<p>{t("x₀→h₁ local derivative에는 r이 없지만 h₁→h₂부터 h₆→h₇까지는 edge마다 r(1−h²)이 필요합니다: recurrent_gain * (1 - current_hidden ** 2).", "The x_0→h_1 local derivative has no r, but every edge from h_1→h_2 through h_6→h_7 needs r(1−h²): recurrent_gain * (1 - current_hidden ** 2).")}</p>}
+              editorMinHeight={650}
+              ariaLabel={t("긴 시간축 gradient 수리 NumPy 코드", "NumPy code for repairing a long temporal gradient")}
+            />
+          </section>
+
           <section className="article-section" id="gates">
-            <div className="margin-label">05 — GATED CARRY</div>
+            <div className="margin-label">06 — OPTIONAL DEEP DIVE · GATED CARRY</div>
             <h2>{t("LSTM은 carry·write·reveal 경로를 서로 다른 gate로 엽니다", "An LSTM opens carry, write, and reveal paths with separate gates")}</h2>
             <p>{t(
               "cell state c는 이전 기억을 더 직접적으로 운반합니다. forget gate f는 이전 c를 얼마나 남길지, input gate i는 candidate g를 얼마나 쓸지, output gate o는 현재 c를 hidden h로 얼마나 드러낼지 정합니다.",
@@ -241,7 +286,7 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">06 — DEBUG</div>
+            <div className="margin-label">07 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("순서·prefix·carry·reveal 경계를 숫자로 복구합니다", "Restore order, prefix, carry, and reveal boundaries with numbers")}</h2>
             <p>{t(
               "각 사건의 repair는 실제 state transition과 gate probe를 실행해 판정합니다. 이름이 그럴듯한 선택이 아니라 순서 민감성, causal prefix, cell update, hidden reveal 불변식을 모두 지키는지를 확인하세요.",
@@ -251,7 +296,7 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
           </section>
 
           <section className="article-section" id="transfer">
-            <div className="margin-label">07 — TRANSFER</div>
+            <div className="margin-label">08 — TRANSFER</div>
             <h2>{t("마지막 query가 첫 증거를 찾는 경로 길이를 비교하세요", "Compare path lengths from the final query to the first clue")}</h2>
             <p>{t(
               "길이 T의 RNN에서 첫 token의 정보는 마지막 state까지 T−1개의 recurrent edge를 통과합니다. 다음 장에서는 마지막 query가 허용된 모든 key와 비교하고 value들의 softmax 가중합을 만듭니다. 먼 t0가 큰 weight를 받으면 한 층의 가중 경로로 강하게 참조되지만, 한 위치를 hard-select하는 것은 아닙니다. Q·K·V 계산 자체는 아직 실행하지 않습니다.",
@@ -271,11 +316,11 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
           </section>
 
           <section className="article-section" id="check">
-            <div className="margin-label">08 — CONCEPT CHECK</div>
+            <div className="margin-label">09 — CONCEPT CHECK</div>
             <SequencesConceptCheck onMasteryChange={setConceptsMastered} />
             <div className="sequences-completion-checklist" aria-label={t("챕터 완료 조건", "Chapter completion requirements")}>
               <span className={memoryLabComplete ? "is-complete" : undefined}>{memoryLabComplete ? "✓" : "○"} {t("필수 sequence memory lab", "Required sequence memory lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("시퀀스 계약 복구 4개", "Four sequence-contract repairs")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("시퀀스 계약 복구 4개", "Four sequence-contract repairs")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
@@ -283,8 +328,8 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
               slug="sequences"
               canComplete={canComplete}
               lockedMessage={t(
-                "필수 memory lab, 시퀀스 계약 복구 네 사건과 이해 확인 다섯 문제를 모두 마치면 완료할 수 있습니다.",
-                "Finish the required memory lab, all four sequence-contract repairs, and all five concept questions to complete the chapter.",
+                "필수 memory lab과 이해 확인 다섯 문제를 마치면 완료할 수 있습니다. 시퀀스 계약 복구는 선택 보강입니다.",
+                "Finish the required memory lab and all five concept questions. Sequence-contract repairs are optional remediation.",
               )}
             />
           </section>

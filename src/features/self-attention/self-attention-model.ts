@@ -319,6 +319,10 @@ export const selfAttentionChallengeIds = Object.freeze([
   "projection", "scaling", "causal-mask", "padding-key", "multi-head",
 ] as const) satisfies readonly SelfAttentionChallengeId[];
 
+export const selfAttentionCoreChallengeIds = Object.freeze([
+  "projection", "causal-mask", "multi-head",
+] as const) satisfies readonly SelfAttentionChallengeId[];
+
 export const selfAttentionChallengeDefaults: Readonly<Record<SelfAttentionChallengeId, Readonly<SelfAttentionRunConfig>>> = Object.freeze({
   projection: canonicalSelfAttentionConfig,
   scaling: Object.freeze({ ...canonicalSelfAttentionConfig, scaleScores: false }),
@@ -433,7 +437,7 @@ export const emptySelfAttentionLabEvidence: SelfAttentionLabEvidence = Object.fr
 
 export type SelfAttentionLabMastery = {
   mastered: boolean;
-  reason: "mastered" | "invalid-evidence" | "complete-five-challenges";
+  reason: "mastered" | "invalid-evidence" | "complete-core-challenges";
   completedChallengeIds: readonly SelfAttentionChallengeId[];
 };
 
@@ -591,9 +595,9 @@ export function evaluateSelfAttentionLabMastery(evidence: SelfAttentionLabEviden
     }
     return masteryResult("invalid-evidence", completed);
   }
-  return completed.size === selfAttentionChallengeIds.length
+  return selfAttentionCoreChallengeIds.every((challengeId) => completed.has(challengeId))
     ? masteryResult("mastered", completed)
-    : masteryResult("complete-five-challenges", completed);
+    : masteryResult("complete-core-challenges", completed);
 }
 
 export type SelfAttentionDebuggerScenarioId = "qkv-projections" | "score-scaling" | "mask-softmax" | "head-merge-handoff";
@@ -729,6 +733,6 @@ export function evaluateSelfAttentionRepair(
   return Object.freeze({ scenarioId, repair: candidate, correct, reason, metrics: Object.freeze(metrics) });
 }
 
-export function canCompleteSelfAttentionChapter({ labComplete, debuggerComplete, conceptsMastered }: { labComplete: boolean; debuggerComplete: boolean; conceptsMastered: boolean }) {
-  return labComplete && debuggerComplete && conceptsMastered;
+export function canCompleteSelfAttentionChapter({ labComplete, conceptsMastered }: { labComplete: boolean; debuggerComplete?: boolean; conceptsMastered: boolean }) {
+  return labComplete && conceptsMastered;
 }

@@ -122,6 +122,7 @@ const legacyPublishedKeys = new Set([
 const registeredCurriculumPageSlugs = new Set([
   "transformer-from-zero",
   "linux-systems",
+  "infrastructure-design",
 ]);
 
 function publicationDefaults(resourceKey: string) {

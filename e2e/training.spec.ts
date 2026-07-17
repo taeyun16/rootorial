@@ -60,6 +60,10 @@ test("completes mini-batch training, four repairs, and concepts in the Korean ad
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "딥러닝 학습 구조" })).toBeVisible();
   await expect(page.getByText("필수 LAB · MINI-BATCH → ADAM", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · TRAINING LOOP DEBUGGER", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "배치 실습의 두 경계를 실제 NumPy로 다시 실행합니다" })).toBeVisible();
+  await expect(page.getByText("Softmax class 축 한 줄 수리", { exact: true })).toBeVisible();
+  await expect(page.getByText("한 epoch Adam 상태 trace", { exact: true })).toBeVisible();
+  await expect(page.locator(".training-python-bridge .notebook-cell")).toHaveCount(2);
 
   const lab = page.locator(".training-batch-lab");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, {
@@ -141,6 +145,10 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   expect(response?.status()).toBe(200);
   await expect(page).toHaveTitle("[Preview] 04. Deep Learning Training · Rootorial");
   await expect(page.getByRole("heading", { name: "Deep Learning Training" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Re-execute two batch-lab boundaries in real NumPy" })).toBeVisible();
+  await expect(page.getByText("Repair the Softmax class axis in one line", { exact: true })).toBeVisible();
+  await expect(page.getByText("Trace Adam state across one epoch", { exact: true })).toBeVisible();
+  await expect(page.locator(".training-python-bridge .notebook-cell")).toHaveCount(2);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];
@@ -198,7 +206,7 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   await expect(lab.locator(".training-live-summary")).toContainText("Prediction confirmed");
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
   const overflowingSurfaces = await page.locator(
-    ".training-batch-lab, .training-step-workspace, .training-parameter-inspector, .training-debugger-lab, .training-debug-grid",
+    ".training-batch-lab, .training-step-workspace, .training-parameter-inspector, .training-python-bridge, .training-python-bridge .notebook-cell, .training-debugger-lab, .training-debug-grid",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({

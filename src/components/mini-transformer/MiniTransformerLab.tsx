@@ -10,6 +10,7 @@ import {
   isValidMiniTransformerInspection,
   miniTransformerChallengeDefaults,
   miniTransformerChallengeIds,
+  miniTransformerCoreChallengeIds,
   miniTransformerChallengeRequirements,
   miniTransformerVocabulary,
   runMiniTransformer,
@@ -300,19 +301,28 @@ export function MiniTransformerLab({ onCompletionChange }: { onCompletionChange:
   const generationProbabilityRows = generation?.steps.map((step) => (
     [...step.forward.probabilities[step.forward.lastRowIndex]]
   )) ?? [];
+  const inspectionTarget = (stage: MiniTransformerInspectStage) => {
+    const required = miniTransformerChallengeRequirements[challengeId].requiredInspection;
+    return successfulAttempt?.challengeId === challengeId && required.stage === stage
+      ? { row: required.rowIndex, column: required.columnIndex }
+      : null;
+  };
 
   return (
     <InteractiveLab
-      kicker={t("필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT", "REQUIRED LAB · PREDICT → CONFIGURE → RUN → INSPECT")}
+      kicker={t("CORE LAB · 핵심 3 + 선택 2 · PREDICT → CONFIGURE → RUN → INSPECT", "CORE LAB · 3 CORE + 2 OPTIONAL · PREDICT → CONFIGURE → RUN → INSPECT")}
       title={t("Mini Transformer End-to-End Workbench", "Mini Transformer End-to-End Workbench")}
-      description={t("고정된 tiny vocabulary에서 tokenize·position·causal block·LM head update·generation을 다섯 preset으로 연결하세요.", "Connect tokenization, position, a causal block, an LM-head update, and generation across five presets on a fixed tiny vocabulary.")}
+      description={t("Causal block·LM head·생성의 핵심 preset 세 개를 완료하면 통과합니다. Tokenize와 position preset은 선택 복습입니다.", "Complete the three core causal-block, LM-head, and generation presets. Tokenization and position are optional review.")}
       className="mini-transformer-workbench"
       actions={<button ref={resetButtonRef} type="button" className="button button-ghost" aria-label={t("Mini Transformer lab 전체 초기화", "Reset the entire Mini Transformer lab")} onClick={resetAll}>{t("전체 lab 초기화", "Reset entire lab")}</button>}
     >
       <div data-interactive-ready={interactiveReady ? "true" : "false"}>
         <div className="mini-transformer-preset-row" role="group" aria-label={t("Mini Transformer challenge preset", "Mini Transformer challenge presets")}>
           <span>CHALLENGE PRESETS</span>
-          {miniTransformerChallengeIds.map((id) => <button type="button" data-mini-transformer-preset={id} aria-pressed={challengeId === id} onClick={() => chooseChallenge(id)} key={id}>{challengeCopy[id].label}</button>)}
+          {miniTransformerChallengeIds.map((id) => {
+            const core = miniTransformerCoreChallengeIds.some((coreId) => coreId === id);
+            return <button type="button" data-mini-transformer-preset={id} data-core-challenge={core ? "true" : "false"} aria-pressed={challengeId === id} onClick={() => chooseChallenge(id)} key={id}>{core ? t("핵심", "Core") : t("선택", "Optional")} · {challengeCopy[id].label}</button>;
+          })}
         </div>
 
         <div className="mini-transformer-control-panel">
@@ -343,31 +353,35 @@ export function MiniTransformerLab({ onCompletionChange }: { onCompletionChange:
           {!trace ? <header><span>{activeStage.toUpperCase()}</span><strong>{t("아직 실행 trace가 없습니다", "No execution trace yet")}</strong><p>{t("prediction을 고르고 모델을 실행하면 이 단계의 ID, matrix와 invariant가 나타납니다.", "Choose a prediction and run the model to reveal IDs, matrices, and invariants for this stage.")}</p></header> : null}
           {trace && activeStage === "tokenize" ? <>
             <header><span>FIXED VOCABULARY TOKEN IDS</span><strong>{t("row 0의 BOS ID cell을 검사하세요", "Inspect the BOS ID cell in row 0")}</strong><p>{t(`prompt “${MINI_TRANSFORMER_LAB_PROMPT}” → [${trace.tokenIds.join(", ")}]`, `Prompt “${MINI_TRANSFORMER_LAB_PROMPT}” becomes [${trace.tokenIds.join(", ")}]`)}</p></header>
-            <div className="mini-transformer-matrix-stack"><MatrixGrid values={trace.tokenIds.map((id) => [id]) as number[][]} label="token IDs [T,1]" rowLabels={trace.tokens.map((token, index) => `${index}:${token}`)} columnLabels={["id"]} selectedCell={selectedCell} tone="terra" formatValue={(value) => String(value)} onSelectCell={(row, column) => recordInspection("tokenize", row, column)} /></div>
+            <div className="mini-transformer-matrix-stack"><MatrixGrid values={trace.tokenIds.map((id) => [id]) as number[][]} label="token IDs [T,1]" rowLabels={trace.tokens.map((token, index) => `${index}:${token}`)} columnLabels={["id"]} selectedCell={selectedCell} targetCell={inspectionTarget("tokenize")} tone="terra" formatValue={(value) => String(value)} onSelectCell={(row, column) => recordInspection("tokenize", row, column)} /></div>
           </> : null}
           {trace && activeStage === "embed-position" ? <>
             <header><span>EMBEDDING LOOKUP + SINUSOIDAL POSITION ONCE</span><strong>{t("row 1, d0의 E+P 값을 검사하세요", "Inspect E+P at row 1, d0")}</strong><p>{t(`실행 position scale은 ${trace.config.positionScale}입니다.`, `Executed position scale is ${trace.config.positionScale}.`)}</p></header>
-            <div className="mini-transformer-matrix-stack"><MatrixGrid values={trace.block.embeddings as number[][]} label="embedding lookup E [T,4]" rowLabels={tokenLabels} columnLabels={featureLabels} tone="terra" formatValue={formatValue} /><MatrixGrid values={trace.block.scaledPositionSignal as number[][]} label="scaled position P [T,4]" rowLabels={tokenLabels} columnLabels={featureLabels} tone="forest" formatValue={formatValue} /><MatrixGrid values={trace.block.x0 as number[][]} label="x0 = E + P [T,4]" rowLabels={tokenLabels} columnLabels={featureLabels} selectedCell={selectedCell} tone="indigo" formatValue={formatValue} onSelectCell={(row, column) => recordInspection("embed-position", row, column)} /></div>
+            <div className="mini-transformer-matrix-stack"><MatrixGrid values={trace.block.embeddings as number[][]} label="embedding lookup E [T,4]" rowLabels={tokenLabels} columnLabels={featureLabels} tone="terra" formatValue={formatValue} /><MatrixGrid values={trace.block.scaledPositionSignal as number[][]} label="scaled position P [T,4]" rowLabels={tokenLabels} columnLabels={featureLabels} tone="forest" formatValue={formatValue} /><MatrixGrid values={trace.block.x0 as number[][]} label="x0 = E + P [T,4]" rowLabels={tokenLabels} columnLabels={featureLabels} selectedCell={selectedCell} targetCell={inspectionTarget("embed-position")} tone="indigo" formatValue={formatValue} onSelectCell={(row, column) => recordInspection("embed-position", row, column)} /></div>
           </> : null}
           {trace && activeStage === "causal-block" ? <>
             <header><span>CAUSAL PRE-LN DECODER BLOCK</span><strong>{t("query row 0, future key column 1의 weight 0을 검사하세요", "Inspect zero weight at query row 0, future-key column 1")}</strong><p>{t(`hidden handoff [${trace.handoff.hiddenShape.join(",")}] · causal=${trace.config.causal}`, `Hidden handoff [${trace.handoff.hiddenShape.join(",")}] · causal=${trace.config.causal}`)}</p></header>
-            <div className="mini-transformer-matrix-stack"><MatrixGrid values={trace.block.attention.heads[0].weights as number[][]} label="head 0 attention weights [T,T]" rowLabels={tokenLabels} columnLabels={[...trace.tokens]} selectedCell={selectedCell} tone="forest" formatValue={formatValue} onSelectCell={(row, column) => recordInspection("causal-block", row, column)} /><MatrixGrid values={trace.block.output as number[][]} label="block hidden H [T,4]" rowLabels={tokenLabels} columnLabels={featureLabels} tone="indigo" formatValue={formatValue} /></div>
+            <div className="mini-transformer-matrix-stack"><MatrixGrid values={trace.block.attention.heads[0].weights as number[][]} label="head 0 attention weights [T,T]" rowLabels={tokenLabels} columnLabels={[...trace.tokens]} selectedCell={selectedCell} targetCell={inspectionTarget("causal-block")} tone="forest" formatValue={formatValue} onSelectCell={(row, column) => recordInspection("causal-block", row, column)} /><MatrixGrid values={trace.block.output as number[][]} label="block hidden H [T,4]" rowLabels={tokenLabels} columnLabels={featureLabels} tone="indigo" formatValue={formatValue} /></div>
           </> : null}
           {trace && activeStage === "vocab-projection" ? <>
             <header><span>FINAL LN → VOCAB LOGITS → SHIFTED CE → ONE HEAD UPDATE</span><strong>{t("training row 2, target token sat(ID 3)의 확률을 검사하세요", "Inspect the target-token probability for sat (ID 3) at training row 2")}</strong><p>{training ? t(`loss ${formatValue(training.meanLossBefore)} → ${formatValue(training.meanLossAfter)} · hidden 고정 · LM head만 갱신`, `Loss ${formatValue(training.meanLossBefore)} → ${formatValue(training.meanLossAfter)} · hidden fixed · LM head only`) : t("sequence축 Softmax에서는 shifted CE update를 실행하지 않습니다.", "Shifted CE update does not run under sequence-axis softmax.")}</p></header>
-            <div className="mini-transformer-matrix-stack"><MatrixGrid values={(training?.hidden ?? trace.finalNorm.output) as number[][]} label={training ? "training final normalized hidden [T,4]" : "final normalized hidden [T,4]"} rowLabels={training ? [...training.inputTokens] : tokenLabels} columnLabels={featureLabels} tone="terra" formatValue={formatValue} /><MatrixGrid values={(training?.probabilitiesBefore ?? trace.probabilities) as number[][]} label="vocabulary probabilities [T,8]" rowLabels={training ? [...training.inputTokens] : tokenLabels} columnLabels={vocabLabels} selectedCell={selectedCell} tone="indigo" formatValue={formatValue} onSelectCell={(row, column) => recordInspection("vocab-projection", row, column)} /></div>
+            <div className="mini-transformer-matrix-stack"><MatrixGrid values={(training?.hidden ?? trace.finalNorm.output) as number[][]} label={training ? "training final normalized hidden [T,4]" : "final normalized hidden [T,4]"} rowLabels={training ? [...training.inputTokens] : tokenLabels} columnLabels={featureLabels} tone="terra" formatValue={formatValue} /><MatrixGrid values={(training?.probabilitiesBefore ?? trace.probabilities) as number[][]} label="vocabulary probabilities [T,8]" rowLabels={training ? [...training.inputTokens] : tokenLabels} columnLabels={vocabLabels} selectedCell={selectedCell} targetCell={inspectionTarget("vocab-projection")} tone="indigo" formatValue={formatValue} onSelectCell={(row, column) => recordInspection("vocab-projection", row, column)} /></div>
             {training ? <div className="mini-transformer-stat-grid"><span><strong>{t("shifted targets", "SHIFTED TARGETS")}</strong>{training.targetTokens.join(" → ")}</span><span><strong>{t("loss 감소", "LOSS DECREASE")}</strong>{formatValue(training.meanLossBefore)} → {formatValue(training.meanLossAfter)}</span><span><strong>{t("변경 범위", "UPDATED SCOPE")}</strong>{training.updatedOnly}</span></div> : null}
           </> : null}
           {trace && activeStage === "autoregressive-decode" && generation ? <>
             <header><span>LAST ROW → APPEND → FULL PREFIX RERUN</span><strong>{t("generation step 1, emitted token .(ID 4)의 probability cell을 검사하세요", "Inspect the probability cell for emitted token . (ID 4) at generation step 1")}</strong><p>{t(`stop=${generation.stopReason} · generated [${generation.steps.map((step) => step.emittedToken).join(", ")}]`, `Stop=${generation.stopReason} · generated [${generation.steps.map((step) => step.emittedToken).join(", ")}]`)}</p></header>
-            <div className="mini-transformer-matrix-stack"><MatrixGrid values={generationProbabilityRows as number[][]} label="last-row next-token probabilities by generation step" rowLabels={generation.steps.map((step) => `step ${step.stepIndex}`)} columnLabels={vocabLabels} selectedCell={selectedCell} tone="indigo" formatValue={formatValue} onSelectCell={(row, column) => recordInspection("autoregressive-decode", row, column)} /></div>
+            <div className="mini-transformer-matrix-stack"><MatrixGrid values={generationProbabilityRows as number[][]} label="last-row next-token probabilities by generation step" rowLabels={generation.steps.map((step) => `step ${step.stepIndex}`)} columnLabels={vocabLabels} selectedCell={selectedCell} targetCell={inspectionTarget("autoregressive-decode")} tone="indigo" formatValue={formatValue} onSelectCell={(row, column) => recordInspection("autoregressive-decode", row, column)} /></div>
             <div className="mini-transformer-generation-trace">{generation.steps.map((step) => <span key={step.stepIndex}><strong>step {step.stepIndex}</strong>{step.prefixTokens.join(" ")} → {step.emittedToken} · {step.recomputedFromFullPrefix ? t("전체 prefix 재실행", "full prefix rerun") : t("첫 hidden 재사용", "first hidden reused")}</span>)}</div>
           </> : null}
         </div>
 
         <div className="mini-transformer-evidence" data-mastered={mastery.mastered ? "true" : "false"} role="status" aria-live="polite">
           <strong>MASTERY EVIDENCE · PREDICTION → EXECUTION → NUMERIC CELL</strong>
-          {miniTransformerChallengeIds.map((id) => <span className={mastery.completedChallengeIds.includes(id) ? "is-complete" : undefined} key={id}>{mastery.completedChallengeIds.includes(id) ? "✓" : "○"} {challengeCopy[id].label}</span>)}
+          {miniTransformerChallengeIds.map((id) => {
+            const core = miniTransformerCoreChallengeIds.some((coreId) => coreId === id);
+            const complete = mastery.completedChallengeIds.includes(id);
+            return <span className={`${core ? "is-core" : "is-optional"}${complete ? " is-complete" : ""}`} key={id}>{complete ? "✓" : core ? "○" : t("선택", "Optional")} {challengeCopy[id].label}</span>;
+          })}
         </div>
       </div>
     </InteractiveLab>
