@@ -98,6 +98,14 @@ export const conceptQuestionHistory = {
       answers: ["same-as-weights", "one-scalar", "same-as-batch"],
     },
   },
+  "transformer-from-zero/optimization/sse-mse-scale": {
+    1: {
+      version: 1,
+      label: "SSE에서 MSE로의 gradient scale",
+      correctAnswer: "divide-by-batch-size",
+      answers: ["divide-by-batch-size", "unchanged", "multiply-by-batch-size"],
+    },
+  },
   "transformer-from-zero/neural-networks/logit-to-probability": {
     1: {
       version: 1,
@@ -818,6 +826,10 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["transformer-from-zero/optimization/gradient-shape"][1],
     status: "active",
   },
+  "transformer-from-zero/optimization/sse-mse-scale": {
+    ...conceptQuestionHistory["transformer-from-zero/optimization/sse-mse-scale"][1],
+    status: "active",
+  },
   "transformer-from-zero/neural-networks/logit-to-probability": {
     ...conceptQuestionHistory["transformer-from-zero/neural-networks/logit-to-probability"][1],
     status: "active",
@@ -1163,6 +1175,7 @@ export const optimizationQuestions = {
   "gradient-direction": conceptQuestionRegistry["transformer-from-zero/optimization/gradient-direction"],
   "learning-rate": conceptQuestionRegistry["transformer-from-zero/optimization/learning-rate"],
   "gradient-shape": conceptQuestionRegistry["transformer-from-zero/optimization/gradient-shape"],
+  "sse-mse-scale": conceptQuestionRegistry["transformer-from-zero/optimization/sse-mse-scale"],
 } as const;
 
 export const neuralNetworkQuestions = {

@@ -152,6 +152,18 @@ test("publishes only available chapters that also have a renderer contract", () 
 
 test("separates active question submissions from historical labels", () => {
   assert.equal(
+    Object.keys(chapterRegistry["transformer-from-zero/optimization"].questions).length,
+    5,
+  );
+  assert.equal(
+    getConceptQuestion(
+      "transformer-from-zero",
+      "optimization",
+      "sse-mse-scale",
+    )?.correctAnswer,
+    "divide-by-batch-size",
+  );
+  assert.equal(
     getConceptQuestion("transformer-from-zero", "vectors", "orientation")?.status,
     "active",
   );
