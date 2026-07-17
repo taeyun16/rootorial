@@ -34,6 +34,7 @@ export type PublicationResource = {
   chapterSlug: string | null;
   title: LocalizedText;
   developmentStatus: DevelopmentStatus;
+  previewReady: boolean;
   contentReady: boolean;
   defaultPublicationStatus: PublicationStatus;
   defaultListing: PublicationListing;
@@ -88,8 +89,9 @@ export function chapterPublicationKey(
 const announcedPublicationKeys = new Set([
   "curriculum:transformer-from-zero",
   "curriculum:linux-systems",
+  "curriculum:linux-networking",
   "curriculum:infrastructure-design",
-  "curriculum:design-patterns",
+  "curriculum:system-architecture",
   "chapter:transformer-from-zero/vectors",
   "chapter:transformer-from-zero/optimization",
   "chapter:transformer-from-zero/neural-networks",
@@ -117,12 +119,14 @@ const legacyPublishedKeys = new Set([
   "chapter:linux-systems/shell-and-filesystem",
 ]);
 
-// CurriculumHome currently implements the Transformer learning journey. Add a
-// slug here only after its landing-page renderer is ready for public traffic.
+// Register a slug only after CurriculumHome has a curriculum-specific or
+// intentionally generic landing-page presentation ready for preview traffic.
 const registeredCurriculumPageSlugs = new Set([
   "transformer-from-zero",
   "linux-systems",
+  "linux-networking",
   "infrastructure-design",
+  "system-architecture",
 ]);
 
 function publicationDefaults(resourceKey: string) {
@@ -160,6 +164,14 @@ export function publicationResources(): PublicationResource[] {
   return curricula.flatMap((curriculum) => {
     const curriculumKey = curriculumPublicationKey(curriculum.slug);
     const curriculumDefaults = publicationDefaults(curriculumKey);
+    const previewReady =
+      registeredCurriculumPageSlugs.has(curriculum.slug) &&
+      curriculum.chapters.ko.length > 0;
+    const hasReadyChapter = curriculum.chapters.ko.some(
+      (chapter) =>
+        chapter.status === "available" &&
+        Boolean(getChapterRegistration(curriculum.slug, chapter.slug)),
+    );
     const curriculumResource: PublicationResource = {
       resourceKey: curriculumKey,
       resourceKind: "curriculum",
@@ -167,10 +179,11 @@ export function publicationResources(): PublicationResource[] {
       chapterSlug: null,
       title: curriculum.title,
       developmentStatus: curriculumDevelopmentStatus(curriculum.status),
+      previewReady,
       contentReady:
-        registeredCurriculumPageSlugs.has(curriculum.slug) &&
+        previewReady &&
         curriculum.status !== "planned" &&
-        curriculum.chapters.ko.length > 0,
+        hasReadyChapter,
       defaultPublicationStatus: curriculumDefaults.publicationStatus,
       defaultListing: curriculumDefaults.listing,
     };
@@ -182,6 +195,9 @@ export function publicationResources(): PublicationResource[] {
           chapter.slug,
         );
         const defaults = publicationDefaults(resourceKey);
+        const contentReady =
+          chapter.status === "available" &&
+          Boolean(getChapterRegistration(curriculum.slug, chapter.slug));
         return {
           resourceKey,
           resourceKind: "chapter",
@@ -189,9 +205,8 @@ export function publicationResources(): PublicationResource[] {
           chapterSlug: chapter.slug,
           title: localizedChapterTitle(curriculum, chapter.slug),
           developmentStatus: chapter.developmentStatus,
-          contentReady:
-            chapter.status === "available" &&
-            Boolean(getChapterRegistration(curriculum.slug, chapter.slug)),
+          previewReady: contentReady,
+          contentReady,
           defaultPublicationStatus: defaults.publicationStatus,
           defaultListing: defaults.listing,
         };

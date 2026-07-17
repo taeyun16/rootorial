@@ -73,10 +73,19 @@ export const getPublicCurriculumPublication = createServerFn({ method: "GET" })
       bindings().DB,
       data.curriculumSlug,
     );
-    if (page?.item.publication.listing === "unlisted") {
+    if (!page) return null;
+    if (page.item.publication.listing === "unlisted") {
       setResponseHeader("X-Robots-Tag", "noindex, follow");
     }
-    return page?.item ?? null;
+    const prerequisiteSlug =
+      page.item.curriculum.recommendedPrerequisite?.curriculumSlug;
+    const prerequisiteAvailable = prerequisiteSlug
+      ? isPublicationAccessible(
+          page.catalog,
+          curriculumPublicationKey(prerequisiteSlug),
+        )
+      : false;
+    return { item: page.item, prerequisiteAvailable };
   });
 
 export const getPublicChapterPublication = createServerFn({ method: "GET" })
@@ -159,7 +168,7 @@ export const getAdminPublicationPreview = createServerFn({ method: "GET" })
       : curriculumPublicationKey(data.curriculumSlug);
     const resource = catalog.resources[resourceKey];
     const curriculum = getCurriculum(data.curriculumSlug);
-    if (!resource || !resource.contentReady || !curriculum) return null;
+    if (!resource || !resource.previewReady || !curriculum) return null;
     if (
       data.chapterSlug &&
       !curriculum.chapters.ko.some(

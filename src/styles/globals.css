@@ -1393,6 +1393,122 @@ textarea:focus-visible {
   font-size: inherit;
 }
 
+.curriculum-readiness {
+  width: min(1240px, calc(100% - 48px));
+  margin: 0 auto 96px;
+  padding: 30px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+  box-shadow: 0 18px 48px rgba(45, 38, 29, 0.08);
+}
+
+.curriculum-readiness-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.curriculum-readiness-heading .section-index {
+  margin-bottom: 10px;
+}
+
+.curriculum-readiness-heading h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(30px, 3vw, 44px);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.curriculum-readiness-advisory {
+  max-width: 330px;
+  padding: 8px 12px;
+  border: 1px solid var(--info-border);
+  border-radius: 999px;
+  background: var(--info-bg);
+  color: var(--info-fg);
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.curriculum-readiness-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 40px;
+  align-items: center;
+  padding-top: 24px;
+}
+
+.curriculum-readiness-copy h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 27px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+
+.curriculum-readiness-copy > p {
+  max-width: 760px;
+  margin: 10px 0 0;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.72;
+  word-break: keep-all;
+}
+
+.curriculum-readiness-scope {
+  display: grid;
+  gap: 4px;
+  margin-top: 16px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.curriculum-readiness-scope strong {
+  color: var(--forest);
+  font: 800 10px var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.curriculum-readiness-link {
+  min-height: 48px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  border: 1px solid var(--ink);
+  border-radius: 3px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 760;
+  white-space: nowrap;
+  transition: background-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.curriculum-readiness-link:hover {
+  transform: translateY(-2px);
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.curriculum-readiness-link.is-disabled {
+  transform: none;
+  border-color: var(--line-strong);
+  background: var(--paper-soft);
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
 .principles {
   padding: 92px max(24px, calc((100vw - 1240px) / 2));
   display: grid;
@@ -6038,6 +6154,7 @@ textarea:focus-visible {
 @media (max-width: 760px) {
   .topbar,
   .hero-section,
+  .curriculum-readiness,
   .curriculum-section,
   .site-footer,
   .article-layout { width: min(100% - 32px, 1240px); }
@@ -6057,6 +6174,11 @@ textarea:focus-visible {
   .orbit-core { width: 96px; height: 96px; }
   .orbit-label-b { right: -10px; }
   .progress-card { right: 4px; width: 220px; }
+  .curriculum-readiness { margin-bottom: 72px; padding: 22px; }
+  .curriculum-readiness-heading,
+  .curriculum-readiness-card { grid-template-columns: 1fr; display: grid; gap: 20px; }
+  .curriculum-readiness-advisory { max-width: none; justify-self: start; text-align: left; }
+  .curriculum-readiness-link { width: 100%; white-space: normal; text-align: center; }
   .principles { padding: 72px 24px; gap: 42px; }
   .principle-grid { grid-template-columns: 1fr; }
   .principle-grid article { min-height: auto; padding: 24px 0; border-left: 0; border-top: 1px solid rgba(244, 237, 221, 0.2); }

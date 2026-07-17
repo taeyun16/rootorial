@@ -12,11 +12,11 @@ export type PageMetadata = {
 const platformMetadata: Record<Locale, PageMetadata> = {
   ko: {
     title: "Rootorial — 복잡한 기술을 바닥부터.",
-    description: "AI, Linux 시스템, 인프라 설계와 소프트웨어 패턴을 직접 움직이고 실행하며 바닥부터 이해합니다.",
+    description: "AI, Linux 시스템과 네트워킹, 네트워크 인프라와 시스템 아키텍처를 직접 움직이고 실행하며 바닥부터 이해합니다.",
   },
   en: {
     title: "Rootorial — Technology, understood from the root.",
-    description: "Interactive curricula for understanding AI, systems, infrastructure, and software design from the ground up.",
+    description: "Interactive curricula for understanding AI, Linux systems and networking, network infrastructure, and system architecture from the ground up.",
   },
 };
 

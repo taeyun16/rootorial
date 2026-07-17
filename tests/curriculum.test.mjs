@@ -3,11 +3,16 @@ import test from "node:test";
 import {
   chaptersEn,
   chaptersKo,
+  curricula,
   getCurriculum,
   infrastructureChaptersEn,
   infrastructureChaptersKo,
   linuxChaptersEn,
   linuxChaptersKo,
+  linuxNetworkingChaptersEn,
+  linuxNetworkingChaptersKo,
+  systemArchitectureChaptersEn,
+  systemArchitectureChaptersKo,
 } from "../src/data/curriculum.ts";
 
 test("builds the infrastructure ladder from network namespaces to a platform capstone", () => {
@@ -52,7 +57,141 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
   );
   const curriculum = getCurriculum("infrastructure-design");
   assert.equal(curriculum?.status, "in-progress");
+  assert.deepEqual(curriculum?.title, {
+    ko: "Linux 네트워크 인프라 설계를 바닥부터",
+    en: "Linux Network Infrastructure Design from the Ground Up",
+  });
   assert.match(curriculum?.summary.en ?? "", /Linux network namespaces/);
+  assert.equal(
+    curriculum?.recommendedPrerequisite?.curriculumSlug,
+    "linux-networking",
+  );
+  assert.match(
+    curriculum?.recommendedPrerequisite?.reason.ko ?? "",
+    /interface.*주소.*route.*socket/,
+  );
+  assert.match(
+    curriculum?.recommendedPrerequisite?.reason.en ?? "",
+    /interfaces.*addresses.*routes.*sockets/i,
+  );
+});
+
+test("defines a bilingual beginner Linux networking prerequisite path", () => {
+  assert.equal(linuxNetworkingChaptersKo.length, 6);
+  assert.deepEqual(
+    linuxNetworkingChaptersKo.map(
+      ({ number, slug, status, developmentStatus }) => ({
+        number,
+        slug,
+        status,
+        developmentStatus,
+      }),
+    ),
+    linuxNetworkingChaptersEn.map(
+      ({ number, slug, status, developmentStatus }) => ({
+        number,
+        slug,
+        status,
+        developmentStatus,
+      }),
+    ),
+  );
+  assert.deepEqual(
+    linuxNetworkingChaptersKo.map(({ slug }) => slug),
+    [
+      "interfaces-addresses-and-loopback",
+      "subnets-neighbors-and-gateways",
+      "routes-and-packet-paths",
+      "sockets-ports-and-tcp",
+      "dns-and-service-reachability",
+      "diagnose-a-linux-network",
+    ],
+  );
+  assert.ok(
+    linuxNetworkingChaptersKo.every(
+      ({ status, developmentStatus }) =>
+        status === "planned" && developmentStatus === "planned",
+    ),
+  );
+  assert.ok(
+    linuxNetworkingChaptersEn.every(
+      ({ title, description }) => title.length > 0 && description.length > 0,
+    ),
+  );
+
+  const curriculum = getCurriculum("linux-networking");
+  assert.equal(curriculum?.level, "beginner");
+  assert.equal(curriculum?.status, "in-progress");
+  assert.deepEqual(curriculum?.title, {
+    ko: "Linux 네트워킹을 바닥부터",
+    en: "Linux Networking from the Ground Up",
+  });
+  assert.equal(
+    curriculum?.chapters.ko[0].id,
+    "linux-networking/interfaces-addresses-and-loopback",
+  );
+  assert.equal(
+    curriculum?.chapters.en[5].id,
+    "linux-networking/diagnose-a-linux-network",
+  );
+});
+
+test("replaces the design-pattern placeholder with a bilingual system architecture roadmap", () => {
+  assert.equal(systemArchitectureChaptersKo.length, 8);
+  assert.deepEqual(
+    systemArchitectureChaptersKo.map(
+      ({ number, slug, status, developmentStatus }) => ({
+        number,
+        slug,
+        status,
+        developmentStatus,
+      }),
+    ),
+    systemArchitectureChaptersEn.map(
+      ({ number, slug, status, developmentStatus }) => ({
+        number,
+        slug,
+        status,
+        developmentStatus,
+      }),
+    ),
+  );
+  assert.deepEqual(
+    systemArchitectureChaptersKo.map(({ slug }) => slug),
+    [
+      "requirements-and-quality-attributes",
+      "components-and-request-flows",
+      "data-ownership-and-source-of-truth",
+      "sync-async-and-idempotency",
+      "caching-and-consistency",
+      "capacity-scaling-and-partitioning",
+      "reliability-observability-and-slos",
+      "design-and-review-a-system",
+    ],
+  );
+  assert.ok(
+    systemArchitectureChaptersKo.every(
+      ({ status, developmentStatus }) =>
+        status === "planned" && developmentStatus === "planned",
+    ),
+  );
+  assert.ok(
+    systemArchitectureChaptersEn.every(
+      ({ title, description }) => title.length > 0 && description.length > 0,
+    ),
+  );
+
+  const curriculum = getCurriculum("system-architecture");
+  assert.equal(curriculum?.status, "planned");
+  assert.deepEqual(curriculum?.title, {
+    ko: "시스템 아키텍처를 바닥부터",
+    en: "System Architecture from the Ground Up",
+  });
+  assert.equal(getCurriculum("design-patterns"), undefined);
+  assert.equal(
+    curricula.some(({ slug }) => slug === "design-patterns"),
+    false,
+  );
 });
 
 test("keeps the bilingual Transformer roadmap structurally aligned", () => {

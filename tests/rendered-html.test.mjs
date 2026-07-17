@@ -46,8 +46,10 @@ test("renders the Rootorial curriculum catalog", async () => {
   assert.match(html, /Linux 시스템을 바닥부터/);
   assert.match(html, /href="\/curricula\/linux-systems"/);
   assert.match(html, /샘플 커리큘럼/);
-  assert.match(html, /인프라 설계를 바닥부터/);
-  assert.match(html, /디자인 패턴을 바닥부터/);
+  assert.match(html, /Linux 네트워킹을 바닥부터/);
+  assert.match(html, /Linux 네트워크 인프라 설계를 바닥부터/);
+  assert.match(html, /시스템 아키텍처를 바닥부터/);
+  assert.doesNotMatch(html, /디자인 패턴을 바닥부터/);
   assert.match(html, /다음으로 준비하고 있어요/);
   assert.match(html, /로그인 준비 중/);
   assert.match(html, /한국어로 보기/);
@@ -103,6 +105,10 @@ test("renders the English landing on the first server response", async () => {
   assert.match(html, /Start the first chapter/);
   assert.match(html, /Taeyun Jang&#x27;s social accounts/);
   assert.match(html, /What we&#x27;re preparing next/);
+  assert.match(html, /Linux Networking from the Ground Up/);
+  assert.match(html, /Linux Network Infrastructure Design from the Ground Up/);
+  assert.match(html, /System Architecture from the Ground Up/);
+  assert.doesNotMatch(html, /Design Patterns from the Ground Up/);
   assert.match(html, /Rootorial — Technology, understood from the root\./);
   assert.doesNotMatch(html, /첫 챕터 바로 시작/);
   assert.doesNotMatch(html, /60초 학습 미리보기/);
@@ -341,6 +347,81 @@ test("keeps the completed infrastructure chapter unavailable on its public URL",
   assert.equal(korean.status, 404);
   assert.equal(english.status, 404);
   await Promise.all([korean.text(), english.text()]);
+});
+
+test("keeps the new curriculum roadmaps draft-only on public URLs", async () => {
+  const responses = await Promise.all([
+    render("/curricula/linux-networking"),
+    render("/curricula/linux-networking?lang=en"),
+    render("/curricula/system-architecture"),
+    render("/curricula/system-architecture?lang=en"),
+  ]);
+  assert.deepEqual(
+    responses.map(({ status }) => status),
+    [404, 404, 404, 404],
+  );
+  await Promise.all(responses.map((response) => response.text()));
+});
+
+test("renders an infrastructure-specific curriculum landing without Transformer content bleed", async () => {
+  const rows = [
+    {
+      resource_key: "curriculum:infrastructure-design",
+      resource_kind: "curriculum",
+      curriculum_slug: "infrastructure-design",
+      chapter_slug: null,
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+
+  const response = await renderWithPublicationRows(
+    "/curricula/infrastructure-design",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /INTERACTIVE INFRASTRUCTURE DESIGN/);
+  assert.match(html, /Linux 네트워크 인프라를/);
+  assert.match(html, /namespace 경계에서 검증 가능한 플랫폼까지/);
+  assert.match(html, /data-prerequisite="recommended"/);
+  assert.match(html, /data-required="false"/);
+  assert.match(html, /권장 선수 경로/);
+  assert.match(html, /선택 사항 · 현재 커리큘럼을 바로 시작할 수도 있습니다/);
+  assert.match(html, /Linux 네트워킹을 바닥부터/);
+  assert.match(html, /선수 커리큘럼 공개 준비 중/);
+  assert.doesNotMatch(html, /href="\/curricula\/linux-networking"/);
+  assert.doesNotMatch(
+    html,
+    /\b(?:transformers?|vectors?|embeddings?|attention|python|numpy)\b/i,
+  );
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/infrastructure-design?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /<html[^>]+lang="en"/);
+  assert.match(englishHtml, /Design Linux network infrastructure/);
+  assert.match(englishHtml, /From namespace boundaries to a verifiable platform/);
+  assert.match(englishHtml, /RECOMMENDED PREREQUISITE/);
+  assert.match(englishHtml, /Linux Networking from the Ground Up/);
+  assert.match(englishHtml, /Prerequisite curriculum is still in draft/);
+  assert.doesNotMatch(
+    englishHtml,
+    /href="\/curricula\/linux-networking\?lang=en"/,
+  );
+  assert.doesNotMatch(
+    englishHtml,
+    /\b(?:transformers?|vectors?|embeddings?|attention|python|numpy)\b/i,
+  );
 });
 
 test("SSR-renders the bilingual Self-Attention chapter with an explicit test-only publication override", async () => {
