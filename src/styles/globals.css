@@ -15381,6 +15381,9 @@ textarea:focus-visible {
 }
 
 .neural-affine-collapse-trace .math-formula-display {
+  display: block;
+  width: 100%;
+  min-width: 0;
   margin: 0;
   max-width: 100%;
   overflow-x: auto;
