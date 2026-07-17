@@ -6240,7 +6240,8 @@ textarea:focus-visible {
 }
 
 .self-attention-boundary-grid,
-.self-attention-shape-ladder {
+.self-attention-shape-ladder,
+.self-attention-worked-trace {
   margin: 28px 0;
   display: grid;
   align-items: stretch;
@@ -6255,8 +6256,13 @@ textarea:focus-visible {
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
 }
 
+.self-attention-worked-trace {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .self-attention-boundary-grid article,
-.self-attention-shape-ladder article {
+.self-attention-shape-ladder article,
+.self-attention-worked-trace article {
   min-inline-size: 0;
   padding: 20px;
   border: 1px solid var(--line-strong);
@@ -6265,14 +6271,16 @@ textarea:focus-visible {
 }
 
 .self-attention-boundary-grid article > span,
-.self-attention-shape-ladder article > span {
+.self-attention-shape-ladder article > span,
+.self-attention-worked-trace article > span {
   color: #654f9d;
   font: 850 9px/1.4 var(--mono);
   letter-spacing: .09em;
 }
 
 .self-attention-boundary-grid strong,
-.self-attention-shape-ladder strong {
+.self-attention-shape-ladder strong,
+.self-attention-worked-trace strong {
   display: block;
   margin-top: 10px;
   color: var(--ink);
@@ -6281,11 +6289,29 @@ textarea:focus-visible {
 }
 
 .self-attention-boundary-grid p,
-.self-attention-shape-ladder p {
+.self-attention-shape-ladder p,
+.self-attention-worked-trace p {
   margin: 8px 0 0;
   color: var(--muted);
   font-size: 11px;
   line-height: 1.65;
+}
+
+.self-attention-worked-trace code {
+  max-inline-size: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.self-attention-worked-trace article > code {
+  display: block;
+  margin-top: 12px;
+  color: #46336f;
+  font: 750 11px/1.65 var(--mono);
+}
+
+.self-attention-python-bridge .notebook-cell {
+  margin-top: 30px;
 }
 
 .self-attention-shape-ladder > span[aria-hidden] {
@@ -6770,6 +6796,7 @@ textarea:focus-visible {
 @media (max-width: 640px) {
   .self-attention-boundary-grid,
   .self-attention-shape-ladder,
+  .self-attention-worked-trace,
   .self-attention-matrix-stack,
   .self-attention-debug-grid {
     grid-template-columns: minmax(0, 1fr);
@@ -6777,6 +6804,7 @@ textarea:focus-visible {
 
   .self-attention-boundary-grid article,
   .self-attention-shape-ladder article,
+  .self-attention-worked-trace article,
   .self-attention-stage-panel,
   .self-attention-debug-card {
     padding-right: 14px;

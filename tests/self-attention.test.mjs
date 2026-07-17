@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  selfAttentionForwardTraceCode,
+  selfAttentionMaskRepairCode,
+} from "../src/data/selfAttentionNotebook.ts";
+import {
   SELF_ATTENTION_HEAD_COUNT,
   SELF_ATTENTION_HEAD_DIMENSION,
   SELF_ATTENTION_MODEL_DIMENSION,
@@ -24,6 +28,25 @@ import {
 } from "../src/features/self-attention/self-attention-model.ts";
 
 const EPSILON = 1e-12;
+
+test("ships independent NumPy bridges for the full forward trace and mask-order repair", () => {
+  assert.match(selfAttentionForwardTraceCode, /Q = X @ W_Q/);
+  assert.match(selfAttentionForwardTraceCode, /K = X @ W_K/);
+  assert.match(selfAttentionForwardTraceCode, /V = X @ W_V/);
+  assert.match(selfAttentionForwardTraceCode, /return matrix\.reshape\(T, HEADS, D_HEAD\)\.transpose\(1, 0, 2\)/);
+  assert.match(selfAttentionForwardTraceCode, /raw_scores = Q_heads @ K_heads\.transpose\(0, 2, 1\)/);
+  assert.match(selfAttentionForwardTraceCode, /scaled_scores = raw_scores \/ np\.sqrt\(D_HEAD\)/);
+  assert.match(selfAttentionForwardTraceCode, /\[0\.575975, 0\.283995, 0\.140029, 0\.0\]/);
+  assert.match(selfAttentionForwardTraceCode, /\[0\.744765, 0\.503490, 0\.716005, 0\.424025\]/);
+  assert.match(selfAttentionForwardTraceCode, /inactive_padding_query/);
+  assert.match(selfAttentionMaskRepairCode, /mask_before_softmax = False/);
+  assert.match(selfAttentionMaskRepairCode, /\[0\.097785, 0\.330238, 0\.778819\]/);
+  assert.match(selfAttentionMaskRepairCode, /active_row_sums,\n    np\.ones\(3\)/);
+  assert.match(selfAttentionMaskRepairCode, /padding_key_mass/);
+  assert.match(selfAttentionMaskRepairCode, /inactive_query_mass/);
+  assert.doesNotMatch(selfAttentionForwardTraceCode, /[가-힣]/);
+  assert.doesNotMatch(selfAttentionMaskRepairCode, /[가-힣]/);
+});
 
 function approximatelyEqual(actual, expected, tolerance = EPSILON) {
   assert.ok(

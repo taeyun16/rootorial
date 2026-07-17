@@ -5,6 +5,10 @@ import {
   chaptersKo,
   TRANSFORMER_CURRICULUM_SLUG,
 } from "../../data/curriculum";
+import {
+  selfAttentionForwardTraceCode,
+  selfAttentionMaskRepairCode,
+} from "../../data/selfAttentionNotebook";
 import { canCompleteSelfAttentionChapter } from "../../features/self-attention/self-attention-model";
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
@@ -12,6 +16,7 @@ import { ChapterToc } from "../ChapterToc";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
@@ -26,7 +31,9 @@ const tocItems = {
     { id: "scaling", label: "Scaled dot-product" },
     { id: "mask", label: "미래를 막는 causal mask" },
     { id: "heads", label: "Multi-head split · concat" },
+    { id: "worked-trace", label: "sat query 수치 추적" },
     { id: "self-attention-lab", label: "필수 Self-Attention lab" },
+    { id: "numpy-bridge", label: "선택 NumPy bridge" },
     { id: "debug", label: "정보 누출·shape 디버깅" },
     { id: "transfer", label: "Transformer block으로 전이" },
     { id: "check", label: "이해 확인" },
@@ -37,7 +44,9 @@ const tocItems = {
     { id: "scaling", label: "Scaled dot product" },
     { id: "mask", label: "Causal masking" },
     { id: "heads", label: "Multi-head split and concat" },
+    { id: "worked-trace", label: "Trace the sat query" },
     { id: "self-attention-lab", label: "Required Self-Attention lab" },
+    { id: "numpy-bridge", label: "Optional NumPy bridge" },
     { id: "debug", label: "Debug leaks and shapes" },
     { id: "transfer", label: "Transfer to the Transformer block" },
     { id: "check", label: "Concept check" },
@@ -209,10 +218,90 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
             )}</p>
           </section>
 
+          <section className="article-section" id="worked-trace">
+            <div className="margin-label">06 — FIXED NUMERIC TRACE</div>
+            <h2>{t("sat query 한 행을 score에서 concat까지 끝까지 추적합니다", "Trace one sat query row from scores through concatenation")}</h2>
+            <p>{t(
+              "필수 lab과 같은 the · cat · sat · <pad> fixture에서 zero-based head 1, 즉 두 번째 head의 sat query를 고정합니다. 한 행을 끝까지 계산하면 scaling과 mask가 어디에 놓이고, weight가 어떤 V row를 섞으며, 두 head가 어느 축으로 합쳐지는지 숫자로 연결됩니다.",
+              "Use the same the · cat · sat · <pad> fixture as the required lab and fix the sat query in zero-based head 1, the second head. Following one row end to end connects the placement of scaling and masking to the V rows mixed by the weights and the feature axis used to rejoin both heads.",
+            )}</p>
+            <div className="self-attention-worked-trace" role="group" aria-label={t("sat query Self-Attention 수치 추적", "Numeric self-attention trace for the sat query")}>
+              <article>
+                <span>QUERY · HEAD 1</span>
+                <strong><code>tokens = [the, cat, sat, &lt;pad&gt;]</code></strong>
+                <p>{t("head 1의 sat query는 [0,1]이고 네 key와의 raw dot product는 다음과 같습니다.", "The sat query in head 1 is [0,1], producing these raw dot products with the four keys.")}</p>
+                <code>raw = [2, 1, 0, 1]</code>
+              </article>
+              <article>
+                <span>SCALE · MASK</span>
+                <strong><code>raw / √2 = [1.414214, 0.707107, 0, 0.707107]</code></strong>
+                <p>{t("sat는 index 2이므로 causal rule과 padding-key rule을 적용한 뒤 마지막 key logit은 -∞(-inf)가 됩니다.", "Because sat is index 2, the final key logit becomes -∞ (-inf) after applying the causal and padding-key rules.")}</p>
+                <code>masked = [1.414214, 0.707107, 0, -inf]</code>
+              </article>
+              <article>
+                <span>ROW SOFTMAX · CONTEXT</span>
+                <strong><code>weights = [0.575975, 0.283995, 0.140029, 0]</code></strong>
+                <p>{t("허용된 세 key만 다시 합 1로 정규화하고 head 1의 V row를 가중합합니다.", "Renormalize only the three allowed keys to unit mass, then take the weighted sum of head 1's V rows.")}</p>
+                <code>context₁ = [0.716005, 0.424025]</code>
+              </article>
+              <article>
+                <span>CONCAT · FEATURE AXIS</span>
+                <strong><code>context₀ = [0.744765, 0.503490]</code></strong>
+                <p>{t("같은 sat token의 head 0 뒤에 head 1 feature를 이어 붙입니다. token 축 길이 T는 바뀌지 않습니다.", "Append head 1 features after head 0 for the same sat token. The token-axis length T does not change.")}</p>
+                <code>concat = [0.744765, 0.503490, 0.716005, 0.424025]</code>
+              </article>
+            </div>
+            <div className="concept-callout self-attention-mask-boundaries">
+              <span className="callout-mark">3×</span>
+              <div>
+                <strong>{t("causal key, padding key, inactive padding query는 서로 다른 세 조건입니다", "Causal keys, padding keys, and inactive padding queries are three distinct conditions")}</strong>
+                <p>{t(
+                  "causal mask는 active query i가 j>i인 미래 key를 못 보게 합니다. padding key mask는 query 위치와 무관하게 <pad> 열을 모든 active query에서 제외합니다. 반면 query-active mask는 <pad>가 query인 마지막 행 전체를 0으로 만들 뿐이며, 앞선 active query의 Softmax 분모에 padding query를 추가하거나 빼는 규칙이 아닙니다.",
+                  "The causal mask prevents active query i from seeing future keys j>i. The padding-key mask removes the <pad> column from every active query regardless of query position. The query-active mask instead zeros the entire final row whose query is <pad>; it is not a rule that adds or removes a padding query from an earlier active query's softmax denominator.",
+                )}</p>
+              </div>
+            </div>
+          </section>
+
           <div id="self-attention-lab"><SelfAttentionLab onCompletionChange={setLabComplete} /></div>
 
+          <section className="article-section self-attention-python-bridge" id="numpy-bridge">
+            <div className="margin-label">07 — NUMPY BRIDGE · OPTIONAL</div>
+            <h2>{t("고정 trace와 mask repair를 실제 NumPy로 다시 실행합니다", "Re-execute the fixed trace and mask repair in real NumPy")}</h2>
+            <p>{t(
+              "첫 셀은 X에서 Q/K/V를 투영하고 feature를 두 head로 나눈 뒤 scaled causal Attention과 concat을 한 번에 재현합니다. 둘째 셀은 전체 key에 Softmax를 적용한 다음 차단 weight만 0으로 만드는 버그에서 시작합니다. 차단된 mass를 제거해도 남은 허용 weight가 자동으로 재정규화되지는 않으므로 mask를 Softmax 앞으로 옮겨야 합니다.",
+              "The first cell projects Q, K, and V from X, splits features into two heads, then reproduces scaled causal attention and concatenation. The second starts with the bug of applying softmax over every key and only then zeroing blocked weights. Removing blocked mass does not automatically renormalize the allowed weights, so the mask must move before softmax.",
+            )}</p>
+            <div className="concept-callout">
+              <span className="callout-mark">Py</span>
+              <div>
+                <strong>{t("선택 심화이며 챕터 완료 조건이 아닙니다", "Optional extension; never a chapter-completion gate")}</strong>
+                <p>{t(
+                  "실행 버튼을 누를 때만 공유 Pyodide와 NumPy를 지연 로드합니다. 다운로드가 실패해도 필수 lab·debugger·이해 확인에는 영향이 없습니다. 두 셀은 영어로 된 완전한 fixture를 각각 다시 만들며 서로의 실행 상태에 의존하지 않습니다.",
+                  "The shared Pyodide runtime and NumPy load lazily only after you run a cell. A download failure does not affect the required lab, debugger, or concept check. Both English-only cells rebuild a complete fixture and do not depend on each other's execution state.",
+                )}</p>
+              </div>
+            </div>
+            <NotebookCell
+              title={t("Q/K/V 투영부터 two-head concat까지 실행", "Run Q/K/V projections through two-head concat")}
+              initialCode={selfAttentionForwardTraceCode}
+              description={<p>{t("[4,4] 입력을 Q/K/V로 투영하고 [2,4,2] head로 나눕니다. sat의 head 1 raw score [2,1,0,1], mask 후 weight, context와 [4] concat이 위 worked trace와 같은지 확인하세요.", "Project the [4,4] input into Q/K/V and split it into [2,4,2] heads. Verify that sat's head 1 raw scores [2,1,0,1], masked weights, context, and [4] concatenation match the worked trace above.")}</p>}
+              hint={<p>{t("key_visible의 마지막 값을 True로 바꿔 padding key가 active row의 분모와 context를 어떻게 바꾸는지 관찰한 뒤 셀을 초기화하세요.", "Change the final key_visible value to True, observe how a padding key changes active-row denominators and contexts, then reset the cell.")}</p>}
+              editorMinHeight={850}
+              ariaLabel={t("Self-Attention projection과 concat NumPy 코드", "NumPy code for self-attention projections and concatenation")}
+            />
+            <NotebookCell
+              title={t("Softmax 뒤 mask 버그 수리", "Repair the mask-after-softmax bug")}
+              initialCode={selfAttentionMaskRepairCode}
+              description={<p>{t("기본 실행은 active row 합 [0.097785,0.330238,0.778819]를 출력한 뒤 assertion에 실패합니다. REPAIR의 boolean 한 줄을 True로 바꿔 합 [1,1,1], future mass 0, padding-key mass 0, inactive-query mass 0을 동시에 복구하세요.", "The default run prints active row sums [0.097785,0.330238,0.778819] and then fails its assertion. Change the one REPAIR boolean to True to restore sums [1,1,1], zero future mass, zero padding-key mass, and zero inactive-query mass together.")}</p>}
+              hint={<p>{t("0으로 지우는 위치가 아니라 정규화 순서를 고칩니다. mask_before_softmax = True 한 줄이면 masked_row_softmax가 허용 key만 분모에 넣습니다.", "Repair normalization order, not the location of a zero assignment. One line, mask_before_softmax = True, makes masked_row_softmax include only allowed keys in its denominator.")}</p>}
+              editorMinHeight={730}
+              ariaLabel={t("Self-Attention mask-before-softmax 수리 NumPy 코드", "NumPy code for repairing self-attention mask-before-softmax")}
+            />
+          </section>
+
           <section className="article-section" id="debug">
-            <div className="margin-label">07 — CAUSAL MULTI-HEAD REPAIR CONSOLE</div>
+            <div className="margin-label">08 — CAUSAL MULTI-HEAD REPAIR CONSOLE</div>
             <h2>{t("projection·scaling·mask·head merge를 실행 결과로 수리합니다", "Repair projections, scaling, masks, and head merging from executed results")}</h2>
             <p>{t(
               "네 사건은 후보 연산을 고정 fixture에 실제 적용합니다. Q/K/V shape, scaled score, 미래·padding mass, query row 합, merged output shape를 다시 계산해 계약이 복구됐는지 판정합니다.",
@@ -222,7 +311,7 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
           </section>
 
           <section className="article-section" id="transfer">
-            <div className="margin-label">08 — TRANSFER TO A TRANSFORMER BLOCK</div>
+            <div className="margin-label">09 — TRANSFER TO A TRANSFORMER BLOCK</div>
             <h2>{t("[T,d_model] 출력은 완성된 Transformer block이 아니라 다음 조립 지점입니다", "A [T,d_model] output is the next assembly point, not a complete Transformer block")}</h2>
             <div className="self-attention-transfer-task">
               <strong>{t("전이 과제", "TRANSFER TASK")}</strong>
@@ -235,7 +324,7 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">09 — CONCEPT CHECK</div>
+            <div className="margin-label">10 — CONCEPT CHECK</div>
             <SelfAttentionConceptCheck onMasteryChange={setConceptsMastered} />
             <div className="self-attention-completion-checklist" role="status" aria-live="polite">
               <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("필수 Self-Attention lab", "Required Self-Attention lab")}</span>
