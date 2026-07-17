@@ -913,6 +913,46 @@ export const conceptQuestionHistory = {
   "infrastructure-design/availability-and-failure-domains/availability-math": {
     1: { version: 1, label: "served request 기반 가용성", correctAnswer: "served-over-total-is-99-6", answers: ["served-over-total-is-99-6", "replicas-over-zones-is-150", "failover-seconds-is-percent"] },
   },
+  "infrastructure-design/network-observability-and-capacity/observation-scope": {
+    1: {
+      version: 1,
+      label: "관측 명령의 namespace 범위",
+      correctAnswer: "probe-in-owning-namespace",
+      answers: ["host-output-is-global", "probe-in-owning-namespace", "tool-name-defines-scope"],
+    },
+  },
+  "infrastructure-design/network-observability-and-capacity/counter-window": {
+    1: {
+      version: 1,
+      label: "counter delta와 관측 window",
+      correctAnswer: "same-interface-window-delta",
+      answers: ["same-interface-window-delta", "absolute-counter-alone", "reset-counter-before-incident"],
+    },
+  },
+  "infrastructure-design/network-observability-and-capacity/capture-absence": {
+    1: {
+      version: 1,
+      label: "빈 packet capture의 증명 범위",
+      correctAnswer: "absence-is-scope-and-window-bound",
+      answers: ["absence-proves-no-traffic-anywhere", "capture-needs-no-flow-key", "absence-is-scope-and-window-bound"],
+    },
+  },
+  "infrastructure-design/network-observability-and-capacity/limiting-resource": {
+    1: {
+      version: 1,
+      label: "용량 제한 resource 판정",
+      correctAnswer: "highest-ratio-crossing-limit",
+      answers: ["average-all-utilizations", "highest-ratio-crossing-limit", "largest-capacity-value"],
+    },
+  },
+  "infrastructure-design/network-observability-and-capacity/queue-role": {
+    1: {
+      version: 1,
+      label: "queue가 흡수하는 부하의 범위",
+      correctAnswer: "queue-absorbs-bursts-not-sustained-overload",
+      answers: ["queue-absorbs-bursts-not-sustained-overload", "queue-adds-link-bandwidth", "queue-removes-connection-limit"],
+    },
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     1: {
       version: 1,
@@ -1408,6 +1448,26 @@ export const conceptQuestionRegistry = {
   "infrastructure-design/availability-and-failure-domains/availability-math": {
     ...conceptQuestionHistory["infrastructure-design/availability-and-failure-domains/availability-math"][1], status: "active",
   },
+  "infrastructure-design/network-observability-and-capacity/observation-scope": {
+    ...conceptQuestionHistory["infrastructure-design/network-observability-and-capacity/observation-scope"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-observability-and-capacity/counter-window": {
+    ...conceptQuestionHistory["infrastructure-design/network-observability-and-capacity/counter-window"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-observability-and-capacity/capture-absence": {
+    ...conceptQuestionHistory["infrastructure-design/network-observability-and-capacity/capture-absence"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-observability-and-capacity/limiting-resource": {
+    ...conceptQuestionHistory["infrastructure-design/network-observability-and-capacity/limiting-resource"][1],
+    status: "active",
+  },
+  "infrastructure-design/network-observability-and-capacity/queue-role": {
+    ...conceptQuestionHistory["infrastructure-design/network-observability-and-capacity/queue-role"][1],
+    status: "active",
+  },
   "linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary": {
     ...conceptQuestionHistory["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"][1],
     status: "active",
@@ -1621,6 +1681,14 @@ export const infrastructureAvailabilityQuestions = {
   "availability-math": conceptQuestionRegistry["infrastructure-design/availability-and-failure-domains/availability-math"],
 } as const;
 
+export const infrastructureNetworkObservabilityQuestions = {
+  "observation-scope": conceptQuestionRegistry["infrastructure-design/network-observability-and-capacity/observation-scope"],
+  "counter-window": conceptQuestionRegistry["infrastructure-design/network-observability-and-capacity/counter-window"],
+  "capture-absence": conceptQuestionRegistry["infrastructure-design/network-observability-and-capacity/capture-absence"],
+  "limiting-resource": conceptQuestionRegistry["infrastructure-design/network-observability-and-capacity/limiting-resource"],
+  "queue-role": conceptQuestionRegistry["infrastructure-design/network-observability-and-capacity/queue-role"],
+} as const;
+
 export type ChapterRegistration = {
   questions: Readonly<Record<string, ConceptQuestionContract & { status: "active" }>>;
 };
@@ -1697,6 +1765,9 @@ export const chapterRegistry = {
   },
   "infrastructure-design/availability-and-failure-domains": {
     questions: infrastructureAvailabilityQuestions,
+  },
+  "infrastructure-design/network-observability-and-capacity": {
+    questions: infrastructureNetworkObservabilityQuestions,
   },
 } as const satisfies Record<string, ChapterRegistration>;
 

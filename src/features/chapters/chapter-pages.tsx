@@ -14,6 +14,7 @@ import { EgressNatChapter } from "../../components/infrastructure/EgressNatChapt
 import { NetworkPolicyChapter } from "../../components/infrastructure/NetworkPolicyChapter";
 import { NetworkNamespacesChapter } from "../../components/infrastructure/NetworkNamespacesChapter";
 import { ServiceDiscoveryChapter } from "../../components/infrastructure/ServiceDiscoveryChapter";
+import { NetworkObservabilityCapacityChapter } from "../../components/infrastructure/NetworkObservabilityCapacityChapter";
 import { VethRoutingChapter } from "../../components/infrastructure/VethRoutingChapter";
 import { MiniTransformerChapter } from "../../components/mini-transformer/MiniTransformerChapter";
 import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
@@ -131,6 +132,10 @@ function AvailabilityFailureDomainsChapterPage({ learnerCount }: ChapterPageProp
   return <AvailabilityFailureDomainsChapter learnerCount={learnerCount} />;
 }
 
+function NetworkObservabilityCapacityChapterPage({ learnerCount }: ChapterPageProps) {
+  return <NetworkObservabilityCapacityChapter learnerCount={learnerCount} />;
+}
+
 const chapterPages = {
   "transformer-from-zero/vectors": VectorsChapterPage,
   "transformer-from-zero/optimization": OptimizationChapterPage,
@@ -156,6 +161,7 @@ const chapterPages = {
   "infrastructure-design/egress-nat-and-conntrack": EgressNatChapterPage,
   "infrastructure-design/service-discovery-and-load-balancing": ServiceDiscoveryChapterPage,
   "infrastructure-design/availability-and-failure-domains": AvailabilityFailureDomainsChapterPage,
+  "infrastructure-design/network-observability-and-capacity": NetworkObservabilityCapacityChapterPage,
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(

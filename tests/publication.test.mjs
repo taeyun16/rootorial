@@ -112,6 +112,10 @@ const infrastructureAvailabilityKey = chapterPublicationKey(
   "infrastructure-design",
   "availability-and-failure-domains",
 );
+const infrastructureObservabilityKey = chapterPublicationKey(
+  "infrastructure-design",
+  "network-observability-and-capacity",
+);
 const systemArchitectureKey = curriculumPublicationKey("system-architecture");
 
 function override(resourceKey, values = {}) {
@@ -454,6 +458,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   const serviceDiscovery = catalog.resources[infrastructureServiceDiscoveryKey];
   const networkPolicy = catalog.resources[infrastructureNetworkPolicyKey];
   const availability = catalog.resources[infrastructureAvailabilityKey];
+  const observability = catalog.resources[infrastructureObservabilityKey];
 
   assert.equal(infrastructure.developmentStatus, "in-progress");
   assert.equal(infrastructure.contentReady, true);
@@ -525,6 +530,17 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(availability.effectivePublicationStatus, "draft");
   assert.equal(availability.listing, "hidden");
   assert.equal(isPublicationAccessible(catalog, infrastructureAvailabilityKey), false);
+  assert.equal(observability.developmentStatus, "complete");
+  assert.equal(observability.previewReady, true);
+  assert.equal(observability.contentReady, true);
+  assert.equal(observability.source, "default");
+  assert.equal(observability.publicationStatus, "draft");
+  assert.equal(observability.effectivePublicationStatus, "draft");
+  assert.equal(observability.listing, "hidden");
+  assert.equal(observability.scheduledAt, null);
+  assert.equal(observability.publishedAt, null);
+  assert.equal(isPublicationAccessible(catalog, infrastructureObservabilityKey), false);
+  assert.equal(isPublicationListed(catalog, infrastructureObservabilityKey), false);
 
   const announced = publicPublicationCatalog(catalog).curricula.find(
     ({ curriculum }) => curriculum.slug === "infrastructure-design",

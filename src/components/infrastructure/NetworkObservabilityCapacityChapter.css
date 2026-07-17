@@ -1,0 +1,538 @@
+/* Infrastructure Chapter 7 · network observability and capacity */
+.network-observability-chapter-shell {
+  --observability-accent: #315f78;
+  --observability-soft: color-mix(in srgb, var(--observability-accent) 12%, transparent);
+}
+
+.network-observability-coordinate-strip,
+.network-observability-formula-grid,
+.network-observability-evidence-grid,
+.network-observability-fixture-ledger,
+.network-observability-boundary-grid,
+.network-observability-capacity-grid,
+.network-observability-incident-grid,
+.network-observability-completion-checklist {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.network-observability-coordinate-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 1.25rem 0;
+}
+
+.network-observability-coordinate-strip span {
+  min-width: 0;
+  padding: 0.75rem;
+  border-top: 0.2rem solid var(--observability-accent);
+  background: var(--paper-subtle);
+  color: var(--ink);
+  font: 700 var(--text-meta)/1.45 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.network-observability-formula-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 1.25rem 0;
+}
+
+.network-observability-formula-grid article {
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--paper-subtle);
+}
+
+.network-observability-formula-grid span {
+  display: block;
+  margin-bottom: 0.6rem;
+  color: var(--observability-accent);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.network-observability-formula-grid code {
+  display: block;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.network-observability-formula-grid p {
+  margin: 0.55rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-caption);
+}
+
+.network-observability-capacity-lab,
+.network-observability-incident-lab {
+  min-width: 0;
+  margin-top: 1.25rem;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid var(--line-strong);
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--paper-raised) 94%, var(--observability-soft));
+  box-shadow: var(--shadow);
+}
+
+.network-observability-lab-header,
+.network-observability-incident-header,
+.network-observability-evidence-workspace > header,
+.network-observability-capacity-workspace > header,
+.network-observability-visual-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.network-observability-lab-header h3,
+.network-observability-incident-header h3,
+.network-observability-evidence-workspace h4,
+.network-observability-capacity-workspace h4 {
+  margin: 0.2rem 0 0;
+}
+
+.network-observability-lab-header > strong,
+.network-observability-incident-header > strong,
+.network-observability-evidence-workspace > header > span,
+.network-observability-capacity-workspace > header > span {
+  flex: 0 0 auto;
+  color: var(--observability-accent);
+  font: 700 1rem/1.2 var(--mono);
+}
+
+.network-observability-runtime-alert {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border: 1px solid var(--danger-border);
+  border-radius: 0.65rem;
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.network-observability-evidence-workspace,
+.network-observability-capacity-workspace {
+  min-width: 0;
+  margin-top: 1.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+}
+
+.network-observability-evidence-workspace > header span,
+.network-observability-capacity-workspace > header span {
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.06em;
+}
+
+.network-observability-window-key,
+.network-observability-action-row,
+.network-observability-scenario-toolbar,
+.network-observability-capacity-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.65rem;
+}
+
+.network-observability-window-key {
+  margin: 0.9rem 0;
+}
+
+.network-observability-window-key code {
+  padding: 0.25rem 0.45rem;
+  border-radius: 0.35rem;
+  background: var(--paper-pressed);
+}
+
+.network-observability-evidence-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.network-observability-evidence-grid article,
+.network-observability-incident-card {
+  min-width: 0;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--paper-raised);
+  overflow-wrap: anywhere;
+}
+
+.network-observability-evidence-grid article > span,
+.network-observability-incident-card > span {
+  display: block;
+  color: var(--observability-accent);
+  font: 700 var(--text-meta)/1.25 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.network-observability-evidence-grid article > code {
+  display: block;
+  margin: 0.55rem 0;
+  overflow-wrap: anywhere;
+}
+
+.network-observability-evidence-grid label,
+.network-observability-capacity-controls label,
+.network-observability-incident-card label {
+  display: grid;
+  min-width: 0;
+  gap: 0.3rem;
+  margin-top: 0.65rem;
+}
+
+.network-observability-evidence-grid label > span,
+.network-observability-capacity-controls label > span,
+.network-observability-incident-card label > span {
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.network-observability-evidence-grid select,
+.network-observability-capacity-controls select,
+.network-observability-incident-card select {
+  width: 100%;
+  min-width: 0;
+  padding: 0.55rem;
+  border: 1px solid var(--control-border);
+  border-radius: 0.45rem;
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.network-observability-evidence-grid small {
+  display: block;
+  margin-top: 0.55rem;
+  color: var(--muted);
+  font-family: var(--mono);
+}
+
+.network-observability-action-row,
+.network-observability-scenario-toolbar,
+.network-observability-capacity-controls {
+  margin-top: 0.9rem;
+}
+
+.network-observability-fixture-ledger {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 0.9rem;
+}
+
+.network-observability-fixture-ledger div {
+  min-width: 0;
+  padding: 0.65rem;
+  border-left: 0.2rem solid var(--observability-accent);
+  background: var(--paper-subtle);
+}
+
+.network-observability-fixture-ledger span {
+  display: block;
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.network-observability-fixture-ledger strong {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--ink);
+  font-size: var(--text-caption);
+  overflow-wrap: anywhere;
+}
+
+.network-observability-visualization {
+  min-width: 0;
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.85rem;
+  background: var(--paper-subtle);
+  overflow: hidden;
+}
+
+.network-observability-visual-header > div {
+  min-width: 0;
+}
+
+.network-observability-visual-header span {
+  display: block;
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.05em;
+}
+
+.network-observability-visual-header strong {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--ink);
+  font-size: var(--text-caption);
+}
+
+.network-observability-path-map {
+  min-width: 0;
+  margin-top: 0.9rem;
+}
+
+.network-observability-path-map > svg {
+  display: block;
+  width: 100%;
+  height: 2rem;
+  color: var(--line-strong);
+}
+
+.network-observability-path-map line,
+.network-observability-path-map path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.network-observability-boundary-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.network-observability-boundary-grid article {
+  min-width: 0;
+  min-height: 8.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-top: 0.2rem solid var(--observability-accent);
+  border-radius: 0.65rem;
+  background: var(--paper-raised);
+}
+
+.network-observability-boundary-grid article > span {
+  color: var(--observability-accent);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.network-observability-boundary-grid article > strong {
+  display: block;
+  margin: 0.35rem 0 0.6rem;
+  color: var(--ink);
+  font-size: var(--text-caption);
+}
+
+.network-observability-probe-list {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.network-observability-probe-list span,
+.network-observability-probe-list em {
+  min-width: 0;
+  padding: 0.35rem 0.45rem;
+  border-radius: 0.35rem;
+  background: var(--paper-pressed);
+  color: var(--text);
+  font: 600 0.7rem/1.35 var(--mono);
+  font-style: normal;
+  overflow-wrap: anywhere;
+}
+
+.network-observability-probe-list [data-placement-state="scoped"] {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.network-observability-probe-list [data-placement-state="mis-scoped"] {
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.network-observability-host-probes {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+  padding: 0.6rem;
+  border: 1px dashed var(--danger-border);
+  border-radius: 0.5rem;
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+  font-size: var(--text-caption);
+}
+
+.network-observability-capacity-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
+.network-observability-capacity-grid article {
+  min-width: 0;
+}
+
+.network-observability-capacity-grid article > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  color: var(--ink);
+  font-size: var(--text-caption);
+}
+
+.network-observability-capacity-grid article > header span {
+  color: var(--muted);
+  font: 700 var(--text-meta)/1.2 var(--mono);
+}
+
+.network-observability-capacity-track {
+  height: 0.7rem;
+  margin-top: 0.5rem;
+  border-radius: 99rem;
+  background: var(--paper-pressed);
+  overflow: hidden;
+}
+
+.network-observability-capacity-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--observability-accent);
+  transition: width 180ms ease;
+}
+
+[data-utilization-state="saturated"] .network-observability-capacity-track span {
+  background: var(--danger-fg);
+}
+
+[data-utilization-state="warning"] .network-observability-capacity-track span {
+  background: var(--warning-fg);
+}
+
+.network-observability-capacity-grid p {
+  margin: 0.4rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+
+.network-observability-capacity-controls label {
+  flex: 1 1 14rem;
+}
+
+.network-observability-lab-feedback,
+.network-observability-incident-feedback {
+  margin-top: 0.9rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  background: var(--paper-subtle);
+  color: var(--text);
+}
+
+.network-observability-lab-feedback.is-success,
+.network-observability-incident-feedback.is-success {
+  border-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+.network-observability-lab-feedback.is-error,
+.network-observability-incident-feedback.is-error {
+  border-color: var(--danger-border);
+  background: var(--danger-bg);
+  color: var(--danger-fg);
+}
+
+.network-observability-incident-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 1rem 0;
+}
+
+.network-observability-incident-card h4 {
+  margin: 0.4rem 0 0.65rem;
+}
+
+.network-observability-incident-card pre {
+  max-width: 100%;
+  padding: 0.65rem;
+  border-radius: 0.45rem;
+  background: var(--code-bg);
+  color: var(--code-text);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.network-observability-incident-card .button {
+  margin-top: 0.7rem;
+}
+
+.network-observability-completion-checklist {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 1rem 0;
+}
+
+.network-observability-completion-checklist span {
+  min-width: 0;
+  padding: 0.55rem 0.65rem;
+  border-left: 0.2rem solid var(--line-strong);
+  background: var(--paper-subtle);
+  color: var(--muted);
+  font-size: var(--text-caption);
+}
+
+.network-observability-completion-checklist span.is-complete {
+  border-left-color: var(--success-border);
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .network-observability-chapter-shell .button,
+  .network-observability-capacity-track span {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .network-observability-coordinate-strip,
+  .network-observability-fixture-ledger,
+  .network-observability-boundary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .network-observability-path-map > svg {
+    display: none;
+  }
+
+  .network-observability-boundary-grid {
+    margin-top: 0.75rem;
+  }
+}
+
+@media (max-width: 720px) {
+  .network-observability-formula-grid,
+  .network-observability-evidence-grid,
+  .network-observability-capacity-grid,
+  .network-observability-incident-grid,
+  .network-observability-completion-checklist {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .network-observability-lab-header,
+  .network-observability-incident-header,
+  .network-observability-evidence-workspace > header,
+  .network-observability-capacity-workspace > header,
+  .network-observability-visual-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .network-observability-coordinate-strip,
+  .network-observability-fixture-ledger,
+  .network-observability-boundary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .network-observability-action-row .button,
+  .network-observability-scenario-toolbar .button,
+  .network-observability-capacity-controls .button {
+    width: 100%;
+  }
+}

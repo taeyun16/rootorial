@@ -86,6 +86,9 @@ test("publishes only available chapters that also have a renderer contract", () 
   assert.ok(
     registeredChapterIds.includes("infrastructure-design/availability-and-failure-domains"),
   );
+  assert.ok(
+    registeredChapterIds.includes("infrastructure-design/network-observability-and-capacity"),
+  );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "vectors", "en")?.chapter.title,
     "Vectors and Tensors",
@@ -157,6 +160,14 @@ test("publishes only available chapters that also have a renderer contract", () 
       "en",
     )?.chapter.title,
     "Network Policy and Firewalls",
+  );
+  assert.equal(
+    getPublishedChapter(
+      "infrastructure-design",
+      "network-observability-and-capacity",
+      "en",
+    )?.chapter.title,
+    "Network Observability and Capacity",
   );
   assert.equal(
     getPublishedChapter("transformer-from-zero", "optimization", "en")?.chapter.title,
@@ -1063,6 +1074,64 @@ test("separates active question submissions from historical labels", () => {
     },
   );
   assert.deepEqual(Object.values(availabilityQuestions).map((question) => question.answers.indexOf(question.correctAnswer)), [1, 0, 2, 1, 0]);
+
+  const observabilityQuestions = chapterRegistry[
+    "infrastructure-design/network-observability-and-capacity"
+  ].questions;
+  assert.equal(Object.keys(observabilityQuestions).length, 5);
+  assert.ok(
+    Object.values(observabilityQuestions).every(
+      (question) => question.status === "active" && question.version === 1,
+    ),
+  );
+  assert.deepEqual(
+    Object.fromEntries(
+      Object.entries(observabilityQuestions)
+        .map(([id, question]) => [id, question.correctAnswer]),
+    ),
+    {
+      "observation-scope": "probe-in-owning-namespace",
+      "counter-window": "same-interface-window-delta",
+      "capture-absence": "absence-is-scope-and-window-bound",
+      "limiting-resource": "highest-ratio-crossing-limit",
+      "queue-role": "queue-absorbs-bursts-not-sustained-overload",
+    },
+  );
+  assert.deepEqual(
+    Object.values(observabilityQuestions)
+      .map((question) => question.answers.indexOf(question.correctAnswer)),
+    [1, 0, 2, 1, 0],
+  );
+  assert.equal(
+    getConceptQuestion(
+      "infrastructure-design",
+      "network-observability-and-capacity",
+      "queue-role",
+    )?.correctAnswer,
+    "queue-absorbs-bursts-not-sustained-overload",
+  );
+  for (const questionId of Object.keys(observabilityQuestions)) {
+    const versionEntry = getConceptQuestionVersionEntry(
+      "infrastructure-design",
+      "network-observability-and-capacity",
+      questionId,
+      1,
+    );
+    assert.equal(versionEntry?.version, 1);
+    assert.equal(
+      versionEntry?.correctAnswer,
+      observabilityQuestions[questionId].correctAnswer,
+    );
+    assert.equal(
+      getConceptQuestionVersionEntry(
+        "infrastructure-design",
+        "network-observability-and-capacity",
+        questionId,
+        2,
+      ),
+      undefined,
+    );
+  }
   assert.deepEqual(
     Object.fromEntries(
       Object.entries(chapterRegistry["linux-systems/assemble-a-tiny-linux"].questions)
