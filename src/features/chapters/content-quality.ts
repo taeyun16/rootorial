@@ -135,7 +135,7 @@ export const transformerContentQualityContracts = {
     editorialReview: {
       conceptDepth: 5,
       narrativeDensity: 5,
-      workedExamples: 4,
+      workedExamples: 5,
       labAgency: 5,
       feedbackQuality: 5,
       conceptCheck: 5,
