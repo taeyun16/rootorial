@@ -5,16 +5,25 @@ import {
   networkNamespaceIds,
   type NamespaceTopologyDraft,
   type NamespaceTopologyEvaluation,
-  type LoopbackConnectionResult,
   type NetworkNamespaceId,
 } from "../../features/infrastructure/network-namespaces";
 import { useLocale } from "../../features/localization/localization";
+import { NetworkNamespaceBoundaryView } from "./NetworkNamespaceBoundaryView";
 
 type Prediction = "" | "both-local-only" | "host-can-reach" | "no-local-health";
+type LocalizedMessage = { ko: string; en: string };
 
 const initialDraft: NamespaceTopologyDraft = {
   ...namespaceTopologyPresets.collapsed,
 };
+const initialMessage: LocalizedMessage = {
+  ko: "예측을 고르고 process·listener·loopback 배치를 설계한 뒤 실행하세요.",
+  en: "Choose a prediction, design process, listener, and loopback placement, then run it.",
+};
+
+function localizedMessage(ko: string, en: string): LocalizedMessage {
+  return { ko, en };
+}
 
 export function NetworkNamespaceTopologyLab({
   onCompletionChange,
@@ -27,10 +36,7 @@ export function NetworkNamespaceTopologyLab({
   const [draft, setDraft] = useState<NamespaceTopologyDraft>(initialDraft);
   const [prediction, setPrediction] = useState<Prediction>("");
   const [evaluation, setEvaluation] = useState<NamespaceTopologyEvaluation | null>(null);
-  const [message, setMessage] = useState(t(
-    "예측을 고르고 process·listener·loopback 배치를 설계한 뒤 실행하세요.",
-    "Choose a prediction, design process, listener, and loopback placement, then run it.",
-  ));
+  const [message, setMessage] = useState<LocalizedMessage>(initialMessage);
   const [complete, setComplete] = useState(false);
   const [interactiveReady, setInteractiveReady] = useState(false);
 
@@ -40,7 +46,7 @@ export function NetworkNamespaceTopologyLab({
 
   const preview = useMemo(() => evaluateNamespaceTopology(draft), [draft]);
 
-  function invalidate(nextMessage?: string) {
+  function invalidate(nextMessage?: LocalizedMessage) {
     setEvaluation(null);
     setComplete(false);
     onCompletionChange(false);
@@ -52,7 +58,7 @@ export function NetworkNamespaceTopologyLab({
     value: NetworkNamespaceId,
   ) {
     setDraft((current) => ({ ...current, [field]: value }));
-    invalidate(t("배치가 바뀌었습니다. 결과를 다시 예측·실행하세요.", "Placement changed. Predict and run the result again."));
+    invalidate(localizedMessage("배치가 바뀌었습니다. 결과를 다시 예측·실행하세요.", "Placement changed. Predict and run the result again."));
   }
 
   function setBooleanField(
@@ -60,26 +66,26 @@ export function NetworkNamespaceTopologyLab({
     value: boolean,
   ) {
     setDraft((current) => ({ ...current, [field]: value }));
-    invalidate(t("interface 상태가 바뀌었습니다. 결과를 다시 실행하세요.", "Interface state changed. Run the result again."));
+    invalidate(localizedMessage("interface 상태가 바뀌었습니다. 결과를 다시 실행하세요.", "Interface state changed. Run the result again."));
   }
 
   function applyPreset(id: "collapsed" | "isolated-but-down") {
     setDraft({ ...namespaceTopologyPresets[id] });
     setPrediction("");
     invalidate(id === "collapsed"
-      ? t("모든 workload가 host에 겹친 출발점입니다. 격리 경계를 설계하세요.", "Every workload starts collapsed onto the host. Design isolation boundaries.")
-      : t("service는 격리됐지만 두 lo가 down입니다. local health가 왜 실패하는지 수리하세요.", "Services are isolated, but both lo devices are down. Repair the local health failure."));
+      ? localizedMessage("모든 workload가 host에 겹친 출발점입니다. 격리 경계를 설계하세요.", "Every workload starts collapsed onto the host. Design isolation boundaries.")
+      : localizedMessage("service는 격리됐지만 두 lo가 down입니다. local health가 왜 실패하는지 수리하세요.", "Services are isolated, but both lo devices are down. Repair the local health failure."));
   }
 
   function reset() {
     setDraft({ ...initialDraft });
     setPrediction("");
-    invalidate(t("초기화했습니다. host에 겹친 workload를 다시 분리하세요.", "Reset. Separate the workloads collapsed on the host again."));
+    invalidate(localizedMessage("초기화했습니다. host에 겹친 workload를 다시 분리하세요.", "Reset. Separate the workloads collapsed on the host again."));
   }
 
   function runDesign() {
     if (!prediction) {
-      setMessage(t("먼저 최종 reachability를 예측하세요.", "Predict the final reachability first."));
+      setMessage(localizedMessage("먼저 최종 reachability를 예측하세요.", "Predict the final reachability first."));
       return;
     }
     try {
@@ -89,29 +95,29 @@ export function NetworkNamespaceTopologyLab({
       setComplete(passed);
       onCompletionChange(passed);
       if (passed) {
-        setMessage(t(
+        setMessage(localizedMessage(
           "설계 통과 — app·data local health는 각자의 lo와 socket table에서 성공하고, host localhost와 app localhost:5432 조회에는 대상 listener가 없습니다.",
           "Design passed — app and data local health succeed in their own lo devices and socket tables; host localhost and app localhost:5432 contain no target listener.",
         ));
         return;
       }
       if (prediction !== "both-local-only") {
-        setMessage(t(
+        setMessage(localizedMessage(
           "예측을 다시 보세요. 이 장의 목표는 두 service의 namespace-local health만 성공하고 다른 namespace의 localhost 조회는 실패하는 상태입니다.",
           "Revisit the prediction. This chapter targets namespace-local health for both services while localhost lookups from other namespaces fail.",
         ));
       } else if (!result.checks["separate-service-boundaries"]) {
-        setMessage(t(
+        setMessage(localizedMessage(
           "app process·listener는 app에, data process·listener는 data에 두어 이름과 소유 경계를 일치시키세요.",
           "Place the app process and listener in app, and the data process and listener in data, so names match their ownership boundaries.",
         ));
       } else if (!result.checks["app-local-health"] || !result.checks["data-local-health"]) {
-        setMessage(t(
+        setMessage(localizedMessage(
           "local health probe는 target listener와 같은 namespace에 있어야 하며 그 namespace의 lo가 UP이어야 합니다.",
           "A local health probe must share the target listener's namespace, and that namespace's lo must be UP.",
         ));
       } else if (!result.checks["host-localhost-empty"] || !result.checks["app-localhost-cannot-see-data"]) {
-        setMessage(t(
+        setMessage(localizedMessage(
           "host localhost 또는 app localhost:5432에서 다른 namespace의 listener가 보입니다. process·listener 소유권을 다시 분리하세요.",
           "A listener from another namespace appears in host localhost or app localhost:5432. Separate process and listener ownership again.",
         ));
@@ -120,7 +126,7 @@ export function NetworkNamespaceTopologyLab({
       setEvaluation(null);
       setComplete(false);
       onCompletionChange(false);
-      setMessage(t(
+      setMessage(localizedMessage(
         "브라우저 모델 실행에 실패했습니다. 초기화 후 다시 시도하세요. 설명과 선택 Linux 관찰은 계속 사용할 수 있습니다.",
         "The browser model failed to run. Reset and try again; the explanation and optional Linux observation remain available.",
       ));
@@ -130,13 +136,6 @@ export function NetworkNamespaceTopologyLab({
   const namespaceLabel = (namespaceId: NetworkNamespaceId) => namespaceId === "host"
     ? "host"
     : `${namespaceId} netns`;
-  const reasonLabel = (reason: string) => ({
-    connected: t("연결됨", "connected"),
-    "loopback-down": t("lo down", "lo down"),
-    "connection-refused": t("이 namespace에 listener 없음", "no listener in this namespace"),
-    "source-process-missing": t("probe process 없음", "probe process missing"),
-  }[reason] ?? reason);
-
   return (
     <section
       className="interactive-lab namespace-lab namespace-topology-lab"
@@ -208,10 +207,6 @@ export function NetworkNamespaceTopologyLab({
         </fieldset>
       </div>
 
-      <div className="namespace-lab-actions">
-        <button type="button" className="button button-primary" onClick={runDesign}>{t("reachability 실행·설계 판정", "Run reachability and grade design")}</button>
-      </div>
-
       <div className="namespace-lab-grid" role="group" aria-label={t("namespace별 현재 network view", "Current network view per namespace")}>
         {networkNamespaceIds.map((namespaceId) => {
           const processes = preview.machine.processes.filter((candidate) => candidate.namespaceId === namespaceId);
@@ -243,25 +238,14 @@ export function NetworkNamespaceTopologyLab({
         })}
       </div>
 
-      {evaluation ? (
-        <div className="namespace-reachability-grid" role="group" aria-label={t("실행된 reachability 결과", "Executed reachability results")}>
-          {([
-            [t("app local health", "app local health"), evaluation.appHealth],
-            [t("data local health", "data local health"), evaluation.dataHealth],
-            [t("host localhost:8080", "host localhost:8080"), evaluation.hostLocal8080],
-            [t("host localhost:5432", "host localhost:5432"), evaluation.hostLocal5432],
-            [t("app localhost:5432", "app localhost:5432"), evaluation.appLocal5432],
-          ] satisfies Array<[string, LoopbackConnectionResult]>).map(([label, result]) => (
-            <article className="namespace-reachability-card" key={String(label)}>
-              <strong>{String(label)}</strong>
-              <p>{result.ok ? "✓" : "×"} {reasonLabel(result.reason)}</p>
-            </article>
-          ))}
-        </div>
-      ) : null}
+      <NetworkNamespaceBoundaryView preview={preview} evaluation={evaluation} />
+
+      <div className="namespace-lab-actions">
+        <button type="button" className="button button-primary" onClick={runDesign}>{t("reachability 실행·설계 판정", "Run reachability and grade design")}</button>
+      </div>
 
       <div className={`namespace-feedback${complete ? " is-success" : evaluation ? " is-error" : ""}`} role="status" aria-live="polite">
-        {message}
+        {message[locale]}
       </div>
     </section>
   );

@@ -10,6 +10,114 @@ import {
   namespaceIncidentFixtures,
   namespaceTopologyPresets,
 } from "../src/features/infrastructure/network-namespaces.ts";
+import { buildNetworkNamespaceVisualState } from "../src/features/infrastructure/network-namespace-visual.ts";
+
+test("projects collapsed, isolated, and working namespace boundaries without inventing a network path", () => {
+  const collapsed = buildNetworkNamespaceVisualState(
+    evaluateNamespaceTopology(namespaceTopologyPresets.collapsed),
+  );
+  assert.equal(collapsed.boundaryState, "collapsed");
+  assert.equal(collapsed.crossNamespacePath, "absent");
+  assert.deepEqual(
+    collapsed.boundaries.map(({ id, loopbackUp, objects }) => ({
+      id,
+      loopbackUp,
+      objectIds: objects.map(({ id: objectId }) => objectId),
+    })),
+    [
+      {
+        id: "host",
+        loopbackUp: true,
+        objectIds: [
+          "host-lo",
+          "host-probe",
+          "app-service",
+          "data-service",
+          "app-probe",
+          "data-probe",
+          "app-local-5432-probe",
+          "app-listener",
+          "data-listener",
+        ],
+      },
+      { id: "app", loopbackUp: false, objectIds: ["app-lo"] },
+      { id: "data", loopbackUp: false, objectIds: ["data-lo"] },
+    ],
+  );
+  assert.deepEqual(collapsed.probes.map(({ computedResult, displayedResult }) => ({
+    computedResult,
+    displayedResult,
+  })), Array.from({ length: 5 }, () => ({ computedResult: "connected", displayedResult: "not-run" })));
+
+  const isolatedDown = buildNetworkNamespaceVisualState(
+    evaluateNamespaceTopology(namespaceTopologyPresets["isolated-but-down"]),
+    "failed",
+  );
+  assert.equal(isolatedDown.boundaryState, "isolated-down");
+  assert.deepEqual(
+    isolatedDown.probes.map(({ id, displayedResult }) => [id, displayedResult]),
+    [
+      ["app-health", "loopback-down"],
+      ["data-health", "loopback-down"],
+      ["host-8080", "connection-refused"],
+      ["host-5432", "connection-refused"],
+      ["app-5432", "loopback-down"],
+    ],
+  );
+
+  const working = buildNetworkNamespaceVisualState(
+    evaluateNamespaceTopology(namespaceTopologyPresets["working-boundaries"]),
+    "passed",
+  );
+  assert.equal(working.boundaryState, "working-boundaries");
+  assert.deepEqual(
+    working.probes.map(({ id, displayedResult }) => [id, displayedResult]),
+    [
+      ["app-health", "connected"],
+      ["data-health", "connected"],
+      ["host-8080", "connection-refused"],
+      ["host-5432", "connection-refused"],
+      ["app-5432", "connection-refused"],
+    ],
+  );
+});
+
+test("keeps listener ownership independent from process placement in the visual projection", () => {
+  const misplacedListener = buildNetworkNamespaceVisualState(evaluateNamespaceTopology({
+    ...namespaceTopologyPresets["working-boundaries"],
+    appListenerNamespace: "host",
+  }));
+  assert.equal(misplacedListener.boundaryState, "misconfigured");
+  assert.equal(
+    misplacedListener.boundaries.find(({ id }) => id === "host")?.objects
+      .some(({ id }) => id === "app-listener"),
+    true,
+  );
+  assert.equal(
+    misplacedListener.boundaries.find(({ id }) => id === "app")?.objects
+      .some(({ id }) => id === "app-service"),
+    true,
+  );
+  assert.deepEqual(
+    misplacedListener.probes.slice(0, 3).map(({ id, computedResult }) => [id, computedResult]),
+    [
+      ["app-health", "connection-refused"],
+      ["data-health", "connected"],
+      ["host-8080", "connected"],
+    ],
+  );
+
+  const crossed = buildNetworkNamespaceVisualState(evaluateNamespaceTopology({
+    ...namespaceTopologyPresets["working-boundaries"],
+    appProcessNamespace: "data",
+    appProbeNamespace: "data",
+    appListenerNamespace: "data",
+    dataProcessNamespace: "app",
+    dataProbeNamespace: "app",
+    dataListenerNamespace: "app",
+  }));
+  assert.equal(crossed.boundaryState, "misconfigured");
+});
 
 test("keeps loopback and socket lookup local to the source process namespace", () => {
   const machine = createNamespaceMachine(namespaceTopologyPresets["working-boundaries"]);

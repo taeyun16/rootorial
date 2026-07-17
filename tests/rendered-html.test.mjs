@@ -657,6 +657,12 @@ test("SSR-renders the bilingual network namespace chapter with test-only publica
   assert.match(html, /REQUIRED LAB · DESIGN THE BOUNDARY/);
   assert.match(html, /REQUIRED ACTIVITY · INCIDENT CONSOLE/);
   assert.match(html, /veth·bridge·routing으로 토폴로지 조립/);
+  assert.match(html, /data-testid="network-namespace-visualization"/);
+  assert.match(html, /data-boundary-state="collapsed"/);
+  assert.match(html, /data-grade-state="not-run"/);
+  assert.match(html, /data-cross-namespace-path="absent"/);
+  assert.match(html, /네트워크 namespace 경계 지도/);
+  assert.match(html, /NO VETH · NO BRIDGE · NO ROUTE/);
 
   const englishResponse = await renderWithPublicationRows(
     "/curricula/infrastructure-design/chapters/network-namespaces-and-boundaries?lang=en",
@@ -668,6 +674,10 @@ test("SSR-renders the bilingual network namespace chapter with test-only publica
   assert.match(englishHtml, /create several network views inside the same kernel/);
   assert.match(englishHtml, /Design namespace-local health and the isolation matrix/);
   assert.match(englishHtml, /Repair four incidents through observation scope and object ownership/);
+  assert.match(englishHtml, /data-testid="network-namespace-visualization"/);
+  assert.match(englishHtml, /data-boundary-state="collapsed"/);
+  assert.match(englishHtml, /Network namespace boundary map/);
+  assert.match(englishHtml, /No data path connects the namespaces yet/);
 });
 
 test("renders the interactive vectors chapter", async () => {
