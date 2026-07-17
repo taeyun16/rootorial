@@ -313,14 +313,29 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(run).toBeFocused();
   await expect(lab.locator(".mini-transformer-live-feedback")).toContainText("Prediction and execution contracts match");
 
-  const embedStage = lab.locator(".step-explorer").getByRole("button", { name: /02.*Embedding \+ position/ });
+  const embedStage = lab.locator(".step-explorer").getByRole("tab", { name: /02.*Embedding \+ position/ });
   await activate(embedStage, true);
   await expect(embedStage).toBeFocused();
-  await expect(embedStage).toHaveAttribute("aria-pressed", "true");
+  await expect(embedStage).toHaveAttribute("aria-selected", "true");
+  const causalStage = lab.locator(".step-explorer").getByRole("tab", { name: /03.*Causal block/ });
+  await embedStage.press("ArrowRight");
+  await expect(causalStage).toBeFocused();
+  await expect(causalStage).toHaveAttribute("aria-selected", "true");
+  await causalStage.press("ArrowLeft");
+  await expect(embedStage).toBeFocused();
+  await expect(embedStage).toHaveAttribute("aria-selected", "true");
   const embedCell = lab.getByRole("button", { name: /^x0 = E \+ P \[T,4\], 1:the, d0:/ });
   await activate(embedCell, true);
   await expect(embedCell).toBeFocused();
   await expect(lab.locator(".mini-transformer-evidence .is-complete")).toHaveCount(1);
+  const embedGrid = embedCell.locator("xpath=ancestor::figure[1]");
+  const adjacentCell = lab.getByRole("button", { name: /^x0 = E \+ P \[T,4\], 1:the, d1:/ });
+  await expect(embedGrid.locator('button[tabindex="0"]')).toHaveCount(1);
+  await embedCell.press("ArrowRight");
+  await expect(adjacentCell).toBeFocused();
+  await expect(embedCell).toHaveAttribute("tabindex", "-1");
+  await adjacentCell.press("ArrowLeft");
+  await expect(embedCell).toBeFocused();
 
   for (const control of [embedPreset, positionScale, prediction, run, embedStage, embedCell]) {
     await expectMinimumTarget(control);

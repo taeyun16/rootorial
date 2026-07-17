@@ -845,6 +845,12 @@ export const miniTransformerChallengeIds = Object.freeze([
   "autoregressive-decode",
 ] as const) satisfies readonly MiniTransformerChallengeId[];
 
+export const miniTransformerCoreChallengeIds = deepFreeze([
+  "causal-block",
+  "vocab-projection",
+  "autoregressive-decode",
+] as const) satisfies readonly MiniTransformerChallengeId[];
+
 export const miniTransformerPredictions = Object.freeze([
   "bos-and-vocabulary-ids",
   "characters-without-vocabulary",
@@ -1099,7 +1105,7 @@ export const emptyMiniTransformerLabEvidence: MiniTransformerLabEvidence = Objec
 
 export type MiniTransformerLabMastery = Readonly<{
   mastered: boolean;
-  reason: "mastered" | "invalid-evidence" | "complete-five-challenges";
+  reason: "mastered" | "invalid-evidence" | "complete-core-challenges";
   completedChallengeIds: readonly MiniTransformerChallengeId[];
 }>;
 
@@ -1198,9 +1204,9 @@ export function evaluateMiniTransformerLabMastery(evidence: MiniTransformerLabEv
     }
     return masteryResult("invalid-evidence", completed);
   }
-  return completed.size === miniTransformerChallengeIds.length
+  return miniTransformerCoreChallengeIds.every((challengeId) => completed.has(challengeId))
     ? masteryResult("mastered", completed)
-    : masteryResult("complete-five-challenges", completed);
+    : masteryResult("complete-core-challenges", completed);
 }
 
 export type MiniTransformerDebuggerScenarioId =
@@ -1501,12 +1507,11 @@ export function evaluateMiniTransformerRepair(
 
 export function canCompleteMiniTransformerChapter({
   labComplete,
-  debuggerComplete,
   conceptsMastered,
 }: {
   labComplete: boolean;
-  debuggerComplete: boolean;
+  debuggerComplete?: boolean;
   conceptsMastered: boolean;
 }) {
-  return labComplete && debuggerComplete && conceptsMastered;
+  return labComplete && conceptsMastered;
 }

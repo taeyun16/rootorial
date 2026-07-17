@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useId } from "react";
 import { useProgress } from "./ProgressProvider";
 import { useLocale } from "../features/localization/localization";
 import { chapterId, TRANSFORMER_CURRICULUM_SLUG } from "../data/curriculum";
@@ -15,12 +16,18 @@ export function CompleteChapter({
   slug,
   curriculumSlug = TRANSFORMER_CURRICULUM_SLUG,
   canComplete = true,
-  lockedMessage = "이해 확인을 마치면 챕터를 완료할 수 있습니다.",
+  lockedMessage,
 }: CompleteChapterProps) {
   const { completed, markComplete, retry, status } = useProgress();
   const { locale } = useLocale();
   const preview = usePublicationPreview();
   const isKo = locale === "ko";
+  const lockedMessageId = useId();
+  const previewMessageId = useId();
+  const resolvedLockedMessage = lockedMessage
+    ?? (isKo
+      ? "이해 확인을 마치면 챕터를 완료할 수 있습니다."
+      : "Finish the knowledge check to complete this chapter.");
   const progressId = chapterId(curriculumSlug, slug);
   const isCompleted = completed.includes(progressId);
 
@@ -31,11 +38,12 @@ export function CompleteChapter({
           type="button"
           className="button button-primary complete-button"
           data-completion-ready={canComplete ? "true" : "false"}
+          aria-describedby={previewMessageId}
           disabled
         >
           {isKo ? "미리보기에서는 완료할 수 없습니다" : "Completion is disabled in preview"}
         </button>
-        <p role="status">
+        <p id={previewMessageId} role="status">
           {isKo
             ? "공개 전 진도 데이터가 저장되지 않도록 비활성화했습니다."
             : "Disabled so preview activity cannot change learner progress."}
@@ -80,6 +88,7 @@ export function CompleteChapter({
         type="button"
         className="button button-primary complete-button"
         data-completion-ready={canComplete ? "true" : "false"}
+        aria-describedby={!canComplete ? lockedMessageId : undefined}
         disabled={!canComplete || status === "loading" || status === "syncing"}
         onClick={() => void markComplete(progressId)}
       >
@@ -88,7 +97,7 @@ export function CompleteChapter({
           : (isKo ? "이 챕터 완료하기" : "Complete this chapter")}{" "}
         <span aria-hidden="true">✓</span>
       </button>
-      {!canComplete ? <p role="status">{lockedMessage}</p> : null}
+      {!canComplete ? <p id={lockedMessageId} role="status">{resolvedLockedMessage}</p> : null}
       {status === "error" ? (
         <p role="status">
           {isKo ? "계정 진도를 불러오지 못했습니다." : "Could not load account progress."}{" "}

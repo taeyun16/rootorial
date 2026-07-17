@@ -372,7 +372,8 @@ test("SSR-renders the bilingual Self-Attention chapter with an explicit test-onl
   );
   assert.match(html, /raw = \[2, 1, 0, 1\]/);
   assert.match(html, /고정 trace와 mask repair를 실제 NumPy로 다시 실행합니다/);
-  assert.match(html, /08 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
+  assert.match(html, /08 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(html, /CORE LAB · 핵심 3 \+ 선택 2/);
 
   const englishResponse = await renderWithPublicationRows(
     "/curricula/transformer-from-zero/chapters/self-attention?lang=en",
@@ -387,7 +388,8 @@ test("SSR-renders the bilingual Self-Attention chapter with an explicit test-onl
   );
   assert.match(englishHtml, /raw = \[2, 1, 0, 1\]/);
   assert.match(englishHtml, /Re-execute the fixed trace and mask repair in real NumPy/);
-  assert.match(englishHtml, /08 — CAUSAL MULTI-HEAD REPAIR CONSOLE/);
+  assert.match(englishHtml, /08 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(englishHtml, /CORE LAB · 3 CORE \+ 2 OPTIONAL/);
 });
 
 test("SSR-renders the bilingual Transformer Block chapter with an explicit test-only publication override", async () => {
@@ -418,7 +420,8 @@ test("SSR-renders the bilingual Transformer Block chapter with an explicit test-
     /직전 장의 causal multi-head routing을 완성된 decoder block으로 조립합니다/,
   );
   assert.match(html, /08 — NUMPY BLOCK LEDGER · OPTIONAL/);
-  assert.match(html, /09 — BLOCK CONTRACT REPAIR CONSOLE/);
+  assert.match(html, /09 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(html, /CORE LAB · 핵심 3 \+ 선택 2/);
 
   const englishResponse = await renderWithPublicationRows(
     "/curricula/transformer-from-zero/chapters/transformer-block?lang=en",
@@ -432,7 +435,8 @@ test("SSR-renders the bilingual Transformer Block chapter with an explicit test-
     /Assemble the prior chapter(?:'|&#x27;)s causal multi-head routing into a complete decoder block/,
   );
   assert.match(englishHtml, /08 — NUMPY BLOCK LEDGER · OPTIONAL/);
-  assert.match(englishHtml, /09 — BLOCK CONTRACT REPAIR CONSOLE/);
+  assert.match(englishHtml, /09 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(englishHtml, /CORE LAB · 3 CORE \+ 2 OPTIONAL/);
 });
 
 test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-only publication override", async () => {
@@ -464,8 +468,8 @@ test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-o
   );
   assert.match(html, /07 — NUMPY BRIDGE · OPTIONAL/);
   assert.match(html, /shifted loss와 generation controller를 실제 NumPy로 분리해 검증합니다/);
-  assert.match(html, /08 — MODEL BOUNDARY REPAIR CONSOLE/);
-  assert.match(html, /필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT/);
+  assert.match(html, /08 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(html, /CORE LAB · 핵심 3 \+ 선택 2/);
 
   const englishResponse = await renderWithPublicationRows(
     "/curricula/transformer-from-zero/chapters/mini-transformer?lang=en",
@@ -480,8 +484,8 @@ test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-o
   );
   assert.match(englishHtml, /07 — NUMPY BRIDGE · OPTIONAL/);
   assert.match(englishHtml, /Verify shifted loss and the generation controller separately in real NumPy/);
-  assert.match(englishHtml, /08 — MODEL BOUNDARY REPAIR CONSOLE/);
-  assert.match(englishHtml, /REQUIRED LAB · PREDICT → CONFIGURE → RUN → INSPECT/);
+  assert.match(englishHtml, /08 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
+  assert.match(englishHtml, /CORE LAB · 3 CORE \+ 2 OPTIONAL/);
 });
 
 test("SSR-renders the bilingual network namespace chapter with test-only publication overrides", async () => {

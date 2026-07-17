@@ -28,6 +28,7 @@ import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { PythonCode } from "../PythonCode";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { TrainingBatchLab } from "./TrainingBatchLab";
 import { TrainingConceptCheck } from "./TrainingConceptCheck";
 import { TrainingLoopDebugger } from "./TrainingLoopDebugger";
@@ -40,7 +41,7 @@ const tocItems = {
     { id: "batch-lab", label: "필수 mini-batch lab" },
     { id: "numpy-bridge", label: "NumPy 훈련 bridge" },
     { id: "generalization", label: "검증과 Dropout" },
-    { id: "debug", label: "훈련 loop 디버깅" },
+    { id: "debug", label: "선택 · 훈련 loop 디버깅" },
     { id: "transfer", label: "Embedding으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -51,7 +52,7 @@ const tocItems = {
     { id: "batch-lab", label: "Required mini-batch lab" },
     { id: "numpy-bridge", label: "NumPy training bridge" },
     { id: "generalization", label: "Validation and dropout" },
-    { id: "debug", label: "Training-loop debugging" },
+    { id: "debug", label: "Optional · Training-loop debugging" },
     { id: "transfer", label: "Transfer to embeddings" },
     { id: "check", label: "Concept check" },
   ],
@@ -135,6 +136,8 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
               </ul>
             </div>
           </header>
+
+          <TransformerLearningGuide chapterSlug="training" />
 
           <section className="article-section" id="batch-logits">
             <div className="margin-label">01 — BATCH × CLASS</div>
@@ -346,7 +349,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">07 — DEBUG</div>
+            <div className="margin-label">07 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("훈련 loop의 경계는 실행 결과로 수리합니다", "Repair training-loop boundaries by executing their contracts")}</h2>
             <p>{t(
               "softmax 축, fused CE 입력, gradient와 Adam state의 수명, dropout train/eval 모드를 각각 고쳐 보세요. 모든 patch는 실제 수치를 다시 계산하고 구체적인 실패 원인을 돌려줍니다.",
@@ -403,12 +406,12 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             <p className="eyebrow">CHECKPOINT</p>
             <h2>{t("이제 forward pass를 일반화 가능한 훈련 loop로 운영할 수 있습니다", "You can now operate a forward pass as a generalizable training loop")}</h2>
             <p>{t(
-              "한 batch의 local loss와 full loss가 다르게 움직임을 예측·관찰하고, Adam memory를 파라미터 셀까지 추적하며, 네 훈련 사건과 다섯 개념을 연결하면 목표에 도달했습니다.",
-              "You have reached the goal after predicting and observing local versus full loss movement, tracing Adam memory into a parameter cell, and connecting four training incidents with all five concepts.",
+              "한 batch의 local loss와 full loss가 다르게 움직임을 예측·관찰하고 Adam memory를 파라미터 셀까지 추적하며 다섯 개념을 연결하면 핵심 목표에 도달합니다. 훈련 사건은 선택 보강입니다.",
+              "You reach the core goal after observing local versus full loss movement, tracing Adam memory into a parameter cell, and connecting all five concepts. Training incidents are optional remediation.",
             )}</p>
             <div className="training-completion-checklist" role="status" aria-live="polite">
               <span className={batchLabComplete ? "is-complete" : undefined}>{batchLabComplete ? "✓" : "○"} {t("필수 mini-batch·Adam lab", "Required mini-batch and Adam lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("훈련 계약 복구 4개", "Four training-contract repairs")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("훈련 계약 복구 4개", "Four training-contract repairs")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
@@ -416,8 +419,8 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
               slug="training"
               canComplete={canComplete}
               lockedMessage={t(
-                "필수 mini-batch lab, 훈련 loop 복구 네 사건과 이해 확인 다섯 문제를 모두 마치면 완료할 수 있습니다.",
-                "Finish the required mini-batch lab, all four training-loop repairs, and all five concept questions to complete the chapter.",
+                "필수 mini-batch lab과 이해 확인 다섯 문제를 마치면 완료할 수 있습니다. 훈련 loop 복구는 선택 보강입니다.",
+                "Finish the required mini-batch lab and all five concept questions. Training-loop repairs are optional remediation.",
               )}
             />
           </section>

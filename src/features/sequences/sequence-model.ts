@@ -664,12 +664,11 @@ export function evaluateSequenceRepair(
 
 export function canCompleteSequencesChapter({
   memoryLabComplete,
-  debuggerComplete,
   conceptsMastered,
 }: {
   memoryLabComplete: boolean;
-  debuggerComplete: boolean;
+  debuggerComplete?: boolean;
   conceptsMastered: boolean;
 }) {
-  return memoryLabComplete && debuggerComplete && conceptsMastered;
+  return memoryLabComplete && conceptsMastered;
 }

@@ -375,15 +375,16 @@ test("rejects replayed, forged, mismatched, and reordered mastery evidence", () 
   assert.equal(evaluateAttentionLabMastery(null).reason, "invalid-evidence");
 });
 
-test("requires lab, debugger, and concept mastery to complete the chapter", () => {
+test("requires lab and concept mastery while keeping debugger remediation optional", () => {
   for (const labComplete of [false, true]) {
     for (const debuggerComplete of [false, true]) {
       for (const conceptsMastered of [false, true]) {
         assert.equal(
           canCompleteAttentionChapter({ labComplete, debuggerComplete, conceptsMastered }),
-          labComplete && debuggerComplete && conceptsMastered,
+          labComplete && conceptsMastered,
         );
       }
     }
   }
+  assert.equal(canCompleteAttentionChapter({ labComplete: true, conceptsMastered: true }), true);
 });

@@ -21,6 +21,7 @@ import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { SequenceDebuggerLab } from "./SequenceDebuggerLab";
 import { SequenceMemoryLab } from "./SequenceMemoryLab";
 import { SequencesConceptCheck } from "./SequencesConceptCheck";
@@ -30,10 +31,10 @@ const tocItems = {
     { id: "order", label: "순서와 state" },
     { id: "recurrence", label: "RNN unroll" },
     { id: "memory-lab", label: "필수 memory lab" },
-    { id: "gradient", label: "시간축 gradient" },
+    { id: "gradient", label: "선택 · 시간축 gradient" },
     { id: "numpy-bridge", label: "NumPy로 다시 증명" },
-    { id: "gates", label: "LSTM gates" },
-    { id: "debug", label: "계약 디버깅" },
+    { id: "gates", label: "선택 · LSTM gates" },
+    { id: "debug", label: "선택 · 계약 디버깅" },
     { id: "transfer", label: "Attention으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -41,10 +42,10 @@ const tocItems = {
     { id: "order", label: "Order and state" },
     { id: "recurrence", label: "RNN unroll" },
     { id: "memory-lab", label: "Required memory lab" },
-    { id: "gradient", label: "Temporal gradients" },
+    { id: "gradient", label: "Optional · Temporal gradients" },
     { id: "numpy-bridge", label: "Recheck in NumPy" },
-    { id: "gates", label: "LSTM gates" },
-    { id: "debug", label: "Contract debugging" },
+    { id: "gates", label: "Optional · LSTM gates" },
+    { id: "debug", label: "Optional · Contract debugging" },
     { id: "transfer", label: "Transfer to Attention" },
     { id: "check", label: "Concept check" },
   ],
@@ -129,6 +130,8 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
             </div>
           </header>
 
+          <TransformerLearningGuide chapterSlug="sequences" />
+
           <section className="article-section" id="order">
             <div className="margin-label">01 — ORDERED ROWS</div>
             <h2>{t("평균이 지운 순서를 state update가 다시 모델링합니다", "State updates model the order that a mean erased")}</h2>
@@ -199,7 +202,7 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
           </div>
 
           <section className="article-section" id="gradient">
-            <div className="margin-label">04 — TEMPORAL GRADIENT</div>
+            <div className="margin-label">04 — OPTIONAL DEEP DIVE · TEMPORAL GRADIENT</div>
             <h2>{t("먼 신호에 대한 final-state 민감도는 시간축 미분을 연속으로 곱합니다", "Final-state sensitivity to a distant signal multiplies derivatives through time")}</h2>
             <p>{t(
               "마지막 state h_T가 첫 입력 x₀에 얼마나 민감한지는 중간 state들을 건너뛰지 않습니다. tanh의 local derivative와 recurrent gain이 recurrent edge마다 하나씩 곱해집니다. loss gradient는 여기에 upstream ∂L/∂h_T를 한 번 더 곱하며, 이 lab은 state 경로 자체를 보기 위해 그 upstream factor를 1로 둡니다.",
@@ -258,7 +261,7 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
           </section>
 
           <section className="article-section" id="gates">
-            <div className="margin-label">06 — GATED CARRY</div>
+            <div className="margin-label">06 — OPTIONAL DEEP DIVE · GATED CARRY</div>
             <h2>{t("LSTM은 carry·write·reveal 경로를 서로 다른 gate로 엽니다", "An LSTM opens carry, write, and reveal paths with separate gates")}</h2>
             <p>{t(
               "cell state c는 이전 기억을 더 직접적으로 운반합니다. forget gate f는 이전 c를 얼마나 남길지, input gate i는 candidate g를 얼마나 쓸지, output gate o는 현재 c를 hidden h로 얼마나 드러낼지 정합니다.",
@@ -283,7 +286,7 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">07 — DEBUG</div>
+            <div className="margin-label">07 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("순서·prefix·carry·reveal 경계를 숫자로 복구합니다", "Restore order, prefix, carry, and reveal boundaries with numbers")}</h2>
             <p>{t(
               "각 사건의 repair는 실제 state transition과 gate probe를 실행해 판정합니다. 이름이 그럴듯한 선택이 아니라 순서 민감성, causal prefix, cell update, hidden reveal 불변식을 모두 지키는지를 확인하세요.",
@@ -317,7 +320,7 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
             <SequencesConceptCheck onMasteryChange={setConceptsMastered} />
             <div className="sequences-completion-checklist" aria-label={t("챕터 완료 조건", "Chapter completion requirements")}>
               <span className={memoryLabComplete ? "is-complete" : undefined}>{memoryLabComplete ? "✓" : "○"} {t("필수 sequence memory lab", "Required sequence memory lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("시퀀스 계약 복구 4개", "Four sequence-contract repairs")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("시퀀스 계약 복구 4개", "Four sequence-contract repairs")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
@@ -325,8 +328,8 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
               slug="sequences"
               canComplete={canComplete}
               lockedMessage={t(
-                "필수 memory lab, 시퀀스 계약 복구 네 사건과 이해 확인 다섯 문제를 모두 마치면 완료할 수 있습니다.",
-                "Finish the required memory lab, all four sequence-contract repairs, and all five concept questions to complete the chapter.",
+                "필수 memory lab과 이해 확인 다섯 문제를 마치면 완료할 수 있습니다. 시퀀스 계약 복구는 선택 보강입니다.",
+                "Finish the required memory lab and all five concept questions. Sequence-contract repairs are optional remediation.",
               )}
             />
           </section>

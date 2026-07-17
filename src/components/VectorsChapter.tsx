@@ -8,6 +8,7 @@ import { Discussable } from "./DiscussionPanel";
 import { NotebookCell } from "./NotebookCell";
 import { PythonCode } from "./PythonCode";
 import { TensorShapeExplorer } from "./TensorShapeExplorer";
+import { TransformerLearningGuide } from "./TransformerLearningGuide";
 import { VectorExplorer } from "./VectorExplorer";
 import { VectorBasicsLab } from "./VectorBasicsLab";
 import { VectorNotationGuide } from "./VectorNotationGuide";
@@ -168,6 +169,8 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
               )}
             </div>
           </header>
+
+          <TransformerLearningGuide chapterSlug="vectors" />
 
           <section className="article-section" id="meaning">
             <div className="margin-label">01 — VECTOR</div>

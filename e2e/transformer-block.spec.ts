@@ -303,11 +303,11 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(prediction).toBeFocused();
   await expect(lab.locator(".transformer-block-live-feedback")).toContainText("Prediction and executed contract match");
 
-  const normStage = lab.locator(".step-explorer").getByRole("button", { name: "02 LN(x₀)", exact: true });
+  const normStage = lab.locator(".step-explorer").getByRole("tab", { name: "02 LN(x₀)", exact: true });
   await normStage.focus();
   await normStage.press("Enter");
   await expect(normStage).toBeFocused();
-  await expect(normStage).toHaveAttribute("aria-pressed", "true");
+  await expect(normStage).toHaveAttribute("aria-selected", "true");
   const normCell = lab.getByRole("button", { name: /^target LN\(x₀\) \[4,4\], cat, d2:/ });
   await normCell.focus();
   await normCell.press("Enter");

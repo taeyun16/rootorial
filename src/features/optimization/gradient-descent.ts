@@ -339,12 +339,11 @@ export function evaluateOptimizerAction(
 
 export function canCompleteOptimizationChapter({
   descentLabComplete,
-  debuggerComplete,
   conceptsMastered,
 }: {
   descentLabComplete: boolean;
-  debuggerComplete: boolean;
+  debuggerComplete?: boolean;
   conceptsMastered: boolean;
 }) {
-  return descentLabComplete && debuggerComplete && conceptsMastered;
+  return descentLabComplete && conceptsMastered;
 }

@@ -20,6 +20,7 @@ import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { MiniTransformerConceptCheck } from "./MiniTransformerConceptCheck";
 import { MiniTransformerDebuggerLab } from "./MiniTransformerDebuggerLab";
 import { MiniTransformerLab } from "./MiniTransformerLab";
@@ -31,9 +32,9 @@ const tocItems = {
     { id: "forward", label: "ID에서 logits까지" },
     { id: "loss", label: "Softmax·loss·한 update" },
     { id: "decode", label: "Autoregressive decode" },
-    { id: "mini-transformer-lab", label: "필수 전체 경로 lab" },
+    { id: "mini-transformer-lab", label: "핵심 3 challenge lab" },
     { id: "numpy-bridge", label: "NumPy로 경계 검증" },
-    { id: "debug", label: "모델 경계 디버깅" },
+    { id: "debug", label: "선택 · 모델 경계 디버깅" },
     { id: "transfer", label: "실제 모델로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -43,9 +44,9 @@ const tocItems = {
     { id: "forward", label: "From IDs to logits" },
     { id: "loss", label: "Softmax, loss, one update" },
     { id: "decode", label: "Autoregressive decoding" },
-    { id: "mini-transformer-lab", label: "Required end-to-end lab" },
+    { id: "mini-transformer-lab", label: "Three-core-challenge lab" },
     { id: "numpy-bridge", label: "Verify boundaries in NumPy" },
-    { id: "debug", label: "Debug model boundaries" },
+    { id: "debug", label: "Optional · Debug model boundaries" },
     { id: "transfer", label: "Transfer to real models" },
     { id: "check", label: "Concept check" },
   ],
@@ -108,6 +109,8 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
               </ul>
             </div>
           </header>
+
+          <TransformerLearningGuide chapterSlug="mini-transformer" />
 
           <section className="article-section" id="boundary">
             <div className="margin-label">01 — CAPSTONE BOUNDARY</div>
@@ -233,7 +236,7 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">08 — MODEL BOUNDARY REPAIR CONSOLE</div>
+            <div className="margin-label">08 — OPTIONAL REMEDIATION · REPAIR CONSOLE</div>
             <h2>{t("tokenizer·causality·LM head·decode loop를 실행 결과로 수리합니다", "Repair tokenizer, causality, the LM head, and the decoding loop from executed results")}</h2>
             <p>{t(
               "각 사건은 후보 조립을 같은 tiny fixture에 실제 적용하고 shifted IDs, future leakage, row probability sum, loss 변화, prefix replay와 stop reason을 다시 계산합니다. 설명처럼 들리는 option이 아니라 수치 invariant가 맞아야 통과합니다.",
@@ -259,11 +262,11 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
           <section className="chapter-completion-section">
             <div className="mini-transformer-completion-checklist" role="status" aria-live="polite">
               <strong>{t("완료 조건", "COMPLETION GATE")}</strong>
-              <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("필수 전체 경로 lab", "Required end-to-end lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("별도 debugger 4사건", "Four separate debugger incidents")}</span>
+              <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("핵심 challenge 3개", "Three core challenges")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("별도 debugger 4사건", "Four separate debugger incidents")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
-            <CompleteChapter curriculumSlug={TRANSFORMER_CURRICULUM_SLUG} slug="mini-transformer" canComplete={canComplete} lockedMessage={t("필수 lab, 네 debugger 사건과 다섯 개념 확인을 모두 완료하세요.", "Complete the required lab, all four debugger incidents, and all five concept checks.")} />
+            <CompleteChapter curriculumSlug={TRANSFORMER_CURRICULUM_SLUG} slug="mini-transformer" canComplete={canComplete} lockedMessage={t("핵심 challenge 세 개와 다섯 개념 확인을 완료하세요. 나머지 challenge와 debugger는 선택입니다.", "Complete the three core challenges and all five concept checks. The remaining challenges and debugger are optional.")} />
           </section>
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>

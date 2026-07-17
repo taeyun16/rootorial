@@ -20,6 +20,7 @@ import {
   runSelfAttention,
   selfAttentionChallengeDefaults,
   selfAttentionChallengeIds,
+  selfAttentionCoreChallengeIds,
   selfAttentionDebuggerScenarioIds,
   selfAttentionDebuggerScenarios,
   selfAttentionFixture,
@@ -100,10 +101,10 @@ const solvedChallenges = {
   },
 };
 
-function validEvidence() {
+function validEvidence(challengeIds = selfAttentionChallengeIds) {
   let sequence = 0;
   return {
-    events: selfAttentionChallengeIds.flatMap((challengeId, challengeIndex) => {
+    events: challengeIds.flatMap((challengeId, challengeIndex) => {
       const attemptId = `attempt-${challengeIndex + 1}`;
       const solved = solvedChallenges[challengeId];
       return [
@@ -480,11 +481,18 @@ test("reports a specific computed failure reason for every debugger repair", () 
   );
 });
 
-test("replays prediction, run, and required inspection evidence for all five challenges", () => {
+test("requires three representative core challenges while preserving all exploration evidence", () => {
+  assert.deepEqual(selfAttentionCoreChallengeIds, ["projection", "causal-mask", "multi-head"]);
+  assert.equal(Object.isFrozen(selfAttentionCoreChallengeIds), true);
   assert.deepEqual(evaluateSelfAttentionLabMastery(emptySelfAttentionLabEvidence), {
     mastered: false,
-    reason: "complete-five-challenges",
+    reason: "complete-core-challenges",
     completedChallengeIds: [],
+  });
+  assert.deepEqual(evaluateSelfAttentionLabMastery(validEvidence(selfAttentionCoreChallengeIds)), {
+    mastered: true,
+    reason: "mastered",
+    completedChallengeIds: selfAttentionCoreChallengeIds,
   });
   assert.deepEqual(evaluateSelfAttentionLabMastery(validEvidence()), {
     mastered: true,
@@ -502,7 +510,7 @@ test("replays prediction, run, and required inspection evidence for all five cha
   incomplete.events.splice(-1, 1);
   assert.deepEqual(evaluateSelfAttentionLabMastery(incomplete), {
     mastered: false,
-    reason: "complete-five-challenges",
+    reason: "complete-core-challenges",
     completedChallengeIds: ["projection", "scaling", "causal-mask", "padding-key"],
   });
 });
@@ -650,15 +658,16 @@ test("rejects replayed, forged, mismatched, malformed, and reordered lab evidenc
   assert.equal(evaluateSelfAttentionLabMastery(null).reason, "invalid-evidence");
 });
 
-test("requires the lab, debugger, and all concepts together for completion", () => {
+test("requires the core lab and concepts while keeping debugger remediation optional", () => {
   for (const labComplete of [false, true]) {
     for (const debuggerComplete of [false, true]) {
       for (const conceptsMastered of [false, true]) {
         assert.equal(
           canCompleteSelfAttentionChapter({ labComplete, debuggerComplete, conceptsMastered }),
-          labComplete && debuggerComplete && conceptsMastered,
+          labComplete && conceptsMastered,
         );
       }
     }
   }
+  assert.equal(canCompleteSelfAttentionChapter({ labComplete: true, conceptsMastered: true }), true);
 });

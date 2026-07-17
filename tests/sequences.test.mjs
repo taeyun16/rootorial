@@ -304,14 +304,18 @@ test("requires every causal lab invariant before mastery", () => {
   assert.equal(evaluateSequenceLabMastery({ ...complete, stepInspected: false }).reason, "step-inspection");
 });
 
-test("conjoins memory lab, debugger, and concept mastery for chapter completion", () => {
+test("requires the memory lab and concepts while keeping debugger remediation optional", () => {
   const complete = {
     memoryLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
     conceptsMastered: true,
   };
   assert.equal(canCompleteSequencesChapter(complete), true);
-  for (const missing of Object.keys(complete)) {
+  assert.equal(canCompleteSequencesChapter({
+    memoryLabComplete: true,
+    conceptsMastered: true,
+  }), true);
+  for (const missing of ["memoryLabComplete", "conceptsMastered"]) {
     assert.equal(canCompleteSequencesChapter({ ...complete, [missing]: false }), false);
   }
 });

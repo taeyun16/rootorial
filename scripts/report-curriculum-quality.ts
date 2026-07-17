@@ -10,6 +10,7 @@ import {
 } from "../src/features/chapters/content-quality.ts";
 import { chapterRegistry } from "../src/features/chapters/chapter-registry.ts";
 import { publicationResources } from "../src/features/publication/publication.ts";
+import { transformerLearningGuides } from "../src/data/transformerLearningGuide.ts";
 
 const scriptFile = fileURLToPath(import.meta.url);
 const defaultRepoRoot = path.resolve(path.dirname(scriptFile), "..");
@@ -39,6 +40,12 @@ export type ChapterQualityResult = {
   conceptQuestions: number;
   completionGate: boolean;
   defaultPublication: "published" | "draft" | "other";
+  terminologySupportCount: number;
+  visibleClarificationAccess: boolean;
+  requiredCheckpointGroups: number;
+  estimatedMinimumSuccessfulActions: number;
+  maxAllowedInteractionBudget: number;
+  learningExperienceScore: number;
   editorialScore: number;
   editorialMaximum: 45;
   issues: string[];
@@ -132,10 +139,36 @@ function analyzeSource(sourceFile: string, sourceText: string): SourceMetrics {
   };
 }
 
-function editorialScore(review: EditorialReview, pythonCells: number) {
+const learningExperienceTargets = {
+  terminologySupportCount: 5,
+  requiredCheckpointGroups: 3,
+  maxAllowedInteractionBudget: 18,
+} as const;
+
+function learningExperienceScore(
+  terminologySupportCount: number,
+  visibleClarificationAccess: boolean,
+  requiredCheckpointGroups: number,
+  estimatedMinimumSuccessfulActions: number,
+  maxAllowedInteractionBudget: number,
+) {
+  return [
+    terminologySupportCount >= learningExperienceTargets.terminologySupportCount,
+    visibleClarificationAccess,
+    requiredCheckpointGroups <= learningExperienceTargets.requiredCheckpointGroups,
+    estimatedMinimumSuccessfulActions <= maxAllowedInteractionBudget,
+    maxAllowedInteractionBudget <= learningExperienceTargets.maxAllowedInteractionBudget,
+  ].filter(Boolean).length;
+}
+
+function editorialScore(
+  review: EditorialReview,
+  pythonCells: number,
+  experienceScore: number,
+) {
   const qualitative = Object.values(review).reduce((sum, value) => sum + value, 0);
   const pythonScore = pythonCells >= 2 ? 5 : pythonCells === 1 ? 3 : 0;
-  return qualitative + pythonScore;
+  return qualitative + pythonScore + experienceScore;
 }
 
 function publicationKind(value: string | undefined): "published" | "draft" | "other" {
@@ -147,12 +180,22 @@ export function analyzeCurriculumQuality(
   repoRoot = defaultRepoRoot,
 ): CurriculumQualityReport {
   const resources = publicationResources();
+  const learningGuideSourcePath = path.join(
+    repoRoot,
+    "src/components/TransformerLearningGuide.tsx",
+  );
+  const learningGuideSource = fs.existsSync(learningGuideSourcePath)
+    ? fs.readFileSync(learningGuideSourcePath, "utf8")
+    : "";
+  const guideOffersClarification = learningGuideSource.includes("requestContentFeedback")
+    && /<button\b/.test(learningGuideSource);
   const chapters = transformerChapterSlugs.map((slug): ChapterQualityResult => {
     const contract = transformerContentQualityContracts[slug];
     const sourcePath = path.join(repoRoot, contract.sourceFile);
     const e2ePath = path.join(repoRoot, contract.e2eFile);
     const issues: string[] = [];
     const targetGaps: string[] = [];
+    const experience = contract.learningExperience;
 
     if (!fs.existsSync(sourcePath)) {
       return {
@@ -168,7 +211,13 @@ export function analyzeCurriculumQuality(
         conceptQuestions: 0,
         completionGate: false,
         defaultPublication: "other",
-        editorialScore: editorialScore(contract.editorialReview, 0),
+        terminologySupportCount: 0,
+        visibleClarificationAccess: false,
+        requiredCheckpointGroups: 0,
+        estimatedMinimumSuccessfulActions: experience.estimatedMinimumSuccessfulActions,
+        maxAllowedInteractionBudget: experience.maxAllowedInteractionBudget,
+        learningExperienceScore: 0,
+        editorialScore: editorialScore(contract.editorialReview, 0, 0),
         editorialMaximum: 45,
         issues: [`missing source file: ${contract.sourceFile}`],
         targetGaps: [],
@@ -188,6 +237,24 @@ export function analyzeCurriculumQuality(
         && resource.chapterSlug === slug,
     );
     const defaultPublication = publicationKind(publication?.defaultPublicationStatus);
+    const hasLearningGuide = (metrics.componentInstances.TransformerLearningGuide ?? 0) > 0;
+    const terminologySupportCount = hasLearningGuide
+      ? transformerLearningGuides[slug].terms.length
+      : 0;
+    const visibleClarificationAccess = hasLearningGuide
+      && guideOffersClarification;
+    const requiredCheckpointGroups = new Set(
+      contract.activities
+        .filter(({ required }) => required)
+        .map(({ component }) => component),
+    ).size + (metrics.hasConceptCheck ? 1 : 0);
+    const experienceScore = learningExperienceScore(
+      terminologySupportCount,
+      visibleClarificationAccess,
+      requiredCheckpointGroups,
+      experience.estimatedMinimumSuccessfulActions,
+      experience.maxAllowedInteractionBudget,
+    );
 
     if (metrics.sectionIds.length < 6) {
       issues.push(`only ${metrics.sectionIds.length} identified sections; minimum is 6`);
@@ -203,6 +270,31 @@ export function analyzeCurriculumQuality(
     }
     if (!metrics.hasCompletionGate) {
       issues.push("no CompleteChapter gate rendered");
+    }
+    if (!hasLearningGuide) {
+      issues.push("no TransformerLearningGuide rendered");
+    }
+    if (terminologySupportCount !== experience.terminologySupportCount) {
+      issues.push(
+        `terminology support drift: expected ${experience.terminologySupportCount}, found ${terminologySupportCount}`,
+      );
+    }
+    if (visibleClarificationAccess !== experience.visibleClarificationAccess) {
+      issues.push(
+        `clarification access drift: expected ${experience.visibleClarificationAccess}, found ${visibleClarificationAccess}`,
+      );
+    }
+    if (requiredCheckpointGroups !== experience.requiredCheckpointGroups) {
+      issues.push(
+        `required checkpoint group drift: expected ${experience.requiredCheckpointGroups}, found ${requiredCheckpointGroups}`,
+      );
+    }
+    if (
+      contract.activities.some(
+        ({ kind, required, runtime }) => required && (kind === "debug" || runtime === "python"),
+      )
+    ) {
+      issues.push("debugger and Python activities must remain optional on the core path");
     }
     if (conceptQuestions !== contract.expectedConceptQuestions) {
       issues.push(
@@ -260,6 +352,35 @@ export function analyzeCurriculumQuality(
     if (new Set(contract.activities.map(({ kind }) => kind)).size < 3) {
       targetGaps.push("fewer than 3 activity types");
     }
+    if (terminologySupportCount < learningExperienceTargets.terminologySupportCount) {
+      targetGaps.push(
+        `visible key terms ${terminologySupportCount}/${learningExperienceTargets.terminologySupportCount}`,
+      );
+    }
+    if (!visibleClarificationAccess) {
+      targetGaps.push("no visible clarification access at chapter entry");
+    }
+    if (requiredCheckpointGroups > learningExperienceTargets.requiredCheckpointGroups) {
+      targetGaps.push(
+        `required checkpoint groups ${requiredCheckpointGroups}/${learningExperienceTargets.requiredCheckpointGroups} max`,
+      );
+    }
+    if (
+      experience.estimatedMinimumSuccessfulActions
+      > experience.maxAllowedInteractionBudget
+    ) {
+      targetGaps.push(
+        `minimum successful actions ${experience.estimatedMinimumSuccessfulActions}/${experience.maxAllowedInteractionBudget} budget`,
+      );
+    }
+    if (
+      experience.maxAllowedInteractionBudget
+      > learningExperienceTargets.maxAllowedInteractionBudget
+    ) {
+      targetGaps.push(
+        `interaction budget ${experience.maxAllowedInteractionBudget}/${learningExperienceTargets.maxAllowedInteractionBudget} max`,
+      );
+    }
 
     return {
       slug,
@@ -274,7 +395,17 @@ export function analyzeCurriculumQuality(
       conceptQuestions,
       completionGate: metrics.hasCompletionGate,
       defaultPublication,
-      editorialScore: editorialScore(contract.editorialReview, metrics.pythonCells),
+      terminologySupportCount,
+      visibleClarificationAccess,
+      requiredCheckpointGroups,
+      estimatedMinimumSuccessfulActions: experience.estimatedMinimumSuccessfulActions,
+      maxAllowedInteractionBudget: experience.maxAllowedInteractionBudget,
+      learningExperienceScore: experienceScore,
+      editorialScore: editorialScore(
+        contract.editorialReview,
+        metrics.pythonCells,
+        experienceScore,
+      ),
       editorialMaximum: 45,
       issues,
       targetGaps,
@@ -294,21 +425,23 @@ export function analyzeCurriculumQuality(
 export function renderCurriculumQualityMarkdown(report: CurriculumQualityReport) {
   const rows = report.chapters.map((chapter) => {
     const gaps = chapter.targetGaps.length ? chapter.targetGaps.join("; ") : "—";
-    return `| ${chapter.number} | ${chapter.title} | ${chapter.sections} | ${chapter.activities} (${chapter.activityKinds}종) | ${chapter.pythonCells} | ${chapter.conceptQuestions} | ${chapter.editorialScore}/45 | ${chapter.defaultPublication} | ${gaps} |`;
+    const help = chapter.visibleClarificationAccess ? "yes" : "no";
+    const actions = `${chapter.estimatedMinimumSuccessfulActions}/${chapter.maxAllowedInteractionBudget}`;
+    return `| ${chapter.number} | ${chapter.title} | ${chapter.sections} | ${chapter.activities} (${chapter.activityKinds}종) | ${chapter.pythonCells} | ${chapter.conceptQuestions} | ${chapter.terminologySupportCount} | ${help} | ${chapter.requiredCheckpointGroups} | ${actions} | ${chapter.editorialScore}/45 | ${chapter.defaultPublication} | ${gaps} |`;
   });
   return [
     "# Transformer curriculum content-quality report",
     "",
     `Generated: ${report.generatedAt}`,
     "",
-    "| # | Chapter | Sections | Activities | Python | Questions | Editorial | Default | Target gaps |",
-    "|---:|---|---:|---:|---:|---:|---:|---|---|",
+    "| # | Chapter | Sections | Activities | Python | Questions | Terms | Help | Required groups | Actions min/max | Quality | Default | Target gaps |",
+    "|---:|---|---:|---:|---:|---:|---:|:---:|---:|---:|---:|---|---|",
     ...rows,
     "",
     `Structural contract issues: ${report.issues.length}`,
     `Improvement targets: ${report.targetGaps.length}`,
     "",
-    "Editorial score uses eight reviewed dimensions plus a Python score derived from executable cells: 0 cells = 0, 1 cell = 3, 2+ cells = 5.",
+    "Quality score uses seven reviewed editorial dimensions, a Python score (0 cells = 0, 1 cell = 3, 2+ cells = 5), and five structural learning-experience signals: visible terms, clarification access, required-group count, action estimate within budget, and curriculum-wide budget cap.",
   ].join("\n");
 }
 

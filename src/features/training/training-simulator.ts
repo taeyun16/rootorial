@@ -753,8 +753,8 @@ export function evaluateTrainingRepair(
 
 export function canCompleteTrainingChapter(input: {
   batchLabComplete: boolean;
-  debuggerComplete: boolean;
+  debuggerComplete?: boolean;
   conceptsMastered: boolean;
 }) {
-  return input.batchLabComplete && input.debuggerComplete && input.conceptsMastered;
+  return input.batchLabComplete && input.conceptsMastered;
 }

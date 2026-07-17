@@ -24,6 +24,7 @@ import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { PythonCode } from "../PythonCode";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { NeuralNetworkDebuggerLab } from "./NeuralNetworkDebuggerLab";
 import { NeuralNetworksConceptCheck } from "./NeuralNetworksConceptCheck";
 import { NeuralNetworkXorLab } from "./NeuralNetworkXorLab";
@@ -36,7 +37,7 @@ const tocItems = {
     { id: "hidden", label: "hidden feature" },
     { id: "xor-lab", label: "필수 XOR 실습" },
     { id: "numpy-bridge", label: "NumPy로 다시 만들기" },
-    { id: "debug", label: "네트워크 수술" },
+    { id: "debug", label: "선택 · 네트워크 수술" },
     { id: "transfer", label: "batch·class로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -47,7 +48,7 @@ const tocItems = {
     { id: "hidden", label: "Hidden features" },
     { id: "xor-lab", label: "Required XOR lab" },
     { id: "numpy-bridge", label: "Rebuild it in NumPy" },
-    { id: "debug", label: "Network surgery" },
+    { id: "debug", label: "Optional · Network surgery" },
     { id: "transfer", label: "Transfer to batches and classes" },
     { id: "check", label: "Concept check" },
   ],
@@ -127,6 +128,8 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
               </ul>
             </div>
           </header>
+
+          <TransformerLearningGuide chapterSlug="neural-networks" />
 
           <section className="article-section" id="logit">
             <div className="margin-label">01 — LOGIT</div>
@@ -276,7 +279,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">07 — DEBUG</div>
+            <div className="margin-label">07 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("깨진 층은 이름이 아니라 실제 forward 결과로 수리합니다", "Repair broken layers by actual forward results, not names")}</h2>
             <p>{t("shape가 맞는지, activation 뒤 네 행이 달라지는지, output이 truth table을 회복하는지, BCE 입력이 유효한 확률인지 차례로 검사하세요. 각 patch는 같은 수학 모델을 다시 실행해 의미론적으로 판정됩니다.", "Check shape compatibility, whether activation differentiates the four rows, whether the output restores the truth table, and whether BCE receives valid probabilities. Every patch is graded semantically by rerunning the same math model.")}</p>
             <NeuralNetworkDebuggerLab onCompletionChange={setDebuggerComplete} />
@@ -310,10 +313,10 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
           <section className="chapter-finish">
             <p className="eyebrow">CHECKPOINT</p>
             <h2>{t("이제 한 뉴런의 한계와 hidden feature의 역할을 실제 값으로 설명할 수 있습니다", "You can now explain a neuron's limit and hidden features using actual values")}</h2>
-            <p>{t("직선 실패를 예측·관찰하고, 두 hidden feature로 XOR을 4/4와 낮은 BCE까지 조립하며, 네 network 사건과 다섯 개념을 연결하면 이 챕터의 목표에 도달했습니다.", "You have reached the goal after predicting and observing a line's failure, assembling two hidden features to achieve XOR 4/4 with low BCE, and connecting four network incidents with all five concepts.")}</p>
+            <p>{t("직선 실패를 예측·관찰하고 두 hidden feature로 XOR을 4/4와 낮은 BCE까지 조립한 뒤 다섯 개념을 연결하면 핵심 목표에 도달합니다. Network 수술은 선택 보강입니다.", "You reach the core goal after observing a line's failure, assembling two hidden features to solve XOR at 4/4 with low BCE, and connecting all five concepts. Network surgery is optional remediation.")}</p>
             <div className="neural-completion-checklist" role="status" aria-live="polite">
               <span className={xorLabComplete ? "is-complete" : undefined}>{xorLabComplete ? "✓" : "○"} {t("필수 XOR forward lab", "Required XOR forward lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("network 수술 4개", "Four network surgeries")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("network 수술 4개", "Four network surgeries")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
@@ -321,8 +324,8 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
               slug="neural-networks"
               canComplete={canComplete}
               lockedMessage={t(
-                "필수 XOR lab, network 수술 네 사건과 이해 확인 다섯 문제를 모두 마치면 완료할 수 있습니다.",
-                "Finish the required XOR lab, all four network surgeries, and all five concept questions to complete the chapter.",
+                "필수 XOR lab과 이해 확인 다섯 문제를 마치면 완료할 수 있습니다. Network 수술은 선택 보강입니다.",
+                "Finish the required XOR lab and all five concept questions. Network surgery is optional remediation.",
               )}
             />
           </section>

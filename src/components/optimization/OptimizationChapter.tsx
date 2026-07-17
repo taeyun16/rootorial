@@ -23,6 +23,7 @@ import { NotebookCell } from "../NotebookCell";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { PythonCode } from "../PythonCode";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { OptimizationConceptCheck } from "./OptimizationConceptCheck";
 import { OptimizationDebuggerLab } from "./OptimizationDebuggerLab";
 import { OptimizationDescentLab } from "./OptimizationDescentLab";
@@ -33,7 +34,7 @@ const tocItems = {
     { id: "measure", label: "여러 오차를 하나의 손실로" },
     { id: "gradient", label: "Gradient 방향" },
     { id: "descent", label: "필수 경사하강 실습" },
-    { id: "debug", label: "업데이트 디버깅" },
+    { id: "debug", label: "선택 · 업데이트 디버깅" },
     { id: "transfer", label: "뉴런으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -42,7 +43,7 @@ const tocItems = {
     { id: "measure", label: "Many errors, one loss" },
     { id: "gradient", label: "Gradient direction" },
     { id: "descent", label: "Required descent lab" },
-    { id: "debug", label: "Debug updates" },
+    { id: "debug", label: "Optional · Debug updates" },
     { id: "transfer", label: "Transfer to neurons" },
     { id: "check", label: "Concept check" },
   ],
@@ -118,6 +119,8 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
               </ul>
             </div>
           </header>
+
+          <TransformerLearningGuide chapterSlug="optimization" />
 
           <section className="article-section" id="predict">
             <div className="margin-label">01 — PREDICT</div>
@@ -261,7 +264,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">06 — DEBUG</div>
+            <div className="margin-label">06 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("공식을 외우는 대신 다음 loss로 업데이트를 검증합니다", "Verify an update by its next loss, not by memorizing a formula")}</h2>
             <p>{t("올바른 부호만으로는 충분하지 않습니다. gradient와 반대 방향이어도 학습률이 너무 크면 최솟값을 건너뛸 수 있습니다. 아래 활동은 제안한 update를 실제 loss 함수에 넣어 판정합니다.", "The correct sign is not enough. Even a direction opposite the gradient can overshoot when the learning rate is too large. The activity below substitutes each proposed update into the actual loss function.")}</p>
             <OptimizationDebuggerLab onCompletionChange={setDebuggerComplete} />
@@ -288,10 +291,10 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
           <section className="chapter-finish">
             <p className="eyebrow">CHECKPOINT</p>
             <h2>{t("이제 loss trace를 읽고 한 번의 update를 설명할 수 있습니다", "You can now read a loss trace and explain one update")}</h2>
-            <p>{t("나쁜 학습률을 관찰해 안정적인 값으로 복구하고, 네 optimizer 사건을 실제 loss 변화로 해결하고, gradient의 shape와 부호를 설명하면 챕터 목표에 도달했습니다.", "You have reached the goal when you can repair a bad learning rate, solve four optimizer incidents using actual loss changes, and explain gradient shape and sign.")}</p>
+            <p>{t("나쁜 학습률을 관찰해 안정적인 값으로 복구하고 gradient의 shape와 부호를 설명하면 핵심 목표에 도달합니다. 더 연습하고 싶을 때만 optimizer 사건을 이어서 해결하세요.", "You reach the core goal when you can repair a bad learning rate and explain gradient shape and sign. Continue with the optimizer incidents only when you want more practice.")}</p>
             <div className="optimization-completion-checklist" role="status" aria-live="polite">
               <span className={descentLabComplete ? "is-complete" : undefined}>{descentLabComplete ? "✓" : "○"} {t("학습률 복구 실습", "Learning-rate repair lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("업데이트 디버깅 4개", "Four update incidents")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("업데이트 디버깅 4개", "Four update incidents")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
@@ -299,8 +302,8 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
               slug="optimization"
               canComplete={canComplete}
               lockedMessage={t(
-                "학습률 복구 실습, 업데이트 디버깅 네 사건과 이해 확인 다섯 문제를 모두 마치면 완료할 수 있습니다.",
-                "Finish the learning-rate repair lab, all four update incidents, and all five concept questions to complete the chapter.",
+                "학습률 복구 실습과 이해 확인 다섯 문제를 마치면 완료할 수 있습니다. 디버깅은 선택 보강입니다.",
+                "Finish the learning-rate repair lab and all five concept questions. Debugging is optional remediation.",
               )}
             />
           </section>

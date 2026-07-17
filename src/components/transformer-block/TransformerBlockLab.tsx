@@ -10,6 +10,7 @@ import {
   runTransformerBlock,
   transformerBlockChallengeDefaults,
   transformerBlockChallengeIds,
+  transformerBlockCoreChallengeIds,
   transformerBlockChallengeRequirements,
   transformerBlockTokens,
   type TransformerBlockChallengeId,
@@ -317,31 +318,39 @@ export function TransformerBlockLab({ onCompletionChange }: { onCompletionChange
     label: string,
     stage: TransformerBlockInspectStage,
     tone: "forest" | "indigo" | "terra" = "indigo",
-  ) => (
-    <MatrixGrid
+  ) => {
+    const required = transformerBlockChallengeRequirements[challengeId].requiredInspection;
+    const targetCell = successfulAttempt?.challengeId === challengeId && required.stage === stage
+      ? { row: required.tokenIndex, column: required.featureIndex }
+      : null;
+    return <MatrixGrid
       values={values as number[][]}
       label={label}
       rowLabels={rowLabels}
       columnLabels={featureLabels}
       selectedCell={selectedCell}
+      targetCell={targetCell}
       tone={tone}
       formatValue={formatValue}
       onSelectCell={(row, column) => recordInspection(stage, row, column)}
-    />
-  );
+    />;
+  };
 
   return (
     <InteractiveLab
-      kicker={t("필수 LAB · PREDICT → CONFIGURE → ASSEMBLE → INSPECT", "REQUIRED LAB · PREDICT → CONFIGURE → ASSEMBLE → INSPECT")}
+      kicker={t("CORE LAB · 핵심 3 + 선택 2 · PREDICT → CONFIGURE → ASSEMBLE → INSPECT", "CORE LAB · 3 CORE + 2 OPTIONAL · PREDICT → CONFIGURE → ASSEMBLE → INSPECT")}
       title={t("Pre-Norm Block Assembly Workbench", "Pre-Norm Block Assembly Workbench")}
-      description={t("고정된 4-token fixture에서 position·LayerNorm·두 residual·row-wise FFN을 다섯 preset으로 조립하세요.", "Assemble position, LayerNorm, two residuals, and the row-wise FFN in five presets on a fixed four-token fixture.")}
+      description={t("LayerNorm·FFN·block handoff의 핵심 preset 세 개를 완료하면 통과합니다. 나머지 두 preset은 선택 탐색입니다.", "Complete the three core LayerNorm, FFN, and block-handoff presets. The other two presets are optional exploration.")}
       className="transformer-block-workbench"
       actions={<button ref={resetButtonRef} type="button" className="button button-ghost" aria-label={t("Transformer block lab 전체 초기화", "Reset the entire Transformer block lab")} onClick={resetAll}>{t("전체 lab 초기화", "Reset entire lab")}</button>}
     >
       <div data-interactive-ready={interactiveReady ? "true" : "false"}>
         <div className="transformer-block-preset-row" role="group" aria-label={t("Transformer block challenge preset", "Transformer block challenge presets")}>
           <span>CHALLENGE PRESETS</span>
-          {transformerBlockChallengeIds.map((id) => <button type="button" data-transformer-block-preset={id} aria-pressed={challengeId === id} onClick={() => chooseChallenge(id)} key={id}>{challengeCopy[id].label}</button>)}
+          {transformerBlockChallengeIds.map((id) => {
+            const core = transformerBlockCoreChallengeIds.some((coreId) => coreId === id);
+            return <button type="button" data-transformer-block-preset={id} data-core-challenge={core ? "true" : "false"} aria-pressed={challengeId === id} onClick={() => chooseChallenge(id)} key={id}>{core ? t("핵심", "Core") : t("선택", "Optional")} · {challengeCopy[id].label}</button>;
+          })}
         </div>
 
         <div className="transformer-block-control-panel">
@@ -398,7 +407,11 @@ export function TransformerBlockLab({ onCompletionChange }: { onCompletionChange
 
         <div className="transformer-block-evidence" data-mastered={mastery.mastered ? "true" : "false"} role="status" aria-live="polite">
           <strong>MASTERY EVIDENCE · PREDICTION → ASSEMBLY → NUMERIC CELL</strong>
-          {transformerBlockChallengeIds.map((id) => <span className={mastery.completedChallengeIds.includes(id) ? "is-complete" : undefined} key={id}>{mastery.completedChallengeIds.includes(id) ? "✓" : "○"} {challengeCopy[id].label}</span>)}
+          {transformerBlockChallengeIds.map((id) => {
+            const core = transformerBlockCoreChallengeIds.some((coreId) => coreId === id);
+            const complete = mastery.completedChallengeIds.includes(id);
+            return <span className={`${core ? "is-core" : "is-optional"}${complete ? " is-complete" : ""}`} key={id}>{complete ? "✓" : core ? "○" : t("선택", "Optional")} {challengeCopy[id].label}</span>;
+          })}
         </div>
       </div>
     </InteractiveLab>

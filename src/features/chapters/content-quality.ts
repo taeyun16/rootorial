@@ -35,10 +35,22 @@ export type EditorialReview = {
   narrativeDensity: number;
   workedExamples: number;
   labAgency: number;
-  feedbackQuality: number;
   conceptCheck: number;
   completionEvidence: number;
   crossChapterConnection: number;
+};
+
+export type LearningExperienceContract = {
+  /** Number of concise, visible key-term explanations available at chapter entry. */
+  terminologySupportCount: number;
+  /** Whether learners can ask for clarification without hunting through navigation. */
+  visibleClarificationAccess: boolean;
+  /** Independently required completion groups, including the concept check. */
+  requiredCheckpointGroups: number;
+  /** Best-case successful actions needed to produce chapter completion evidence. */
+  estimatedMinimumSuccessfulActions: number;
+  /** Upper bound the chapter promises not to exceed on its core path. */
+  maxAllowedInteractionBudget: number;
 };
 
 export type ChapterQualityContract = {
@@ -51,6 +63,7 @@ export type ChapterQualityContract = {
   expectedDefaultPublication: "published" | "draft";
   activities: readonly ChapterActivity[];
   editorialReview: EditorialReview;
+  learningExperience: LearningExperienceContract;
 };
 
 const activity = (
@@ -74,7 +87,7 @@ export const transformerContentQualityContracts = {
     activities: [
       activity("vector-basics", "predict", "VectorBasicsLab", 3, false),
       activity("reshape-blocks", "build", "ReshapeBlocksLab", 3, true),
-      activity("shape-debugging", "debug", "ShapeDebuggingLab", 3, true),
+      activity("shape-debugging", "debug", "ShapeDebuggingLab", 3, false),
       activity("tensor-shape", "experiment", "TensorShapeExplorer", 0, false),
       activity("axis-builder", "build", "AxisBuilderLab", 3, true),
       activity("vector-explorer", "experiment", "VectorExplorer", 0, false),
@@ -86,10 +99,16 @@ export const transformerContentQualityContracts = {
       narrativeDensity: 5,
       workedExamples: 5,
       labAgency: 5,
-      feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
       crossChapterConnection: 5,
+    },
+    learningExperience: {
+      terminologySupportCount: 5,
+      visibleClarificationAccess: true,
+      requiredCheckpointGroups: 3,
+      estimatedMinimumSuccessfulActions: 17,
+      maxAllowedInteractionBudget: 18,
     },
   },
   optimization: {
@@ -102,7 +121,7 @@ export const transformerContentQualityContracts = {
     expectedDefaultPublication: "draft",
     activities: [
       activity("descent-repair", "experiment", "OptimizationDescentLab", 3, true),
-      activity("update-debugger", "debug", "OptimizationDebuggerLab", 4, true),
+      activity("update-debugger", "debug", "OptimizationDebuggerLab", 4, false),
       activity("numpy-trace", "code", "NotebookCell", 0, false, "python"),
       activity("gradient-repair", "code", "NotebookCell", 1, false, "python"),
     ],
@@ -111,10 +130,16 @@ export const transformerContentQualityContracts = {
       narrativeDensity: 5,
       workedExamples: 5,
       labAgency: 5,
-      feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
       crossChapterConnection: 5,
+    },
+    learningExperience: {
+      terminologySupportCount: 5,
+      visibleClarificationAccess: true,
+      requiredCheckpointGroups: 2,
+      estimatedMinimumSuccessfulActions: 13,
+      maxAllowedInteractionBudget: 16,
     },
   },
   "neural-networks": {
@@ -128,7 +153,7 @@ export const transformerContentQualityContracts = {
     activities: [
       activity("xor-prediction", "predict", "NeuralNetworkXorLab", 1, true),
       activity("xor-builder", "build", "NeuralNetworkXorLab", 4, true),
-      activity("forward-debugger", "debug", "NeuralNetworkDebuggerLab", 4, true),
+      activity("forward-debugger", "debug", "NeuralNetworkDebuggerLab", 4, false),
       activity("linear-xor-python", "code", "NotebookCell", 0, false, "python"),
       activity("hidden-repair-python", "code", "NotebookCell", 1, false, "python"),
     ],
@@ -137,10 +162,16 @@ export const transformerContentQualityContracts = {
       narrativeDensity: 5,
       workedExamples: 5,
       labAgency: 5,
-      feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
       crossChapterConnection: 5,
+    },
+    learningExperience: {
+      terminologySupportCount: 5,
+      visibleClarificationAccess: true,
+      requiredCheckpointGroups: 2,
+      estimatedMinimumSuccessfulActions: 13,
+      maxAllowedInteractionBudget: 16,
     },
   },
   training: {
@@ -154,7 +185,7 @@ export const transformerContentQualityContracts = {
     activities: [
       activity("batch-prediction", "predict", "TrainingBatchLab", 2, true),
       activity("batch-experiment", "experiment", "TrainingBatchLab", 3, true),
-      activity("loop-debugger", "debug", "TrainingLoopDebugger", 4, true),
+      activity("loop-debugger", "debug", "TrainingLoopDebugger", 4, false),
       activity("softmax-axis-python", "code", "NotebookCell", 1, false, "python"),
       activity("adam-epoch-python", "code", "NotebookCell", 0, false, "python"),
     ],
@@ -163,10 +194,16 @@ export const transformerContentQualityContracts = {
       narrativeDensity: 5,
       workedExamples: 5,
       labAgency: 5,
-      feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
       crossChapterConnection: 5,
+    },
+    learningExperience: {
+      terminologySupportCount: 5,
+      visibleClarificationAccess: true,
+      requiredCheckpointGroups: 2,
+      estimatedMinimumSuccessfulActions: 13,
+      maxAllowedInteractionBudget: 16,
     },
   },
   embeddings: {
@@ -180,7 +217,7 @@ export const transformerContentQualityContracts = {
     activities: [
       activity("lookup-prediction", "predict", "EmbeddingLookupLab", 2, true),
       activity("lookup-experiment", "experiment", "EmbeddingLookupLab", 3, true),
-      activity("embedding-debugger", "debug", "EmbeddingDebuggerLab", 4, true),
+      activity("embedding-debugger", "debug", "EmbeddingDebuggerLab", 4, false),
       activity("lookup-masked-mean-python", "code", "NotebookCell", 0, false, "python"),
       activity("scatter-add-repair-python", "code", "NotebookCell", 1, false, "python"),
     ],
@@ -189,10 +226,16 @@ export const transformerContentQualityContracts = {
       narrativeDensity: 5,
       workedExamples: 5,
       labAgency: 5,
-      feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
       crossChapterConnection: 5,
+    },
+    learningExperience: {
+      terminologySupportCount: 5,
+      visibleClarificationAccess: true,
+      requiredCheckpointGroups: 2,
+      estimatedMinimumSuccessfulActions: 13,
+      maxAllowedInteractionBudget: 16,
     },
   },
   sequences: {
@@ -206,7 +249,7 @@ export const transformerContentQualityContracts = {
     activities: [
       activity("memory-prediction", "predict", "SequenceMemoryLab", 2, true),
       activity("memory-experiment", "experiment", "SequenceMemoryLab", 3, true),
-      activity("sequence-debugger", "debug", "SequenceDebuggerLab", 4, true),
+      activity("sequence-debugger", "debug", "SequenceDebuggerLab", 4, false),
       activity("batched-unroll-python", "code", "NotebookCell", 0, false, "python"),
       activity("temporal-gradient-repair-python", "code", "NotebookCell", 1, false, "python"),
     ],
@@ -215,10 +258,16 @@ export const transformerContentQualityContracts = {
       narrativeDensity: 5,
       workedExamples: 5,
       labAgency: 5,
-      feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
       crossChapterConnection: 5,
+    },
+    learningExperience: {
+      terminologySupportCount: 5,
+      visibleClarificationAccess: true,
+      requiredCheckpointGroups: 2,
+      estimatedMinimumSuccessfulActions: 13,
+      maxAllowedInteractionBudget: 16,
     },
   },
   attention: {
@@ -232,7 +281,7 @@ export const transformerContentQualityContracts = {
     activities: [
       activity("attention-prediction", "predict", "AttentionPipelineExplorer", 2, true),
       activity("attention-experiment", "experiment", "AttentionPipelineExplorer", 3, true),
-      activity("attention-debugger", "debug", "AttentionDebuggerLab", 4, true),
+      activity("attention-debugger", "debug", "AttentionDebuggerLab", 4, false),
       activity("three-query-routing-python", "code", "NotebookCell", 0, false, "python"),
       activity("value-read-repair-python", "code", "NotebookCell", 1, false, "python"),
     ],
@@ -241,10 +290,16 @@ export const transformerContentQualityContracts = {
       narrativeDensity: 5,
       workedExamples: 5,
       labAgency: 5,
-      feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
       crossChapterConnection: 5,
+    },
+    learningExperience: {
+      terminologySupportCount: 5,
+      visibleClarificationAccess: true,
+      requiredCheckpointGroups: 2,
+      estimatedMinimumSuccessfulActions: 13,
+      maxAllowedInteractionBudget: 16,
     },
   },
   "self-attention": {
@@ -256,9 +311,9 @@ export const transformerContentQualityContracts = {
     targetPythonCells: 2,
     expectedDefaultPublication: "draft",
     activities: [
-      activity("self-attention-prediction", "predict", "SelfAttentionLab", 2, true),
-      activity("self-attention-experiment", "experiment", "SelfAttentionLab", 3, true),
-      activity("self-attention-debugger", "debug", "SelfAttentionDebuggerLab", 4, true),
+      activity("self-attention-core-challenges", "experiment", "SelfAttentionLab", 3, true),
+      activity("self-attention-extension-challenges", "transfer", "SelfAttentionLab", 2, false),
+      activity("self-attention-debugger", "debug", "SelfAttentionDebuggerLab", 4, false),
       activity("self-attention-forward-python", "code", "NotebookCell", 0, false, "python"),
       activity("self-attention-mask-repair-python", "code", "NotebookCell", 1, false, "python"),
     ],
@@ -267,10 +322,16 @@ export const transformerContentQualityContracts = {
       narrativeDensity: 5,
       workedExamples: 5,
       labAgency: 5,
-      feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
       crossChapterConnection: 5,
+    },
+    learningExperience: {
+      terminologySupportCount: 5,
+      visibleClarificationAccess: true,
+      requiredCheckpointGroups: 2,
+      estimatedMinimumSuccessfulActions: 15,
+      maxAllowedInteractionBudget: 16,
     },
   },
   "transformer-block": {
@@ -282,9 +343,9 @@ export const transformerContentQualityContracts = {
     targetPythonCells: 2,
     expectedDefaultPublication: "draft",
     activities: [
-      activity("block-prediction", "predict", "TransformerBlockLab", 2, true),
-      activity("block-build", "build", "TransformerBlockLab", 4, true),
-      activity("block-debugger", "debug", "TransformerBlockDebuggerLab", 4, true),
+      activity("block-core-challenges", "build", "TransformerBlockLab", 3, true),
+      activity("block-extension-challenges", "transfer", "TransformerBlockLab", 2, false),
+      activity("block-debugger", "debug", "TransformerBlockDebuggerLab", 4, false),
       activity("block-ledger-python", "code", "NotebookCell", 0, false, "python"),
       activity("second-residual-repair-python", "code", "NotebookCell", 1, false, "python"),
     ],
@@ -293,10 +354,16 @@ export const transformerContentQualityContracts = {
       narrativeDensity: 5,
       workedExamples: 5,
       labAgency: 5,
-      feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
       crossChapterConnection: 5,
+    },
+    learningExperience: {
+      terminologySupportCount: 5,
+      visibleClarificationAccess: true,
+      requiredCheckpointGroups: 2,
+      estimatedMinimumSuccessfulActions: 15,
+      maxAllowedInteractionBudget: 16,
     },
   },
   "mini-transformer": {
@@ -308,9 +375,9 @@ export const transformerContentQualityContracts = {
     targetPythonCells: 2,
     expectedDefaultPublication: "draft",
     activities: [
-      activity("mini-transformer-prediction", "predict", "MiniTransformerLab", 2, true),
-      activity("mini-transformer-build", "build", "MiniTransformerLab", 5, true),
-      activity("mini-transformer-debugger", "debug", "MiniTransformerDebuggerLab", 4, true),
+      activity("mini-transformer-core-challenges", "build", "MiniTransformerLab", 3, true),
+      activity("mini-transformer-extension-challenges", "transfer", "MiniTransformerLab", 2, false),
+      activity("mini-transformer-debugger", "debug", "MiniTransformerDebuggerLab", 4, false),
       activity("lm-head-update-python", "code", "NotebookCell", 0, false, "python"),
       activity("generation-controller-repair-python", "code", "NotebookCell", 1, false, "python"),
     ],
@@ -319,10 +386,16 @@ export const transformerContentQualityContracts = {
       narrativeDensity: 5,
       workedExamples: 5,
       labAgency: 5,
-      feedbackQuality: 5,
       conceptCheck: 5,
       completionEvidence: 5,
       crossChapterConnection: 5,
+    },
+    learningExperience: {
+      terminologySupportCount: 5,
+      visibleClarificationAccess: true,
+      requiredCheckpointGroups: 2,
+      estimatedMinimumSuccessfulActions: 15,
+      maxAllowedInteractionBudget: 16,
     },
   },
 } as const satisfies Record<TransformerChapterSlug, ChapterQualityContract>;

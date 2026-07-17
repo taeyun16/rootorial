@@ -181,16 +181,20 @@ test("grades optimizer repairs from the resulting loss, not an answer key", () =
   assert.ok(smallStep.nextLoss < smallStep.previousLoss);
 });
 
-test("requires both semantic activities and the concept check for completion", () => {
+test("requires the core lab and concept check while keeping debugger remediation optional", () => {
   assert.equal(canCompleteOptimizationChapter({
     descentLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
     conceptsMastered: true,
   }), true);
-  for (const missing of ["descentLabComplete", "debuggerComplete", "conceptsMastered"]) {
+  assert.equal(canCompleteOptimizationChapter({
+    descentLabComplete: true,
+    conceptsMastered: true,
+  }), true);
+  for (const missing of ["descentLabComplete", "conceptsMastered"]) {
     const state = {
       descentLabComplete: true,
-      debuggerComplete: true,
+      debuggerComplete: false,
       conceptsMastered: true,
       [missing]: false,
     };

@@ -32,6 +32,7 @@ import {
   miniTransformerChallengeDefaults,
   miniTransformerChallengeIds,
   miniTransformerChallengeRequirements,
+  miniTransformerCoreChallengeIds,
   miniTransformerDebuggerScenarioIds,
   miniTransformerDebuggerScenarios,
   miniTransformerFixture,
@@ -91,10 +92,10 @@ function assertMatrixClose(actual, expected, tolerance = TOLERANCE) {
   }));
 }
 
-function validEvidence() {
+function validEvidence(challengeIds = miniTransformerChallengeIds) {
   let eventSequence = 0;
   return {
-    events: miniTransformerChallengeIds.flatMap((challengeId, challengeIndex) => {
+    events: challengeIds.flatMap((challengeId, challengeIndex) => {
       const requirement = miniTransformerChallengeRequirements[challengeId];
       const attemptId = `mini-attempt-${challengeIndex + 1}`;
       const base = {
@@ -470,6 +471,12 @@ test("exports five stable lab challenge controls predictions and numeric inspect
     "vocab-projection",
     "autoregressive-decode",
   ]);
+  assert.deepEqual(miniTransformerCoreChallengeIds, [
+    "causal-block",
+    "vocab-projection",
+    "autoregressive-decode",
+  ]);
+  assert.equal(Object.isFrozen(miniTransformerCoreChallengeIds), true);
   assert.equal(new Set(miniTransformerPredictions).size, miniTransformerPredictions.length);
   assert.equal(miniTransformerChallengeDefaults.tokenize.addBos, false);
   assert.equal(miniTransformerChallengeDefaults["embed-position"].positionScale, 0);
@@ -562,11 +569,16 @@ test("accepts only the required semantic inspection cell for each mastered run",
   }
 });
 
-test("replays ordered prediction run and inspection evidence for five-stage mastery", () => {
+test("requires three representative core stages while preserving all exploration evidence", () => {
   assert.deepEqual(evaluateMiniTransformerLabMastery(emptyMiniTransformerLabEvidence), {
     mastered: false,
-    reason: "complete-five-challenges",
+    reason: "complete-core-challenges",
     completedChallengeIds: [],
+  });
+  assert.deepEqual(evaluateMiniTransformerLabMastery(validEvidence(miniTransformerCoreChallengeIds)), {
+    mastered: true,
+    reason: "mastered",
+    completedChallengeIds: miniTransformerCoreChallengeIds,
   });
   assert.deepEqual(evaluateMiniTransformerLabMastery(validEvidence()), {
     mastered: true,
@@ -577,7 +589,7 @@ test("replays ordered prediction run and inspection evidence for five-stage mast
   incomplete.events.splice(-1, 1);
   assert.deepEqual(evaluateMiniTransformerLabMastery(incomplete), {
     mastered: false,
-    reason: "complete-five-challenges",
+    reason: "complete-core-challenges",
     completedChallengeIds: miniTransformerChallengeIds.slice(0, 4),
   });
 });
@@ -722,14 +734,15 @@ test("reports computed debugger reasons for tokenizer mask LM-head and decode fa
   assert.throws(() => evaluateMiniTransformerRepair("unknown", "bos-vocabulary-tokenization"), /Unknown Mini Transformer debugger scenario/);
 });
 
-test("requires lab debugger and concepts together for chapter completion", () => {
+test("requires the core lab and concepts while keeping debugger remediation optional", () => {
   for (const labComplete of [false, true]) {
     for (const debuggerComplete of [false, true]) {
       for (const conceptsMastered of [false, true]) {
         assert.equal(canCompleteMiniTransformerChapter({ labComplete, debuggerComplete, conceptsMastered }), (
-          labComplete && debuggerComplete && conceptsMastered
+          labComplete && conceptsMastered
         ));
       }
     }
   }
+  assert.equal(canCompleteMiniTransformerChapter({ labComplete: true, conceptsMastered: true }), true);
 });

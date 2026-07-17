@@ -108,25 +108,24 @@ test("grades network surgery from shape and forward semantics", () => {
   );
 });
 
-test("requires both semantic activities and concept mastery for completion", () => {
+test("requires the XOR lab and concepts while keeping debugger remediation optional", () => {
   assert.equal(canCompleteNeuralNetworksChapter({
     xorLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
+    conceptsMastered: true,
+  }), true);
+  assert.equal(canCompleteNeuralNetworksChapter({
+    xorLabComplete: true,
     conceptsMastered: true,
   }), true);
   assert.equal(canCompleteNeuralNetworksChapter({
     xorLabComplete: false,
-    debuggerComplete: true,
-    conceptsMastered: true,
-  }), false);
-  assert.equal(canCompleteNeuralNetworksChapter({
-    xorLabComplete: true,
     debuggerComplete: false,
     conceptsMastered: true,
   }), false);
   assert.equal(canCompleteNeuralNetworksChapter({
     xorLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
     conceptsMastered: false,
   }), false);
 });

@@ -23,6 +23,7 @@ import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { AttentionConceptCheck } from "./AttentionConceptCheck";
 import { AttentionDebuggerLab } from "./AttentionDebuggerLab";
 
@@ -34,7 +35,7 @@ const tocItems = {
     { id: "attention-lab", label: "필수 Attention lab" },
     { id: "causal-ledger", label: "Q·K·V 변화 원장" },
     { id: "numpy-bridge", label: "NumPy routing bridge" },
-    { id: "debug", label: "routing 계약 디버깅" },
+    { id: "debug", label: "선택 · routing 계약 디버깅" },
     { id: "transfer", label: "Self-Attention으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -45,7 +46,7 @@ const tocItems = {
     { id: "attention-lab", label: "Required Attention lab" },
     { id: "causal-ledger", label: "Q/K/V causal ledger" },
     { id: "numpy-bridge", label: "NumPy routing bridge" },
-    { id: "debug", label: "Debug routing contracts" },
+    { id: "debug", label: "Optional · Debug routing contracts" },
     { id: "transfer", label: "Transfer to Self-Attention" },
     { id: "check", label: "Concept check" },
   ],
@@ -135,6 +136,8 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
               </ul>
             </div>
           </header>
+
+          <TransformerLearningGuide chapterSlug="attention" />
 
           <section className="article-section" id="bottleneck">
             <div className="margin-label">01 — FROM RECURRENT BOTTLENECK TO DIRECT READ</div>
@@ -325,7 +328,7 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">07 — ROUTING CONTRACT DEBUGGER</div>
+            <div className="margin-label">07 — OPTIONAL REMEDIATION · ROUTING DEBUGGER</div>
             <h2>{t("Softmax 축·QK 방향·context 재료·query 독립성을 실행 결과로 수리합니다", "Repair the softmax axis, QK direction, context source, and query independence from executed results")}</h2>
             <p>{t(
               "그럴듯한 이름을 고르는 활동이 아닙니다. 고정된 Q·K·V로 각 후보 연산을 실제 실행하고, 네 사건에 걸쳐 score shape, query별 weight 행 합, top source row와 context 폭을 검사해 key축 Softmax·QKᵀ·αV·독립 query row 계약을 판정합니다.",
@@ -358,7 +361,7 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
             <AttentionConceptCheck onMasteryChange={setConceptsMastered} />
             <div className="attention-completion-checklist" role="status" aria-live="polite">
               <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("필수 Attention routing lab", "Required Attention routing lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("routing 계약 복구", "Routing-contract repairs")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("routing 계약 복구", "Routing-contract repairs")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
@@ -366,8 +369,8 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
               slug="attention"
               canComplete={canComplete}
               lockedMessage={t(
-                "필수 Attention lab, routing debugger와 다섯 개념 확인을 모두 완료하세요.",
-                "Complete the required Attention lab, routing debugger, and all five concept checks.",
+                "필수 Attention lab과 다섯 개념 확인을 완료하세요. Routing debugger는 선택 보강입니다.",
+                "Complete the required Attention lab and all five concept checks. The routing debugger is optional remediation.",
               )}
             />
           </section>

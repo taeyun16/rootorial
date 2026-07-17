@@ -1,4 +1,5 @@
-import type { CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
+import type { CSSProperties, KeyboardEvent } from "react";
 
 export type ArrayCell = number | string | null;
 export type ArrayMatrix = ArrayCell[][];
@@ -15,6 +16,7 @@ type ArrayDiagramProps = {
   selectedRow?: number | null;
   selectedColumn?: number | null;
   selectedCell?: { row: number; column: number } | null;
+  targetCell?: { row: number; column: number } | null;
   formatValue?: (value: ArrayCell) => string;
   tone?: ArrayTone;
   variant?: "plain" | "heatmap";
@@ -34,6 +36,15 @@ function defaultFormatValue(value: ArrayCell) {
   return value;
 }
 
+function firstAvailableCell(values: ArrayMatrix) {
+  const row = values.findIndex((candidate) => candidate.length > 0);
+  return { row: Math.max(0, row), column: 0 };
+}
+
+function hasCell(values: ArrayMatrix, cell: { row: number; column: number }) {
+  return values[cell.row]?.[cell.column] !== undefined;
+}
+
 export function ArrayDiagram({
   values,
   shape,
@@ -45,6 +56,7 @@ export function ArrayDiagram({
   selectedRow = null,
   selectedColumn = null,
   selectedCell,
+  targetCell = null,
   formatValue = defaultFormatValue,
   tone = "forest",
   variant = "plain",
@@ -53,6 +65,12 @@ export function ArrayDiagram({
   emptyCellLabel = "empty cell",
   onSelectCell,
 }: ArrayDiagramProps) {
+  const figureRef = useRef<HTMLElement>(null);
+  const [rovingCell, setRovingCell] = useState(() => (
+    selectedCell && hasCell(values, selectedCell)
+      ? selectedCell
+      : firstAvailableCell(values)
+  ));
   const numericValues = values.flat().filter((value): value is number => typeof value === "number");
   const extent = numericValues.reduce((maximum, value) => Math.max(maximum, Math.abs(value)), 0) || 1;
   const className = [
@@ -65,8 +83,59 @@ export function ArrayDiagram({
     activeAxis === 1 ? "array-diagram-axis-1" : "",
   ].filter(Boolean).join(" ");
 
+  useEffect(() => {
+    if (selectedCell && hasCell(values, selectedCell)) {
+      setRovingCell(selectedCell);
+    }
+  }, [selectedCell?.column, selectedCell?.row, values]);
+
+  const resolvedRovingCell = hasCell(values, rovingCell)
+    ? rovingCell
+    : firstAvailableCell(values);
+
+  function focusCell(row: number, column: number) {
+    setRovingCell({ row, column });
+    figureRef.current
+      ?.querySelector<HTMLButtonElement>(
+        `[data-array-row="${row}"][data-array-column="${column}"]`,
+      )
+      ?.focus();
+  }
+
+  function handleCellKeyDown(
+    event: KeyboardEvent<HTMLButtonElement>,
+    row: number,
+    column: number,
+  ) {
+    let nextRow = row;
+    let nextColumn = column;
+
+    if (event.key === "ArrowLeft") {
+      nextColumn = Math.max(0, column - 1);
+    } else if (event.key === "ArrowRight") {
+      nextColumn = Math.min((values[row]?.length ?? 1) - 1, column + 1);
+    } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+      const direction = event.key === "ArrowUp" ? -1 : 1;
+      let candidateRow = row + direction;
+      while (candidateRow >= 0 && candidateRow < values.length && values[candidateRow].length === 0) {
+        candidateRow += direction;
+      }
+      if (candidateRow >= 0 && candidateRow < values.length) {
+        nextRow = candidateRow;
+        nextColumn = Math.min(column, values[candidateRow].length - 1);
+      }
+    } else {
+      return;
+    }
+
+    event.preventDefault();
+    if (nextRow !== row || nextColumn !== column) {
+      focusCell(nextRow, nextColumn);
+    }
+  }
+
   return (
-    <figure className={className}>
+    <figure className={className} ref={figureRef}>
       <figcaption className="array-diagram-caption">
         <span>{label}</span>
         {showShape ? <code>shape {formatShape(shape)}</code> : null}
@@ -109,6 +178,9 @@ export function ArrayDiagram({
                   const intensity = typeof value === "number" ? Math.min(1, Math.abs(value) / extent) : 0;
                   const cellClassName = [
                     selected ? "array-cell-active matrix-cell-active" : "",
+                    targetCell?.row === rowIndex && targetCell.column === columnIndex
+                      ? "array-cell-target matrix-cell-target"
+                      : "",
                     typeof value === "number" && value < 0 ? "array-cell-negative matrix-cell-negative" : "",
                     value === null ? "array-cell-empty" : "",
                   ].filter(Boolean).join(" ") || undefined;
@@ -127,7 +199,19 @@ export function ArrayDiagram({
                           style={style}
                           aria-label={ariaLabel}
                           aria-pressed={selectedCell !== undefined ? selected : undefined}
-                          onClick={() => onSelectCell(rowIndex, columnIndex)}
+                          data-array-row={rowIndex}
+                          data-array-column={columnIndex}
+                          tabIndex={
+                            resolvedRovingCell.row === rowIndex && resolvedRovingCell.column === columnIndex
+                              ? 0
+                              : -1
+                          }
+                          onFocus={() => setRovingCell({ row: rowIndex, column: columnIndex })}
+                          onKeyDown={(event) => handleCellKeyDown(event, rowIndex, columnIndex)}
+                          onClick={() => {
+                            setRovingCell({ row: rowIndex, column: columnIndex });
+                            onSelectCell(rowIndex, columnIndex);
+                          }}
                         >
                           {text}
                         </button>

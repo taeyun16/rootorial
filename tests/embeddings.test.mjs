@@ -156,7 +156,7 @@ test("grades four debugger incidents from computed embedding invariants", () => 
   assert.equal(evaluateEmbeddingRepair("masked-pooling", "include-pad").correct, false);
 });
 
-test("requires lookup evidence, debugger repairs, and concepts for chapter completion", () => {
+test("requires lookup evidence and concepts while keeping debugger remediation optional", () => {
   assert.deepEqual(evaluateEmbeddingLabMastery({
     correctShapePrediction: true,
     lookupEquivalenceInspected: true,
@@ -165,12 +165,16 @@ test("requires lookup evidence, debugger repairs, and concepts for chapter compl
   }), { mastered: true, reason: "mastered" });
   assert.equal(canCompleteEmbeddingsChapter({
     lookupLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
     conceptsMastered: true,
   }), true);
   assert.equal(canCompleteEmbeddingsChapter({
-    lookupLabComplete: true,
+    lookupLabComplete: false,
     debuggerComplete: false,
     conceptsMastered: true,
+  }), false);
+  assert.equal(canCompleteEmbeddingsChapter({
+    lookupLabComplete: true,
+    conceptsMastered: false,
   }), false);
 });

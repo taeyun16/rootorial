@@ -238,25 +238,24 @@ test("applies shared semantic graders to computed outputs, independent of option
   }).reason, "stochastic-validation");
 });
 
-test("requires the batch lab, debugger, and concept mastery together", () => {
+test("requires the batch lab and concepts while keeping debugger remediation optional", () => {
   assert.equal(canCompleteTrainingChapter({
     batchLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
+    conceptsMastered: true,
+  }), true);
+  assert.equal(canCompleteTrainingChapter({
+    batchLabComplete: true,
     conceptsMastered: true,
   }), true);
   assert.equal(canCompleteTrainingChapter({
     batchLabComplete: false,
-    debuggerComplete: true,
-    conceptsMastered: true,
-  }), false);
-  assert.equal(canCompleteTrainingChapter({
-    batchLabComplete: true,
     debuggerComplete: false,
     conceptsMastered: true,
   }), false);
   assert.equal(canCompleteTrainingChapter({
     batchLabComplete: true,
-    debuggerComplete: true,
+    debuggerComplete: false,
     conceptsMastered: false,
   }), false);
 });

@@ -20,6 +20,7 @@ import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { SelfAttentionConceptCheck } from "./SelfAttentionConceptCheck";
 import { SelfAttentionDebuggerLab } from "./SelfAttentionDebuggerLab";
 import { SelfAttentionLab } from "./SelfAttentionLab";
@@ -32,9 +33,9 @@ const tocItems = {
     { id: "mask", label: "미래를 막는 causal mask" },
     { id: "heads", label: "Multi-head split · concat" },
     { id: "worked-trace", label: "sat query 수치 추적" },
-    { id: "self-attention-lab", label: "필수 Self-Attention lab" },
+    { id: "self-attention-lab", label: "핵심 3 challenge lab" },
     { id: "numpy-bridge", label: "선택 NumPy bridge" },
-    { id: "debug", label: "정보 누출·shape 디버깅" },
+    { id: "debug", label: "선택 · 정보 누출·shape 디버깅" },
     { id: "transfer", label: "Transformer block으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -45,9 +46,9 @@ const tocItems = {
     { id: "mask", label: "Causal masking" },
     { id: "heads", label: "Multi-head split and concat" },
     { id: "worked-trace", label: "Trace the sat query" },
-    { id: "self-attention-lab", label: "Required Self-Attention lab" },
+    { id: "self-attention-lab", label: "Three-core-challenge lab" },
     { id: "numpy-bridge", label: "Optional NumPy bridge" },
-    { id: "debug", label: "Debug leaks and shapes" },
+    { id: "debug", label: "Optional · Debug leaks and shapes" },
     { id: "transfer", label: "Transfer to the Transformer block" },
     { id: "check", label: "Concept check" },
   ],
@@ -130,6 +131,8 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
               </ul>
             </div>
           </header>
+
+          <TransformerLearningGuide chapterSlug="self-attention" />
 
           <section className="article-section" id="boundary">
             <div className="margin-label">01 — SAME SEQUENCE, ALL QUERY ROWS</div>
@@ -301,7 +304,7 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">08 — CAUSAL MULTI-HEAD REPAIR CONSOLE</div>
+            <div className="margin-label">08 — OPTIONAL REMEDIATION · REPAIR CONSOLE</div>
             <h2>{t("projection·scaling·mask·head merge를 실행 결과로 수리합니다", "Repair projections, scaling, masks, and head merging from executed results")}</h2>
             <p>{t(
               "네 사건은 후보 연산을 고정 fixture에 실제 적용합니다. Q/K/V shape, scaled score, 미래·padding mass, query row 합, merged output shape를 다시 계산해 계약이 복구됐는지 판정합니다.",
@@ -327,11 +330,11 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
             <div className="margin-label">10 — CONCEPT CHECK</div>
             <SelfAttentionConceptCheck onMasteryChange={setConceptsMastered} />
             <div className="self-attention-completion-checklist" role="status" aria-live="polite">
-              <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("필수 Self-Attention lab", "Required Self-Attention lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("causal multi-head 복구", "Causal multi-head repairs")}</span>
+              <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("핵심 challenge 3개", "Three core challenges")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("causal multi-head 복구", "Causal multi-head repairs")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
-            <CompleteChapter curriculumSlug={TRANSFORMER_CURRICULUM_SLUG} slug="self-attention" canComplete={canComplete} lockedMessage={t("필수 lab, 네 debugger 사건과 다섯 개념 확인을 모두 완료하세요.", "Complete the required lab, all four debugger incidents, and all five concept checks.")} />
+            <CompleteChapter curriculumSlug={TRANSFORMER_CURRICULUM_SLUG} slug="self-attention" canComplete={canComplete} lockedMessage={t("핵심 challenge 세 개와 다섯 개념 확인을 완료하세요. 나머지 challenge와 debugger는 선택입니다.", "Complete the three core challenges and all five concept checks. The remaining challenges and debugger are optional.")} />
           </section>
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>

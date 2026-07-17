@@ -28,6 +28,7 @@ import {
   transformerBlockChallengeDefaults,
   transformerBlockChallengeIds,
   transformerBlockChallengeRequirements,
+  transformerBlockCoreChallengeIds,
   transformerBlockDebuggerScenarioIds,
   transformerBlockDebuggerScenarios,
   transformerBlockFixture,
@@ -72,10 +73,10 @@ test("ships self-contained NumPy bridges for the block ledger and second residua
   assert.doesNotMatch(transformerBlockResidualRepairCode, /[가-힣]/);
 });
 
-function validEvidence() {
+function validEvidence(challengeIds = transformerBlockChallengeIds) {
   let sequence = 0;
   return {
-    events: transformerBlockChallengeIds.flatMap((challengeId, challengeIndex) => {
+    events: challengeIds.flatMap((challengeId, challengeIndex) => {
       const requirement = transformerBlockChallengeRequirements[challengeId];
       const attemptId = `attempt-${challengeIndex + 1}`;
       return [
@@ -385,6 +386,12 @@ test("exports five stable challenge presets predictions and semantic requirement
     "positionwise-ffn",
     "block-handoff",
   ]);
+  assert.deepEqual(transformerBlockCoreChallengeIds, [
+    "layernorm",
+    "positionwise-ffn",
+    "block-handoff",
+  ]);
+  assert.equal(Object.isFrozen(transformerBlockCoreChallengeIds), true);
   assert.equal(new Set(transformerBlockPredictions).size, transformerBlockPredictions.length);
   assert.equal(transformerBlockChallengeDefaults["position-input"].positionScale, 0);
   assert.equal(transformerBlockChallengeDefaults.layernorm.preNorm, false);
@@ -484,11 +491,16 @@ test("requires the intended numeric slice before appending inspection evidence",
   }), false);
 });
 
-test("replays prediction run and inspection evidence to master all five challenges", () => {
+test("requires three representative core challenges while preserving all exploration evidence", () => {
   assert.deepEqual(evaluateTransformerBlockLabMastery(emptyTransformerBlockLabEvidence), {
     mastered: false,
-    reason: "complete-five-challenges",
+    reason: "complete-core-challenges",
     completedChallengeIds: [],
+  });
+  assert.deepEqual(evaluateTransformerBlockLabMastery(validEvidence(transformerBlockCoreChallengeIds)), {
+    mastered: true,
+    reason: "mastered",
+    completedChallengeIds: transformerBlockCoreChallengeIds,
   });
   assert.deepEqual(evaluateTransformerBlockLabMastery(validEvidence()), {
     mastered: true,
@@ -499,7 +511,7 @@ test("replays prediction run and inspection evidence to master all five challeng
   incomplete.events.splice(-1, 1);
   assert.deepEqual(evaluateTransformerBlockLabMastery(incomplete), {
     mastered: false,
-    reason: "complete-five-challenges",
+    reason: "complete-core-challenges",
     completedChallengeIds: transformerBlockChallengeIds.slice(0, 4),
   });
 });
@@ -708,7 +720,7 @@ test("derives specific debugger feedback from position norm residual and FFN inv
   );
 });
 
-test("requires lab debugger and concept mastery together", () => {
+test("requires the core lab and concepts while keeping debugger remediation optional", () => {
   for (const labComplete of [false, true]) {
     for (const debuggerComplete of [false, true]) {
       for (const conceptsMastered of [false, true]) {
@@ -716,8 +728,9 @@ test("requires lab debugger and concept mastery together", () => {
           labComplete,
           debuggerComplete,
           conceptsMastered,
-        }), labComplete && debuggerComplete && conceptsMastered);
+        }), labComplete && conceptsMastered);
       }
     }
   }
+  assert.equal(canCompleteTransformerBlockChapter({ labComplete: true, conceptsMastered: true }), true);
 });

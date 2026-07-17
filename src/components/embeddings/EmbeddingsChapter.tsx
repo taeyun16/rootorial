@@ -28,6 +28,7 @@ import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
+import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { EmbeddingDebuggerLab } from "./EmbeddingDebuggerLab";
 import { EmbeddingLookupLab } from "./EmbeddingLookupLab";
 import { EmbeddingsConceptCheck } from "./EmbeddingsConceptCheck";
@@ -41,7 +42,7 @@ const tocItems = {
     { id: "geometry", label: "cosine geometry" },
     { id: "pooling", label: "masked mean" },
     { id: "numpy-bridge", label: "NumPy로 다시 증명" },
-    { id: "debug", label: "계약 디버깅" },
+    { id: "debug", label: "선택 · 계약 디버깅" },
     { id: "transfer", label: "순서로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -53,7 +54,7 @@ const tocItems = {
     { id: "geometry", label: "Cosine geometry" },
     { id: "pooling", label: "Masked mean" },
     { id: "numpy-bridge", label: "Recheck in NumPy" },
-    { id: "debug", label: "Contract debugging" },
+    { id: "debug", label: "Optional · Contract debugging" },
     { id: "transfer", label: "Transfer to order" },
     { id: "check", label: "Concept check" },
   ],
@@ -141,6 +142,8 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
               </ul>
             </div>
           </header>
+
+          <TransformerLearningGuide chapterSlug="embeddings" />
 
           <section className="article-section" id="tokenizer">
             <div className="margin-label">01 — TOKENIZER CONTRACT</div>
@@ -337,7 +340,7 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">08 — DEBUG</div>
+            <div className="margin-label">08 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("lookup·gradient·geometry·pooling 경계를 숫자로 복구합니다", "Restore lookup, gradient, geometry, and pooling boundaries with numbers")}</h2>
             <p>{t(
               "각 사건의 repair는 실제 vector를 다시 계산합니다. softmax로 embedding 좌표를 확률화하거나 반복 token을 dedupe하는 등 그럴듯한 오답이 어떤 불변식을 깨는지 확인하세요.",
@@ -379,12 +382,12 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
             <p className="eyebrow">CHECKPOINT</p>
             <h2>{t("이제 token을 trainable vector row로 바꾸고 그 한계를 읽을 수 있습니다", "You can now turn tokens into trainable vector rows and read their limits")}</h2>
             <p>{t(
-              "shape를 예측하고 one-hot 동치와 반복 gradient를 증명한 뒤, 네 embedding 사건과 다섯 개념을 복구하면 목표에 도달했습니다.",
-              "You have reached the goal after predicting shapes, proving one-hot equivalence and repeated gradients, then restoring four embedding incidents and all five concepts.",
+              "Shape를 예측하고 one-hot 동치와 반복 gradient를 증명한 뒤 다섯 개념을 연결하면 핵심 목표에 도달합니다. Embedding 사건은 선택 보강입니다.",
+              "You reach the core goal after predicting shapes, proving one-hot equivalence and repeated gradients, and connecting all five concepts. Embedding incidents are optional remediation.",
             )}</p>
             <div className="embeddings-completion-checklist" role="status" aria-live="polite">
               <span className={lookupLabComplete ? "is-complete" : undefined}>{lookupLabComplete ? "✓" : "○"} {t("필수 lookup·gradient lab", "Required lookup and gradient lab")}</span>
-              <span className={debuggerComplete ? "is-complete" : undefined}>{debuggerComplete ? "✓" : "○"} {t("embedding 계약 복구 4개", "Four embedding-contract repairs")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("embedding 계약 복구 4개", "Four embedding-contract repairs")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
@@ -392,8 +395,8 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
               slug="embeddings"
               canComplete={canComplete}
               lockedMessage={t(
-                "필수 lookup lab, embedding 계약 복구 네 사건과 이해 확인 다섯 문제를 모두 마치면 완료할 수 있습니다.",
-                "Finish the required lookup lab, all four embedding-contract repairs, and all five concept questions to complete the chapter.",
+                "필수 lookup lab과 이해 확인 다섯 문제를 마치면 완료할 수 있습니다. Embedding 계약 복구는 선택 보강입니다.",
+                "Finish the required lookup lab and all five concept questions. Embedding-contract repairs are optional remediation.",
               )}
             />
           </section>

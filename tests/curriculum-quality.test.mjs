@@ -4,6 +4,7 @@ import {
   analyzeCurriculumQuality,
   renderCurriculumQualityMarkdown,
 } from "../scripts/report-curriculum-quality.ts";
+import { transformerContentQualityContracts } from "../src/features/chapters/content-quality.ts";
 
 test("tracks every Transformer chapter without structural contract drift", () => {
   const report = analyzeCurriculumQuality();
@@ -38,6 +39,40 @@ test("closes the executable-Python gap across every Transformer chapter", () => 
   );
 });
 
+test("keeps the core learning path visible, supported, and within its interaction budget", () => {
+  const report = analyzeCurriculumQuality();
+
+  assert.deepEqual(
+    report.chapters.map(({ terminologySupportCount }) => terminologySupportCount),
+    Array(10).fill(5),
+  );
+  assert.ok(report.chapters.every(({ visibleClarificationAccess }) => visibleClarificationAccess));
+  assert.deepEqual(
+    report.chapters.map(({ requiredCheckpointGroups }) => requiredCheckpointGroups),
+    [3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+  );
+  assert.deepEqual(
+    report.chapters.map(({ estimatedMinimumSuccessfulActions }) => estimatedMinimumSuccessfulActions),
+    [17, 13, 13, 13, 13, 13, 13, 15, 15, 15],
+  );
+  assert.deepEqual(
+    report.chapters.map(({ maxAllowedInteractionBudget }) => maxAllowedInteractionBudget),
+    [18, 16, 16, 16, 16, 16, 16, 16, 16, 16],
+  );
+  assert.ok(report.chapters.every(({ learningExperienceScore }) => learningExperienceScore === 5));
+  assert.ok(
+    Object.values(transformerContentQualityContracts).every(({ activities }) =>
+      activities.every(({ kind, required, runtime }) =>
+        !required || (kind !== "debug" && runtime !== "python"))),
+  );
+  for (const slug of ["self-attention", "transformer-block", "mini-transformer"]) {
+    const requiredChallenges = transformerContentQualityContracts[slug].activities
+      .filter(({ required }) => required)
+      .reduce((sum, { gradedTasks }) => sum + gradedTasks, 0);
+    assert.equal(requiredChallenges, 3);
+  }
+});
+
 test("renders a reviewable Markdown report with score and draft state", () => {
   const markdown = renderCurriculumQualityMarkdown(analyzeCurriculumQuality());
 
@@ -51,5 +86,8 @@ test("renders a reviewable Markdown report with score and draft state", () => {
   assert.match(markdown, /Self-Attention.*2.*45\/45.*draft/);
   assert.match(markdown, /Transformer 블록.*2.*45\/45.*draft/);
   assert.match(markdown, /Mini Transformer.*2.*45\/45.*draft/);
+  assert.match(markdown, /\| Terms \| Help \| Required groups \| Actions min\/max \| Quality \|/);
+  assert.match(markdown, /벡터와 텐서.*\| 5 \| yes \| 3 \| 17\/18 \| 45\/45/);
+  assert.match(markdown, /Mini Transformer.*\| 5 \| yes \| 2 \| 15\/16 \| 45\/45/);
   assert.match(markdown, /Structural contract issues: 0/);
 });
