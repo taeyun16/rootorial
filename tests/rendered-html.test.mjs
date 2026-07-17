@@ -413,7 +413,8 @@ test("SSR-renders the bilingual Transformer Block chapter with an explicit test-
     html,
     /직전 장의 causal multi-head routing을 완성된 decoder block으로 조립합니다/,
   );
-  assert.match(html, /08 — BLOCK CONTRACT REPAIR CONSOLE/);
+  assert.match(html, /08 — NUMPY BLOCK LEDGER · OPTIONAL/);
+  assert.match(html, /09 — BLOCK CONTRACT REPAIR CONSOLE/);
 
   const englishResponse = await renderWithPublicationRows(
     "/curricula/transformer-from-zero/chapters/transformer-block?lang=en",
@@ -426,7 +427,8 @@ test("SSR-renders the bilingual Transformer Block chapter with an explicit test-
     englishHtml,
     /Assemble the prior chapter(?:'|&#x27;)s causal multi-head routing into a complete decoder block/,
   );
-  assert.match(englishHtml, /08 — BLOCK CONTRACT REPAIR CONSOLE/);
+  assert.match(englishHtml, /08 — NUMPY BLOCK LEDGER · OPTIONAL/);
+  assert.match(englishHtml, /09 — BLOCK CONTRACT REPAIR CONSOLE/);
 });
 
 test("SSR-renders the bilingual Mini Transformer chapter with an explicit test-only publication override", async () => {
