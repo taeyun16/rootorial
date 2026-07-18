@@ -16,6 +16,7 @@ import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
 import { NetworkNamespaceIncidentLab } from "./NetworkNamespaceIncidentLab";
+import { NetworkNamespaceOwnershipStory } from "./NetworkNamespaceOwnershipStory";
 import { NetworkNamespaceTopologyLab } from "./NetworkNamespaceTopologyLab";
 import { NetworkNamespacesConceptCheck } from "./NetworkNamespacesConceptCheck";
 
@@ -204,12 +205,7 @@ export function NetworkNamespacesChapter({ learnerCount = 0 }: { learnerCount?: 
               "실행 thread는 특정 network namespace에서 network syscall을 수행합니다. interface 객체는 한 번에 정확히 한 network namespace에만 속하며 이동하면 원래 view에서 사라집니다. socket은 생성 당시 thread의 network namespace에 고정됩니다. listener를 host에서 먼저 만든 뒤 thread만 app namespace로 옮겨도 기존 listener는 host socket table에 남고, app 안에서 새 socket을 만들어 bind·listen해야 app listener가 됩니다.",
               "An executing thread performs network syscalls in a particular network namespace. An interface object belongs to exactly one network namespace at a time and disappears from the old view when moved. A socket is pinned to the creating thread's network namespace. If a listener is created on the host before only the thread enters app, the existing listener remains in the host socket table; a new socket must be created, bound, and listened on inside app.",
             )}</p>
-            <div className="namespace-ownership-grid" role="group" aria-label={t("network object별 namespace 소유 계약", "Namespace ownership contract by network object")}>
-              <article><span>{t("실행 주체", "EXECUTION")}</span><strong>thread → netns</strong><p>{t("그 view에서 새 network syscall 실행", "new network syscalls use that view")}</p></article>
-              <article><span>INTERFACE</span><strong>one owner netns</strong><p>{t("이동은 복제가 아님", "moving is not copying")}</p></article>
-              <article><span>SOCKET</span><strong>creation netns</strong><p>{t("thread 이동으로 socket은 이동하지 않음", "a later thread move does not move it")}</p></article>
-              <article><span>ROUTE · NEIGHBOR</span><strong>table per netns</strong><p>{t("같은 prefix·address도 독립", "identical prefixes and addresses remain independent")}</p></article>
-            </div>
+            <NetworkNamespaceOwnershipStory />
             <p>{t(
               "veth pair는 하나의 interface를 두 namespace에 복제한 것이 아니라 연결된 두 interface 객체입니다. 이 구분이 다음 장에서 각 endpoint를 서로 다른 namespace에 두는 토대가 됩니다.",
               "A veth pair is not one interface copied into two namespaces; it is two connected interface objects. That distinction is the foundation for placing one endpoint in each namespace in the next chapter.",

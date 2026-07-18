@@ -138,6 +138,71 @@ test("completes the namespace topology, four incidents, and concepts in the Kore
   await expect(page.getByText("REQUIRED LAB · DESIGN THE BOUNDARY", { exact: true })).toBeVisible();
   await expect(page.getByText("REQUIRED ACTIVITY · INCIDENT CONSOLE", { exact: true })).toBeVisible();
 
+  const ownershipStory = page.getByTestId("namespace-ownership-scenario-player");
+  await expect(ownershipStory).toHaveAttribute("data-interactive-ready", "true");
+  await expect(ownershipStory.locator("select")).toHaveCount(0);
+  await expect(ownershipStory.locator('input[type="checkbox"]')).toHaveCount(0);
+  await expect(ownershipStory.locator("[data-ownership-stage]")).toHaveCount(4);
+  await expect(ownershipStory.getByRole("button")).toHaveCount(4);
+  expect(await ownershipStory.evaluate((element) => Array.from(element.attributes)
+    .map((attribute) => attribute.name)
+    .filter((name) => /motion|player|transition|settled|duration/.test(name)))).toEqual([]);
+  await expect(ownershipStory).toHaveAttribute("data-active-stage", "separate-views");
+  const ownershipBefore = ownershipStory.locator('[data-comparison-side="before"]');
+  const ownershipAfter = ownershipStory.locator('[data-comparison-side="after"]');
+  await expect(ownershipBefore).toHaveAttribute("data-snapshot-step", "separate-views");
+  await expect(ownershipAfter).toHaveAttribute("data-snapshot-step", "separate-views");
+  await expect(ownershipBefore.locator("[data-object-id]")).toHaveCount(0);
+  await expect(ownershipAfter.locator('[data-object-id="story-thread"]'))
+    .toHaveAttribute("data-owner-namespace", "host");
+  await expect(ownershipAfter.locator('[data-object-id="eth-app"]'))
+    .toHaveAttribute("data-owner-namespace", "host");
+  await expect(ownershipAfter.locator('[data-object-id="host-listener"]'))
+    .toHaveAttribute("data-owner-namespace", "host");
+  await expect(ownershipAfter.locator('[data-object-kind="socket"]')).toHaveCount(1);
+  const initialOwnershipStatus = await ownershipStory.getByRole("status").textContent();
+  await page.waitForTimeout(800);
+  await expect(ownershipStory).toHaveAttribute("data-active-stage", "separate-views");
+  await expect(ownershipAfter).toHaveAttribute("data-snapshot-step", "separate-views");
+
+  const moveThread = ownershipStory.locator('[data-ownership-stage="thread-enters-app"] button');
+  await activate(moveThread);
+  await expect(moveThread).toBeFocused();
+  await expect(moveThread).toHaveAttribute("aria-current", "step");
+  await expect(ownershipStory.locator('[data-ownership-stage] button[aria-current="step"]')).toHaveCount(1);
+  await expect(ownershipStory).toHaveAttribute("data-active-stage", "thread-enters-app");
+  await expect(ownershipBefore).toHaveAttribute("data-snapshot-step", "interface-moves");
+  await expect(ownershipAfter).toHaveAttribute("data-snapshot-step", "thread-enters-app");
+  await expect(ownershipAfter.locator('[data-object-id="story-thread"]'))
+    .toHaveAttribute("data-owner-namespace", "app");
+  await expect(ownershipAfter.locator('[data-object-id="host-listener"]'))
+    .toHaveAttribute("data-owner-namespace", "host");
+  await expect(ownershipAfter.locator('[data-object-kind="socket"]')).toHaveCount(1);
+  await expect(ownershipStory.locator('[data-delta-object-id="thread"]'))
+    .toHaveAttribute("data-delta-kind", "changed");
+  await expect(ownershipStory.locator('[data-delta-object-id="host-listener"]'))
+    .toHaveAttribute("data-delta-kind", "preserved");
+  await expect(ownershipStory.getByRole("status")).not.toHaveText(initialOwnershipStatus ?? "");
+
+  const threadOwnershipStatus = await ownershipStory.getByRole("status").textContent();
+  const createSocket = ownershipStory.locator('[data-ownership-stage="socket-created-in-app"] button');
+  await activate(createSocket);
+  await expect(createSocket).toBeFocused();
+  await expect(createSocket).toHaveAttribute("aria-current", "step");
+  await expect(ownershipStory).toHaveAttribute("data-active-stage", "socket-created-in-app");
+  await expect(ownershipBefore).toHaveAttribute("data-snapshot-step", "thread-enters-app");
+  await expect(ownershipAfter).toHaveAttribute("data-snapshot-step", "socket-created-in-app");
+  await expect(ownershipAfter.locator('[data-object-kind="socket"]')).toHaveCount(2);
+  await expect(ownershipAfter.locator('[data-object-id="app-listener"]'))
+    .toHaveAttribute("data-owner-namespace", "app");
+  await expect(ownershipAfter.locator('[data-object-kind="socket"]'))
+    .toContainText(["127.0.0.1:8080", "127.0.0.1:8080"]);
+  await expect(ownershipStory.locator('[data-delta-object-id="app-listener"]'))
+    .toHaveAttribute("data-delta-kind", "created");
+  await expect(ownershipStory.locator('[data-delta-object-id="host-listener"]'))
+    .toHaveAttribute("data-delta-kind", "preserved");
+  await expect(ownershipStory.getByRole("status")).not.toHaveText(threadOwnershipStatus ?? "");
+
   const completionButton = page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" });
   await expect(completionButton).toBeDisabled();
   await expect(completionButton).toHaveAttribute("data-completion-ready", "false");
@@ -232,6 +297,63 @@ test("keeps the English draft keyboard-usable and resettable at 390px without ov
     name: "Network Namespaces and Isolation Boundaries",
     exact: true,
   })).toBeVisible();
+
+  const ownershipStory = page.getByTestId("namespace-ownership-scenario-player");
+  await expect(ownershipStory).toHaveAttribute("data-interactive-ready", "true");
+  await expect(ownershipStory.locator("[data-ownership-stage]")).toHaveCount(4);
+  await expect(ownershipStory.getByRole("button")).toHaveCount(4);
+  expect(await ownershipStory.evaluate((element) => Array.from(element.attributes)
+    .map((attribute) => attribute.name)
+    .filter((name) => /motion|player|transition|settled|duration/.test(name)))).toEqual([]);
+  await expect(ownershipStory).toHaveAttribute("data-active-stage", "separate-views");
+  const ownershipBefore = ownershipStory.locator('[data-comparison-side="before"]');
+  const ownershipAfter = ownershipStory.locator('[data-comparison-side="after"]');
+  await expect(ownershipBefore).toHaveAttribute("data-snapshot-step", "separate-views");
+  await expect(ownershipAfter).toHaveAttribute("data-snapshot-step", "separate-views");
+  const storyStatus = ownershipStory.getByRole("status");
+  await expect(storyStatus).toHaveAttribute("aria-live", "polite");
+  await expect(storyStatus).toHaveAttribute("aria-atomic", "true");
+  const initialStoryStatus = await storyStatus.textContent();
+  const ownershipCommands = ownershipStory.locator("[data-ownership-stage] button");
+  const separateViews = ownershipCommands.nth(0);
+  const moveInterface = ownershipCommands.nth(1);
+  const moveThread = ownershipCommands.nth(2);
+  const createSocket = ownershipCommands.nth(3);
+  await expect(separateViews).toHaveAttribute("tabindex", "0");
+  await expect(moveInterface).toHaveAttribute("tabindex", "-1");
+  await separateViews.focus();
+  await separateViews.press("ArrowRight");
+  await expect(moveInterface).toBeFocused();
+  await expect(ownershipStory).toHaveAttribute("data-active-stage", "interface-moves");
+  await expect(ownershipAfter).toHaveAttribute("data-snapshot-step", "interface-moves");
+  await expect(ownershipAfter.locator('[data-object-id="eth-app"]'))
+    .toHaveAttribute("data-owner-namespace", "app");
+  await expect(ownershipStory.locator('[data-delta-object-id="interface"]'))
+    .toHaveAttribute("data-delta-kind", "changed");
+  await expect(storyStatus).not.toHaveText(initialStoryStatus ?? "");
+  await moveInterface.press("ArrowDown");
+  await expect(moveThread).toBeFocused();
+  await expect(ownershipStory).toHaveAttribute("data-active-stage", "thread-enters-app");
+  await expect(ownershipAfter.locator('[data-object-id="story-thread"]'))
+    .toHaveAttribute("data-owner-namespace", "app");
+  await moveThread.press("ArrowLeft");
+  await expect(moveInterface).toBeFocused();
+  await moveInterface.press("ArrowUp");
+  await expect(separateViews).toBeFocused();
+  await separateViews.press("End");
+  await expect(createSocket).toBeFocused();
+  await expect(ownershipStory).toHaveAttribute("data-active-stage", "socket-created-in-app");
+  await expect(ownershipAfter.locator('[data-object-kind="socket"]')).toHaveCount(2);
+  await expect(ownershipStory.locator('[data-delta-object-id="app-listener"]'))
+    .toHaveAttribute("data-delta-kind", "created");
+  await createSocket.press("Home");
+  await expect(separateViews).toBeFocused();
+  await expect(separateViews).toHaveAttribute("aria-current", "step");
+  await expect(ownershipStory).toHaveAttribute("data-active-stage", "separate-views");
+  await expect(ownershipAfter).toHaveAttribute("data-snapshot-step", "separate-views");
+  expect(await ownershipStory.evaluate(
+    (element) => element.scrollWidth - element.clientWidth,
+  )).toBeLessThanOrEqual(1);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];
