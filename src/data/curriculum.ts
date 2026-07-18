@@ -58,7 +58,7 @@ export function chapterId(curriculumSlug: string, chapterSlug: string) {
 
 export const VECTOR_CHAPTER_ESTIMATED_MINUTES = 60;
 export const OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES = 55;
-export const NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES = 60;
+export const NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES = 70;
 export const TRAINING_CHAPTER_ESTIMATED_MINUTES = 65;
 export const EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES = 65;
 export const SEQUENCES_CHAPTER_ESTIMATED_MINUTES = 65;
@@ -109,12 +109,12 @@ export const chaptersKo: Chapter[] = [
     title: "분류와 신경망",
     subtitle: "직선을 쌓아 복잡한 경계를 만드는 법",
     description:
-      "sigmoid와 BCE로 이진 분류를 읽고, hidden feature와 두 행렬 곱을 조립해 XOR을 해결하고 신경망 결함을 디버깅합니다.",
+      "sigmoid와 BCE로 이진 분류를 읽고, hidden feature로 XOR을 조립한 뒤 chain rule로 두 weight 층까지 역전파합니다.",
     runtime: "수학 모델",
     estimatedMinutes: NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["sigmoid · BCE", "hidden layer", "XOR"],
+    concepts: ["sigmoid · BCE", "hidden layer · XOR", "chain rule · backprop"],
   },
   {
     number: 4,
@@ -225,8 +225,8 @@ export const chaptersEn: Chapter[] = [
   {
     number: 3, slug: "neural-networks", title: "Classification and Neural Networks",
     subtitle: "Building complex boundaries from simple lines",
-    description: "Read binary classification through sigmoid and BCE, then assemble hidden features and two matrix products to solve XOR and debug network failures.",
-    runtime: "Math model", estimatedMinutes: NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["sigmoid · BCE", "hidden layer", "XOR"],
+    description: "Read binary classification through sigmoid and BCE, assemble hidden features for XOR, then backpropagate through both weight layers with the chain rule.",
+    runtime: "Math model", estimatedMinutes: NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES, developmentStatus: "complete", status: "available", concepts: ["sigmoid · BCE", "hidden layer · XOR", "chain rule · backprop"],
   },
   {
     number: 4, slug: "training", title: "Deep Learning Training",

@@ -450,7 +450,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
         slug: "neural-networks",
         status: "available",
         developmentStatus: "complete",
-        estimatedMinutes: 60,
+        estimatedMinutes: 70,
       },
       {
         slug: "training",

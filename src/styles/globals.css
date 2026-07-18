@@ -16199,8 +16199,87 @@ textarea:focus-visible {
 }
 
 .neural-xor-lab .interactive-lab-header,
+.neural-backprop-lab .interactive-lab-header,
 .neural-debugger-lab .interactive-lab-header {
   border-bottom: 1px solid var(--line-strong);
+}
+
+.neural-backprop-rule-grid,
+.neural-backprop-cache {
+  margin: 28px 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.neural-backprop-rule-grid article,
+.neural-backprop-cache article {
+  min-width: 0;
+  padding: 18px;
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.neural-backprop-rule-grid article > span,
+.neural-backprop-cache article > span {
+  color: #7055bd;
+  font: 800 9px var(--mono);
+  letter-spacing: .08em;
+}
+
+.neural-backprop-rule-grid p,
+.neural-backprop-cache p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.neural-backprop-rule-grid .math-formula-display {
+  margin: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  font-size: clamp(13px, 1.45vw, 17px);
+}
+
+.neural-backprop-cache {
+  margin: 0;
+  padding: 22px 24px;
+  border-bottom: 1px solid var(--line);
+  background: var(--paper-pressed);
+}
+
+.neural-backprop-cache article strong {
+  font: 800 15px var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.neural-backprop-controls {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.neural-backprop-controls legend {
+  width: 100%;
+  padding: 22px 24px 0;
+  color: #7055bd;
+  font: 800 10px var(--mono);
+  letter-spacing: .06em;
+}
+
+.neural-backprop-result {
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.neural-backprop-loss-strip {
+  margin: 0;
+  padding: 22px 24px;
+  background: var(--paper-pressed);
 }
 
 .neural-prediction-step {
@@ -16542,6 +16621,8 @@ textarea:focus-visible {
   .neural-transfer-map,
   .neural-bce-grid,
   .neural-xor-data,
+  .neural-backprop-rule-grid,
+  .neural-backprop-cache,
   .neural-config-grid,
   .neural-truth-grid,
   .neural-debug-grid,
@@ -16560,6 +16641,8 @@ textarea:focus-visible {
   }
 
   .neural-prediction-step,
+  .neural-backprop-cache,
+  .neural-backprop-loss-strip,
   .neural-config-grid,
   .neural-matrix-flow,
   .neural-row-trace,
@@ -16573,6 +16656,7 @@ textarea:focus-visible {
   }
 
   .neural-prediction-step legend,
+  .neural-backprop-controls legend,
   .neural-debug-card legend {
     padding-right: 16px;
     padding-left: 16px;

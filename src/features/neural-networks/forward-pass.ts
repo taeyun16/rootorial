@@ -384,11 +384,13 @@ export function evaluateNetworkRepair(
 
 export function canCompleteNeuralNetworksChapter({
   xorLabComplete,
+  backpropLabComplete,
   conceptsMastered,
 }: {
   xorLabComplete: boolean;
+  backpropLabComplete: boolean;
   debuggerComplete?: boolean;
   conceptsMastered: boolean;
 }) {
-  return xorLabComplete && conceptsMastered;
+  return xorLabComplete && backpropLabComplete && conceptsMastered;
 }

@@ -477,7 +477,7 @@ test("validates submitted answers against the versioned server registry", () => 
       "bce-penalty": "confident-wrong-costs-most",
       "activation-purpose": "nonlinearity-bends-boundaries",
       "xor-hidden-features": "combine-hidden-features",
-      "layer-shapes": "two-hidden-activations-one-logit",
+      "layer-shapes": "gradient-matches-first-weights",
     },
   });
   assert.deepEqual(
@@ -501,11 +501,14 @@ test("validates submitted answers against the versioned server registry", () => 
       },
       {
         key: "transformer-from-zero/neural-networks/layer-shapes",
-        correctAnswer: "two-hidden-activations-one-logit",
+        correctAnswer: "gradient-matches-first-weights",
       },
     ],
   );
-  assert.ok(neuralNetworkResult.answers.every(({ version }) => version === 1));
+  assert.deepEqual(
+    neuralNetworkResult.answers.map(({ version }) => version),
+    [1, 1, 1, 1, 2],
+  );
   assert.throws(() => validateAttemptInput({
     sessionId,
     submissionId,
