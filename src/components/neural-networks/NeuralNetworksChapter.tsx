@@ -25,6 +25,7 @@ import { PublicLearningProof } from "../PublicLearningProof";
 import { PythonCode } from "../PythonCode";
 import { RootorialMark } from "../RootorialMark";
 import { TransformerLearningGuide } from "../TransformerLearningGuide";
+import { NeuralNetworkBackpropLab } from "./NeuralNetworkBackpropLab";
 import { NeuralNetworkDebuggerLab } from "./NeuralNetworkDebuggerLab";
 import { NeuralNetworksConceptCheck } from "./NeuralNetworksConceptCheck";
 import { NeuralNetworkXorLab } from "./NeuralNetworkXorLab";
@@ -36,6 +37,7 @@ const tocItems = {
     { id: "linear-limit", label: "직선 경계의 한계" },
     { id: "hidden", label: "hidden feature" },
     { id: "xor-lab", label: "필수 XOR 실습" },
+    { id: "backprop-lab", label: "필수 hidden backprop" },
     { id: "numpy-bridge", label: "NumPy로 다시 만들기" },
     { id: "debug", label: "선택 · 네트워크 수술" },
     { id: "transfer", label: "batch·class로 전이" },
@@ -47,6 +49,7 @@ const tocItems = {
     { id: "linear-limit", label: "The limit of one line" },
     { id: "hidden", label: "Hidden features" },
     { id: "xor-lab", label: "Required XOR lab" },
+    { id: "backprop-lab", label: "Required hidden backprop" },
     { id: "numpy-bridge", label: "Rebuild it in NumPy" },
     { id: "debug", label: "Optional · Network surgery" },
     { id: "transfer", label: "Transfer to batches and classes" },
@@ -64,10 +67,12 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
   const chapter = chapters[chapterIndex];
   const chapterNumber = chapterIndex + 1;
   const [xorLabComplete, setXorLabComplete] = useState(false);
+  const [backpropLabComplete, setBackpropLabComplete] = useState(false);
   const [debuggerComplete, setDebuggerComplete] = useState(false);
   const [conceptsMastered, setConceptsMastered] = useState(false);
   const canComplete = canCompleteNeuralNetworksChapter({
     xorLabComplete,
+    backpropLabComplete,
     debuggerComplete,
     conceptsMastered,
   });
@@ -105,15 +110,15 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
         <article className="lesson-article">
           <header className="lesson-hero neural-networks-hero">
             <p className="eyebrow">
-              LOGIT → ACTIVATION → HIDDEN FEATURE → PROBABILITY · {isKo ? `약 ${chapter.estimatedMinutes}분` : `ABOUT ${chapter.estimatedMinutes} MIN`}
+              LOGIT → ACTIVATION → PROBABILITY → LOSS → BACKPROP · {isKo ? `약 ${chapter.estimatedMinutes}분` : `ABOUT ${chapter.estimatedMinutes} MIN`}
             </p>
             <div className="lesson-number">03</div>
             <h1>{chapter.title}</h1>
             <p className="lesson-deck">
               {isKo ? (
-                <>직선 하나가 표현하지 못하는 규칙은 더 오래 학습한다고 생기지 않습니다. 뉴런은 affine 점수를 <em>활성화</em>해 중간 feature를 만들고, 다음 뉴런이 그 feature를 다시 조합하게 합니다.</>
+                <>직선 하나가 표현하지 못하는 규칙은 더 오래 학습한다고 생기지 않습니다. 뉴런은 affine 점수를 <em>활성화</em>해 중간 feature를 만들고, loss 신호는 같은 경로를 거꾸로 돌아 두 층의 weight를 바꿉니다.</>
               ) : (
-                <>Training longer cannot create a rule that one line cannot represent. A neuron <em>activates</em> an affine score into an intermediate feature, then another neuron recombines those features.</>
+                <>Training longer cannot create a rule that one line cannot represent. A neuron <em>activates</em> an affine score into an intermediate feature, then the loss signal travels back through the same path to change both layers of weights.</>
               )}
             </p>
             <PublicLearningProof count={learnerCount} locale={locale} scope="chapter" />
@@ -124,7 +129,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
                 <li>{t("BCE가 정답 class에 배정한 확률을 읽고 확신한 오답을 더 크게 벌점 주는 이유를 설명할 수 있다.", "Explain why BCE reads probability assigned to the true class and penalizes confident wrong predictions most.")}</li>
                 <li>{t("단일 affine+sigmoid와 activation 없는 연속 affine이 XOR을 표현하지 못함을 예측할 수 있다.", "Predict why one affine+sigmoid—or stacked affine maps without activation—cannot represent XOR.")}</li>
                 <li>{t("X[4,2]→hidden[4,2]→logit[4,1]의 값과 shape를 추적하고 두 hidden feature로 XOR을 조립할 수 있다.", "Trace values and shapes through X[4,2]→hidden[4,2]→logit[4,1] and assemble XOR from two hidden features.")}</li>
-                <li>{t("실제 output·BCE로 깨진 MLP를 진단하고 다음 장의 batch×class logits로 전이할 수 있다.", "Diagnose a broken MLP from actual outputs and BCE, then transfer the shape reasoning to batch-by-class logits.")}</li>
+                <li>{t("BCE→output logit→hidden activation→W¹의 chain rule을 추적하고 parameter-shaped gradient로 loss를 줄이는 update를 검증할 수 있다.", "Trace the chain rule from BCE through the output logit and hidden activation to W¹, then verify a loss-reducing update with parameter-shaped gradients.")}</li>
               </ul>
             </div>
           </header>
@@ -141,7 +146,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
               <span className="callout-mark">↩</span>
               <div>
                 <strong>{t("선행 개념", "Prerequisites")}</strong>
-                <p>{t("벡터의 행별 내적과 bias broadcasting, 이전 장의 loss·gradient·update만 사용합니다. 이번 장에서는 파라미터 학습보다 forward pass의 표현력을 먼저 다룹니다.", "Use row-wise dot products, bias broadcasting, and the previous chapter's loss-gradient-update loop. This chapter focuses on forward-pass expressiveness before training details.")}</p>
+                <p>{t("벡터의 행별 내적과 bias broadcasting, 이전 장의 loss·gradient·update만 사용합니다. 먼저 forward 표현력을 조립한 뒤 마지막 필수 lab에서 그 update를 hidden layer까지 확장합니다.", "Use row-wise dot products, bias broadcasting, and the previous chapter's loss-gradient-update loop. First assemble forward expressiveness, then extend that update through a hidden layer in the final required lab.")}</p>
                 {preview ? <a href={previousPreviewHref}>{t("이전 드래프트 챕터 다시 보기", "Review the previous draft chapter")} →</a> : <span>{t("이전: 학습과 최적화", "Previous: Learning and Optimization")}</span>}
               </div>
             </div>
@@ -224,15 +229,49 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
             <NeuralNetworkXorLab onCompletionChange={setXorLabComplete} />
           </div>
 
+          <section className="article-section" id="backprop-lab">
+            <div className="margin-label">06 — BACKPROP BRIDGE</div>
+            <h2>{t("forward에 저장한 값을 역순으로 연결하면 hidden gradient가 됩니다", "Reading cached forward values in reverse produces hidden gradients")}</h2>
+            <p>{t(
+              "forward는 Z¹, H, z², p를 저장합니다. BCE에서 시작한 output signal δ²=p−y는 W²ᵀ를 거쳐 hidden으로 돌아오고, sigmoid의 local derivative H⊙(1−H)을 만나 δ¹이 됩니다. 네 행의 parameter 기여를 평균하면 각 gradient는 자신이 바꿀 weight와 같은 shape를 갖습니다.",
+              "Forward caches Z¹, H, z², and p. The output signal δ²=p−y travels through W²ᵀ back to hidden, then meets sigmoid's local derivative H⊙(1−H) to become δ¹. Averaging parameter contributions over four rows gives every gradient the same shape as the weight it updates.",
+            )}</p>
+            <div className="neural-backprop-rule-grid">
+              <article>
+                <span>OUTPUT SIGNAL</span>
+                <MathFormula latex={String.raw`\delta^2=p-y`} display />
+                <p>{t("BCE와 output sigmoid의 결합", "BCE combined with output sigmoid")}</p>
+              </article>
+              <article>
+                <span>HIDDEN SIGNAL</span>
+                <MathFormula latex={String.raw`\delta^1=(\delta^2(W^2)^\top)\odot H\odot(1-H)`} display />
+                <p>[4,1] → [4,2]</p>
+              </article>
+              <article>
+                <span>PARAMETER GRADIENT</span>
+                <MathFormula latex={String.raw`\nabla_{W^1}L=\frac{1}{4}X^\top\delta^1`} display />
+                <p>[2,4] × [4,2] → [2,2]</p>
+              </article>
+            </div>
+            <div className="concept-callout">
+              <span className="callout-mark">↪</span>
+              <div>
+                <strong>{t("계산 그래프의 edge마다 local derivative를 하나씩 곱합니다", "Multiply one local derivative at each computation-graph edge")}</strong>
+                <p>{t("output weight나 sigmoid derivative를 건너뛰면 W¹이 loss에 미치는 영향을 계산한 것이 아닙니다. 다음 장에서는 같은 reverse path를 mini-batch마다 만들고 Adam이 그 gradient를 소비합니다.", "Skipping either the output weight or sigmoid derivative no longer measures W¹'s effect on loss. The next chapter builds the same reverse path per mini-batch, then lets Adam consume those gradients.")}</p>
+              </div>
+            </div>
+            <NeuralNetworkBackpropLab onCompletionChange={setBackpropLabComplete} />
+          </section>
+
           <section className="article-section neural-python-bridge" id="numpy-bridge">
-            <div className="margin-label">06 — NUMPY BRIDGE · OPTIONAL</div>
+            <div className="margin-label">07 — NUMPY BRIDGE · OPTIONAL</div>
             <h2>{t("시뮬레이터의 XOR을 실제 NumPy forward pass로 옮깁니다", "Move the simulator's XOR into a real NumPy forward pass")}</h2>
             <p>{t("첫 셀은 많은 직선을 직접 탐색해 단일 affine 경계가 3/4에서 멈추는 것을 확인합니다. 두 번째 셀은 activation이 빠져 2/4로 무너진 2층 네트워크를 한 줄 수정해 4/4와 낮은 BCE로 복구합니다.", "The first cell searches many lines and confirms that one affine boundary stops at 3/4. In the second, repair one missing activation in a two-layer network so it recovers 4/4 with low BCE.")}</p>
             <div className="concept-callout">
               <span className="callout-mark">Py</span>
               <div>
                 <strong>{t("선택 심화이며 각 셀은 독립적으로 실행됩니다", "Optional extension; each cell runs independently")}</strong>
-                <p>{t("브라우저가 공유 Pyodide 런타임과 NumPy를 지연 로드합니다. 다운로드 실패는 필수 XOR 실습이나 챕터 완료를 막지 않습니다. 어느 셀도 다른 셀이 남긴 상태에 의존하지 않으므로 어떤 순서로 실행해도 됩니다.", "The browser lazily loads the shared Pyodide runtime and NumPy. A download failure never blocks the required XOR lab or chapter completion. Neither cell depends on state left by the other, so either can run first.")}</p>
+                <p>{t("브라우저가 공유 Pyodide 런타임과 NumPy를 지연 로드합니다. 다운로드 실패는 두 필수 브라우저 실습이나 챕터 완료를 막지 않습니다. 어느 셀도 다른 셀이 남긴 상태에 의존하지 않으므로 어떤 순서로 실행해도 됩니다.", "The browser lazily loads the shared Pyodide runtime and NumPy. A download failure never blocks either required browser lab or chapter completion. Neither cell depends on state left by the other, so either can run first.")}</p>
               </div>
             </div>
             <NotebookCell
@@ -279,16 +318,16 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
           </section>
 
           <section className="article-section" id="debug">
-            <div className="margin-label">07 — OPTIONAL REMEDIATION · DEBUG</div>
+            <div className="margin-label">08 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("깨진 층은 이름이 아니라 실제 forward 결과로 수리합니다", "Repair broken layers by actual forward results, not names")}</h2>
             <p>{t("shape가 맞는지, activation 뒤 네 행이 달라지는지, output이 truth table을 회복하는지, BCE 입력이 유효한 확률인지 차례로 검사하세요. 각 patch는 같은 수학 모델을 다시 실행해 의미론적으로 판정됩니다.", "Check shape compatibility, whether activation differentiates the four rows, whether the output restores the truth table, and whether BCE receives valid probabilities. Every patch is graded semantically by rerunning the same math model.")}</p>
             <NeuralNetworkDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
 
           <section className="article-section" id="transfer">
-            <div className="margin-label">08 — TRANSFER</div>
+            <div className="margin-label">09 — TRANSFER</div>
             <h2>{t("다음 장에서는 행을 mini-batch로, output을 class logits로 넓힙니다", "Next, rows become mini-batches and outputs expand to class logits")}</h2>
-            <p>{t("전이 과제: X[8,2]와 hidden width 3으로 3-class classifier를 조립해 보세요. W¹[2,3] 뒤 H[8,3], W²[3,3] 뒤 logits[8,3]이 됩니다. affine→activation→affine 뼈대는 유지되고, 다음 장에서 full batch를 mini-batch로 나누고 sigmoid/BCE를 Softmax·Cross Entropy로 확장합니다.", "Transfer task: assemble a three-class classifier from X[8,2] with hidden width 3. W¹[2,3] yields H[8,3], and W²[3,3] yields logits[8,3]. The affine→activation→affine skeleton remains; the next chapter splits full data into mini-batches and extends sigmoid/BCE to Softmax and cross entropy.")}</p>
+            <p>{t("전이 과제: X[8,2]와 hidden width 3으로 3-class classifier를 조립해 보세요. W¹[2,3] 뒤 H[8,3], W²[3,3] 뒤 logits[8,3]이 됩니다. forward 뼈대와 δ²→δ¹→parameter gradient의 reverse path는 유지되고, 다음 장에서 full batch를 mini-batch로 나누고 sigmoid/BCE를 Softmax·Cross Entropy와 Adam으로 확장합니다.", "Transfer task: assemble a three-class classifier from X[8,2] with hidden width 3. W¹[2,3] yields H[8,3], and W²[3,3] yields logits[8,3]. The forward skeleton and reverse path δ²→δ¹→parameter gradients remain; the next chapter splits full data into mini-batches and extends sigmoid/BCE to Softmax, cross entropy, and Adam.")}</p>
             <div className="neural-transfer-map">
               <article><span>{t("이번 장", "THIS CHAPTER")}</span><strong>X[4,2] → H[4,2] → p[4,1]</strong><p>{t("full XOR · binary probability", "full XOR · binary probability")}</p></article>
               <span aria-hidden="true">→</span>
@@ -306,17 +345,18 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">09 — CHECK</div>
+            <div className="margin-label">10 — CHECK</div>
             <NeuralNetworksConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 
           <section className="chapter-finish">
             <p className="eyebrow">CHECKPOINT</p>
-            <h2>{t("이제 한 뉴런의 한계와 hidden feature의 역할을 실제 값으로 설명할 수 있습니다", "You can now explain a neuron's limit and hidden features using actual values")}</h2>
-            <p>{t("직선 실패를 예측·관찰하고 두 hidden feature로 XOR을 4/4와 낮은 BCE까지 조립한 뒤 다섯 개념을 연결하면 핵심 목표에 도달합니다. Network 수술은 선택 보강입니다.", "You reach the core goal after observing a line's failure, assembling two hidden features to solve XOR at 4/4 with low BCE, and connecting all five concepts. Network surgery is optional remediation.")}</p>
+            <h2>{t("이제 hidden feature의 forward 값과 backward gradient를 같은 그래프에서 설명할 수 있습니다", "You can now explain hidden-feature values and gradients on the same graph")}</h2>
+            <p>{t("직선 실패를 관찰하고 두 hidden feature로 XOR을 조립한 뒤, 네 행의 BCE를 W¹까지 역전파하고 다섯 개념을 연결하면 핵심 목표에 도달합니다. Network 수술은 선택 보강입니다.", "You reach the core goal after observing a line's failure, assembling two hidden features for XOR, backpropagating the four-row BCE through W¹, and connecting all five concepts. Network surgery is optional remediation.")}</p>
             <div className="neural-completion-checklist" role="status" aria-live="polite">
               <span className={xorLabComplete ? "is-complete" : undefined}>{xorLabComplete ? "✓" : "○"} {t("필수 XOR forward lab", "Required XOR forward lab")}</span>
-              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("network 수술 4개", "Four network surgeries")}</span>
+              <span className={backpropLabComplete ? "is-complete" : undefined}>{backpropLabComplete ? "✓" : "○"} {t("필수 hidden backprop lab", "Required hidden backprop lab")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : t("선택", "optional")} {t("network 수술 4개", "Four network surgeries")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
@@ -324,8 +364,8 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
               slug="neural-networks"
               canComplete={canComplete}
               lockedMessage={t(
-                "필수 XOR lab과 이해 확인 다섯 문제를 마치면 완료할 수 있습니다. Network 수술은 선택 보강입니다.",
-                "Finish the required XOR lab and all five concept questions. Network surgery is optional remediation.",
+                "필수 XOR lab, hidden backprop lab과 이해 확인 다섯 문제를 마치면 완료할 수 있습니다. Network 수술은 선택 보강입니다.",
+                "Finish the required XOR lab, hidden backprop lab, and all five concept questions. Network surgery is optional remediation.",
               )}
             />
           </section>

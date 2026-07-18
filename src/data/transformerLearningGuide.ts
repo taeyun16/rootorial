@@ -96,11 +96,12 @@ export const transformerLearningGuides: Record<TransformerLearningGuideSlug, Tra
   "neural-networks": {
     phaseIndex: 0,
     transformerRole: text(
-      "여기서 조립한 hidden feature와 두 번의 선형 변환은 Transformer 블록의 FFN으로 다시 나타납니다.",
-      "Hidden features and stacked linear transforms return inside each Transformer block as its FFN.",
+      "여기서 조립한 hidden feature와 두 번의 선형 변환, 그 사이를 되짚는 gradient 경로는 Transformer 블록의 FFN에서도 다시 나타납니다.",
+      "Hidden features, stacked linear transforms, and the gradient path back through them return inside each Transformer block's FFN.",
     ),
     coreActions: [
       { href: "#xor-lab", label: text("XOR 조립 lab", "XOR assembly lab") },
+      { href: "#backprop-lab", label: text("Hidden backprop lab", "Hidden backprop lab") },
       { href: "#check", label: text("핵심 확인 5문제", "Five core questions") },
     ],
     optionalPath: text("네트워크 수술 debugger와 Python 재구성은 선택 보강입니다.", "Network-surgery debugging and the Python rebuild are optional remediation."),
@@ -110,6 +111,7 @@ export const transformerLearningGuides: Record<TransformerLearningGuideSlug, Tra
       term("이진 교차 엔트로피", "BCE", "이진 정답에 낮은 확률을 준 정도를 벌점으로 만드는 loss입니다.", "A loss that penalizes low probability assigned to the binary target."),
       term("Affine 변환", "affine transform", "입력에 가중치를 곱하고 bias를 더하는 계산입니다.", "A weighted input followed by an added bias."),
       term("Hidden feature", "hidden feature", "다음 층이 더 쉽게 판단하도록 중간 층이 만든 표현입니다.", "An intermediate representation that makes the next decision easier."),
+      term("연쇄법칙", "chain rule", "뒤 층에서 온 upstream gradient에 각 노드의 local derivative를 곱해 앞 층으로 보내는 규칙입니다.", "The rule that sends an upstream gradient backward by multiplying each node's local derivative."),
     ],
   },
   training: {

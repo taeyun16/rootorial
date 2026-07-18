@@ -151,8 +151,8 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
               <div>
                 <strong>{t("선행 개념", "Prerequisites")}</strong>
                 <p>{t(
-                  "벡터의 행렬 shape, 학습과 최적화의 loss·gradient·learning rate, 분류와 신경망의 logit·BCE·hidden feature를 그대로 사용합니다.",
-                  "Reuse matrix shapes from vectors; loss, gradients, and learning rate from optimization; and logits, BCE, and hidden features from neural networks.",
+                  "벡터의 행렬 shape, 학습과 최적화의 loss·learning rate, 분류와 신경망의 logit·hidden feature와 δ²→δ¹→parameter gradient 경로를 그대로 사용합니다.",
+                  "Reuse matrix shapes from vectors; loss and learning rate from optimization; and logits, hidden features, and the δ²→δ¹→parameter-gradient path from neural networks.",
                 )}</p>
                 {preview
                   ? <a href={previousPreviewHref}>{t("이전 드래프트 챕터 다시 보기", "Review the previous draft chapter")} →</a>
@@ -230,8 +230,8 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             <div className="margin-label">03 — TRAINING LOOP</div>
             <h2>{t("backward는 gradient를 계산하고 Adam step이 파라미터를 바꿉니다", "Backward computes gradients; the Adam step changes parameters")}</h2>
             <p>{t(
-              "한 epoch는 모든 표본을 한 번 순회하는 범위입니다. mini-batch마다 forward와 backward, update가 한 번씩 일어나므로 epoch 하나는 여러 optimizer step을 포함할 수 있습니다.",
-              "An epoch is one pass over every sample. Each mini-batch gets its own forward, backward, and update, so one epoch can contain many optimizer steps.",
+              "한 epoch는 모든 표본을 한 번 순회하는 범위입니다. 지난 장에서 full XOR에 실행한 dZ²→dH→dZ¹→parameter gradient를 이제 mini-batch마다 반복하고, Adam이 그 gradient로 update합니다. 따라서 epoch 하나는 여러 optimizer step을 포함할 수 있습니다.",
+              "An epoch is one pass over every sample. The dZ²→dH→dZ¹→parameter-gradient path run on full XOR in the previous chapter now repeats for every mini-batch, and Adam uses those gradients to update parameters. One epoch can therefore contain many optimizer steps.",
             )}</p>
             <ol className="training-loop-steps">
               <li><span>01</span><div><strong>{t("mini-batch 선택", "Choose mini-batch")}</strong><p>{t("epoch마다 순서를 섞고 마지막 짧은 batch도 처리", "Shuffle each epoch and keep the short tail batch")}</p></div></li>

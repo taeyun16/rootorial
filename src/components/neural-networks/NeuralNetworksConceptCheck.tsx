@@ -115,22 +115,22 @@ export function NeuralNetworksConceptCheck({
       id: "layer-shapes",
       index: "05",
       prompt: isKo
-        ? <>X[4,2]·W¹[2,2] 뒤에 activation을 적용하고 W²[2,1]을 곱하면 마지막 shape는?</>
-        : <>After X[4,2]·W¹[2,2], an activation, and multiplication by W²[2,1], what is the final shape?</>,
+        ? <>W¹[2,2]을 update할 <MathFormula latex={String.raw`\nabla_{W^1}L`} />의 shape는?</>
+        : <>What is the shape of <MathFormula latex={String.raw`\nabla_{W^1}L`} /> used to update W¹[2,2]?</>,
       options: [
-        { value: "two-hidden-activations-one-logit", label: "H[4,2] → logits[4,1]" },
-        { value: "batch-becomes-hidden", label: "H[2,4] → logits[2,1]" },
-        { value: "one-logit-total", label: "H[4,2] → logits[1,1]" },
+        { value: "gradient-matches-first-weights", label: "∇W¹ [2,2]" },
+        { value: "hidden-activation-gradient", label: "∂L/∂H [4,2]" },
+        { value: "output-delta-shape", label: "δ² [4,1]" },
       ],
       correctAnswer: neuralNetworkQuestions["layer-shapes"].correctAnswer,
-      answerLabel: t("정답: 네 행마다 hidden 2개와 logit 1개", "Answer: two hidden activations and one logit per row"),
+      answerLabel: t("정답: gradient shape는 W¹과 같은 [2,2]", "Answer: the gradient matches W¹ at [2,2]"),
       correctFeedback: t(
-        "맞았습니다. batch 4는 끝까지 보존되고, feature 축만 2→2→1로 바뀝니다.",
-        "Right. Batch size 4 is preserved throughout; only the feature axis changes 2→2→1.",
+        "맞았습니다. δ¹[4,2]는 표본별 hidden signal이고 Xᵀ[2,4]와 곱해지면 W¹과 같은 [2,2] parameter gradient가 됩니다.",
+        "Right. δ¹[4,2] is the per-sample hidden signal; multiplying by Xᵀ[2,4] produces a [2,2] parameter gradient matching W¹.",
       ),
       incorrectFeedback: t(
-        "행은 독립 표본입니다. 행렬 곱은 batch 축을 섞지 않고 각 행의 feature 수만 바꿉니다.",
-        "Rows are independent samples. Matrix multiplication preserves the batch axis and changes only the feature width.",
+        "중간 signal shape와 parameter gradient shape를 구분하세요. update할 수 있으려면 ∇W¹은 W¹의 각 원소에 하나씩 대응해야 합니다.",
+        "Separate intermediate-signal shapes from parameter-gradient shapes. To update W¹, ∇W¹ needs one value for each element of W¹.",
       ),
     },
   ];
@@ -141,15 +141,15 @@ export function NeuralNetworksConceptCheck({
       onMasteryChange={onMasteryChange}
       onSubmitAttempt={recordAnswers}
       copy={{
-        kicker: "READ THE FORWARD PASS",
-        title: t("logit에서 hidden feature와 XOR 확률까지 연결하세요", "Connect logits, hidden features, and XOR probabilities"),
-        description: t("다섯 문제와 두 필수 활동을 마치면 챕터 완료 조건이 열립니다.", "Finish five questions and both required activities to unlock the chapter gate."),
-        correct: t("forward pass를 정확히 읽었습니다", "Forward pass read correctly"),
-        incorrect: t("shape와 역할을 다시 추적하세요", "Retrace shapes and roles"),
-        checkAnswers: t("신경망 흐름 확인하기", "Check the network flow"),
-        completed: t("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", "Concept check complete — now confirm both activity states."),
-        retry: t("logit·probability·feature·class의 역할이 아직 섞여 있습니다.", "Some roles among logits, probabilities, features, and classes are still mixed."),
-        idle: t("다섯 답을 고른 뒤 forward pass를 확인하세요.", "Choose all five answers, then check the forward pass."),
+        kicker: "READ FORWARD AND BACKWARD",
+        title: t("logit, hidden feature, gradient와 XOR 확률을 연결하세요", "Connect logits, hidden features, gradients, and XOR probabilities"),
+        description: t("다섯 문제와 두 필수 lab을 마치면 챕터 완료 조건이 열립니다.", "Finish five questions and both required labs to unlock the chapter gate."),
+        correct: t("forward와 backward를 정확히 읽었습니다", "Forward and backward passes read correctly"),
+        incorrect: t("shape와 forward·backward 역할을 다시 추적하세요", "Retrace shapes and forward/backward roles"),
+        checkAnswers: t("신경망 왕복 흐름 확인하기", "Check the round-trip network flow"),
+        completed: t("이해 확인 완료 — 두 필수 lab의 완료 상태를 확인하세요.", "Concept check complete — now confirm both required lab states."),
+        retry: t("logit·probability·feature·gradient의 역할이 아직 섞여 있습니다.", "Some roles among logits, probabilities, features, and gradients are still mixed."),
+        idle: t("다섯 답을 고른 뒤 forward와 backward를 확인하세요.", "Choose all five answers, then check forward and backward."),
       }}
     />
   );

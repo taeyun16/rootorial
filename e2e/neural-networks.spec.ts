@@ -76,7 +76,48 @@ async function completeXorLab(
   await expect(lab.locator(".neural-evidence .is-complete")).toHaveCount(4);
 }
 
-test("completes XOR, network surgery, and concepts in the Korean admin draft preview", async ({ page }) => {
+async function completeBackpropLab(
+  page: TestPage,
+  { includeWrongFactors = false }: { includeWrongFactors?: boolean } = {},
+) {
+  const lab = page.locator(".neural-backprop-lab");
+  const upstream = lab.getByRole("combobox", {
+    name: "hidden으로 돌아오는 upstream factor",
+  });
+  const localDerivative = lab.getByRole("combobox", {
+    name: "hidden sigmoid의 local derivative",
+  });
+  const runStep = lab.getByRole("button", { name: "역전파 1 step 실행·판정" });
+
+  if (includeWrongFactors) {
+    await upstream.selectOption("first-weight-transpose");
+    await localDerivative.selectOption("activation-value");
+    await runStep.click();
+    await expect(lab.locator("#neural-backprop-feedback")).toContainText(
+      "두 factor를 모두 다시 보세요",
+    );
+    await expect(lab.locator('[data-testid="neural-backprop-gradient-trace"]')).toHaveCount(0);
+    await expect(lab.locator(".neural-evidence .is-complete")).toHaveCount(0);
+  }
+
+  await upstream.selectOption("output-weight-transpose");
+  await localDerivative.selectOption("sigmoid-local-derivative");
+  await runStep.click();
+
+  const gradientTrace = lab.getByRole("group", { name: "hidden-layer gradient shape 추적" });
+  await expect(gradientTrace).toContainText("δ² = p−y [4, 1]");
+  await expect(gradientTrace).toContainText("δ¹ [4, 2]");
+  await expect(gradientTrace).toContainText("∇W¹ [2, 2]");
+  await expect(lab.getByRole("article", { name: "대표 XOR 행의 chain-rule 기여" })).toContainText(
+    "x₂=0이므로 W¹의 두 번째 입력 행 기여가 [0,0]",
+  );
+  await expect(lab.locator("#neural-backprop-feedback")).toContainText(
+    "평균 BCE가 0.329 → 0.315로 감소했고 XOR 4/4를 유지",
+  );
+  await expect(lab.locator(".neural-evidence .is-complete")).toHaveCount(4);
+}
+
+test("completes XOR, hidden backprop, network surgery, and concepts in the Korean admin draft preview", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
@@ -87,7 +128,7 @@ test("completes XOR, network surgery, and concepts in the Korean admin draft pre
   await expect(page).toHaveTitle("[미리보기] 03. 분류와 신경망 · Rootorial");
   await expect(page.locator('meta[name="description"]')).toHaveAttribute(
     "content",
-    "sigmoid와 BCE로 이진 분류를 읽고, hidden feature와 두 행렬 곱을 조립해 XOR을 해결하고 신경망 결함을 디버깅합니다.",
+    "sigmoid와 BCE로 이진 분류를 읽고, hidden feature로 XOR을 조립한 뒤 chain rule로 두 weight 층까지 역전파합니다.",
   );
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex, nofollow");
   const previewBanner = page.locator(".publication-preview-banner");
@@ -99,6 +140,7 @@ test("completes XOR, network surgery, and concepts in the Korean admin draft pre
   );
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "분류와 신경망" })).toBeVisible();
   await expect(page.getByText("필수 LAB · XOR FORWARD PASS", { exact: true })).toBeVisible();
+  await expect(page.getByText("필수 LAB · HIDDEN BACKPROP", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · NETWORK SURGERY", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "시뮬레이터의 XOR을 실제 NumPy forward pass로 옮깁니다" })).toBeVisible();
   await expect(page.getByText("직선 하나로 XOR을 탐색", { exact: true })).toBeVisible();
@@ -108,12 +150,24 @@ test("completes XOR, network surgery, and concepts in the Korean admin draft pre
   await expect(collapseTrace).toContainText("2/4에 머뭅니다");
   await expect(page.getByText("빠진 hidden activation 수리", { exact: true })).toBeVisible();
 
+  const completeButton = page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" });
+  await expect(completeButton).toHaveAttribute("data-completion-ready", "false");
+
   await completeXorLab(page, { includeWrongPrediction: true });
   const xorLab = page.locator(".neural-xor-lab");
   await xorLab.getByRole("button", { name: "전체 초기화" }).click();
   await expect(xorLab.locator(".neural-evidence .is-complete")).toHaveCount(0);
   await expect(xorLab.getByRole("combobox", { name: "hidden activation" })).toHaveValue("identity");
   await completeXorLab(page);
+  await expect(completeButton).toHaveAttribute("data-completion-ready", "false");
+
+  await completeBackpropLab(page, { includeWrongFactors: true });
+  const backpropLab = page.locator(".neural-backprop-lab");
+  await backpropLab.getByRole("button", { name: "실습 초기화" }).click();
+  await expect(backpropLab.locator(".neural-evidence .is-complete")).toHaveCount(0);
+  await expect(backpropLab.getByRole("combobox", { name: "hidden으로 돌아오는 upstream factor" })).toHaveValue("");
+  await completeBackpropLab(page);
+  await expect(completeButton).toHaveAttribute("data-completion-ready", "false");
 
   const incidents = page.locator(".neural-debug-card");
   const missingActivation = incidents.nth(1);
@@ -136,12 +190,17 @@ test("completes XOR, network surgery, and concepts in the Korean admin draft pre
   await page.locator('input[name="bce-penalty"][value="confident-wrong-costs-most"]').check();
   await page.locator('input[name="activation-purpose"][value="nonlinearity-bends-boundaries"]').check();
   await page.locator('input[name="xor-hidden-features"][value="combine-hidden-features"]').check();
-  await page.locator('input[name="layer-shapes"][value="two-hidden-activations-one-logit"]').check();
-  await page.getByRole("button", { name: "신경망 흐름 확인하기" }).click();
-  await expect(page.getByText("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.")).toBeVisible();
+  await page.locator('input[name="layer-shapes"][value="gradient-matches-first-weights"]').check();
+  await page.getByRole("button", { name: "신경망 왕복 흐름 확인하기" }).click();
+  await expect(page.getByText("이해 확인 완료 — 두 필수 lab의 완료 상태를 확인하세요.")).toBeVisible();
 
-  await expect(page.locator(".neural-completion-checklist .is-complete")).toHaveCount(3);
-  await expect(page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" })).toBeDisabled();
+  await expect(page.locator(".neural-completion-checklist .is-complete")).toHaveCount(4);
+  await expect(completeButton).toHaveAttribute("data-completion-ready", "true");
+  await expect(completeButton).toBeDisabled();
+
+  await backpropLab.getByRole("button", { name: "실습 초기화" }).click();
+  await expect(backpropLab.locator(".neural-evidence .is-complete")).toHaveCount(0);
+  await expect(completeButton).toHaveAttribute("data-completion-ready", "false");
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
 
@@ -160,6 +219,8 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   expect(response?.status()).toBe(200);
   await expect(page).toHaveTitle("[Preview] 03. Classification and Neural Networks · Rootorial");
   await expect(page.getByRole("heading", { name: "Classification and Neural Networks" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Reading cached forward values in reverse produces hidden gradients" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Restore two missing chain-rule factors and reduce BCE with one update" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Move the simulator's XOR into a real NumPy forward pass" })).toBeVisible();
   await expect(page.getByText("Search XOR with one line", { exact: true })).toBeVisible();
   const collapseTrace = page.getByRole("group", { name: "Numeric trace of two affine maps collapsing without an activation" });
@@ -233,6 +294,33 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   await expect(masteryFeedback).toContainText("both features are causally used");
   await expect(xorLab.locator(".neural-truth-card.is-correct")).toHaveCount(4);
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
+
+  const backpropLab = page.locator(".neural-backprop-lab");
+  await backpropLab.getByRole("combobox", {
+    name: "Upstream factor returning to hidden",
+  }).selectOption("output-weight-transpose");
+  await backpropLab.getByRole("combobox", {
+    name: "Hidden sigmoid local derivative",
+  }).selectOption("sigmoid-local-derivative");
+  const runBackprop = backpropLab.getByRole("button", { name: "Run and grade one backprop step" });
+  await runBackprop.focus();
+  await runBackprop.press("Enter");
+  await expect(backpropLab.locator("#neural-backprop-feedback")).toContainText(
+    "Mean BCE across all four rows fell from 0.329 to 0.315 while XOR stayed 4/4",
+  );
+  await expect(backpropLab.locator(".neural-evidence .is-complete")).toHaveCount(4);
+  expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
+
+  const resetBackprop = backpropLab.getByRole("button", { name: "Reset lab" });
+  await resetBackprop.focus();
+  await resetBackprop.press("Enter");
+  await expect(backpropLab.getByRole("combobox", {
+    name: "Upstream factor returning to hidden",
+  })).toHaveValue("");
+  await expect(backpropLab.getByRole("combobox", {
+    name: "Hidden sigmoid local derivative",
+  })).toHaveValue("");
+  await expect(backpropLab.locator(".neural-evidence .is-complete")).toHaveCount(0);
 
   const firstIncident = page.locator(".neural-debug-card").first();
   await firstIncident.getByRole("combobox", { name: "Patch to apply" }).selectOption("3x2");

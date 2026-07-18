@@ -16,6 +16,39 @@ import {
   neuralNetworksHiddenRepairCode,
   neuralNetworksLinearBoundaryCode,
 } from "../src/data/neuralNetworksNotebook.ts";
+import {
+  applyXorGradientStep,
+  backpropagateXorMeanBce,
+  forwardXorBackprop,
+  runXorBackpropStep,
+  xorBackpropFixture,
+} from "../src/features/neural-networks/backpropagation.ts";
+
+function close(actual, expected, tolerance = 1e-12) {
+  assert.ok(
+    Math.abs(actual - expected) <= tolerance,
+    `expected ${actual} to be within ${tolerance} of ${expected}`,
+  );
+}
+
+function flattenParameters(parameters) {
+  return [
+    ...parameters.firstWeights[0],
+    ...parameters.firstWeights[1],
+    ...parameters.firstBias,
+    ...parameters.secondWeights,
+    parameters.secondBias,
+  ];
+}
+
+function parametersFromFlat(values) {
+  return {
+    firstWeights: [[values[0], values[1]], [values[2], values[3]]],
+    firstBias: [values[4], values[5]],
+    secondWeights: [values[6], values[7]],
+    secondBias: values[8],
+  };
+}
 
 test("ships self-contained Python bridges for bounded linear search and hidden repair", () => {
   assert.match(neuralNetworksLinearBoundaryCode, /grid_search_best/);
@@ -80,6 +113,69 @@ test("does not mistake stacked affine maps without activation for an XOR network
   assert.equal(mastery.reason, "truth-table");
 });
 
+test("backpropagates the four-row XOR mean BCE through both weight layers", () => {
+  const before = forwardXorBackprop();
+  const trace = backpropagateXorMeanBce();
+  const representative = trace.rowTraces[2];
+
+  assert.equal(before.correctCount, 4);
+  close(before.meanLoss, 0.32900735003521897);
+  assert.deepEqual(before.rows.map(({ hiddenLogits }) => hiddenLogits), [
+    [-1, 3],
+    [1, 1],
+    [1, 1],
+    [3, -1],
+  ]);
+  close(before.rows[2].probability, 0.7679794907037306);
+  close(representative.outputDelta, -0.23202050929626938);
+  close(representative.hiddenDerivative[0], 0.19661193324148185);
+  close(representative.hiddenLogitDelta[0], -0.3649440070753019);
+  assert.deepEqual(representative.firstWeightContribution[1], [0, 0]);
+
+  close(trace.gradients.firstWeights[0][0], -0.06181144197173813);
+  close(trace.gradients.firstWeights[0][1], 0.036821708140311674);
+  close(trace.gradients.firstWeights[1][0], -0.06181144197173813);
+  close(trace.gradients.firstWeights[1][1], 0.036821708140311674);
+  close(trace.gradients.firstBias[0], -0.02498973383142646);
+  close(trace.gradients.firstBias[1], -0.02498973383142647);
+  close(trace.gradients.secondWeights[0], 0.014639726970209183);
+  close(trace.gradients.secondWeights[1], 0.014639726970209183);
+  close(trace.gradients.secondBias, 0.046820286456222715);
+});
+
+test("matches analytic XOR gradients to finite differences", () => {
+  const analytic = flattenParameters(backpropagateXorMeanBce().gradients);
+  const initial = flattenParameters(xorBackpropFixture);
+  const epsilon = 1e-5;
+
+  for (let index = 0; index < initial.length; index += 1) {
+    const plus = [...initial];
+    const minus = [...initial];
+    plus[index] += epsilon;
+    minus[index] -= epsilon;
+    const numeric = (
+      forwardXorBackprop(parametersFromFlat(plus)).meanLoss
+      - forwardXorBackprop(parametersFromFlat(minus)).meanLoss
+    ) / (2 * epsilon);
+    close(analytic[index], numeric, 1e-6);
+  }
+});
+
+test("lowers XOR mean BCE with one immutable batch-gradient step", () => {
+  const fixtureSnapshot = JSON.stringify(xorBackpropFixture);
+  const step = runXorBackpropStep();
+
+  close(step.after.meanLoss, 0.31525433427481114);
+  assert.ok(step.after.meanLoss < step.before.meanLoss);
+  assert.equal(step.after.correctCount, 4);
+  assert.equal(JSON.stringify(xorBackpropFixture), fixtureSnapshot);
+  assert.notEqual(step.afterParameters, xorBackpropFixture);
+  assert.throws(
+    () => applyXorGradientStep(xorBackpropFixture, step.gradients, 0),
+    /learningRate must be a finite positive number/,
+  );
+});
+
 test("grades network surgery from shape and forward semantics", () => {
   assert.deepEqual(evaluateLayerShape([2, 2]), {
     correct: true,
@@ -108,23 +204,33 @@ test("grades network surgery from shape and forward semantics", () => {
   );
 });
 
-test("requires the XOR lab and concepts while keeping debugger remediation optional", () => {
+test("requires XOR, hidden backprop, and concepts while keeping debugger optional", () => {
   assert.equal(canCompleteNeuralNetworksChapter({
     xorLabComplete: true,
+    backpropLabComplete: true,
     debuggerComplete: false,
     conceptsMastered: true,
   }), true);
   assert.equal(canCompleteNeuralNetworksChapter({
     xorLabComplete: true,
+    backpropLabComplete: true,
     conceptsMastered: true,
   }), true);
   assert.equal(canCompleteNeuralNetworksChapter({
     xorLabComplete: false,
+    backpropLabComplete: true,
     debuggerComplete: false,
     conceptsMastered: true,
   }), false);
   assert.equal(canCompleteNeuralNetworksChapter({
     xorLabComplete: true,
+    backpropLabComplete: false,
+    debuggerComplete: true,
+    conceptsMastered: true,
+  }), false);
+  assert.equal(canCompleteNeuralNetworksChapter({
+    xorLabComplete: true,
+    backpropLabComplete: true,
     debuggerComplete: false,
     conceptsMastered: false,
   }), false);

@@ -324,7 +324,7 @@ test("separates active question submissions from historical labels", () => {
       "bce-penalty": "confident-wrong-costs-most",
       "activation-purpose": "nonlinearity-bends-boundaries",
       "xor-hidden-features": "combine-hidden-features",
-      "layer-shapes": "two-hidden-activations-one-logit",
+      "layer-shapes": "gradient-matches-first-weights",
     },
   );
   assert.equal(
@@ -344,6 +344,24 @@ test("separates active question submissions from historical labels", () => {
       2,
     ),
     undefined,
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "neural-networks",
+      "layer-shapes",
+      1,
+    )?.correctAnswer,
+    "two-hidden-activations-one-logit",
+  );
+  assert.equal(
+    getConceptQuestionVersionEntry(
+      "transformer-from-zero",
+      "neural-networks",
+      "layer-shapes",
+      2,
+    )?.correctAnswer,
+    "gradient-matches-first-weights",
   );
   assert.deepEqual(
     Object.fromEntries(
@@ -1267,7 +1285,7 @@ test("derives localized metadata from the catalog without route-specific copies"
     {
       title: "03. Classification and Neural Networks · Rootorial",
       description:
-        "Read binary classification through sigmoid and BCE, then assemble hidden features and two matrix products to solve XOR and debug network failures.",
+        "Read binary classification through sigmoid and BCE, assemble hidden features for XOR, then backpropagate through both weight layers with the chain rule.",
     },
   );
   assert.deepEqual(

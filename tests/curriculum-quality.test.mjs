@@ -44,20 +44,20 @@ test("keeps the core learning path visible, supported, and within its interactio
 
   assert.deepEqual(
     report.chapters.map(({ terminologySupportCount }) => terminologySupportCount),
-    Array(10).fill(5),
+    [5, 5, 6, 5, 5, 5, 5, 5, 5, 5],
   );
   assert.ok(report.chapters.every(({ visibleClarificationAccess }) => visibleClarificationAccess));
   assert.deepEqual(
     report.chapters.map(({ requiredCheckpointGroups }) => requiredCheckpointGroups),
-    [3, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    [3, 2, 3, 2, 2, 2, 2, 2, 2, 2],
   );
   assert.deepEqual(
     report.chapters.map(({ estimatedMinimumSuccessfulActions }) => estimatedMinimumSuccessfulActions),
-    [17, 13, 13, 13, 13, 13, 13, 15, 15, 15],
+    [17, 13, 16, 13, 13, 13, 13, 15, 15, 15],
   );
   assert.deepEqual(
     report.chapters.map(({ maxAllowedInteractionBudget }) => maxAllowedInteractionBudget),
-    [18, 16, 16, 16, 16, 16, 16, 16, 16, 16],
+    [18, 16, 18, 16, 16, 16, 16, 16, 16, 16],
   );
   assert.ok(report.chapters.every(({ learningExperienceScore }) => learningExperienceScore === 5));
   assert.ok(
@@ -71,6 +71,24 @@ test("keeps the core learning path visible, supported, and within its interactio
       .reduce((sum, { gradedTasks }) => sum + gradedTasks, 0);
     assert.equal(requiredChallenges, 3);
   }
+
+  const neuralNetworks = report.chapters.find(({ slug }) => slug === "neural-networks");
+  assert.deepEqual(
+    {
+      activities: neuralNetworks?.activities,
+      activityKinds: neuralNetworks?.activityKinds,
+      gradedTasks: neuralNetworks?.gradedTasks,
+      conceptQuestions: neuralNetworks?.conceptQuestions,
+      defaultPublication: neuralNetworks?.defaultPublication,
+    },
+    {
+      activities: 6,
+      activityKinds: 5,
+      gradedTasks: 13,
+      conceptQuestions: 5,
+      defaultPublication: "draft",
+    },
+  );
 });
 
 test("renders a reviewable Markdown report with score and draft state", () => {
@@ -88,6 +106,7 @@ test("renders a reviewable Markdown report with score and draft state", () => {
   assert.match(markdown, /Mini Transformer.*2.*45\/45.*draft/);
   assert.match(markdown, /\| Terms \| Help \| Required groups \| Actions min\/max \| Quality \|/);
   assert.match(markdown, /벡터와 텐서.*\| 5 \| yes \| 3 \| 17\/18 \| 45\/45/);
+  assert.match(markdown, /분류와 신경망.*\| 6 \| yes \| 3 \| 16\/18 \| 45\/45/);
   assert.match(markdown, /Mini Transformer.*\| 5 \| yes \| 2 \| 15\/16 \| 45\/45/);
   assert.match(markdown, /Structural contract issues: 0/);
 });

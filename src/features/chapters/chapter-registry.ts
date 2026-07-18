@@ -161,6 +161,16 @@ export const conceptQuestionHistory = {
         "one-logit-total",
       ],
     },
+    2: {
+      version: 2,
+      label: "W¹ gradient shape",
+      correctAnswer: "gradient-matches-first-weights",
+      answers: [
+        "gradient-matches-first-weights",
+        "hidden-activation-gradient",
+        "output-delta-shape",
+      ],
+    },
   },
   "transformer-from-zero/training/epoch-update-count": {
     1: {
@@ -1102,7 +1112,7 @@ export const conceptQuestionRegistry = {
     status: "active",
   },
   "transformer-from-zero/neural-networks/layer-shapes": {
-    ...conceptQuestionHistory["transformer-from-zero/neural-networks/layer-shapes"][1],
+    ...conceptQuestionHistory["transformer-from-zero/neural-networks/layer-shapes"][2],
     status: "active",
   },
   "transformer-from-zero/training/epoch-update-count": {

@@ -153,6 +153,7 @@ export const transformerContentQualityContracts = {
     activities: [
       activity("xor-prediction", "predict", "NeuralNetworkXorLab", 1, true),
       activity("xor-builder", "build", "NeuralNetworkXorLab", 4, true),
+      activity("hidden-backprop", "experiment", "NeuralNetworkBackpropLab", 3, true),
       activity("forward-debugger", "debug", "NeuralNetworkDebuggerLab", 4, false),
       activity("linear-xor-python", "code", "NotebookCell", 0, false, "python"),
       activity("hidden-repair-python", "code", "NotebookCell", 1, false, "python"),
@@ -167,11 +168,11 @@ export const transformerContentQualityContracts = {
       crossChapterConnection: 5,
     },
     learningExperience: {
-      terminologySupportCount: 5,
+      terminologySupportCount: 6,
       visibleClarificationAccess: true,
-      requiredCheckpointGroups: 2,
-      estimatedMinimumSuccessfulActions: 13,
-      maxAllowedInteractionBudget: 16,
+      requiredCheckpointGroups: 3,
+      estimatedMinimumSuccessfulActions: 16,
+      maxAllowedInteractionBudget: 18,
     },
   },
   training: {
