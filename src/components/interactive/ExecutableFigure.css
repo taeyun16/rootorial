@@ -1,0 +1,165 @@
+.executable-figure {
+  --executable-figure-accent: var(--chapter-accent, var(--accent));
+  --executable-figure-surface: var(--paper-raised);
+  --executable-figure-border: var(--line-strong);
+  --executable-figure-divider: var(--line);
+  --executable-figure-text: var(--ink);
+  --executable-figure-muted: var(--muted);
+  --executable-figure-padding-inline: clamp(1rem, 3.2cqi, 2rem);
+  --executable-figure-padding-block: clamp(1.25rem, 3.4cqi, 2rem);
+  --executable-figure-caption-padding-inline: var(
+    --executable-figure-padding-inline
+  );
+  --executable-figure-caption-padding-block: var(
+    --executable-figure-padding-block
+  );
+  --executable-figure-body-padding-inline: var(
+    --executable-figure-padding-inline
+  );
+  --executable-figure-body-padding-block: var(
+    --executable-figure-padding-block
+  );
+  --executable-figure-body-gap: clamp(1rem, 2.6cqi, 1.5rem);
+  --executable-figure-margin-block: clamp(2rem, 5vw, 3.75rem);
+  --executable-figure-compact-padding-inline: 1rem;
+  --executable-figure-compact-padding-block: 1.15rem;
+  --executable-figure-compact-caption-padding-inline: var(
+    --executable-figure-compact-padding-inline
+  );
+  --executable-figure-compact-caption-padding-block: var(
+    --executable-figure-compact-padding-block
+  );
+  --executable-figure-compact-body-padding-inline: var(
+    --executable-figure-compact-padding-inline
+  );
+  --executable-figure-compact-body-padding-block: var(
+    --executable-figure-compact-padding-block
+  );
+  --executable-figure-compact-body-gap: 0.9rem;
+
+  container-type: inline-size;
+  width: 100%;
+  min-width: 0;
+  margin: var(--executable-figure-margin-block) 0;
+  overflow: clip;
+  border-block: 1px solid var(--executable-figure-border);
+  background: var(--executable-figure-surface);
+  color: var(--executable-figure-text);
+}
+
+.executable-figure,
+.executable-figure * {
+  box-sizing: border-box;
+}
+
+.executable-figure-caption {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: var(--executable-figure-caption-padding-block)
+    var(--executable-figure-caption-padding-inline);
+  border-bottom: 1px solid var(--executable-figure-divider);
+}
+
+.executable-figure-caption > * {
+  margin: 0;
+}
+
+.executable-figure-kicker {
+  color: var(--executable-figure-accent);
+  font: 800 var(--text-meta) / 1.2 var(--mono);
+  letter-spacing: 0.12em;
+  overflow-wrap: anywhere;
+}
+
+.executable-figure-title {
+  max-width: var(--measure-reading);
+  color: var(--executable-figure-text);
+  font-family: var(--serif);
+  font-size: clamp(1.45rem, 4cqi, 2.45rem);
+  line-height: 1.16;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+
+.executable-figure-description {
+  max-width: var(--measure-reading);
+  color: var(--executable-figure-muted);
+  font-size: var(--text-support);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.executable-figure-body {
+  display: grid;
+  gap: var(--executable-figure-body-gap);
+  min-width: 0;
+  padding: var(--executable-figure-body-padding-block)
+    var(--executable-figure-body-padding-inline);
+}
+
+.executable-figure-body > * {
+  min-width: 0;
+}
+
+.executable-figure-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  align-items: baseline;
+  min-width: 0;
+  padding: clamp(0.9rem, 2.5cqi, 1.35rem)
+    var(--executable-figure-padding-inline);
+  border-top: 1px solid var(--executable-figure-divider);
+  color: var(--executable-figure-muted);
+  font-size: var(--text-caption);
+  line-height: 1.55;
+}
+
+.executable-figure-footer > * {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.executable-figure-footer > strong {
+  color: var(--executable-figure-text);
+  font: 800 var(--text-meta) / 1.2 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.executable-figure-client-fallback {
+  display: grid;
+  min-width: 0;
+  min-height: 8rem;
+  place-items: center;
+  color: var(--executable-figure-muted);
+}
+
+@container (max-width: 32rem) {
+  .executable-figure-caption {
+    padding: var(--executable-figure-compact-caption-padding-block)
+      var(--executable-figure-compact-caption-padding-inline);
+  }
+
+  .executable-figure-body {
+    padding: var(--executable-figure-compact-body-padding-block)
+      var(--executable-figure-compact-body-padding-inline);
+    gap: var(--executable-figure-compact-body-gap);
+  }
+
+  .executable-figure-title {
+    font-size: clamp(1.3rem, 7cqi, 1.75rem);
+  }
+
+  .executable-figure-description {
+    font-size: var(--text-caption);
+  }
+
+  .executable-figure-footer {
+    display: grid;
+    align-items: start;
+    padding-inline: var(--executable-figure-compact-padding-inline);
+  }
+}

@@ -1,0 +1,4 @@
+@import "./advanced-networking.css";
+.advanced-networking-hero .lesson-deck { max-width: 920px; }
+.advanced-networking-chapter-shell .article-section > h2 { max-width: 880px; }
+.advanced-networking-chapter-shell .executable-figure { margin-top: 1.5rem; }

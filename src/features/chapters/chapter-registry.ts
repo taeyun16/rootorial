@@ -708,6 +708,81 @@ export const conceptQuestionHistory = {
       answers: ["accept-new-fd-recv-confirms-delivery", "listener-becomes-connected", "send-return-proves-application"],
     },
   },
+  "linux-networking/interfaces-addresses-and-loopback/interface-link-state": {
+    1: {
+      version: 1,
+      label: "interface 존재와 link state",
+      correctAnswer: "interface-exists-while-link-down",
+      answers: ["interface-exists-while-link-down", "interface-does-not-exist", "address-is-unreachable"],
+    },
+  },
+  "linux-networking/interfaces-addresses-and-loopback/address-prefix": {
+    1: {
+      version: 1,
+      label: "IPv4 address와 prefix의 역할",
+      correctAnswer: "address-on-interface-prefix-defines-network",
+      answers: ["address-on-interface-prefix-defines-network", "address-is-mac-prefix-is-port", "prefix-turns-link-up"],
+    },
+  },
+  "linux-networking/interfaces-addresses-and-loopback/loopback-scope": {
+    1: {
+      version: 1,
+      label: "loopback의 network view 범위",
+      correctAnswer: "loopback-stays-inside-current-network-view",
+      answers: ["loopback-stays-inside-current-network-view", "ethernet-default-gateway", "all-hosts-loopback"],
+    },
+  },
+  "linux-networking/interfaces-addresses-and-loopback/localhost-resolution": {
+    1: {
+      version: 1,
+      label: "localhost 이름과 loopback 주소",
+      correctAnswer: "localhost-resolves-to-loopback",
+      answers: ["localhost-resolves-to-loopback", "localhost-is-interface", "localhost-is-gateway"],
+    },
+  },
+  "linux-networking/interfaces-addresses-and-loopback/observation-scope": {
+    1: {
+      version: 1,
+      label: "interface·address·route 증거 분리",
+      correctAnswer: "inspect-link-address-and-route-separately",
+      answers: ["inspect-link-address-and-route-separately", "ping-only", "change-dns-first"],
+    },
+  },
+  "linux-networking/subnets-neighbors-and-gateways/same-link-decision": {
+    1: { version: 1, label: "같은 링크의 다음 홉", correctAnswer: "arp-destination", answers: ["arp-destination", "use-default", "ask-remote-mac"] },
+  },
+  "linux-networking/subnets-neighbors-and-gateways/remote-next-hop": {
+    1: { version: 1, label: "원격 목적지의 ARP 대상", correctAnswer: "gateway-ip", answers: ["gateway-ip", "remote-ip", "host-ip"] },
+  },
+  "linux-networking/subnets-neighbors-and-gateways/frame-vs-packet": {
+    1: { version: 1, label: "Ethernet과 IP 목적지", correctAnswer: "gateway-mac-remote-ip", answers: ["gateway-mac-remote-ip", "remote-mac-remote-ip", "gateway-mac-gateway-ip"] },
+  },
+  "linux-networking/subnets-neighbors-and-gateways/neighbor-role": {
+    1: { version: 1, label: "이웃 표의 역할", correctAnswer: "next-hop-ip-to-mac", answers: ["next-hop-ip-to-mac", "dns-to-port", "route-to-process"] },
+  },
+  "linux-networking/subnets-neighbors-and-gateways/missing-default": {
+    1: { version: 1, label: "기본 경로가 없을 때의 실패", correctAnswer: "route-selection", answers: ["route-selection", "tcp-ack", "dns-cache"] },
+  },
+  "linux-networking/routes-and-packet-paths/longest-prefix": { 1: { version: 1, label: "가장 구체적인 경로", correctAnswer: "specific-prefix", answers: ["specific-prefix", "first-route", "lowest-default"] } },
+  "linux-networking/routes-and-packet-paths/metric-scope": { 1: { version: 1, label: "경로 metric 비교 범위", correctAnswer: "equal-prefix", answers: ["equal-prefix", "all-routes", "after-arp"] } },
+  "linux-networking/routes-and-packet-paths/router-frame": { 1: { version: 1, label: "라우터를 지나 유지되는 목적지", correctAnswer: "ip-destination", answers: ["ip-destination", "ethernet-header", "same-ttl"] } },
+  "linux-networking/routes-and-packet-paths/ttl-boundary": { 1: { version: 1, label: "TTL 만료 경계", correctAnswer: "time-exceeded", answers: ["time-exceeded", "tcp-reset", "dns-nxdomain"] } },
+  "linux-networking/routes-and-packet-paths/route-evidence": { 1: { version: 1, label: "선택된 경로 증거", correctAnswer: "route-get", answers: ["route-get", "ip-neigh", "ss-listen"] } },
+  "linux-networking/sockets-ports-and-tcp/listener-accepted": { 1: { version: 1, label: "listener와 accepted fd", correctAnswer: "listener-remains", answers: ["listener-remains", "listener-converts", "listener-closes"] } },
+  "linux-networking/sockets-ports-and-tcp/four-tuple": { 1: { version: 1, label: "TCP 4-tuple", correctAnswer: "src-dst-pairs", answers: ["src-dst-pairs", "port-only", "pid-only"] } },
+  "linux-networking/sockets-ports-and-tcp/ack-scope": { 1: { version: 1, label: "TCP ACK 증거 범위", correctAnswer: "peer-kernel-received", answers: ["peer-kernel-received", "app-read", "response-correct"] } },
+  "linux-networking/sockets-ports-and-tcp/recv-proof": { 1: { version: 1, label: "application read 증거", correctAnswer: "recv-returns", answers: ["recv-returns", "syn-seen", "arp-entry"] } },
+  "linux-networking/sockets-ports-and-tcp/listener-scope": { 1: { version: 1, label: "loopback listener 범위", correctAnswer: "local-loopback", answers: ["local-loopback", "all-interfaces", "remote-subnet"] } },
+  "linux-networking/dns-and-service-reachability/dns-proof": { 1: { version: 1, label: "DNS A record 증거", correctAnswer: "name-to-address", answers: ["name-to-address", "service-healthy", "port-listening"] } },
+  "linux-networking/dns-and-service-reachability/ttl-role": { 1: { version: 1, label: "DNS TTL 역할", correctAnswer: "cache-lifetime", answers: ["cache-lifetime", "packet-hops", "tcp-timeout"] } },
+  "linux-networking/dns-and-service-reachability/resolver-evidence": { 1: { version: 1, label: "application resolver 증거", correctAnswer: "getent", answers: ["getent", "ip-route", "ss"] } },
+  "linux-networking/dns-and-service-reachability/refused-boundary": { 1: { version: 1, label: "connection refused 경계", correctAnswer: "listener-boundary", answers: ["listener-boundary", "dns-nxdomain", "no-route"] } },
+  "linux-networking/dns-and-service-reachability/full-reachability": { 1: { version: 1, label: "서비스 도달 증거", correctAnswer: "expected-response", answers: ["expected-response", "a-record-only", "arp-only"] } },
+  "linux-networking/diagnose-a-linux-network/first-boundary": { 1: { version: 1, label: "첫 실패 경계", correctAnswer: "first-failed-boundary", answers: ["first-failed-boundary", "most-complex-config", "last-log-line"] } },
+  "linux-networking/diagnose-a-linux-network/capture-absence": { 1: { version: 1, label: "capture 부재 증거", correctAnswer: "observation-point", answers: ["observation-point", "dns-record", "listener-restart"] } },
+  "linux-networking/diagnose-a-linux-network/ping-scope": { 1: { version: 1, label: "ping 증거 범위", correctAnswer: "application-response", answers: ["application-response", "some-ip-return", "icmp-reply"] } },
+  "linux-networking/diagnose-a-linux-network/return-evidence": { 1: { version: 1, label: "반환 경로 진단", correctAnswer: "server-reply-route", answers: ["server-reply-route", "client-dns", "source-mac"] } },
+  "linux-networking/diagnose-a-linux-network/repair-proof": { 1: { version: 1, label: "복구 완료 증거", correctAnswer: "rerun-end-to-end", answers: ["rerun-end-to-end", "config-saved", "one-command"] } },
   "infrastructure-design/network-namespaces-and-boundaries/namespace-network-view": {
     1: {
       version: 1,
@@ -1383,6 +1458,61 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["linux-systems/networking-from-a-packet/listener-delivery"][1],
     status: "active",
   },
+  "linux-networking/interfaces-addresses-and-loopback/interface-link-state": {
+    ...conceptQuestionHistory["linux-networking/interfaces-addresses-and-loopback/interface-link-state"][1],
+    status: "active",
+  },
+  "linux-networking/interfaces-addresses-and-loopback/address-prefix": {
+    ...conceptQuestionHistory["linux-networking/interfaces-addresses-and-loopback/address-prefix"][1],
+    status: "active",
+  },
+  "linux-networking/interfaces-addresses-and-loopback/loopback-scope": {
+    ...conceptQuestionHistory["linux-networking/interfaces-addresses-and-loopback/loopback-scope"][1],
+    status: "active",
+  },
+  "linux-networking/interfaces-addresses-and-loopback/localhost-resolution": {
+    ...conceptQuestionHistory["linux-networking/interfaces-addresses-and-loopback/localhost-resolution"][1],
+    status: "active",
+  },
+  "linux-networking/interfaces-addresses-and-loopback/observation-scope": {
+    ...conceptQuestionHistory["linux-networking/interfaces-addresses-and-loopback/observation-scope"][1],
+    status: "active",
+  },
+  "linux-networking/subnets-neighbors-and-gateways/same-link-decision": {
+    ...conceptQuestionHistory["linux-networking/subnets-neighbors-and-gateways/same-link-decision"][1], status: "active",
+  },
+  "linux-networking/subnets-neighbors-and-gateways/remote-next-hop": {
+    ...conceptQuestionHistory["linux-networking/subnets-neighbors-and-gateways/remote-next-hop"][1], status: "active",
+  },
+  "linux-networking/subnets-neighbors-and-gateways/frame-vs-packet": {
+    ...conceptQuestionHistory["linux-networking/subnets-neighbors-and-gateways/frame-vs-packet"][1], status: "active",
+  },
+  "linux-networking/subnets-neighbors-and-gateways/neighbor-role": {
+    ...conceptQuestionHistory["linux-networking/subnets-neighbors-and-gateways/neighbor-role"][1], status: "active",
+  },
+  "linux-networking/subnets-neighbors-and-gateways/missing-default": {
+    ...conceptQuestionHistory["linux-networking/subnets-neighbors-and-gateways/missing-default"][1], status: "active",
+  },
+  "linux-networking/routes-and-packet-paths/longest-prefix": { ...conceptQuestionHistory["linux-networking/routes-and-packet-paths/longest-prefix"][1], status: "active" },
+  "linux-networking/routes-and-packet-paths/metric-scope": { ...conceptQuestionHistory["linux-networking/routes-and-packet-paths/metric-scope"][1], status: "active" },
+  "linux-networking/routes-and-packet-paths/router-frame": { ...conceptQuestionHistory["linux-networking/routes-and-packet-paths/router-frame"][1], status: "active" },
+  "linux-networking/routes-and-packet-paths/ttl-boundary": { ...conceptQuestionHistory["linux-networking/routes-and-packet-paths/ttl-boundary"][1], status: "active" },
+  "linux-networking/routes-and-packet-paths/route-evidence": { ...conceptQuestionHistory["linux-networking/routes-and-packet-paths/route-evidence"][1], status: "active" },
+  "linux-networking/sockets-ports-and-tcp/listener-accepted": { ...conceptQuestionHistory["linux-networking/sockets-ports-and-tcp/listener-accepted"][1], status: "active" },
+  "linux-networking/sockets-ports-and-tcp/four-tuple": { ...conceptQuestionHistory["linux-networking/sockets-ports-and-tcp/four-tuple"][1], status: "active" },
+  "linux-networking/sockets-ports-and-tcp/ack-scope": { ...conceptQuestionHistory["linux-networking/sockets-ports-and-tcp/ack-scope"][1], status: "active" },
+  "linux-networking/sockets-ports-and-tcp/recv-proof": { ...conceptQuestionHistory["linux-networking/sockets-ports-and-tcp/recv-proof"][1], status: "active" },
+  "linux-networking/sockets-ports-and-tcp/listener-scope": { ...conceptQuestionHistory["linux-networking/sockets-ports-and-tcp/listener-scope"][1], status: "active" },
+  "linux-networking/dns-and-service-reachability/dns-proof": { ...conceptQuestionHistory["linux-networking/dns-and-service-reachability/dns-proof"][1], status: "active" },
+  "linux-networking/dns-and-service-reachability/ttl-role": { ...conceptQuestionHistory["linux-networking/dns-and-service-reachability/ttl-role"][1], status: "active" },
+  "linux-networking/dns-and-service-reachability/resolver-evidence": { ...conceptQuestionHistory["linux-networking/dns-and-service-reachability/resolver-evidence"][1], status: "active" },
+  "linux-networking/dns-and-service-reachability/refused-boundary": { ...conceptQuestionHistory["linux-networking/dns-and-service-reachability/refused-boundary"][1], status: "active" },
+  "linux-networking/dns-and-service-reachability/full-reachability": { ...conceptQuestionHistory["linux-networking/dns-and-service-reachability/full-reachability"][1], status: "active" },
+  "linux-networking/diagnose-a-linux-network/first-boundary": { ...conceptQuestionHistory["linux-networking/diagnose-a-linux-network/first-boundary"][1], status: "active" },
+  "linux-networking/diagnose-a-linux-network/capture-absence": { ...conceptQuestionHistory["linux-networking/diagnose-a-linux-network/capture-absence"][1], status: "active" },
+  "linux-networking/diagnose-a-linux-network/ping-scope": { ...conceptQuestionHistory["linux-networking/diagnose-a-linux-network/ping-scope"][1], status: "active" },
+  "linux-networking/diagnose-a-linux-network/return-evidence": { ...conceptQuestionHistory["linux-networking/diagnose-a-linux-network/return-evidence"][1], status: "active" },
+  "linux-networking/diagnose-a-linux-network/repair-proof": { ...conceptQuestionHistory["linux-networking/diagnose-a-linux-network/repair-proof"][1], status: "active" },
   "infrastructure-design/network-namespaces-and-boundaries/namespace-network-view": {
     ...conceptQuestionHistory["infrastructure-design/network-namespaces-and-boundaries/namespace-network-view"][1],
     status: "active",
@@ -1695,6 +1825,35 @@ export const linuxNetworkingQuestions = {
   "listener-delivery": conceptQuestionRegistry["linux-systems/networking-from-a-packet/listener-delivery"],
 } as const;
 
+export const linuxNetworkInterfacesQuestions = {
+  "interface-link-state": conceptQuestionRegistry["linux-networking/interfaces-addresses-and-loopback/interface-link-state"],
+  "address-prefix": conceptQuestionRegistry["linux-networking/interfaces-addresses-and-loopback/address-prefix"],
+  "loopback-scope": conceptQuestionRegistry["linux-networking/interfaces-addresses-and-loopback/loopback-scope"],
+  "localhost-resolution": conceptQuestionRegistry["linux-networking/interfaces-addresses-and-loopback/localhost-resolution"],
+  "observation-scope": conceptQuestionRegistry["linux-networking/interfaces-addresses-and-loopback/observation-scope"],
+} as const;
+
+export const linuxNetworkSubnetsQuestions = {
+  "same-link-decision": conceptQuestionRegistry["linux-networking/subnets-neighbors-and-gateways/same-link-decision"],
+  "remote-next-hop": conceptQuestionRegistry["linux-networking/subnets-neighbors-and-gateways/remote-next-hop"],
+  "frame-vs-packet": conceptQuestionRegistry["linux-networking/subnets-neighbors-and-gateways/frame-vs-packet"],
+  "neighbor-role": conceptQuestionRegistry["linux-networking/subnets-neighbors-and-gateways/neighbor-role"],
+  "missing-default": conceptQuestionRegistry["linux-networking/subnets-neighbors-and-gateways/missing-default"],
+} as const;
+
+export const linuxNetworkRoutesQuestions = {
+  "longest-prefix": conceptQuestionRegistry["linux-networking/routes-and-packet-paths/longest-prefix"], "metric-scope": conceptQuestionRegistry["linux-networking/routes-and-packet-paths/metric-scope"], "router-frame": conceptQuestionRegistry["linux-networking/routes-and-packet-paths/router-frame"], "ttl-boundary": conceptQuestionRegistry["linux-networking/routes-and-packet-paths/ttl-boundary"], "route-evidence": conceptQuestionRegistry["linux-networking/routes-and-packet-paths/route-evidence"],
+} as const;
+export const linuxNetworkSocketsQuestions = {
+  "listener-accepted": conceptQuestionRegistry["linux-networking/sockets-ports-and-tcp/listener-accepted"], "four-tuple": conceptQuestionRegistry["linux-networking/sockets-ports-and-tcp/four-tuple"], "ack-scope": conceptQuestionRegistry["linux-networking/sockets-ports-and-tcp/ack-scope"], "recv-proof": conceptQuestionRegistry["linux-networking/sockets-ports-and-tcp/recv-proof"], "listener-scope": conceptQuestionRegistry["linux-networking/sockets-ports-and-tcp/listener-scope"],
+} as const;
+export const linuxNetworkDnsQuestions = {
+  "dns-proof": conceptQuestionRegistry["linux-networking/dns-and-service-reachability/dns-proof"], "ttl-role": conceptQuestionRegistry["linux-networking/dns-and-service-reachability/ttl-role"], "resolver-evidence": conceptQuestionRegistry["linux-networking/dns-and-service-reachability/resolver-evidence"], "refused-boundary": conceptQuestionRegistry["linux-networking/dns-and-service-reachability/refused-boundary"], "full-reachability": conceptQuestionRegistry["linux-networking/dns-and-service-reachability/full-reachability"],
+} as const;
+export const linuxNetworkDiagnosisQuestions = {
+  "first-boundary": conceptQuestionRegistry["linux-networking/diagnose-a-linux-network/first-boundary"], "capture-absence": conceptQuestionRegistry["linux-networking/diagnose-a-linux-network/capture-absence"], "ping-scope": conceptQuestionRegistry["linux-networking/diagnose-a-linux-network/ping-scope"], "return-evidence": conceptQuestionRegistry["linux-networking/diagnose-a-linux-network/return-evidence"], "repair-proof": conceptQuestionRegistry["linux-networking/diagnose-a-linux-network/repair-proof"],
+} as const;
+
 export const linuxTinySystemQuestions = {
   "artifact-runtime-boundary": conceptQuestionRegistry["linux-systems/assemble-a-tiny-linux/artifact-runtime-boundary"],
   "pid-one-service-order": conceptQuestionRegistry["linux-systems/assemble-a-tiny-linux/pid-one-service-order"],
@@ -1826,6 +1985,16 @@ export const chapterRegistry = {
   "linux-systems/assemble-a-tiny-linux": {
     questions: linuxTinySystemQuestions,
   },
+  "linux-networking/interfaces-addresses-and-loopback": {
+    questions: linuxNetworkInterfacesQuestions,
+  },
+  "linux-networking/subnets-neighbors-and-gateways": {
+    questions: linuxNetworkSubnetsQuestions,
+  },
+  "linux-networking/routes-and-packet-paths": { questions: linuxNetworkRoutesQuestions },
+  "linux-networking/sockets-ports-and-tcp": { questions: linuxNetworkSocketsQuestions },
+  "linux-networking/dns-and-service-reachability": { questions: linuxNetworkDnsQuestions },
+  "linux-networking/diagnose-a-linux-network": { questions: linuxNetworkDiagnosisQuestions },
   "infrastructure-design/network-namespaces-and-boundaries": {
     questions: infrastructureNamespaceQuestions,
   },

@@ -1,0 +1,6 @@
+.linux-networking-handoff { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: center; margin-top: 32px; padding: 26px; border: 1px solid var(--line-strong); border-left: 6px solid var(--forest); background: var(--paper-raised); }
+.linux-networking-handoff h3 { margin: 5px 0 8px; font-family: var(--serif); font-size: clamp(23px, 2.4vw, 32px); }
+.linux-networking-handoff p:last-child { max-width: 720px; margin: 0; color: var(--muted); line-height: 1.7; }
+.linux-networking-handoff a { display: inline-flex; gap: 14px; align-items: center; padding: 13px 16px; border: 1px solid var(--forest); color: var(--forest); font-weight: 750; text-decoration: none; }
+.linux-networking-handoff-disabled { padding: 13px 16px; border: 1px dashed var(--line-strong); color: var(--muted); font-size: 12px; font-weight: 700; }
+@media (max-width: 760px) { .linux-networking-handoff { grid-template-columns: 1fr; } }

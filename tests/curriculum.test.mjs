@@ -334,7 +334,7 @@ test("defines a bilingual beginner Linux networking prerequisite path", () => {
   assert.ok(
     linuxNetworkingChaptersKo.every(
       ({ status, developmentStatus }) =>
-        status === "planned" && developmentStatus === "planned",
+        status === "available" && developmentStatus === "complete",
     ),
   );
   assert.ok(
@@ -345,7 +345,7 @@ test("defines a bilingual beginner Linux networking prerequisite path", () => {
 
   const curriculum = getCurriculum("linux-networking");
   assert.equal(curriculum?.level, "beginner");
-  assert.equal(curriculum?.status, "in-progress");
+  assert.equal(curriculum?.status, "available");
   assert.deepEqual(curriculum?.title, {
     ko: "Linux 네트워킹을 바닥부터",
     en: "Linux Networking from the Ground Up",
@@ -357,6 +357,14 @@ test("defines a bilingual beginner Linux networking prerequisite path", () => {
   assert.equal(
     curriculum?.chapters.en[5].id,
     "linux-networking/diagnose-a-linux-network",
+  );
+  assert.equal(
+    curriculum?.recommendedPrerequisite?.curriculumSlug,
+    "linux-systems",
+  );
+  assert.equal(
+    curriculum?.recommendedContinuation?.curriculumSlug,
+    "infrastructure-design",
   );
 });
 

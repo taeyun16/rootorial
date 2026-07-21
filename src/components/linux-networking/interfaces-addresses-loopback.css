@@ -1,0 +1,753 @@
+.linux-network-view-figure {
+  --network-view-ink: #17231d;
+  --network-view-green: #287655;
+  --network-view-green-soft: #dceee4;
+  --network-view-blue: #2166a7;
+  --network-view-blue-soft: #e3eff8;
+  --network-view-coral: #ad4d2e;
+  --network-view-coral-soft: #fff0e9;
+  --network-view-dark: #13201a;
+  --network-view-grid: color-mix(in srgb, #91ccb6 10%, transparent);
+  --executable-figure-margin-block: 0;
+  --executable-figure-surface: #edf2ef;
+  --executable-figure-divider: #30463d;
+  --executable-figure-caption-padding-inline: clamp(1rem, 3cqi, 1.5rem);
+  --executable-figure-caption-padding-block: clamp(1.1rem, 3cqi, 1.5rem);
+  --executable-figure-body-padding-inline: 0;
+  --executable-figure-body-padding-block: 0;
+  --executable-figure-body-gap: 0;
+  --executable-figure-compact-body-padding-inline: 0;
+  --executable-figure-compact-body-padding-block: 0;
+  --executable-figure-compact-body-gap: 0;
+
+  border: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.linux-network-view-figure > .executable-figure-caption {
+  border-bottom-color: #30463d;
+  background: var(--network-view-dark);
+}
+
+.linux-network-view-figure .executable-figure-kicker {
+  color: #91ccb6;
+}
+
+.linux-network-view-figure .executable-figure-title {
+  max-width: 52rem;
+  color: #f0f7f3;
+  font-family: var(--serif);
+}
+
+.linux-network-view-figure .executable-figure-description {
+  max-width: 52rem;
+  color: #bed6cb;
+}
+
+.linux-network-view-workspace {
+  display: grid;
+  grid-template-columns: minmax(12.75rem, 0.48fr) minmax(0, 1.52fr);
+  min-width: 0;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.linux-network-command-column {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  padding: 1rem;
+  border-right: 1px solid var(--line-strong);
+  background: #f4f2ed;
+}
+
+.linux-network-command-column > ol {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linux-network-command-column li {
+  position: relative;
+  min-width: 0;
+}
+
+.linux-network-command-column li::before {
+  position: absolute;
+  z-index: 1;
+  top: 0.35rem;
+  bottom: 0.35rem;
+  left: -0.36rem;
+  width: 0.2rem;
+  border-radius: 999px;
+  background: var(--network-view-blue);
+  content: "";
+  opacity: 0;
+  transform: scaleY(0.45);
+  transition: opacity 150ms ease, transform 150ms ease;
+}
+
+.linux-network-command-column li[data-command-state="active"]::before {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.linux-network-command-column button[data-command-trigger] {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.25rem 0.55rem;
+  width: 100%;
+  min-height: 4.25rem;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.3rem;
+  background: color-mix(in srgb, var(--paper-raised) 94%, transparent);
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+}
+
+.linux-network-command-column button[data-command-trigger]:hover {
+  border-color: color-mix(in srgb, var(--network-view-blue) 62%, var(--line-strong));
+  color: var(--ink);
+}
+
+.linux-network-command-column li[data-command-state="active"] button {
+  border-color: var(--network-view-blue);
+  background: var(--network-view-blue-soft);
+  color: var(--network-view-blue);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--network-view-blue) 20%, transparent);
+}
+
+.linux-network-command-column li[data-command-visited="true"]:not([data-command-state="active"]) button {
+  border-color: color-mix(in srgb, var(--network-view-green) 42%, var(--line-strong));
+}
+
+.linux-network-command-column button:focus-visible,
+.linux-network-command-meta button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--network-view-blue) 62%, white);
+  outline-offset: 2px;
+}
+
+.linux-network-command-column button[data-command-trigger] > span {
+  display: grid;
+  grid-row: 1 / 3;
+  width: 1.6rem;
+  height: 1.6rem;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font: 850 0.62rem/1 var(--mono);
+}
+
+.linux-network-command-column button[data-command-trigger] > strong {
+  align-self: end;
+  color: currentColor;
+  font: 850 0.7rem/1.3 var(--mono);
+  letter-spacing: 0.035em;
+  overflow-wrap: anywhere;
+}
+
+.linux-network-command-column button[data-command-trigger] > code {
+  min-width: 0;
+  color: color-mix(in srgb, currentColor 76%, var(--ink));
+  font: 650 0.58rem/1.35 var(--mono);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.linux-network-command-column > p {
+  margin: 0.85rem 0 0;
+  color: var(--network-view-blue);
+  font: 700 0.65rem/1.45 var(--mono);
+}
+
+.linux-network-command-meta {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--line);
+}
+
+.linux-network-command-meta > span {
+  color: var(--muted);
+  font: 800 0.63rem/1.4 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.linux-network-command-meta > button {
+  display: inline-flex;
+  gap: 0.45rem;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.25rem;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font: 800 0.68rem/1.3 var(--mono);
+  cursor: pointer;
+}
+
+.linux-network-command-meta svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.linux-network-view-canvas {
+  min-width: 0;
+  overflow: hidden;
+  background:
+    linear-gradient(var(--network-view-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--network-view-grid) 1px, transparent 1px),
+    #101a16;
+  background-size: 24px 24px;
+  color: #edf7f1;
+}
+
+.linux-network-view-canvas > header {
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #41584e;
+  background: #17241e;
+}
+
+.linux-network-view-canvas > header span {
+  color: #91ccb6;
+  font: 850 0.64rem/1.4 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.linux-network-view-canvas > header strong {
+  min-width: 0;
+  color: #d6e9df;
+  font: 700 0.68rem/1.5 var(--mono);
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.linux-network-host-scene {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.28fr) minmax(0, 1fr);
+  gap: clamp(1rem, 3cqi, 2.5rem);
+  align-items: center;
+  min-height: 31rem;
+  padding: clamp(1rem, 4cqi, 2.5rem);
+}
+
+.linux-network-process-node {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+  padding: 1rem;
+  border: 1px solid #547065;
+  border-radius: 0.55rem;
+  background: #1a2c24;
+  box-shadow: 0 0 0 0.3rem color-mix(in srgb, #91ccb6 7%, transparent);
+}
+
+.linux-network-process-node[data-probe-state="pass"] {
+  border-color: #80c4a3;
+  background: #183627;
+}
+
+.linux-network-process-node[data-probe-state="blocked"] {
+  border-color: #dc815f;
+  background: #3a241d;
+}
+
+.linux-network-process-node > span,
+.linux-network-kernel-plane > span,
+.linux-network-interface-node header > span {
+  color: #91ccb6;
+  font: 850 0.62rem/1.3 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.linux-network-process-node > strong {
+  color: #f1f8f4;
+  font: 850 0.78rem/1.45 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.linux-network-kernel-plane {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(1rem, 3cqi, 2rem);
+  min-width: 0;
+  padding: 3.5rem clamp(1rem, 3cqi, 2rem) 2rem;
+  border: 1px solid #587166;
+  border-radius: 1rem;
+  background: color-mix(in srgb, #1c2d26 92%, transparent);
+  box-shadow: inset 0 0 3rem color-mix(in srgb, #91ccb6 5%, transparent);
+}
+
+.linux-network-kernel-plane > span {
+  position: absolute;
+  top: 1.05rem;
+  left: 1.2rem;
+}
+
+.linux-network-interface-node {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  align-content: start;
+  gap: 0.8rem;
+  min-width: 0;
+  min-height: 13.5rem;
+  padding: 1rem;
+  border: 2px solid #4b6258;
+  border-radius: 0.65rem;
+  background: #17251f;
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.linux-network-view-canvas[data-loopback-path="active"] .is-loopback,
+.linux-network-interface-node[data-admin-state="up"] {
+  border-color: #72b995;
+  background: #193126;
+}
+
+.linux-network-interface-node.is-ethernet[data-admin-state="up"][data-carrier-state="down"] {
+  border-color: #d0a55b;
+  background: #312b1d;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #d0a55b 25%, transparent);
+}
+
+.linux-network-view-canvas[data-loopback-path="blocked"] .is-loopback {
+  border-color: #dd7c59;
+  background: #39231c;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #dd7c59 35%, transparent);
+}
+
+.linux-network-interface-node > header {
+  display: flex;
+  gap: 0.65rem;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid #3e534a;
+}
+
+.linux-network-interface-node header > strong {
+  color: #f1f8f4;
+  font: 900 1.25rem/1 var(--mono);
+}
+
+.linux-network-interface-node dl {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0;
+}
+
+.linux-network-interface-node dl > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.linux-network-interface-node dt {
+  color: #91a99e;
+  font: 800 0.55rem/1.3 var(--mono);
+  letter-spacing: 0.06em;
+}
+
+.linux-network-interface-node dd {
+  min-width: 0;
+  margin: 0;
+  color: #eef7f2;
+  font: 800 0.72rem/1.45 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.linux-network-interface-node[data-admin-state="down"] dd:first-of-type {
+  color: #f2a081;
+}
+
+.linux-network-interface-node > p {
+  margin: auto 0 0;
+  color: #b8d1c5;
+  font: 650 0.62rem/1.45 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.linux-network-path {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  gap: 0.25rem;
+  align-content: center;
+  color: #789087;
+  pointer-events: none;
+}
+
+.linux-network-path > i {
+  display: block;
+  width: 100%;
+  height: 0;
+  border-top: 2px dashed currentColor;
+}
+
+.linux-network-path > b {
+  color: currentColor;
+  font: 850 0.52rem/1.3 var(--mono);
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+.linux-network-loopback-path {
+  top: 8rem;
+  right: 54%;
+  left: -4.25rem;
+}
+
+.linux-network-ethernet-path {
+  top: 8rem;
+  right: -3.65rem;
+  left: 54%;
+}
+
+.linux-network-path[data-path-state="active"] {
+  color: #7bc49f;
+}
+
+.linux-network-path[data-path-state="blocked"] {
+  color: #e27f5c;
+}
+
+.linux-network-view-canvas[data-wire-frame="none"] .linux-network-ethernet-path {
+  color: #8d9a94;
+  text-decoration: line-through;
+}
+
+.linux-network-evidence-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(16rem, 0.65fr);
+  min-width: 0;
+  border-bottom: 1px solid var(--line-strong);
+}
+
+.linux-network-interface-ledger-wrap {
+  min-width: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--line-strong);
+  background: var(--paper-raised);
+}
+
+.linux-network-interface-ledger {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  color: var(--ink);
+  font-size: 0.68rem;
+}
+
+.linux-network-interface-ledger caption {
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--line-strong);
+  background: #e5ece8;
+  color: var(--network-view-coral);
+  font: 850 0.64rem/1.35 var(--mono);
+  letter-spacing: 0.07em;
+  text-align: left;
+}
+
+.linux-network-interface-ledger th,
+.linux-network-interface-ledger td {
+  min-width: 0;
+  padding: 0.72rem 0.55rem;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  overflow-wrap: anywhere;
+  text-align: left;
+  vertical-align: top;
+}
+
+.linux-network-interface-ledger tr > :last-child {
+  border-right: 0;
+}
+
+.linux-network-interface-ledger tbody tr:last-child > * {
+  border-bottom: 0;
+}
+
+.linux-network-interface-ledger thead th {
+  color: var(--muted);
+  font: 800 0.53rem/1.35 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.linux-network-interface-ledger tbody th {
+  color: var(--network-view-blue);
+  font: 900 0.74rem/1.4 var(--mono);
+}
+
+.linux-network-interface-ledger td strong,
+.linux-network-interface-ledger td code {
+  color: var(--ink);
+  font: 800 0.62rem/1.45 var(--mono);
+}
+
+.linux-network-interface-ledger tr[data-admin-state="down"] td strong {
+  color: var(--network-view-coral);
+}
+
+.linux-network-interface-ledger tr[data-admin-state="up"] td strong {
+  color: var(--network-view-green);
+}
+
+.linux-network-carrier-cell[data-carrier-state="down"] {
+  color: var(--network-view-coral);
+  font-weight: 800;
+}
+
+.linux-network-command-output {
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+  padding: 1rem;
+  overflow: hidden;
+  background: #161d19;
+  color: #d8eadf;
+  font: 650 0.65rem/1.7 var(--mono);
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.linux-network-command-output::before {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: #91ccb6;
+  content: "COMMAND OUTPUT";
+  font: 850 0.58rem/1.3 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.linux-network-command-output code {
+  font: inherit;
+  white-space: inherit;
+}
+
+.linux-network-view-figure > .executable-figure-footer {
+  display: block;
+  padding: 0;
+  border-top: 0;
+  background: #231e2d;
+}
+
+.linux-network-view-invariant {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.62fr) minmax(0, 1fr) minmax(0, 1fr);
+  min-width: 0;
+  margin: 0;
+  color: #f7f1ff;
+}
+
+.linux-network-view-invariant > div {
+  min-width: 0;
+  padding: 0.9rem 1rem;
+  border-right: 1px solid #4c4356;
+}
+
+.linux-network-view-invariant > div:last-child {
+  border-right: 0;
+}
+
+.linux-network-view-invariant dt {
+  color: #cbb6e5;
+  font: 850 0.55rem/1.35 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.linux-network-view-invariant dd {
+  min-width: 0;
+  margin: 0.42rem 0 0;
+  color: #f7f1ff;
+  font: 650 0.66rem/1.55 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.linux-network-view-invariant code,
+.linux-network-view-invariant strong {
+  color: #fff;
+  font: 800 0.64rem/1.55 var(--mono);
+  white-space: pre-wrap;
+}
+
+@container (max-width: 58rem) {
+  .linux-network-view-workspace,
+  .linux-network-evidence-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .linux-network-command-column {
+    border-right: 0;
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .linux-network-command-column > ol {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .linux-network-command-column button[data-command-trigger] {
+    min-height: 5.1rem;
+  }
+
+  .linux-network-command-meta {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .linux-network-interface-ledger-wrap {
+    border-right: 0;
+    border-bottom: 1px solid var(--line-strong);
+  }
+}
+
+@container (max-width: 40rem) {
+  .linux-network-command-column > ol {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .linux-network-command-column button[data-command-trigger] {
+    min-height: 4rem;
+  }
+
+  .linux-network-command-meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .linux-network-host-scene {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding: 1rem;
+  }
+
+  .linux-network-process-node {
+    min-height: 4.75rem;
+  }
+
+  .linux-network-kernel-plane {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2.75rem;
+    padding: 3.35rem 1rem 1rem;
+  }
+
+  .linux-network-interface-node {
+    min-height: 10.5rem;
+  }
+
+  .linux-network-loopback-path,
+  .linux-network-ethernet-path {
+    position: static;
+    grid-column: 1;
+  }
+
+  .linux-network-loopback-path {
+    grid-row: 2;
+  }
+
+  .linux-network-ethernet-path {
+    grid-row: 4;
+  }
+
+  .linux-network-interface-node.is-loopback {
+    grid-row: 3;
+  }
+
+  .linux-network-interface-node.is-ethernet {
+    grid-row: 5;
+  }
+
+  .linux-network-interface-ledger,
+  .linux-network-interface-ledger tbody,
+  .linux-network-interface-ledger tr,
+  .linux-network-interface-ledger th,
+  .linux-network-interface-ledger td {
+    display: block;
+    width: 100%;
+  }
+
+  .linux-network-interface-ledger thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .linux-network-interface-ledger tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-bottom: 1px solid var(--line-strong);
+  }
+
+  .linux-network-interface-ledger tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .linux-network-interface-ledger tbody tr > * {
+    min-width: 0;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .linux-network-interface-ledger tbody tr > :nth-child(even) {
+    border-right: 0;
+  }
+
+  .linux-network-interface-ledger tbody tr > *::before {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--muted);
+    content: attr(data-column);
+    font: 800 0.5rem/1.35 var(--mono);
+    letter-spacing: 0.04em;
+  }
+
+  .linux-network-interface-ledger tbody th {
+    grid-column: 1 / -1;
+    border-right: 0;
+  }
+
+  .linux-network-interface-ledger tbody tr > :last-child {
+    grid-column: 1 / -1;
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  .linux-network-view-invariant {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .linux-network-view-invariant > div {
+    border-right: 0;
+    border-bottom: 1px solid #4c4356;
+  }
+
+  .linux-network-view-invariant > div:last-child {
+    border-bottom: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .linux-network-view-figure *,
+  .linux-network-view-figure *::before,
+  .linux-network-view-figure *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

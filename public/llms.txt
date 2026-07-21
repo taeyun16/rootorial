@@ -20,7 +20,7 @@ Rootorial develops independent learning paths across AI and machine learning, op
   - Scope: Trace how processes, memory, files, and networks meet inside an operating system.
 - Linux Networking from the Ground Up (Linux 네트워킹을 바닥부터)
   - Area: NETWORKING / 네트워크
-  - Status: in progress
+  - Status: available
   - Scope: Start with interfaces and addresses, connect routes, sockets, TCP, and DNS, then diagnose a Linux service path from evidence.
 - Linux Network Infrastructure Design from the Ground Up (Linux 네트워크 인프라 설계를 바닥부터)
   - Area: INFRASTRUCTURE / 인프라

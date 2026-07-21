@@ -110,6 +110,20 @@ const announcedPublicationKeys = new Set([
   "chapter:linux-systems/storage-and-filesystems",
   "chapter:linux-systems/networking-from-a-packet",
   "chapter:linux-systems/assemble-a-tiny-linux",
+  "chapter:linux-networking/interfaces-addresses-and-loopback",
+  "chapter:linux-networking/subnets-neighbors-and-gateways",
+  "chapter:linux-networking/routes-and-packet-paths",
+  "chapter:linux-networking/sockets-ports-and-tcp",
+  "chapter:linux-networking/dns-and-service-reachability",
+  "chapter:linux-networking/diagnose-a-linux-network",
+  "chapter:infrastructure-design/network-namespaces-and-boundaries",
+  "chapter:infrastructure-design/veth-bridges-and-routing",
+  "chapter:infrastructure-design/egress-nat-and-conntrack",
+  "chapter:infrastructure-design/network-policy-and-firewalls",
+  "chapter:infrastructure-design/service-discovery-and-load-balancing",
+  "chapter:infrastructure-design/availability-and-failure-domains",
+  "chapter:infrastructure-design/network-observability-and-capacity",
+  "chapter:infrastructure-design/assemble-a-namespace-platform",
 ]);
 
 const legacyPublishedKeys = new Set([

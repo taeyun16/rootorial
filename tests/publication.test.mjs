@@ -419,9 +419,9 @@ test("lists the new curriculum keys as drafts while respecting page readiness", 
   const linuxNetworking = catalog.resources[linuxNetworkingCurriculumKey];
   const systemArchitecture = catalog.resources[systemArchitectureKey];
 
-  assert.equal(linuxNetworking.developmentStatus, "in-progress");
+  assert.equal(linuxNetworking.developmentStatus, "complete");
   assert.equal(linuxNetworking.previewReady, true);
-  assert.equal(linuxNetworking.contentReady, false);
+  assert.equal(linuxNetworking.contentReady, true);
   assert.equal(linuxNetworking.source, "default");
   assert.equal(linuxNetworking.publicationStatus, "draft");
   assert.equal(linuxNetworking.effectivePublicationStatus, "draft");
@@ -479,7 +479,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(namespaces.source, "default");
   assert.equal(namespaces.publicationStatus, "draft");
   assert.equal(namespaces.effectivePublicationStatus, "draft");
-  assert.equal(namespaces.listing, "hidden");
+  assert.equal(namespaces.listing, "listed");
   assert.equal(namespaces.scheduledAt, null);
   assert.equal(namespaces.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructureNamespacesKey), false);
@@ -490,7 +490,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(vethRouting.source, "default");
   assert.equal(vethRouting.publicationStatus, "draft");
   assert.equal(vethRouting.effectivePublicationStatus, "draft");
-  assert.equal(vethRouting.listing, "hidden");
+  assert.equal(vethRouting.listing, "listed");
   assert.equal(vethRouting.scheduledAt, null);
   assert.equal(vethRouting.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructureVethRoutingKey), false);
@@ -501,7 +501,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(egressNat.contentReady, true);
   assert.equal(egressNat.publicationStatus, "draft");
   assert.equal(egressNat.effectivePublicationStatus, "draft");
-  assert.equal(egressNat.listing, "hidden");
+  assert.equal(egressNat.listing, "listed");
   assert.equal(isPublicationAccessible(catalog, infrastructureEgressNatKey), false);
   assert.equal(isPublicationListed(catalog, infrastructureEgressNatKey), false);
 
@@ -511,7 +511,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(serviceDiscovery.source, "default");
   assert.equal(serviceDiscovery.publicationStatus, "draft");
   assert.equal(serviceDiscovery.effectivePublicationStatus, "draft");
-  assert.equal(serviceDiscovery.listing, "hidden");
+  assert.equal(serviceDiscovery.listing, "listed");
   assert.equal(serviceDiscovery.scheduledAt, null);
   assert.equal(serviceDiscovery.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructureServiceDiscoveryKey), false);
@@ -523,7 +523,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(networkPolicy.source, "default");
   assert.equal(networkPolicy.publicationStatus, "draft");
   assert.equal(networkPolicy.effectivePublicationStatus, "draft");
-  assert.equal(networkPolicy.listing, "hidden");
+  assert.equal(networkPolicy.listing, "listed");
   assert.equal(networkPolicy.scheduledAt, null);
   assert.equal(networkPolicy.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructureNetworkPolicyKey), false);
@@ -533,7 +533,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(availability.contentReady, true);
   assert.equal(availability.publicationStatus, "draft");
   assert.equal(availability.effectivePublicationStatus, "draft");
-  assert.equal(availability.listing, "hidden");
+  assert.equal(availability.listing, "listed");
   assert.equal(isPublicationAccessible(catalog, infrastructureAvailabilityKey), false);
   assert.equal(observability.developmentStatus, "complete");
   assert.equal(observability.previewReady, true);
@@ -541,7 +541,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(observability.source, "default");
   assert.equal(observability.publicationStatus, "draft");
   assert.equal(observability.effectivePublicationStatus, "draft");
-  assert.equal(observability.listing, "hidden");
+  assert.equal(observability.listing, "listed");
   assert.equal(observability.scheduledAt, null);
   assert.equal(observability.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructureObservabilityKey), false);
@@ -552,7 +552,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   assert.equal(platform.source, "default");
   assert.equal(platform.publicationStatus, "draft");
   assert.equal(platform.effectivePublicationStatus, "draft");
-  assert.equal(platform.listing, "hidden");
+  assert.equal(platform.listing, "listed");
   assert.equal(platform.scheduledAt, null);
   assert.equal(platform.publishedAt, null);
   assert.equal(isPublicationAccessible(catalog, infrastructurePlatformKey), false);

@@ -40,6 +40,11 @@ export type Curriculum = {
     curriculumSlug: string;
     reason: LocalizedText;
   };
+  /** An advisory next curriculum that extends this curriculum's evidence model. */
+  recommendedContinuation?: {
+    curriculumSlug: string;
+    reason: LocalizedText;
+  };
   experiment?: {
     href: "/experiments/linux";
     label: LocalizedText;
@@ -490,54 +495,54 @@ export const linuxNetworkingChaptersKo: Chapter[] = [
   {
     number: 1,
     slug: "interfaces-addresses-and-loopback",
-    title: "인터페이스·주소·loopback",
-    subtitle: "한 호스트의 network view를 이루는 가장 작은 상태",
+    title: "인터페이스·주소·루프백",
+    subtitle: "한 호스트의 네트워크를 이루는 가장 작은 상태",
     description:
-      "interface의 존재와 link state를 구분하고, MAC·IPv4 address·prefix와 loopback을 배치한 뒤 localhost가 어느 경계에 닫혀 있는지 관찰합니다.",
-    runtime: "TypeScript network-view 모델 · 선택 iproute2",
+      "인터페이스의 존재와 링크 상태를 구분하고, MAC 주소·IPv4 주소·프리픽스와 루프백을 배치한 뒤 localhost 통신이 호스트 안에서 어떻게 끝나는지 관찰합니다.",
+    runtime: "브라우저 실습 · 실제 Linux 명령으로 확인",
     estimatedMinutes: 45,
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["interface · link state", "address · prefix", "loopback · localhost"],
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["인터페이스 · 링크 상태", "주소 · 프리픽스", "루프백 · localhost"],
   },
   {
     number: 2,
     slug: "subnets-neighbors-and-gateways",
-    title: "subnet·neighbor·gateway",
-    subtitle: "목적지가 같은 link에 있는지 먼저 판정하기",
+    title: "서브넷·이웃·게이트웨이",
+    subtitle: "목적지가 같은 링크에 있는지 먼저 판정하기",
     description:
-      "IPv4 address와 prefix로 same-link 여부를 계산하고, ARP neighbor와 default gateway가 remote destination으로 향하는 frame을 어떻게 결정하는지 실행합니다.",
-    runtime: "TypeScript subnet·neighbor 모델 · 선택 iproute2",
+      "IPv4 주소와 프리픽스로 같은 링크인지 계산하고, ARP 이웃과 기본 게이트웨이가 로컬·원격 목적지로 향하는 프레임을 어떻게 결정하는지 실행합니다.",
+    runtime: "브라우저 실습 · 실제 Linux 명령으로 확인",
     estimatedMinutes: 55,
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["CIDR · same-link", "ARP · neighbor", "gateway · frame"],
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["CIDR · 같은 링크", "ARP · 이웃", "게이트웨이 · 프레임"],
   },
   {
     number: 3,
     slug: "routes-and-packet-paths",
-    title: "route와 packet path",
-    subtitle: "목적지에서 egress interface와 next hop까지",
+    title: "경로와 패킷 흐름",
+    subtitle: "목적지에서 송신 인터페이스와 다음 홉까지",
     description:
-      "route table의 longest-prefix match와 metric으로 egress·source address·next hop을 선택하고, router를 지나는 동안 link header와 TTL이 어떻게 바뀌는지 추적합니다.",
-    runtime: "TypeScript routing 모델 · 선택 iproute2",
+      "라우팅 표에서 가장 길게 일치하는 프리픽스와 metric으로 송신 인터페이스·출발지 주소·다음 홉을 선택하고, 라우터를 지나는 동안 링크 헤더와 TTL이 어떻게 바뀌는지 추적합니다.",
+    runtime: "브라우저 실습 · 실제 Linux 명령으로 확인",
     estimatedMinutes: 55,
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["longest-prefix route", "egress · next hop", "TTL · forwarding"],
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["가장 긴 프리픽스 일치", "송신 인터페이스 · 다음 홉", "TTL · 패킷 전달"],
   },
   {
     number: 4,
     slug: "sockets-ports-and-tcp",
-    title: "socket·port·TCP",
-    subtitle: "프로세스의 byte가 원격 application에 도착하는 경계",
+    title: "소켓·포트·TCP",
+    subtitle: "프로세스의 바이트가 원격 애플리케이션에 도착하는 경계",
     description:
-      "fd와 kernel socket을 구분하고 bind·listen·connect·accept를 4-tuple에 연결한 뒤, TCP byte stream과 ACK·receive queue·recv의 전달 경계를 진단합니다.",
-    runtime: "TypeScript socket·TCP 모델 · 선택 ss",
+      "파일 번호(fd)가 가리키는 소켓을 확인하고, 서버가 주소와 포트를 열어 연결을 받아들이는 과정을 추적합니다. 이어 TCP가 바이트를 확인하고 프로그램에 넘기는 경계를 관찰합니다.",
+    runtime: "브라우저 실습 · 실제 Linux 명령으로 확인",
     estimatedMinutes: 60,
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["socket fd · 4-tuple", "listen · accept", "TCP ACK · recv"],
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["파일 번호 · 소켓", "서버 열기 · 연결 받기", "TCP 확인 · 데이터 읽기"],
   },
   {
     number: 5,
@@ -545,25 +550,25 @@ export const linuxNetworkingChaptersKo: Chapter[] = [
     title: "DNS와 서비스 도달 가능성",
     subtitle: "이름을 endpoint로 바꾸고 실패한 경계를 구분하기",
     description:
-      "resolver가 hostname을 address로 바꾸는 과정과 record TTL을 읽고, 이름 해석·route·TCP 연결·application response 실패를 서로 다른 증거로 분리합니다.",
-    runtime: "TypeScript resolver·service-path 모델 · 선택 dig·curl",
+      "이름 해석기(resolver)가 호스트 이름을 주소로 바꾸고 결과를 보관하는 시간을 읽습니다. 이름, 이동 경로, TCP 연결, 애플리케이션 응답 중 어디서 실패했는지 증거로 구분합니다.",
+    runtime: "브라우저 실습 · 실제 Linux 명령으로 확인",
     estimatedMinutes: 50,
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["resolver · DNS record", "TTL · cache", "name · connect · response"],
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["이름 해석기 · DNS 기록", "보관 시간(TTL)", "이름 · 연결 · 응답"],
   },
   {
     number: 6,
     slug: "diagnose-a-linux-network",
-    title: "Linux 네트워크 진단하기",
-    subtitle: "증상에서 interface·route·socket 경계를 순서대로 찾기",
+    title: "Linux 네트워크 진단",
+    subtitle: "증상에서 인터페이스·경로·소켓 경계를 순서대로 찾기",
     description:
-      "ip link·address·route·neigh, ss, dig·getent, curl과 tcpdump 증거를 한 packet path에 정렬해 여러 결함이 섞인 서비스 도달 실패를 진단합니다.",
-    runtime: "TypeScript 진단 스튜디오 · 선택 Linux 관찰",
+      "네트워크 출입구, 주소, 경로, 이웃, 소켓, 이름 해석과 패킷 캡처 순서로 증거를 모읍니다. 여러 결함이 섞여 있어도 가장 먼저 끊긴 경계를 찾습니다.",
+    runtime: "브라우저 진단 실습 · 실제 Linux 명령으로 확인",
     estimatedMinutes: 75,
-    developmentStatus: "planned",
-    status: "planned",
-    concepts: ["layered evidence", "ip · ss · DNS", "tcpdump · fault isolation"],
+    developmentStatus: "complete",
+    status: "available",
+    concepts: ["경계별 증거", "Linux 관측 명령", "패킷 캡처 · 장애 격리"],
   },
 ];
 
@@ -575,10 +580,10 @@ export const linuxNetworkingChaptersEn: Chapter[] = [
     subtitle: "The smallest state that forms one host's network view",
     description:
       "Separate interface existence from link state, place MAC and IPv4 addresses with prefixes, and observe which boundary contains loopback and localhost.",
-    runtime: "TypeScript network-view model · optional iproute2",
+    runtime: "Interactive browser lab · verify with Linux commands",
     estimatedMinutes: 45,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["interface · link state", "address · prefix", "loopback · localhost"],
   },
   {
@@ -588,10 +593,10 @@ export const linuxNetworkingChaptersEn: Chapter[] = [
     subtitle: "Decide whether a destination is on the same link first",
     description:
       "Compute same-link reachability from an IPv4 address and prefix, then execute how ARP neighbors and the default gateway determine the frame toward a remote destination.",
-    runtime: "TypeScript subnet and neighbor model · optional iproute2",
+    runtime: "Interactive browser lab · verify with Linux commands",
     estimatedMinutes: 55,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["CIDR · same-link", "ARP · neighbor", "gateway · frame"],
   },
   {
@@ -601,10 +606,10 @@ export const linuxNetworkingChaptersEn: Chapter[] = [
     subtitle: "From a destination to an egress interface and next hop",
     description:
       "Select the egress, source address, and next hop with longest-prefix matching and metrics, then trace how link headers and TTL change across routers.",
-    runtime: "TypeScript routing model · optional iproute2",
+    runtime: "Interactive browser lab · verify with Linux commands",
     estimatedMinutes: 55,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["longest-prefix route", "egress · next hop", "TTL · forwarding"],
   },
   {
@@ -614,10 +619,10 @@ export const linuxNetworkingChaptersEn: Chapter[] = [
     subtitle: "The boundaries between process bytes and a remote application",
     description:
       "Separate an fd from its kernel socket, connect bind, listen, connect, and accept to a four-tuple, then diagnose TCP stream, ACK, receive-queue, and recv boundaries.",
-    runtime: "TypeScript socket and TCP model · optional ss",
+    runtime: "Interactive browser lab · verify with Linux commands",
     estimatedMinutes: 60,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["socket fd · 4-tuple", "listen · accept", "TCP ACK · recv"],
   },
   {
@@ -627,10 +632,10 @@ export const linuxNetworkingChaptersEn: Chapter[] = [
     subtitle: "Turn a name into an endpoint and separate the failing boundary",
     description:
       "Read how a resolver turns a hostname into an address and applies record TTL, then separate name-resolution, route, TCP-connect, and application-response failures with distinct evidence.",
-    runtime: "TypeScript resolver and service-path model · optional dig and curl",
+    runtime: "Interactive browser lab · verify with Linux commands",
     estimatedMinutes: 50,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["resolver · DNS record", "TTL · cache", "name · connect · response"],
   },
   {
@@ -640,10 +645,10 @@ export const linuxNetworkingChaptersEn: Chapter[] = [
     subtitle: "Locate interface, route, and socket boundaries from symptoms",
     description:
       "Align ip link, address, route, and neigh output with ss, dig or getent, curl, and tcpdump evidence to diagnose a service path containing several simultaneous faults.",
-    runtime: "TypeScript diagnosis studio · optional Linux observation",
+    runtime: "Interactive diagnosis lab · verify with Linux commands",
     estimatedMinutes: 75,
-    developmentStatus: "planned",
-    status: "planned",
+    developmentStatus: "complete",
+    status: "available",
     concepts: ["layered evidence", "ip · ss · DNS", "tcpdump · fault isolation"],
   },
 ];
@@ -1126,6 +1131,13 @@ export const curricula: Curriculum[] = [
       ko: scopeChapters(LINUX_CURRICULUM_SLUG, linuxChaptersKo),
       en: scopeChapters(LINUX_CURRICULUM_SLUG, linuxChaptersEn),
     },
+    recommendedContinuation: {
+      curriculumSlug: LINUX_NETWORKING_CURRICULUM_SLUG,
+      reason: {
+        ko: "프로세스·파일·소켓까지 추적한 시스템 관찰을 인터페이스, 주소, 경로, TCP와 DNS의 실제 네트워크 흐름으로 이어갑니다.",
+        en: "Carry your observations of processes, files, and sockets into real network paths through interfaces, addresses, routes, TCP, and DNS.",
+      },
+    },
     experiment: {
       href: "/experiments/linux",
       label: { ko: "Linux 실험 열기", en: "Open the Linux experiment" },
@@ -1137,16 +1149,30 @@ export const curricula: Curriculum[] = [
     category: { ko: "네트워크", en: "NETWORKING" },
     title: { ko: "Linux 네트워킹을 바닥부터", en: "Linux Networking from the Ground Up" },
     summary: {
-      ko: "interface와 주소에서 시작해 route·socket·TCP·DNS를 연결하고 Linux 서비스 경로를 증거로 진단합니다.",
+      ko: "인터페이스와 주소에서 시작해 경로·소켓·TCP·DNS를 연결하고 Linux 서비스 흐름을 증거로 진단합니다.",
       en: "Start with interfaces and addresses, connect routes, sockets, TCP, and DNS, then diagnose a Linux service path from evidence.",
     },
-    eyebrow: { ko: "새 커리큘럼", en: "NEW CURRICULUM" },
+    eyebrow: { ko: "완성 커리큘럼", en: "COMPLETE CURRICULUM" },
     level: "beginner",
-    status: "in-progress",
+    status: "available",
     accent: "green",
     chapters: {
       ko: scopeChapters(LINUX_NETWORKING_CURRICULUM_SLUG, linuxNetworkingChaptersKo),
       en: scopeChapters(LINUX_NETWORKING_CURRICULUM_SLUG, linuxNetworkingChaptersEn),
+    },
+    recommendedPrerequisite: {
+      curriculumSlug: LINUX_CURRICULUM_SLUG,
+      reason: {
+        ko: "셸, 프로세스, 파일과 소켓이 Linux 안에서 어떤 상태로 존재하는지 먼저 익히면 네트워크 관측 결과를 더 쉽게 해석할 수 있습니다.",
+        en: "Learn how shells, processes, files, and sockets exist as Linux state first so network observations are easier to interpret.",
+      },
+    },
+    recommendedContinuation: {
+      curriculumSlug: INFRASTRUCTURE_CURRICULUM_SLUG,
+      reason: {
+        ko: "인터페이스·서브넷·경로·소켓에서 확인한 증거를 네트워크 namespace 격리, 정책, 가용성과 용량을 설계하는 판단으로 확장합니다.",
+        en: "Extend the evidence you gathered from interfaces, subnets, routes, and sockets into decisions about namespace isolation, policy, availability, and capacity.",
+      },
     },
   },
   {
