@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { useLocale } from "../../features/localization/localization";
+import { canExecuteSequentialPhase, hasMasteredSequentialEvidence } from "../../features/chapters/sequential-execution";
 import {
   networkViewPhaseIds,
   networkViewPhaseSnapshot,
@@ -17,6 +18,7 @@ import {
   type NetworkViewPhaseSnapshot,
 } from "../../features/linux-networking/interfaces-addresses-and-loopback";
 import { ExecutableFigure } from "../interactive/ExecutableFigure";
+import { DirectChoiceGroup } from "../interactive/DirectChoiceGroup";
 import "./interfaces-addresses-loopback.css";
 
 type LinuxNetworkViewFigureProps = {
@@ -284,12 +286,17 @@ export function LinuxNetworkViewFigure({
   const [visited, setVisited] = useState<Set<NetworkViewPhaseId>>(
     () => new Set([networkViewPhaseIds[0]]),
   );
+  const [prediction, setPrediction] = useState("");
   const commandListRef = useRef<HTMLOListElement>(null);
   const commandHelpId = useId();
   const phaseId = networkViewPhaseIds[activeIndex];
   const snapshot = networkViewPhaseSnapshot(phaseId);
   const phaseCopy = t.phases[activeIndex];
-  const mastered = visited.size === networkViewPhaseIds.length;
+  const predictionCorrect = prediction === "interface-state";
+  const mastered = hasMasteredSequentialEvidence({ predictionCorrect, visitedCount: visited.size, phaseCount: networkViewPhaseIds.length });
+  const maxUnlockedIndex = predictionCorrect
+    ? Math.min(visited.size, networkViewPhaseIds.length - 1)
+    : -1;
   const currentProbeResult = probeResult(snapshot);
   const isProbe = currentProbeResult !== "idle";
   const loopbackPath = currentProbeResult === "pass"
@@ -316,6 +323,7 @@ export function LinuxNetworkViewFigure({
       Math.min(index, networkViewPhaseIds.length - 1),
     );
     const nextId = networkViewPhaseIds[boundedIndex];
+    if (!canExecuteSequentialPhase({ phaseIndex: boundedIndex, visitedCount: visited.size, predictionCorrect })) return;
     setActiveIndex(boundedIndex);
     setVisited((current) => {
       if (current.has(nextId)) return current;
@@ -329,17 +337,15 @@ export function LinuxNetworkViewFigure({
   ) {
     let nextIndex: number | null = null;
     if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-      nextIndex = (index + 1) % networkViewPhaseIds.length;
+      nextIndex = Math.min(index + 1, maxUnlockedIndex);
     } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-      nextIndex = (
-        index - 1 + networkViewPhaseIds.length
-      ) % networkViewPhaseIds.length;
+      nextIndex = Math.max(index - 1, 0);
     } else if (event.key === "Home") {
       nextIndex = 0;
     } else if (event.key === "End") {
-      nextIndex = networkViewPhaseIds.length - 1;
+      nextIndex = maxUnlockedIndex;
     }
-    if (nextIndex === null) return;
+    if (nextIndex === null || nextIndex < 0) return;
     event.preventDefault();
     selectPhase(nextIndex);
     commandListRef.current
@@ -351,6 +357,7 @@ export function LinuxNetworkViewFigure({
   function reset() {
     setActiveIndex(0);
     setVisited(new Set([networkViewPhaseIds[0]]));
+    setPrediction("");
     commandListRef.current
       ?.querySelector<HTMLButtonElement>("button[data-command-trigger]")
       ?.focus();
@@ -394,6 +401,25 @@ export function LinuxNetworkViewFigure({
         </dl>
       )}
     >
+      <div className="network-figure-prediction">
+        <DirectChoiceGroup
+          label={locale === "ko" ? "localhost 이름 해석 다음에 전달을 결정하는 것은?" : "After resolving localhost, what determines delivery?"}
+          value={prediction}
+          options={[
+            { value: "interface-state", label: locale === "ko" ? "현재 network view의 lo 상태와 주소" : "The lo state and address in the current network view" },
+            { value: "ethernet", label: locale === "ko" ? "eth0 carrier와 gateway MAC" : "eth0 carrier and the gateway MAC" },
+            { value: "name-only", label: locale === "ko" ? "localhost 이름의 존재만" : "Only the existence of the localhost name" },
+          ]}
+          onChange={setPrediction}
+          controlId="network-view-delivery-prediction"
+        />
+        <p role="status">{prediction === ""
+          ? locale === "ko" ? "전달 경계를 예측하면 상태 변경 명령이 열립니다." : "Predict the delivery boundary to unlock state-changing commands."
+          : predictionCorrect
+            ? locale === "ko" ? "예측이 맞았습니다. 한 번에 한 상태만 바꾸세요." : "Prediction confirmed. Change one state at a time."
+            : locale === "ko" ? "이 경로는 Ethernet을 지나지 않습니다. 현재 local network view를 다시 보세요." : "This path does not cross Ethernet. Reconsider the current local network view."}</p>
+      </div>
+      {predictionCorrect ? <>
       <div className="linux-network-view-workspace">
         <div className="linux-network-command-column">
           <ol
@@ -417,6 +443,7 @@ export function LinuxNetworkViewFigure({
                     aria-current={active ? "step" : undefined}
                     aria-label={`${index + 1} of ${networkViewPhaseIds.length}: ${item.label}`}
                     tabIndex={active ? 0 : -1}
+                    disabled={!canExecuteSequentialPhase({ phaseIndex: index, visitedCount: visited.size, predictionCorrect })}
                     onClick={() => selectPhase(index)}
                     onKeyDown={(event) => handleCommandKeyDown(event, index)}
                   >
@@ -575,6 +602,9 @@ export function LinuxNetworkViewFigure({
       <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
         {phaseCopy.announcement}
       </p>
+      </> : <div className="network-evidence-locked" role="status">
+        {locale === "ko" ? "예측을 확정하기 전에는 interface 상태와 명령 출력을 숨깁니다." : "Interface state and command output stay hidden until the prediction is confirmed."}
+      </div>}
     </ExecutableFigure>
   );
 }

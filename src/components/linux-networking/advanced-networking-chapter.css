@@ -2,3 +2,17 @@
 .advanced-networking-hero .lesson-deck { max-width: 920px; }
 .advanced-networking-chapter-shell .article-section > h2 { max-width: 880px; }
 .advanced-networking-chapter-shell .executable-figure { margin-top: 1.5rem; }
+.advanced-networking-chapter-shell .network-view-observation-command {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: .4rem;
+  background: #17211f;
+  color: #e7f6ef;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

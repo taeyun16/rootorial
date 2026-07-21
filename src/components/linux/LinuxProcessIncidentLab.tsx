@@ -10,6 +10,7 @@ import {
   type ProcessIncidentId,
   type ProcessMachine,
 } from "../../features/linux-runtime/processes-and-signals";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { LinuxProcessStateView, processEventText } from "./LinuxProcessStateView";
 
@@ -200,21 +201,16 @@ export function LinuxProcessIncidentLab({
               <p>{copy.clue[locale]}</p>
               <strong className="process-incident-goal">{copy.goal[locale]}</strong>
               <LinuxProcessStateView machine={machines[id]} locale={locale} compact />
-              <label>
-                <span>{t("다음 동작", "Next action")}</span>
-                <select
-                  aria-label={t("프로세스 동작", "Process action")}
-                  value={actions[id]}
-                  disabled={solved}
-                  onChange={(event) => {
-                    const nextAction = event.currentTarget.value as ProcessIncidentAction | "";
-                    setActions((current) => ({ ...current, [id]: nextAction }));
-                  }}
-                >
-                  <option value="">{t("동작 선택", "Choose an action")}</option>
-                  {processIncidentActionIds.map((action) => <option value={action} key={action}>{actionCopy[action][locale]}</option>)}
-                </select>
-              </label>
+              <ChoiceField
+                label={t("다음 동작", "Next action")}
+                value={actions[id]}
+                disabled={solved}
+                onValueChange={(value) => setActions((current) => ({ ...current, [id]: value }))}
+                options={[
+                  { value: "", label: t("동작 선택", "Choose an action") },
+                  ...processIncidentActionIds.map((action) => ({ value: action, label: actionCopy[action][locale] })),
+                ]}
+              />
               <label>
                 <span>{t("pipe 입력 데이터", "Pipe input data")}</span>
                 <input

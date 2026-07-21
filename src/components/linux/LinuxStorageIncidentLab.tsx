@@ -9,6 +9,7 @@ import {
   type StorageIncidentSubmission,
 } from "../../features/linux-runtime/storage-and-filesystems";
 import { useLocale } from "../../features/localization/localization";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 
 type Draft = Record<string, string>;
@@ -141,13 +142,13 @@ export function LinuxStorageIncidentLab({
   };
 
   const completed = storageIncidentIds.filter((id) => evaluations[id]?.correct).length;
-  const stepOptions = (index: number) => <>
-    <option value="">{index}. —</option>
-    <option value="write-temp">{index}. {t("같은 부모에 temp 쓰기", "write same-parent temp")}</option>
-    <option value="fsync-temp">{index}. {t("temp fsync", "fsync temp")}</option>
-    <option value="rename">{index}. {t("최종 이름으로 rename", "rename to final name")}</option>
-    <option value="fsync-directory">{index}. {t("그 parent directory fsync", "fsync that parent directory")}</option>
-  </>;
+  const stepOptions = (index: number) => [
+    { value: "", label: `${index}. —` },
+    { value: "write-temp", label: `${index}. ${t("같은 부모에 temp 쓰기", "write same-parent temp")}` },
+    { value: "fsync-temp", label: `${index}. ${t("temp fsync", "fsync temp")}` },
+    { value: "rename", label: `${index}. ${t("최종 이름으로 rename", "rename to final name")}` },
+    { value: "fsync-directory", label: `${index}. ${t("그 parent directory fsync", "fsync that parent directory")}` },
+  ];
 
   return (
     <InteractiveLab
@@ -166,11 +167,11 @@ export function LinuxStorageIncidentLab({
             <legend>01 · {t("합쳐져 보인 mount", "Mount appeared merged")}</legend>
             <pre>{`mounted: /srv/data/report.bin
 unmounted: /srv/data/README.local`}</pre>
-            <label><span>{t("mounted filesystem", "Mounted filesystem")}</span><select aria-label={t("mount 사건 mounted filesystem", "Mount incident mounted filesystem")} value={drafts["mount-shadow"].mountedDevice ?? ""} onChange={(event) => setField("mount-shadow", "mountedDevice", event.target.value)}><option value="">—</option><option value="rootfs">rootfs</option><option value="datafs">datafs</option></select></label>
+            <ChoiceField label={t("mounted filesystem", "Mounted filesystem")} value={drafts["mount-shadow"].mountedDevice ?? ""} onValueChange={(value) => setField("mount-shadow", "mountedDevice", value)} options={[{ value: "", label: "—" }, { value: "rootfs", label: "rootfs" }, { value: "datafs", label: "datafs" }]} />
             <label><span>{t("mounted inode", "Mounted inode")}</span><input type="number" aria-label={t("mount 사건 mounted inode", "Mount incident mounted inode")} value={drafts["mount-shadow"].mountedInode ?? ""} onChange={(event) => setField("mount-shadow", "mountedInode", event.target.value)} /></label>
-            <label><span>{t("unmounted filesystem", "Unmounted filesystem")}</span><select aria-label={t("mount 사건 underlay filesystem", "Mount incident underlay filesystem")} value={drafts["mount-shadow"].underlayDevice ?? ""} onChange={(event) => setField("mount-shadow", "underlayDevice", event.target.value)}><option value="">—</option><option value="rootfs">rootfs</option><option value="datafs">datafs</option></select></label>
+            <ChoiceField label={t("unmounted filesystem", "Unmounted filesystem")} value={drafts["mount-shadow"].underlayDevice ?? ""} onValueChange={(value) => setField("mount-shadow", "underlayDevice", value)} options={[{ value: "", label: "—" }, { value: "rootfs", label: "rootfs" }, { value: "datafs", label: "datafs" }]} />
             <label><span>{t("underlay inode", "Underlay inode")}</span><input type="number" aria-label={t("mount 사건 underlay inode", "Mount incident underlay inode")} value={drafts["mount-shadow"].underlayInode ?? ""} onChange={(event) => setField("mount-shadow", "underlayInode", event.target.value)} /></label>
-            <label><span>{t("두 view가 병합되는가", "Are the views merged?")}</span><select aria-label={t("mount view 병합 여부", "Whether mount views merge")} value={drafts["mount-shadow"].mergedView ?? ""} onChange={(event) => setField("mount-shadow", "mergedView", event.target.value)}><option value="">—</option><option value="true">{t("예", "Yes")}</option><option value="false">{t("아니요", "No")}</option></select></label>
+            <ChoiceField label={t("두 view가 병합되는가", "Are the views merged?")} value={drafts["mount-shadow"].mergedView ?? ""} onValueChange={(value) => setField("mount-shadow", "mergedView", value)} options={[{ value: "", label: "—" }, { value: "true", label: t("예", "Yes") }, { value: "false", label: t("아니요", "No") }]} />
             <button type="button" className="button button-primary" onClick={() => audit("mount-shadow")}>{t("namespace 실행·진단", "Run namespace diagnosis")}</button>
             {evaluations["mount-shadow"] ? <p className="storage-incident-feedback" role="status" aria-live="polite">{feedbackFor("mount-shadow", evaluations["mount-shadow"])}</p> : null}
           </fieldset>
@@ -180,10 +181,10 @@ unmounted: /srv/data/README.local`}</pre>
             <p>{t("df -h: 128 free blocks · df -i: 0 free inodes · touch 새 빈 파일 실패 · 수리: data block이 없는 기존 empty.tmp 삭제", "df -h: 128 free blocks · df -i: 0 free inodes · touch of a new empty file fails · repair: delete existing empty.tmp, which has no data blocks")}</p>
             <label><span>free blocks</span><input type="number" aria-label={t("고갈 사건 free blocks", "Exhaustion incident free blocks")} value={drafts["inode-exhaustion"].freeBlocks ?? ""} onChange={(event) => setField("inode-exhaustion", "freeBlocks", event.target.value)} /></label>
             <label><span>free inodes</span><input type="number" aria-label={t("고갈 사건 free inodes", "Exhaustion incident free inodes")} value={drafts["inode-exhaustion"].freeInodes ?? ""} onChange={(event) => setField("inode-exhaustion", "freeInodes", event.target.value)} /></label>
-            <label><span>touch outcome</span><select aria-label={t("고갈 사건 create 결과", "Exhaustion incident create outcome")} value={drafts["inode-exhaustion"].createOutcome ?? ""} onChange={(event) => setField("inode-exhaustion", "createOutcome", event.target.value)}><option value="">—</option><option value="succeeds">{t("성공", "Succeeds")}</option><option value="enospc">ENOSPC</option></select></label>
+            <ChoiceField label="touch outcome" value={drafts["inode-exhaustion"].createOutcome ?? ""} onValueChange={(value) => setField("inode-exhaustion", "createOutcome", value)} options={[{ value: "", label: "—" }, { value: "succeeds", label: t("성공", "Succeeds") }, { value: "enospc", label: "ENOSPC" }]} />
             <label><span>{t("기존 empty.tmp 삭제 뒤 blocks", "Blocks after deleting existing empty.tmp")}</span><input type="number" aria-label={t("수리 뒤 free blocks", "Free blocks after repair")} value={drafts["inode-exhaustion"].repairedFreeBlocks ?? ""} onChange={(event) => setField("inode-exhaustion", "repairedFreeBlocks", event.target.value)} /></label>
             <label><span>{t("기존 empty.tmp 삭제 뒤 inodes", "Inodes after deleting existing empty.tmp")}</span><input type="number" aria-label={t("수리 뒤 free inodes", "Free inodes after repair")} value={drafts["inode-exhaustion"].repairedFreeInodes ?? ""} onChange={(event) => setField("inode-exhaustion", "repairedFreeInodes", event.target.value)} /></label>
-            <label><span>{t("수리 뒤 touch", "touch after repair")}</span><select aria-label={t("수리 뒤 create 결과", "Create outcome after repair")} value={drafts["inode-exhaustion"].repairedOutcome ?? ""} onChange={(event) => setField("inode-exhaustion", "repairedOutcome", event.target.value)}><option value="">—</option><option value="succeeds">{t("성공", "Succeeds")}</option><option value="enospc">ENOSPC</option></select></label>
+            <ChoiceField label={t("수리 뒤 touch", "touch after repair")} value={drafts["inode-exhaustion"].repairedOutcome ?? ""} onValueChange={(value) => setField("inode-exhaustion", "repairedOutcome", value)} options={[{ value: "", label: "—" }, { value: "succeeds", label: t("성공", "Succeeds") }, { value: "enospc", label: "ENOSPC" }]} />
             <button type="button" className="button button-primary" onClick={() => audit("inode-exhaustion")}>{t("용량 계산·진단", "Compute capacity and diagnose")}</button>
             {evaluations["inode-exhaustion"] ? <p className="storage-incident-feedback" role="status" aria-live="polite">{feedbackFor("inode-exhaustion", evaluations["inode-exhaustion"])}</p> : null}
           </fieldset>
@@ -193,8 +194,8 @@ unmounted: /srv/data/README.local`}</pre>
             <p>{t("마지막 pathname unlink · fd 3은 아직 open · 그 뒤 close(fd 3)", "Last pathname unlinked · fd 3 remains open · then close(fd 3)")}</p>
             <label><span>link count</span><input type="number" aria-label={t("deleted-open link count", "Deleted-open link count")} value={drafts["deleted-open"].linkCount ?? ""} onChange={(event) => setField("deleted-open", "linkCount", event.target.value)} /></label>
             <label><span>open refs</span><input type="number" aria-label={t("deleted-open open refs", "Deleted-open open refs")} value={drafts["deleted-open"].openRefs ?? ""} onChange={(event) => setField("deleted-open", "openRefs", event.target.value)} /></label>
-            <label><span>{t("close 전 block 유지", "Blocks retained before close")}</span><select aria-label={t("close 전 block 유지 여부", "Whether blocks remain before close")} value={drafts["deleted-open"].blocksAllocated ?? ""} onChange={(event) => setField("deleted-open", "blocksAllocated", event.target.value)}><option value="">—</option><option value="true">{t("예", "Yes")}</option><option value="false">{t("아니요", "No")}</option></select></label>
-            <label><span>{t("close 뒤 block 유지", "Blocks retained after close")}</span><select aria-label={t("close 뒤 block 유지 여부", "Whether blocks remain after close")} value={drafts["deleted-open"].afterCloseBlocksAllocated ?? ""} onChange={(event) => setField("deleted-open", "afterCloseBlocksAllocated", event.target.value)}><option value="">—</option><option value="true">{t("예", "Yes")}</option><option value="false">{t("아니요", "No")}</option></select></label>
+            <ChoiceField label={t("close 전 block 유지", "Blocks retained before close")} value={drafts["deleted-open"].blocksAllocated ?? ""} onValueChange={(value) => setField("deleted-open", "blocksAllocated", value)} options={[{ value: "", label: "—" }, { value: "true", label: t("예", "Yes") }, { value: "false", label: t("아니요", "No") }]} />
+            <ChoiceField label={t("close 뒤 block 유지", "Blocks retained after close")} value={drafts["deleted-open"].afterCloseBlocksAllocated ?? ""} onValueChange={(value) => setField("deleted-open", "afterCloseBlocksAllocated", value)} options={[{ value: "", label: "—" }, { value: "true", label: t("예", "Yes") }, { value: "false", label: t("아니요", "No") }]} />
             <button type="button" className="button button-primary" onClick={() => audit("deleted-open")}>{t("수명 계산·진단", "Compute lifetime and diagnose")}</button>
             {evaluations["deleted-open"] ? <p className="storage-incident-feedback" role="status" aria-live="polite">{feedbackFor("deleted-open", evaluations["deleted-open"])}</p> : null}
           </fieldset>
@@ -202,8 +203,8 @@ unmounted: /srv/data/README.local`}</pre>
           <fieldset className={`storage-incident-card ${evaluations["crash-safe-replace"]?.correct ? "is-correct" : evaluations["crash-safe-replace"] ? "is-incorrect" : ""}`}>
             <legend>04 · {t("rename만 믿은 config 교체", "Config replacement trusted rename alone")}</legend>
             <p>{t("temp는 config와 같은 부모 디렉터리에 둡니다. 네 단계를 순서대로 조립하고 crash 뒤 허용되는 결과를 고르세요.", "The temporary file shares config's parent directory. Assemble four steps in order and choose the allowed post-crash result.")}</p>
-            {([1, 2, 3, 4] as const).map((index) => <label key={index}><span>{t(`${index}번째 단계`, `Step ${index}`)}</span><select aria-label={t(`crash-safe 교체 ${index}번째 단계`, `Crash-safe replacement step ${index}`)} value={drafts["crash-safe-replace"][`step${index}`] ?? ""} onChange={(event) => setField("crash-safe-replace", `step${index}`, event.target.value)}>{stepOptions(index)}</select></label>)}
-            <label><span>{t("crash 뒤 계약", "Post-crash contract")}</span><select aria-label={t("crash 뒤 config 계약", "Post-crash config contract")} value={drafts["crash-safe-replace"].crashGuarantee ?? ""} onChange={(event) => setField("crash-safe-replace", "crashGuarantee", event.target.value)}><option value="">—</option><option value="old-or-new">{t("완성된 이전본 또는 새 본", "Complete old or complete new")}</option><option value="new-only">{t("새 본만", "New only")}</option><option value="unspecified">{t("보장 없음", "Unspecified")}</option></select></label>
+            {([1, 2, 3, 4] as const).map((index) => <ChoiceField key={index} label={t(`${index}번째 단계`, `Step ${index}`)} value={drafts["crash-safe-replace"][`step${index}`] ?? ""} onValueChange={(value) => setField("crash-safe-replace", `step${index}`, value)} options={stepOptions(index)} />)}
+            <ChoiceField label={t("crash 뒤 계약", "Post-crash contract")} value={drafts["crash-safe-replace"].crashGuarantee ?? ""} onValueChange={(value) => setField("crash-safe-replace", "crashGuarantee", value)} options={[{ value: "", label: "—" }, { value: "old-or-new", label: t("완성된 이전본 또는 새 본", "Complete old or complete new") }, { value: "new-only", label: t("새 본만", "New only") }, { value: "unspecified", label: t("보장 없음", "Unspecified") }]} />
             <button type="button" className="button button-primary" onClick={() => audit("crash-safe-replace")}>{t("순서 실행·crash 진단", "Run sequence and diagnose crash")}</button>
             {evaluations["crash-safe-replace"] ? <p className="storage-incident-feedback" role="status" aria-live="polite">{feedbackFor("crash-safe-replace", evaluations["crash-safe-replace"])}</p> : null}
           </fieldset>

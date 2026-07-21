@@ -48,6 +48,8 @@
 }
 
 .network-view-observation-command {
+  box-sizing: border-box;
+  width: 100%;
   max-width: 100%;
   padding: clamp(1rem, 3vw, 1.5rem);
   overflow: hidden;

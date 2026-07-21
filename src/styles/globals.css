@@ -1878,6 +1878,12 @@ textarea:focus-visible {
   cursor: not-allowed;
 }
 
+.curriculum-continuation {
+  margin-top: -34px;
+  border-color: color-mix(in srgb, var(--forest) 38%, var(--line-strong));
+  background: color-mix(in srgb, var(--paper-raised) 92%, var(--info-bg));
+}
+
 .principles {
   padding: 92px max(24px, calc((100vw - 1240px) / 2));
   display: grid;
@@ -6082,6 +6088,90 @@ textarea:focus-visible {
   font-size: 8px;
 }
 
+.continuous-chapter-frame .chapter-shell .chapter-bottom-nav {
+  display: none;
+}
+
+.continuous-chapter-nav-shell {
+  padding: 0 max(24px, calc((100vw - 1120px) / 2)) 56px;
+  background: var(--paper);
+}
+
+.continuous-chapter-nav {
+  width: 100%;
+  padding: 26px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  gap: 28px;
+}
+
+.continuous-chapter-nav > * {
+  max-width: 46%;
+}
+
+.continuous-chapter-nav > :last-child {
+  margin-left: auto;
+  text-align: right;
+}
+
+.continuous-chapter-nav a {
+  color: var(--ink);
+  text-decoration-color: color-mix(in srgb, currentColor 32%, transparent);
+  text-underline-offset: 5px;
+}
+
+.continuous-chapter-nav a:hover {
+  color: var(--forest);
+}
+
+.continuous-chapter-nav-disabled {
+  display: grid;
+  gap: 6px;
+  color: var(--muted);
+}
+
+.continuous-chapter-nav-disabled small {
+  width: fit-content;
+  margin: 0;
+}
+
+.continuous-chapter-nav > :last-child small {
+  margin-left: auto;
+}
+
+.network-figure-prediction {
+  margin: 0 0 20px;
+  padding: 18px;
+  border: 1px solid var(--line-strong);
+  background: color-mix(in srgb, var(--paper-raised) 90%, var(--info-bg));
+}
+
+.network-figure-prediction > p {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.network-evidence-locked {
+  min-height: 180px;
+  padding: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--line-strong);
+  background: var(--paper-soft);
+  color: var(--muted);
+  font: 700 11px/1.6 var(--mono);
+  text-align: center;
+}
+
+.advanced-command-rail button:disabled,
+.subnet-command-rail button:disabled,
+.linux-network-command-column button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
 /* Chapter 01: notebook-derived vector foundations. */
 .vector-basics-section {
   background: rgba(235, 230, 218, 0.62);
@@ -6858,6 +6948,7 @@ textarea:focus-visible {
   .orbit-label-b { right: -10px; }
   .progress-card { right: 4px; width: 220px; }
   .curriculum-readiness { margin-bottom: 72px; padding: 22px; }
+  .curriculum-continuation { margin-top: -18px; }
   .curriculum-readiness-heading,
   .curriculum-readiness-card { grid-template-columns: 1fr; display: grid; gap: 20px; }
   .curriculum-readiness-advisory { max-width: none; justify-self: start; text-align: left; }
@@ -6873,6 +6964,11 @@ textarea:focus-visible {
   .chapter-action { grid-column: 2; justify-content: flex-start; }
   .enter-mark { width: 34px; height: 34px; }
   .site-footer { align-items: flex-start; gap: 24px; }
+  .continuous-chapter-nav-shell { padding: 0 16px 40px; }
+  .continuous-chapter-nav { align-items: stretch; flex-direction: column; gap: 16px; }
+  .continuous-chapter-nav > * { max-width: none; }
+  .continuous-chapter-nav > :last-child { margin-left: 0; text-align: left; }
+  .continuous-chapter-nav > :last-child small { margin-left: 0; }
   .site-footer > div { align-items: flex-start; }
 
   .chapter-shell {

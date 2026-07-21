@@ -13,6 +13,7 @@ import {
   type MemoryProcessId,
 } from "../../features/linux-runtime/memory-and-virtual-addresses";
 import { useLocale } from "../../features/localization/localization";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { VirtualMemoryStateView } from "./VirtualMemoryStateView";
 
@@ -184,40 +185,23 @@ export function LinuxVirtualMemoryLab({
         </div>
 
         <div className="memory-control-grid">
-          <label>
-            <span>{t("프로세스", "Process")}</span>
-            <select aria-label={t("접근할 프로세스", "Process to access")} value={processId} onChange={(event) => setProcessId(event.target.value as MemoryProcessId)}>
-              <option value="parent">{t("부모 PID 420", "Parent PID 420")}</option>
-              <option value="child">{t("자식 PID 421", "Child PID 421")}</option>
-            </select>
-          </label>
+          <ChoiceField label={t("프로세스", "Process")} value={processId} onValueChange={setProcessId} options={[{ value: "parent", label: t("부모 PID 420", "Parent PID 420") }, { value: "child", label: t("자식 PID 421", "Child PID 421") }]} />
           <label>
             <span>{t("가상 주소", "Virtual address")}</span>
             <input aria-label={t("가상 주소 입력", "Virtual address input")} value={address} onChange={(event) => setAddress(event.target.value)} inputMode="text" spellCheck={false} />
           </label>
-          <label>
-            <span>{t("동작", "Operation")}</span>
-            <select aria-label={t("메모리 동작", "Memory operation")} value={operation} onChange={(event) => setOperation(event.target.value as MemoryOperation)}>
-              <option value="read">read</option>
-              <option value="write">write</option>
-              <option value="execute">execute</option>
-            </select>
-          </label>
+          <ChoiceField label={t("동작", "Operation")} value={operation} onValueChange={setOperation} options={[{ value: "read", label: "read" }, { value: "write", label: "write" }, { value: "execute", label: "execute" }]} />
           <label>
             <span>{t("쓸 값", "Write value")}</span>
             <input aria-label={t("쓸 byte 값", "Byte value to write")} type="number" min="0" max="255" value={writeValue} onChange={(event) => setWriteValue(event.target.value)} disabled={operation !== "write"} />
           </label>
-          <label className="memory-prediction-control">
-            <span>{t("결과 예측", "Predict result")}</span>
-            <select aria-label={t("접근 결과 예측", "Access result prediction")} value={prediction} onChange={(event) => setPrediction(event.target.value as MemoryPrediction | "")}>
-              <option value="">{t("예측 선택", "Choose a prediction")}</option>
-              <option value="mapped">mapped</option>
-              <option value="cow-copy">COW copy + resume</option>
-              <option value="demand-zero">demand-zero + resume</option>
-              <option value="protection-fault">protection fault</option>
-              <option value="segmentation-fault">unmapped → SIGSEGV</option>
-            </select>
-          </label>
+          <ChoiceField className="memory-prediction-control" label={t("결과 예측", "Predict result")} value={prediction} onValueChange={setPrediction} options={[
+            { value: "mapped", label: "mapped" },
+            { value: "cow-copy", label: "COW copy + resume" },
+            { value: "demand-zero", label: "demand-zero + resume" },
+            { value: "protection-fault", label: "protection fault" },
+            { value: "segmentation-fault", label: "unmapped → SIGSEGV" },
+          ]} />
           <button type="button" className="button button-primary memory-run-access" onClick={runAccess}>{t("CPU 접근 실행·판정", "Run and evaluate CPU access")}</button>
         </div>
 

@@ -5,6 +5,7 @@ import {
   PublicationPreviewProvider,
 } from "../components/PublicationPreview";
 import { getChapterPage } from "../features/chapters/chapter-pages";
+import { buildChapterNavigationAccess } from "../features/chapters/chapter-navigation";
 import { getAdminPublicationPreview } from "../features/publication/publication.functions";
 
 export const Route = createFileRoute(
@@ -47,7 +48,7 @@ export const Route = createFileRoute(
 
 function ChapterPreviewRoute() {
   const { curriculumSlug, chapterSlug } = Route.useParams();
-  const { curriculum } = Route.useLoaderData();
+  const { catalog, curriculum } = Route.useLoaderData();
   const ChapterPage = getChapterPage(curriculumSlug, chapterSlug);
   if (!ChapterPage) throw notFound();
   const chapterKo = curriculum.chapters.ko.find(
@@ -78,6 +79,7 @@ function ChapterPreviewRoute() {
         curriculumSlug={curriculumSlug}
         chapterSlug={chapterSlug}
         learnerCount={0}
+        navigation={buildChapterNavigationAccess(catalog, true)}
       />
     </PublicationPreviewProvider>
   );

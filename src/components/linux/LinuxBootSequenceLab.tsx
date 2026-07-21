@@ -13,6 +13,7 @@ import {
   type BootSimulation,
   type BootStageId,
 } from "../../features/linux-runtime/boot-sequence";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 
 const eventCopy: Record<BootEventCode, { ko: string; en: string }> = {
@@ -212,82 +213,58 @@ export function LinuxBootSequenceLab({
       </div>
 
       <div className="boot-config-grid">
-        <label>
-          <span>{t("펌웨어 다음 대상", "Target after firmware")}</span>
-          <select
-            aria-label={t("펌웨어 다음 대상", "Target after firmware")}
-            value={config.kernelTarget}
-            onChange={(event) => updateConfig(
-              "kernelTarget",
-              event.target.value as BootConfig["kernelTarget"],
-            )}
-          >
-            <option value="missing">{t("연결된 커널 없음", "No kernel attached")}</option>
-            <option value="buildroot-kernel">buildroot-bzimage68.bin</option>
-          </select>
-        </label>
-        <label>
-          <span>{t("커널이 마운트할 루트", "Root mounted by the kernel")}</span>
-          <select
-            aria-label={t("커널이 마운트할 루트", "Root mounted by the kernel")}
-            value={config.rootFilesystem}
-            onChange={(event) => updateConfig(
-              "rootFilesystem",
-              event.target.value as BootConfig["rootFilesystem"],
-            )}
-          >
-            <option value="embedded-rootfs">{t("제공된 Buildroot rootfs", "Supplied Buildroot rootfs")}</option>
-            <option value="unavailable">{t("찾을 수 없는 rootfs", "Unavailable rootfs")}</option>
-          </select>
-        </label>
-        <label>
-          <span>{t("첫 사용자 공간 프로그램", "First userspace program")}</span>
-          <select
-            aria-label={t("첫 사용자 공간 프로그램", "First userspace program")}
-            value={config.initPath}
-            onChange={(event) => updateConfig(
-              "initPath",
-              event.target.value as BootConfig["initPath"],
-            )}
-          >
-            <option value="/sbin/init">/sbin/init</option>
-            <option value="/missing">/missing</option>
-          </select>
-        </label>
-        <label>
-          <span>{t("init의 콘솔 동작", "Init console action")}</span>
-          <select
-            aria-label={t("init의 콘솔 동작", "Init console action")}
-            value={config.initAction}
-            onChange={(event) => updateConfig(
-              "initAction",
-              event.target.value as BootConfig["initAction"],
-            )}
-          >
-            <option value="start-serial-shell">{t("직렬 셸 시작", "Start serial shell")}</option>
-            <option value="no-shell">{t("셸 서비스 시작 안 함", "Do not start a shell")}</option>
-          </select>
-        </label>
+        <ChoiceField
+          label={t("펌웨어 다음 대상", "Target after firmware")}
+          value={config.kernelTarget}
+          onValueChange={(value) => updateConfig("kernelTarget", value)}
+          options={[
+            { value: "missing", label: t("연결된 커널 없음", "No kernel attached") },
+            { value: "buildroot-kernel", label: "buildroot-bzimage68.bin" },
+          ]}
+        />
+        <ChoiceField
+          label={t("커널이 마운트할 루트", "Root mounted by the kernel")}
+          value={config.rootFilesystem}
+          onValueChange={(value) => updateConfig("rootFilesystem", value)}
+          options={[
+            { value: "embedded-rootfs", label: t("제공된 Buildroot rootfs", "Supplied Buildroot rootfs") },
+            { value: "unavailable", label: t("찾을 수 없는 rootfs", "Unavailable rootfs") },
+          ]}
+        />
+        <ChoiceField
+          label={t("첫 사용자 공간 프로그램", "First userspace program")}
+          value={config.initPath}
+          onValueChange={(value) => updateConfig("initPath", value)}
+          options={[
+            { value: "/sbin/init", label: "/sbin/init" },
+            { value: "/missing", label: "/missing" },
+          ]}
+        />
+        <ChoiceField
+          label={t("init의 콘솔 동작", "Init console action")}
+          value={config.initAction}
+          onValueChange={(value) => updateConfig("initAction", value)}
+          options={[
+            { value: "start-serial-shell", label: t("직렬 셸 시작", "Start serial shell") },
+            { value: "no-shell", label: t("셸 서비스 시작 안 함", "Do not start a shell") },
+          ]}
+        />
       </div>
 
       <div className="boot-prediction-panel">
-        <label>
-          <span>{t("실행 전 예측 · 이 설정은 어디까지 갈까요?", "Predict before running · How far will this configuration go?")}</span>
-          <select
-            aria-label={t("예상 부팅 결과", "Predicted boot outcome")}
-            value={prediction}
-            onChange={(event) => {
-              setPrediction(event.target.value as BootPredictionId);
-              setPredictionResult(null);
-              clearMastery();
-            }}
-          >
-            <option value="" disabled>{t("결과를 먼저 예측하세요", "Predict the result first")}</option>
-            {bootPredictionIds.map((outcome) => (
-              <option key={outcome} value={outcome}>{predictionCopy[outcome][locale]}</option>
-            ))}
-          </select>
-        </label>
+        <ChoiceField
+          label={t("실행 전 예측 · 이 설정은 어디까지 갈까요?", "Predict before running · How far will this configuration go?")}
+          value={prediction}
+          onValueChange={(value) => {
+            setPrediction(value);
+            setPredictionResult(null);
+            clearMastery();
+          }}
+          options={[
+            { value: "", label: t("결과를 먼저 예측하세요", "Predict the result first"), disabled: true },
+            ...bootPredictionIds.map((outcome) => ({ value: outcome, label: predictionCopy[outcome][locale] })),
+          ]}
+        />
         <div className="boot-prediction-feedback" role="status" aria-live="polite">
           {predictionResult ? (
             <>

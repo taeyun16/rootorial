@@ -3,6 +3,7 @@ import { setResponseHeader } from "@tanstack/react-start/server";
 import { env } from "cloudflare:workers";
 import { getCurriculum } from "../../data/curriculum";
 import { currentAdmin, privateResponse } from "../admin/admin-auth.server";
+import { buildChapterNavigationAccess } from "../chapters/chapter-navigation";
 import {
   chapterPublicationKey,
   curriculumPublicationKey,
@@ -85,7 +86,15 @@ export const getPublicCurriculumPublication = createServerFn({ method: "GET" })
           curriculumPublicationKey(prerequisiteSlug),
         )
       : false;
-    return { item: page.item, prerequisiteAvailable };
+    const continuationSlug =
+      page.item.curriculum.recommendedContinuation?.curriculumSlug;
+    const continuationAvailable = continuationSlug
+      ? isPublicationAccessible(
+          page.catalog,
+          curriculumPublicationKey(continuationSlug),
+        )
+      : false;
+    return { item: page.item, prerequisiteAvailable, continuationAvailable };
   });
 
 export const getPublicChapterPublication = createServerFn({ method: "GET" })
@@ -134,6 +143,7 @@ export const getPublicChapterPublication = createServerFn({ method: "GET" })
       curriculum: publicCurriculum,
       publication: chapterPublication,
       curriculumPublication,
+      navigation: buildChapterNavigationAccess(catalog, false),
     };
   });
 

@@ -85,6 +85,7 @@ function ChapterRoute() {
             curriculumSlug={curriculumSlug}
             chapterSlug={chapterSlug}
             learnerCount={reach.chapters[chapterSlug]?.learners ?? 0}
+            navigation={publication.navigation}
           />
         </LearningAnalyticsProvider>
       </CourseAccessTracker>

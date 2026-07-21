@@ -9,6 +9,7 @@ import {
   type BootFailureScenarioId,
   type BootRepairId,
 } from "../../features/linux-runtime/boot-sequence";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 
 const scenarioCopy: Record<
@@ -220,38 +221,8 @@ export function LinuxBootFailureLab({
               <legend>{scenario.title[locale]}</legend>
               <pre aria-label={t(`${scenario.title.ko} 부팅 로그`, `${scenario.title.en} boot log`)}>{scenario.log}</pre>
               <p>{scenario.clue[locale]}</p>
-              <label>
-                <span>{t("가장 이른 고장 경계", "Earliest failed boundary")}</span>
-                <select
-                  value={answer?.boundary ?? ""}
-                  onChange={(event) => updateAnswer(
-                    scenarioId,
-                    "boundary",
-                    event.target.value as BootBoundaryId,
-                  )}
-                >
-                  <option value="" disabled>{t("경계 선택", "Choose a boundary")}</option>
-                  {bootBoundaryIds.map((boundary) => (
-                    <option value={boundary} key={boundary}>{boundaryCopy[boundary][locale]}</option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                <span>{t("가장 작은 복구 조치", "Smallest repair")}</span>
-                <select
-                  value={answer?.repair ?? ""}
-                  onChange={(event) => updateAnswer(
-                    scenarioId,
-                    "repair",
-                    event.target.value as BootRepairId,
-                  )}
-                >
-                  <option value="" disabled>{t("복구 선택", "Choose a repair")}</option>
-                  {bootRepairIds.map((repair) => (
-                    <option value={repair} key={repair}>{repairCopy[repair][locale]}</option>
-                  ))}
-                </select>
-              </label>
+              <ChoiceField label={t("가장 이른 고장 경계", "Earliest failed boundary")} value={answer?.boundary ?? ""} onValueChange={(value) => updateAnswer(scenarioId, "boundary", value)} options={bootBoundaryIds.map((boundary) => ({ value: boundary, label: boundaryCopy[boundary][locale] }))} />
+              <ChoiceField label={t("가장 작은 복구 조치", "Smallest repair")} value={answer?.repair ?? ""} onValueChange={(value) => updateAnswer(scenarioId, "repair", value)} options={bootRepairIds.map((repair) => ({ value: repair, label: repairCopy[repair][locale] }))} />
               <button
                 type="button"
                 className="button button-secondary"

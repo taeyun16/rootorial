@@ -381,14 +381,35 @@ const readinessCopy = {
   },
 } as const;
 
+const continuationCopy = {
+  ko: {
+    eyebrow: "다음 학습 경로",
+    advisory: "현재 과정의 증거를 그대로 이어서 사용합니다",
+    title: "완료 뒤 다음 경계로 확장하세요",
+    summary: "다음 커리큘럼 범위",
+    open: "다음 커리큘럼 보기",
+    draft: "다음 커리큘럼 공개 준비 중",
+  },
+  en: {
+    eyebrow: "NEXT LEARNING PATH",
+    advisory: "Carry the same evidence into the next boundary",
+    title: "Extend the model after completion",
+    summary: "Next curriculum scope",
+    open: "View the next curriculum",
+    draft: "The next curriculum is still in draft",
+  },
+} as const;
+
 export function CurriculumHome({
   item,
   prerequisiteAvailable = false,
+  continuationAvailable = false,
   reach,
   preview = false,
 }: {
   item: PublicCurriculumCatalogItem;
   prerequisiteAvailable?: boolean;
+  continuationAvailable?: boolean;
   reach: PublicCurriculumReach;
   preview?: boolean;
 }) {
@@ -415,6 +436,10 @@ export function CurriculumHome({
   const recommendedPrerequisite = curriculum.recommendedPrerequisite;
   const prerequisiteCurriculum = recommendedPrerequisite
     ? getCurriculum(recommendedPrerequisite.curriculumSlug)
+    : undefined;
+  const recommendedContinuation = curriculum.recommendedContinuation;
+  const continuationCurriculum = recommendedContinuation
+    ? getCurriculum(recommendedContinuation.curriculumSlug)
     : undefined;
   const visibleChapterIds = new Set(chapters.map((chapter) => chapter.id));
   const completedInCurriculum = completed.filter((id) =>
@@ -684,6 +709,58 @@ export function CurriculumHome({
           })}
         </div>
       </section>
+
+      {recommendedContinuation && continuationCurriculum ? (
+        <section
+          className="curriculum-readiness curriculum-continuation"
+          aria-labelledby="curriculum-continuation-title"
+          data-continuation="recommended"
+        >
+          <div className="curriculum-readiness-heading">
+            <div>
+              <p className="section-index">{continuationCopy[locale].eyebrow}</p>
+              <h2 id="curriculum-continuation-title">{continuationCopy[locale].title}</h2>
+            </div>
+            <span className="curriculum-readiness-advisory">
+              {continuationCopy[locale].advisory}
+            </span>
+          </div>
+          <div className="curriculum-readiness-card">
+            <div className="curriculum-readiness-copy">
+              <h3>{continuationCurriculum.title[locale]}</h3>
+              <p>{recommendedContinuation.reason[locale]}</p>
+              <div className="curriculum-readiness-scope">
+                <strong>{continuationCopy[locale].summary}</strong>
+                <span>{continuationCurriculum.summary[locale]}</span>
+              </div>
+            </div>
+            {preview ? (
+              <a
+                className="curriculum-readiness-link"
+                href={`/admin/preview/curricula/${continuationCurriculum.slug}${locale === "en" ? "?lang=en" : ""}`}
+              >
+                {continuationCopy[locale].open} <span aria-hidden="true">→</span>
+              </a>
+            ) : continuationAvailable ? (
+              <Link
+                className="curriculum-readiness-link"
+                to="/curricula/$curriculumSlug"
+                params={{ curriculumSlug: continuationCurriculum.slug }}
+                search={locale === "en" ? { lang: "en" } : {}}
+              >
+                {continuationCopy[locale].open} <span aria-hidden="true">→</span>
+              </Link>
+            ) : (
+              <span
+                className="curriculum-readiness-link is-disabled"
+                aria-disabled="true"
+              >
+                {continuationCopy[locale].draft}
+              </span>
+            )}
+          </div>
+        </section>
+      ) : null}
 
       <footer className="site-footer">
         <div>

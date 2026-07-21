@@ -10,6 +10,7 @@ import {
   type PermissionIncidentPatch,
   type PermissionOperation,
 } from "../../features/linux-runtime/users-and-permissions";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { PermissionStateView } from "./PermissionStateView";
 
@@ -308,19 +309,18 @@ export function LinuxPermissionIncidentLab({
                 compact
               />
 
-              <label>
-                <span>{t("적용할 repair", "Repair to apply")}</span>
-                <select
-                  value={answer ?? ""}
-                  disabled={solved}
-                  onChange={(event) => chooseRepair(id, event.currentTarget.value as PermissionIncidentPatch)}
-                >
-                  <option value="" disabled>{t("수리 선택", "Choose a repair")}</option>
-                  {patchesFor(id).map((patch) => (
-                    <option value={patch} key={patch}>{patchCopy[patch][locale]}</option>
-                  ))}
-                </select>
-              </label>
+              <ChoiceField
+                label={t("적용할 repair", "Repair to apply")}
+                value={answer ?? ""}
+                disabled={solved}
+                onValueChange={(value) => {
+                  if (value) chooseRepair(id, value);
+                }}
+                options={[
+                  { value: "", label: t("수리 선택", "Choose a repair"), disabled: true },
+                  ...patchesFor(id).map((patch) => ({ value: patch, label: patchCopy[patch][locale] })),
+                ]}
+              />
 
               <div className="permission-incident-actions">
                 <button

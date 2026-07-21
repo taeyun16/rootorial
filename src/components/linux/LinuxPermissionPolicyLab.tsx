@@ -17,6 +17,7 @@ import {
   type PermissionWorkspace,
   type PermissionWorkspacePresetId,
 } from "../../features/linux-runtime/users-and-permissions";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { PermissionStateView } from "./PermissionStateView";
 
@@ -75,7 +76,7 @@ export function LinuxPermissionPolicyLab({
   const { locale } = useLocale();
   const isKo = locale === "ko";
   const t = (ko: string, en: string) => isKo ? ko : en;
-  const actorRef = useRef<HTMLSelectElement>(null);
+  const actorRef = useRef<HTMLDivElement>(null);
   const [workspace, setWorkspace] = useState<PermissionWorkspace>(createPermissionWorkspace);
   const [preset, setPreset] = useState<PermissionWorkspacePresetId | null>("missing-traversal");
   const [actorId, setActorId] = useState<PermissionUserId>("joon");
@@ -318,28 +319,13 @@ export function LinuxPermissionPolicyLab({
       <fieldset className="permission-probe-panel">
         <legend>{t("1 · 접근 결과 예측·실행", "1 · Predict and run an access request")}</legend>
         <div className="permission-probe-grid">
-          <label>
-            <span>{t("요청 프로세스", "Requesting process")}</span>
-            <select ref={actorRef} value={actorId} onChange={(event) => changeProbe({ actorId: event.currentTarget.value as PermissionUserId })}>
-              <option value="mina">Mina · uid 1001</option>
-              <option value="joon">Joon · uid 1002 · +reviewers</option>
-              <option value="guest">Guest · uid 1003</option>
-            </select>
-          </label>
-          <label>
-            <span>{t("요청 동작", "Requested operation")}</span>
-            <select value={operation} onChange={(event) => changeProbe({ operation: event.currentTarget.value as PermissionOperation })}>
-              {(Object.keys(operationCopy) as PermissionOperation[]).map((id) => <option value={id} key={id}>{operationCopy[id][locale]}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>{t("결과 예측", "Predict result")}</span>
-            <select value={prediction} onChange={(event) => setPrediction(event.currentTarget.value as Prediction)}>
-              <option value="">{t("허용/거부 선택", "Choose allow or deny")}</option>
-              <option value="allow">ALLOW</option>
-              <option value="deny">DENY</option>
-            </select>
-          </label>
+          <ChoiceField rootRef={actorRef} label={t("요청 프로세스", "Requesting process")} value={actorId} onValueChange={(value) => changeProbe({ actorId: value })} options={[
+            { value: "mina", label: "Mina · uid 1001" },
+            { value: "joon", label: "Joon · uid 1002 · +reviewers" },
+            { value: "guest", label: "Guest · uid 1003" },
+          ]} />
+          <ChoiceField label={t("요청 동작", "Requested operation")} value={operation} onValueChange={(value) => changeProbe({ operation: value })} options={(Object.keys(operationCopy) as PermissionOperation[]).map((id) => ({ value: id, label: operationCopy[id][locale] }))} />
+          <ChoiceField label={t("결과 예측", "Predict result")} value={prediction} onValueChange={setPrediction} options={[{ value: "allow", label: "ALLOW" }, { value: "deny", label: "DENY" }]} />
           <button type="button" className="button button-primary" disabled={!prediction} onClick={runProbe}>{t("접근 요청 실행·판정", "Run and grade access")}</button>
         </div>
       </fieldset>
@@ -347,13 +333,7 @@ export function LinuxPermissionPolicyLab({
       <fieldset className="permission-chmod-panel">
         <legend>{t("2 · chmod로 정책 조립", "2 · Assemble the policy with chmod")}</legend>
         <div className="permission-chmod-grid">
-          <label>
-            <span>{t("chmod 대상", "chmod target")}</span>
-            <select value={target} onChange={(event) => setTarget(event.currentTarget.value as PermissionTarget)}>
-              <option value="directory">/srv/release · directory</option>
-              <option value="file">/srv/release/plan.txt · file</option>
-            </select>
-          </label>
+          <ChoiceField label={t("chmod 대상", "chmod target")} value={target} onValueChange={setTarget} options={[{ value: "directory", label: "/srv/release · directory" }, { value: "file", label: "/srv/release/plan.txt · file" }]} />
           <label>
             <span>{t("mode 표현", "Mode expression")}</span>
             <input

@@ -8,6 +8,7 @@ import {
   type TinyLinuxIncidentSubmission,
 } from "../../features/linux-runtime/assemble-a-tiny-linux";
 import { useLocale } from "../../features/localization/localization";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 
 type IncidentAnswers = Partial<Record<TinyLinuxIncidentId, TinyLinuxIncidentSubmission>>;
@@ -63,7 +64,7 @@ export function LinuxTinySystemIncidentLab({
   const { locale } = useLocale();
   const isKo = locale === "ko";
   const t = (ko: string, en: string) => isKo ? ko : en;
-  const firstControlRef = useRef<HTMLSelectElement>(null);
+  const firstControlRef = useRef<HTMLDivElement>(null);
   const [answers, setAnswers] = useState<IncidentAnswers>({});
   const [results, setResults] = useState<IncidentResults>({});
   const [engineError, setEngineError] = useState("");
@@ -158,18 +159,17 @@ export function LinuxTinySystemIncidentLab({
     label: string,
     inputRef?: typeof firstControlRef,
   ) => (
-    <label>
-      <span>{label}</span>
-      <select
-        ref={inputRef}
-        value={String(answers[id]?.[key] ?? "")}
-        onChange={(event) => updateAnswer(id, key, event.target.value ? event.target.value === "true" : undefined)}
-      >
-        <option value="">—</option>
-        <option value="true">true</option>
-        <option value="false">false</option>
-      </select>
-    </label>
+    <ChoiceField
+      label={label}
+      rootRef={inputRef}
+      value={String(answers[id]?.[key] ?? "")}
+      onValueChange={(value) => updateAnswer(id, key, value ? value === "true" : undefined)}
+      options={[
+        { value: "", label: "—" },
+        { value: "true", label: "true" },
+        { value: "false", label: "false" },
+      ]}
+    />
   );
 
   return (
@@ -212,7 +212,7 @@ export function LinuxTinySystemIncidentLab({
 
               {id === "init-handoff" ? (
                 <div className="tiny-system-incident-controls">
-                  <label><span>{t("PID 1 경로", "PID 1 path")}</span><select ref={index === 0 ? firstControlRef : undefined} aria-label={t("init 사건 PID 1 경로", "Init incident PID 1 path")} value={answers[id]?.initPath ?? ""} onChange={(event) => updateAnswer(id, "initPath", event.target.value as TinyLinuxIncidentSubmission["initPath"])}><option value="">—</option><option value="/sbin/init">/sbin/init</option><option value="/init">/init</option></select></label>
+                  <ChoiceField label={t("PID 1 경로", "PID 1 path")} rootRef={index === 0 ? firstControlRef : undefined} value={answers[id]?.initPath ?? ""} onValueChange={(value) => updateAnswer(id, "initPath", value)} options={[{ value: "", label: "—" }, { value: "/sbin/init", label: "/sbin/init" }, { value: "/init", label: "/init" }]} />
                   {selectBoolean(id, "preserveKernel", t("기존 kernel 보존", "Preserve existing kernel"))}
                   {selectBoolean(id, "preserveInitramfs", t("기존 initramfs 보존", "Preserve existing initramfs"))}
                 </div>
@@ -220,8 +220,8 @@ export function LinuxTinySystemIncidentLab({
 
               {id === "pid1-supervision" ? (
                 <div className="tiny-system-incident-controls">
-                  <label><span>{t("zombie 처리", "Zombie action")}</span><select aria-label={t("PID 1 사건 zombie 처리", "PID 1 incident zombie action")} value={answers[id]?.reapAction ?? ""} onChange={(event) => updateAnswer(id, "reapAction", event.target.value as TinyLinuxIncidentSubmission["reapAction"])}><option value="">—</option><option value="wait-child">wait(child)</option><option value="signal-zombie">signal(zombie)</option><option value="replace-pid1">replace PID 1</option></select></label>
-                  <label><span>{t("서비스 재시작", "Service restart")}</span><select aria-label={t("PID 1 사건 서비스 재시작", "PID 1 incident service restart")} value={answers[id]?.restartAction ?? ""} onChange={(event) => updateAnswer(id, "restartAction", event.target.value as TinyLinuxIncidentSubmission["restartAction"])}><option value="">—</option><option value="spawn-child">spawn child</option><option value="replace-pid1">replace PID 1</option><option value="none">none</option></select></label>
+                  <ChoiceField label={t("zombie 처리", "Zombie action")} value={answers[id]?.reapAction ?? ""} onValueChange={(value) => updateAnswer(id, "reapAction", value)} options={[{ value: "", label: "—" }, { value: "wait-child", label: "wait(child)" }, { value: "signal-zombie", label: "signal(zombie)" }, { value: "replace-pid1", label: "replace PID 1" }]} />
+                  <ChoiceField label={t("서비스 재시작", "Service restart")} value={answers[id]?.restartAction ?? ""} onValueChange={(value) => updateAnswer(id, "restartAction", value)} options={[{ value: "", label: "—" }, { value: "spawn-child", label: "spawn child" }, { value: "replace-pid1", label: "replace PID 1" }, { value: "none", label: "none" }]} />
                   <label><span>{t("새 PID", "New PID")}</span><input aria-label={t("PID 1 사건 새 PID", "PID 1 incident new PID")} type="number" inputMode="numeric" value={answers[id]?.restartedPid ?? ""} onChange={(event) => updateAnswer(id, "restartedPid", numberValue(event.target.value))} /></label>
                   <label><span>{t("새 PPID", "New PPID")}</span><input aria-label={t("PID 1 사건 새 PPID", "PID 1 incident new PPID")} type="number" inputMode="numeric" value={answers[id]?.restartedPpid ?? ""} onChange={(event) => updateAnswer(id, "restartedPpid", numberValue(event.target.value))} /></label>
                   {selectBoolean(id, "pid1Remains", t("PID 1 유지", "PID 1 remains"))}
@@ -230,18 +230,18 @@ export function LinuxTinySystemIncidentLab({
 
               {id === "report-access" ? (
                 <div className="tiny-system-incident-controls">
-                  <label><span>reportd UID</span><select aria-label={t("권한 사건 service UID", "Permission incident service UID")} value={answers[id]?.serviceUid ?? ""} onChange={(event) => updateAnswer(id, "serviceUid", numberValue(event.target.value))}><option value="">—</option><option value="0">0 · root</option><option value="1100">1100 · report</option></select></label>
-                  <label><span>reportd GID</span><select aria-label={t("권한 사건 service GID", "Permission incident service GID")} value={answers[id]?.serviceGid ?? ""} onChange={(event) => updateAnswer(id, "serviceGid", numberValue(event.target.value))}><option value="">—</option><option value="0">0 · root</option><option value="4000">4000 · report</option></select></label>
-                  <label><span>/srv mode</span><select aria-label={t("권한 사건 directory mode", "Permission incident directory mode")} value={answers[id]?.directoryMode ?? ""} onChange={(event) => updateAnswer(id, "directoryMode", event.target.value)}><option value="">—</option><option value="0750">0750</option><option value="0777">0777</option></select></label>
-                  <label><span>report group</span><select aria-label={t("권한 사건 report group", "Permission incident report group")} value={answers[id]?.reportGroupGid ?? ""} onChange={(event) => updateAnswer(id, "reportGroupGid", numberValue(event.target.value))}><option value="">—</option><option value="0">0 · root</option><option value="4000">4000 · report</option></select></label>
-                  <label><span>report mode</span><select aria-label={t("권한 사건 report mode", "Permission incident report mode")} value={answers[id]?.reportMode ?? ""} onChange={(event) => updateAnswer(id, "reportMode", event.target.value)}><option value="">—</option><option value="0600">0600</option><option value="0640">0640</option><option value="0666">0666</option></select></label>
+                  <ChoiceField label="reportd UID" value={String(answers[id]?.serviceUid ?? "")} onValueChange={(value) => updateAnswer(id, "serviceUid", numberValue(value))} options={[{ value: "", label: "—" }, { value: "0", label: "0 · root" }, { value: "1100", label: "1100 · report" }]} />
+                  <ChoiceField label="reportd GID" value={String(answers[id]?.serviceGid ?? "")} onValueChange={(value) => updateAnswer(id, "serviceGid", numberValue(value))} options={[{ value: "", label: "—" }, { value: "0", label: "0 · root" }, { value: "4000", label: "4000 · report" }]} />
+                  <ChoiceField label="/srv mode" value={answers[id]?.directoryMode ?? ""} onValueChange={(value) => updateAnswer(id, "directoryMode", value)} options={[{ value: "", label: "—" }, { value: "0750", label: "0750" }, { value: "0777", label: "0777" }]} />
+                  <ChoiceField label="report group" value={String(answers[id]?.reportGroupGid ?? "")} onValueChange={(value) => updateAnswer(id, "reportGroupGid", numberValue(value))} options={[{ value: "", label: "—" }, { value: "0", label: "0 · root" }, { value: "4000", label: "4000 · report" }]} />
+                  <ChoiceField label="report mode" value={answers[id]?.reportMode ?? ""} onValueChange={(value) => updateAnswer(id, "reportMode", value)} options={[{ value: "", label: "—" }, { value: "0600", label: "0600" }, { value: "0640", label: "0640" }, { value: "0666", label: "0666" }]} />
                 </div>
               ) : null}
 
               {id === "remote-listener" ? (
                 <div className="tiny-system-incident-controls">
-                  <label><span>{t("listen 주소", "Listen address")}</span><select aria-label={t("listener 사건 listen 주소", "Listener incident listen address")} value={answers[id]?.listenAddress ?? ""} onChange={(event) => updateAnswer(id, "listenAddress", event.target.value)}><option value="">—</option><option value="127.0.0.1">127.0.0.1</option><option value="0.0.0.0">0.0.0.0</option></select></label>
-                  <label><span>{t("listen port", "Listen port")}</span><select aria-label={t("listener 사건 listen port", "Listener incident listen port")} value={answers[id]?.listenPort ?? ""} onChange={(event) => updateAnswer(id, "listenPort", numberValue(event.target.value))}><option value="">—</option><option value="8080">8080</option><option value="8081">8081</option></select></label>
+                  <ChoiceField label={t("listen 주소", "Listen address")} value={answers[id]?.listenAddress ?? ""} onValueChange={(value) => updateAnswer(id, "listenAddress", value)} options={[{ value: "", label: "—" }, { value: "127.0.0.1", label: "127.0.0.1" }, { value: "0.0.0.0", label: "0.0.0.0" }]} />
+                  <ChoiceField label={t("listen port", "Listen port")} value={String(answers[id]?.listenPort ?? "")} onValueChange={(value) => updateAnswer(id, "listenPort", numberValue(value))} options={[{ value: "", label: "—" }, { value: "8080", label: "8080" }, { value: "8081", label: "8081" }]} />
                   {(["listenerFd", "acceptedFd", "fileFd", "sendFd"] as const).map((key) => <label key={key}><span>{key}</span><input aria-label={t(`listener 사건 ${key}`, `Listener incident ${key}`)} type="number" inputMode="numeric" value={answers[id]?.[key] ?? ""} onChange={(event) => updateAnswer(id, key, numberValue(event.target.value))} /></label>)}
                 </div>
               ) : null}

@@ -18,6 +18,7 @@ export const Route = createFileRoute("/curricula/$curriculumSlug")({
     return {
       item: page.item,
       prerequisiteAvailable: page.prerequisiteAvailable,
+      continuationAvailable: page.continuationAvailable,
       reach,
     };
   },
@@ -50,7 +51,12 @@ export const Route = createFileRoute("/curricula/$curriculumSlug")({
 
 function CurriculumRoute() {
   const { curriculumSlug } = Route.useParams();
-  const { item, prerequisiteAvailable, reach } = Route.useLoaderData();
+  const {
+    item,
+    prerequisiteAvailable,
+    continuationAvailable,
+    reach,
+  } = Route.useLoaderData();
   const metadata = {
     ko: {
       title: `${item.curriculum.title.ko} · Rootorial`,
@@ -68,6 +74,7 @@ function CurriculumRoute() {
         <CurriculumHome
           item={item}
           prerequisiteAvailable={prerequisiteAvailable}
+          continuationAvailable={continuationAvailable}
           reach={reach}
         />
       </CourseAccessTracker>

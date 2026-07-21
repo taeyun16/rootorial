@@ -7,6 +7,7 @@ import {
   type MemoryIncidentSubmission,
 } from "../../features/linux-runtime/memory-and-virtual-addresses";
 import { useLocale } from "../../features/localization/localization";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 
 type Draft = Record<string, string>;
@@ -154,8 +155,8 @@ export function LinuxMemoryDebuggerLab({
           <fieldset className={`memory-debug-card ${evaluations["tlb-miss"]?.correct ? "is-correct" : evaluations["tlb-miss"] ? "is-incorrect" : ""}`}>
             <legend>02 · {t("TLB miss를 fault로 오진", "TLB miss misdiagnosed as a fault")}</legend>
             <p>TLB=miss · PTE[0x4]: present=1, r=1</p>
-            <label><span>PTE</span><select aria-label={t("TLB 사건 PTE 상태", "TLB incident PTE state")} value={drafts["tlb-miss"].ptePresent ?? ""} onChange={(event) => setField("tlb-miss", "ptePresent", event.target.value)}><option value="">—</option><option value="present">present</option><option value="absent">not present</option></select></label>
-            <label><span>{t("다음 동작", "Next action")}</span><select aria-label={t("TLB miss 다음 동작", "Action after TLB miss")} value={drafts["tlb-miss"].tlbOutcome ?? ""} onChange={(event) => setField("tlb-miss", "tlbOutcome", event.target.value)}><option value="">—</option><option value="page-table-walk">page-table walk + fill</option><option value="page-fault">page fault</option><option value="segmentation-fault">SIGSEGV</option></select></label>
+            <ChoiceField label="PTE" value={drafts["tlb-miss"].ptePresent ?? ""} onValueChange={(value) => setField("tlb-miss", "ptePresent", value)} options={[{ value: "present", label: "present" }, { value: "absent", label: "not present" }]} />
+            <ChoiceField label={t("다음 동작", "Next action")} value={drafts["tlb-miss"].tlbOutcome ?? ""} onValueChange={(value) => setField("tlb-miss", "tlbOutcome", value)} options={[{ value: "page-table-walk", label: "page-table walk + fill" }, { value: "page-fault", label: "page fault" }, { value: "segmentation-fault", label: "SIGSEGV" }]} />
             <button type="button" className="button button-primary" onClick={() => audit("tlb-miss")}>{t("trace 실행·진단", "Run trace and diagnose")}</button>
             {evaluations["tlb-miss"] ? <p className="memory-debug-feedback" role="status" aria-live="polite">{feedbackFor("tlb-miss", evaluations["tlb-miss"])}</p> : null}
           </fieldset>
@@ -176,7 +177,11 @@ export function LinuxMemoryDebuggerLab({
             <pre>{`004000-006000 r-xp app\n010000-013000 rw-p [heap]\n07f000-080000 rw-p [stack]\nmincore: 10 | 010 | 1`}</pre>
             <label><span>{t("mapped page 수", "Mapped pages")}</span><input type="number" aria-label={t("maps 사건 mapped page 수", "Maps incident mapped page count")} value={drafts["maps-residency"].mappedPages ?? ""} onChange={(event) => setField("maps-residency", "mappedPages", event.target.value)} /></label>
             <label><span>{t("resident page 수", "Resident pages")}</span><input type="number" aria-label={t("maps 사건 resident page 수", "Maps incident resident page count")} value={drafts["maps-residency"].residentPages ?? ""} onChange={(event) => setField("maps-residency", "residentPages", event.target.value)} /></label>
-            <label><span>{t("결론", "Conclusion")}</span><select aria-label={t("maps와 residency 결론", "Maps and residency conclusion")} value={drafts["maps-residency"].residencyConclusion ?? ""} onChange={(event) => setField("maps-residency", "residencyConclusion", event.target.value)}><option value="">—</option><option value="all-mapped-resident">{t("mapped면 모두 resident", "Every mapped page is resident")}</option><option value="mapped-not-resident">{t("mapping과 residency는 별도", "Mapping and residency are distinct")}</option><option value="rss-is-virtual">{t("RSS가 virtual 범위", "RSS is the virtual range")}</option></select></label>
+            <ChoiceField label={t("결론", "Conclusion")} value={drafts["maps-residency"].residencyConclusion ?? ""} onValueChange={(value) => setField("maps-residency", "residencyConclusion", value)} options={[
+              { value: "all-mapped-resident", label: t("mapped면 모두 resident", "Every mapped page is resident") },
+              { value: "mapped-not-resident", label: t("mapping과 residency는 별도", "Mapping and residency are distinct") },
+              { value: "rss-is-virtual", label: t("RSS가 virtual 범위", "RSS is the virtual range") },
+            ]} />
             <button type="button" className="button button-primary" onClick={() => audit("maps-residency")}>{t("수치 감사·진단", "Audit counts and diagnose")}</button>
             {evaluations["maps-residency"] ? <p className="memory-debug-feedback" role="status" aria-live="polite">{feedbackFor("maps-residency", evaluations["maps-residency"])}</p> : null}
           </fieldset>

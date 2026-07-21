@@ -149,6 +149,10 @@ test("renders the Linux sample curriculum in both locales", async () => {
   );
   assert.match(html, /href="\/experiments\/linux"/);
   assert.match(html, /Linux 실험 열기/);
+  assert.match(html, /data-continuation="recommended"/);
+  assert.match(html, /Linux 네트워킹을 바닥부터/);
+  assert.match(html, /다음 커리큘럼 공개 준비 중/);
+  assert.doesNotMatch(html, /href="\/curricula\/linux-networking"/);
   assert.match(html, /Linux 시스템을 바닥부터 · Rootorial/);
 
   const englishResponse = await render("/curricula/linux-systems?lang=en");
@@ -175,6 +179,10 @@ test("renders the interactive Linux shell and filesystem chapter", async () => {
   assert.match(html, /명령을 외우기보다 경로와 오류의 규칙을 설명해 보세요/);
   assert.match(html, /실제 Linux 부팅 실험 열기/);
   assert.match(html, /이 챕터 완료하기/);
+  assert.match(html, /class="continuous-chapter-nav-shell"/);
+  assert.match(html, /다음: 전원이 켜지고 셸이 뜨기까지/);
+  assert.match(html, /공개 준비 중/);
+  assert.doesNotMatch(html, /href="\/curricula\/linux-systems\/chapters\/boot-to-shell"/);
 
   const englishResponse = await render("/curricula/linux-systems/chapters/shell-and-filesystem?lang=en");
   assert.equal(englishResponse.status, 200);
@@ -375,6 +383,95 @@ test("keeps the new curriculum roadmaps draft-only on public URLs", async () => 
     [404, 404, 404, 404],
   );
   await Promise.all(responses.map((response) => response.text()));
+});
+
+test("SSR-locks each advanced Linux Networking visualization behind its prediction", async () => {
+  const chapters = [
+    ["routes-and-packet-paths", "route-prefix-bars"],
+    ["sockets-ports-and-tcp", "tcp-boundary-sequence"],
+    ["dns-and-service-reachability", "dns-ttl-timeline"],
+    ["diagnose-a-linux-network", "diagnostic-evidence-ladder"],
+  ];
+
+  for (const [chapterSlug, visualizationKey] of chapters) {
+    const rows = [
+      {
+        resource_key: "curriculum:linux-networking",
+        resource_kind: "curriculum",
+        curriculum_slug: "linux-networking",
+        chapter_slug: null,
+        publication_status: "published",
+        listing: "listed",
+        scheduled_at: null,
+        published_at: 1,
+        version: 1,
+        updated_by_user_id: "user_test",
+        created_at: 1,
+        updated_at: 1,
+      },
+      {
+        resource_key: `chapter:linux-networking/${chapterSlug}`,
+        resource_kind: "chapter",
+        curriculum_slug: "linux-networking",
+        chapter_slug: chapterSlug,
+        publication_status: "published",
+        listing: "listed",
+        scheduled_at: null,
+        published_at: 1,
+        version: 1,
+        updated_by_user_id: "user_test",
+        created_at: 1,
+        updated_at: 1,
+      },
+    ];
+    const response = await renderWithPublicationRows(
+      `/curricula/linux-networking/chapters/${chapterSlug}`,
+      rows,
+    );
+    assert.equal(response.status, 200);
+    const html = await response.text();
+    assert.match(html, new RegExp(`data-control-id="${chapterSlug}-prediction"`));
+    assert.match(html, /network-evidence-locked/);
+    assert.doesNotMatch(html, new RegExp(`data-visualization-key="${visualizationKey}"`));
+    assert.doesNotMatch(html, /<select\b/i);
+  }
+});
+
+test("activates the Linux continuation and next chapter only when publication allows it", async () => {
+  const publishedRow = (resourceKey, resourceKind, curriculumSlug, chapterSlug = null) => ({
+    resource_key: resourceKey,
+    resource_kind: resourceKind,
+    curriculum_slug: curriculumSlug,
+    chapter_slug: chapterSlug,
+    publication_status: "published",
+    listing: "listed",
+    scheduled_at: null,
+    published_at: 1,
+    version: 1,
+    updated_by_user_id: "user_test",
+    created_at: 1,
+    updated_at: 1,
+  });
+
+  const landingResponse = await renderWithPublicationRows(
+    "/curricula/linux-systems",
+    [publishedRow("curriculum:linux-networking", "curriculum", "linux-networking")],
+  );
+  assert.equal(landingResponse.status, 200);
+  const landingHtml = await landingResponse.text();
+  assert.match(landingHtml, /data-continuation="recommended"/);
+  assert.match(landingHtml, /href="\/curricula\/linux-networking"/);
+  assert.match(landingHtml, /다음 커리큘럼 보기/);
+
+  const chapterResponse = await renderWithPublicationRows(
+    "/curricula/linux-systems/chapters/shell-and-filesystem",
+    [publishedRow("chapter:linux-systems/boot-to-shell", "chapter", "linux-systems", "boot-to-shell")],
+  );
+  assert.equal(chapterResponse.status, 200);
+  const chapterHtml = await chapterResponse.text();
+  assert.match(chapterHtml, /class="continuous-chapter-nav-shell"/);
+  assert.match(chapterHtml, /href="\/curricula\/linux-systems\/chapters\/boot-to-shell"/);
+  assert.doesNotMatch(chapterHtml, /다음: 전원이 켜지고 셸이 뜨기까지[\s\S]*?공개 준비 중/);
 });
 
 test("renders an infrastructure-specific curriculum landing without Transformer content bleed", async () => {

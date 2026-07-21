@@ -23,6 +23,7 @@ import {
   type StoragePathPrediction,
 } from "../../features/linux-runtime/storage-and-filesystems";
 import { useLocale } from "../../features/localization/localization";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { StorageStateView } from "./StorageStateView";
 
@@ -322,7 +323,7 @@ export function LinuxStoragePathLab({
         <div className="storage-control-grid">
           <label className="storage-wide-control"><span>{t("절대 경로", "Absolute path")}</span><input aria-label={t("추적할 저장 경로", "Storage path to trace")} value={path} onChange={(event) => setPath(event.target.value)} spellCheck={false} /></label>
           <label><span>{t("파일 offset", "File offset")}</span><input aria-label={t("추적할 파일 offset", "File offset to trace")} value={offset} onChange={(event) => setOffset(event.target.value)} spellCheck={false} /></label>
-          <label><span>{t("filesystem 예측", "Predict filesystem")}</span><select aria-label={t("도착 filesystem 예측", "Predicted target filesystem")} value={prediction.device} onChange={(event) => setPrediction((current) => ({ ...current, device: event.target.value as StorageDeviceId | "" }))}><option value="">—</option><option value="rootfs">rootfs</option><option value="datafs">datafs</option></select></label>
+          <ChoiceField label={t("filesystem 예측", "Predict filesystem")} value={prediction.device} onValueChange={(value) => setPrediction((current) => ({ ...current, device: value }))} options={[{ value: "rootfs", label: "rootfs" }, { value: "datafs", label: "datafs" }]} />
           <label><span>inode</span><input aria-label={t("inode 번호 예측", "Predicted inode number")} value={prediction.inode} onChange={(event) => setPrediction((current) => ({ ...current, inode: event.target.value }))} inputMode="numeric" /></label>
           <label><span>logical block</span><input aria-label={t("logical block 예측", "Predicted logical block")} value={prediction.logicalBlock} onChange={(event) => setPrediction((current) => ({ ...current, logicalBlock: event.target.value }))} inputMode="numeric" /></label>
           <label><span>in-block offset</span><input aria-label={t("block 내부 offset 예측", "Predicted in-block offset")} value={prediction.inBlockOffset} onChange={(event) => setPrediction((current) => ({ ...current, inBlockOffset: event.target.value }))} spellCheck={false} /></label>

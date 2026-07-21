@@ -1,0 +1,40 @@
+.evidence-lens { display: grid; gap: 1rem; padding: 1rem 1.2rem 1.2rem; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); background: #f7f5ef; }
+.evidence-lens > header { display: grid; gap: .3rem; }
+.evidence-lens > header span { color: var(--journey-accent, var(--accent)); font: 800 .66rem var(--mono); letter-spacing: .1em; }
+.evidence-lens > header strong { font-size: .9rem; }
+.ranked-bar-chart { display: grid; gap: .55rem; }
+.ranked-bar-chart > div { display: grid; grid-template-columns: minmax(135px, .55fr) minmax(140px, 1fr) minmax(120px, .55fr) auto; align-items: center; gap: .75rem; min-width: 0; }
+.ranked-bar-chart code, .ranked-bar-chart small { font: 700 .72rem var(--mono); }
+.ranked-bar-chart > div > span { height: 12px; background: #dedbd2; }
+.ranked-bar-chart i { display: block; height: 100%; background: #9da29d; }
+.ranked-bar-chart .is-selected i { background: var(--journey-accent, var(--accent)); }
+.ranked-bar-chart b { color: var(--journey-accent, var(--accent)); font: 800 .62rem var(--mono); text-align: right; }
+.boundary-sequence-actors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); }
+.boundary-sequence-actors span { padding: .55rem; background: white; font: 800 .62rem var(--mono); text-align: center; }
+.boundary-sequence-lens ol { display: grid; grid-template-columns: repeat(6, 1fr); gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.boundary-sequence-lens li { min-width: 0; padding: .65rem; border: 1px solid #cbc8bf; background: white; opacity: .58; }
+.boundary-sequence-lens li.is-visited, .boundary-sequence-lens li.is-current { opacity: 1; }
+.boundary-sequence-lens li.is-current { border-color: var(--journey-accent, var(--accent)); box-shadow: inset 0 -4px var(--journey-accent, var(--accent)); }
+.boundary-sequence-lens li span, .boundary-sequence-lens li small { display: block; color: #777a76; font: 700 .62rem/1.35 var(--mono); }
+.boundary-sequence-lens li strong { display: block; margin: .2rem 0; font-size: .74rem; }
+.state-timeline-meter { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .35rem .8rem; }
+.state-timeline-meter > span { height: 18px; background: #d9ded9; }
+.state-timeline-meter i { display: block; height: 100%; background: var(--journey-accent, var(--accent)); }
+.state-timeline-meter strong { color: var(--journey-accent, var(--accent)); font: 900 1.1rem var(--mono); }
+.state-timeline-meter small { grid-column: 1 / -1; color: #777a76; }
+.state-timeline-lens ol { display: grid; grid-template-columns: repeat(5, 1fr); gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.state-timeline-lens li { display: flex; align-items: center; gap: .4rem; padding: .55rem; border: 1px solid #cbc8bf; background: white; opacity: .5; }
+.state-timeline-lens li.is-reached { border-color: var(--journey-accent, var(--accent)); opacity: 1; }
+.state-timeline-lens li span { display: grid; place-items: center; width: 1.3rem; height: 1.3rem; border-radius: 50%; background: #e5e3dc; font: 800 .62rem var(--mono); }
+.state-timeline-lens li.is-reached span { background: var(--journey-accent, var(--accent)); color: white; }
+.state-timeline-lens li strong { font-size: .7rem; }
+.evidence-ladder ol { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.evidence-ladder li { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .8rem; padding: .65rem .8rem; border-left: 4px solid #c9c6bd; background: white; opacity: .58; }
+.evidence-ladder li.is-proven, .evidence-ladder li.is-current { opacity: 1; }
+.evidence-ladder li.is-proven { border-color: #4e8b5b; }
+.evidence-ladder li.is-current { border-color: var(--journey-accent, var(--accent)); background: #fff8ee; }
+.evidence-ladder li > span, .evidence-ladder li small, .evidence-ladder li b { font: 700 .64rem var(--mono); }
+.evidence-ladder li div { min-width: 0; }
+.evidence-ladder li strong, .evidence-ladder li small { display: block; overflow-wrap: anywhere; }
+.evidence-ladder li b { color: var(--journey-accent, var(--accent)); }
+@media (max-width: 620px) { .ranked-bar-chart > div { grid-template-columns: 1fr auto; } .ranked-bar-chart > div > span { grid-column: 1 / -1; grid-row: 2; } .ranked-bar-chart b { grid-column: 1 / -1; text-align: left; } .boundary-sequence-actors { display: none; } .boundary-sequence-lens ol { grid-template-columns: repeat(2, 1fr); } .state-timeline-lens ol { grid-template-columns: 1fr; } }

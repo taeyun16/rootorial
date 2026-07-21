@@ -2,6 +2,11 @@ import { lazy, Suspense } from "react";
 import type { ComponentType } from "react";
 import { chapterId } from "../../data/curriculum";
 import {
+  ChapterNavigationProvider,
+  ChapterSequenceNavigation,
+} from "../../components/ChapterSequenceNavigation";
+import type { ChapterNavigationAccess } from "./chapter-navigation";
+import {
   isRegisteredChapterId,
   type RegisteredChapterId,
 } from "./chapter-registry";
@@ -10,6 +15,7 @@ export type ChapterPageProps = {
   curriculumSlug: string;
   chapterSlug: string;
   learnerCount: number;
+  navigation: ChapterNavigationAccess;
 };
 
 type ChapterComponent = ComponentType<{ learnerCount?: number }>;
@@ -17,10 +23,30 @@ type ChapterModuleLoader = () => Promise<{ default: ChapterComponent }>;
 
 function chapterPage(load: ChapterModuleLoader): ComponentType<ChapterPageProps> {
   const Chapter = lazy(load);
-  return function LazyChapterPage({ learnerCount }: ChapterPageProps) {
+  return function LazyChapterPage({
+    curriculumSlug,
+    chapterSlug,
+    learnerCount,
+    navigation,
+  }: ChapterPageProps) {
+    const continuousPath = curriculumSlug === "linux-systems"
+      || curriculumSlug === "linux-networking"
+      || curriculumSlug === "infrastructure-design";
     return (
       <Suspense fallback={<main className="chapter-shell chapter-loading-shell"><p role="status">Loading chapter…</p></main>}>
-        <Chapter learnerCount={learnerCount} />
+        {continuousPath ? (
+          <ChapterNavigationProvider access={navigation}>
+            <div className="continuous-chapter-frame">
+              <Chapter learnerCount={learnerCount} />
+              <ChapterSequenceNavigation
+                curriculumSlug={curriculumSlug}
+                chapterSlug={chapterSlug}
+              />
+            </div>
+          </ChapterNavigationProvider>
+        ) : (
+          <Chapter learnerCount={learnerCount} />
+        )}
       </Suspense>
     );
   };

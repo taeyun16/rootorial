@@ -13,6 +13,7 @@ import {
   type ProcessSignal,
   type ProcessTransition,
 } from "../../features/linux-runtime/processes-and-signals";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { LinuxProcessStateView, processEventText } from "./LinuxProcessStateView";
 
@@ -257,22 +258,12 @@ export function LinuxProcessLifecycleLab({
       </div>
 
       <div className="process-spawn-controls">
-        <label>
-          <span>{t("자식 stdout · fd 1", "Child stdout · fd 1")}</span>
-          <select value={stdout} onChange={(event) => choosePreset(event.currentTarget.value as ProcessOutputTarget)}>
-            <option value="terminal">terminal</option>
-            <option value="file">out.log</option>
-          </select>
-        </label>
-        <label>
-          <span>{t("fork 뒤 자식이 exec하면?", "After the child execs?")}</span>
-          <select value={spawnPrediction} onChange={(event) => setSpawnPrediction(event.currentTarget.value as SpawnPrediction)}>
-            <option value="">{t("결과 예측", "Predict the result")}</option>
-            <option value="new-child-same-pid">{t("새 자식 1개, exec 뒤에도 같은 PID", "One new child; same PID after exec")}</option>
-            <option value="shell-replaced">{t("셸 자체가 프로그램으로 교체됨", "The shell itself is replaced")}</option>
-            <option value="two-child-pids">{t("fork와 exec가 PID를 하나씩 만듦", "fork and exec each create a PID")}</option>
-          </select>
-        </label>
+        <ChoiceField label={t("자식 stdout · fd 1", "Child stdout · fd 1")} value={stdout} onValueChange={choosePreset} options={[{ value: "terminal", label: "terminal" }, { value: "file", label: "out.log" }]} />
+        <ChoiceField label={t("fork 뒤 자식이 exec하면?", "After the child execs?")} value={spawnPrediction} onValueChange={setSpawnPrediction} options={[
+          { value: "new-child-same-pid", label: t("새 자식 1개, exec 뒤에도 같은 PID", "One new child; same PID after exec") },
+          { value: "shell-replaced", label: t("셸 자체가 프로그램으로 교체됨", "The shell itself is replaced") },
+          { value: "two-child-pids", label: t("fork와 exec가 PID를 하나씩 만듦", "fork and exec each create a PID") },
+        ]} />
         <button
           type="button"
           className="button button-primary"
@@ -288,13 +279,7 @@ export function LinuxProcessLifecycleLab({
       <div className="process-action-grid">
         <fieldset>
           <legend>{t("실행 순서 예측", "Predict the run order")}</legend>
-          <label>
-            <span>{t("다음 worker PID", "Next worker PID")}</span>
-            <select value={tickPrediction} onChange={(event) => setTickPrediction(event.currentTarget.value ? Number(event.currentTarget.value) : "")}>
-              <option value="">{t("PID 선택", "Choose a PID")}</option>
-              {children.map((process) => <option value={process.pid} key={process.pid}>PID {process.pid} · {process.state}</option>)}
-            </select>
-          </label>
+          <ChoiceField label={t("다음 worker PID", "Next worker PID")} value={tickPrediction} onValueChange={setTickPrediction} options={children.map((process) => ({ value: process.pid, label: `PID ${process.pid} · ${process.state}` }))} />
           <button type="button" className="button button-primary" disabled={tickPrediction === ""} onClick={tick}>
             {t("worker queue 1 tick 실행", "Run one worker-queue tick")}
           </button>
@@ -302,22 +287,13 @@ export function LinuxProcessLifecycleLab({
 
         <fieldset>
           <legend>{t("상태 전이 조작", "Manipulate lifecycle state")}</legend>
-          <label>
-            <span>{t("대상 자식", "Target child")}</span>
-            <select value={targetPid} onChange={(event) => setTargetPid(event.currentTarget.value ? Number(event.currentTarget.value) : "")}>
-              <option value="">{t("PID 선택", "Choose a PID")}</option>
-              {children.map((process) => <option value={process.pid} key={process.pid}>PID {process.pid} · {processStateLabel(process.state, locale)}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>signal</span>
-            <select value={signal} onChange={(event) => setSignal(event.currentTarget.value as ProcessSignal)}>
-              <option value="SIGSTOP">SIGSTOP · T</option>
-              <option value="SIGCONT">SIGCONT · resume</option>
-              <option value="SIGTERM">SIGTERM · cleanup</option>
-              <option value="SIGKILL">SIGKILL · force</option>
-            </select>
-          </label>
+          <ChoiceField label={t("대상 자식", "Target child")} value={targetPid} onValueChange={setTargetPid} options={children.map((process) => ({ value: process.pid, label: `PID ${process.pid} · ${processStateLabel(process.state, locale)}` }))} />
+          <ChoiceField label="signal" value={signal} onValueChange={setSignal} options={[
+            { value: "SIGSTOP", label: "SIGSTOP · T" },
+            { value: "SIGCONT", label: "SIGCONT · resume" },
+            { value: "SIGTERM", label: "SIGTERM · cleanup" },
+            { value: "SIGKILL", label: "SIGKILL · force" },
+          ]} />
           <div className="process-action-buttons">
             <button type="button" className="button button-secondary" disabled={targetPid === ""} onClick={deliverSignal}>{t("signal 보내기", "Send signal")}</button>
             <button type="button" className="button button-secondary" disabled={targetPid === ""} onClick={reapTarget}>waitpid</button>

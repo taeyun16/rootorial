@@ -13,6 +13,7 @@ import {
   type TinyLinuxPresetId,
 } from "../../features/linux-runtime/assemble-a-tiny-linux";
 import { useLocale } from "../../features/localization/localization";
+import { ChoiceField } from "../interactive/ChoiceField";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { StepExplorer } from "../interactive/StepExplorer";
 
@@ -301,39 +302,47 @@ export function LinuxTinySystemAssemblyLab({
           <strong>bzImage + initramfs.cpio</strong>
           <small>{machine.config.kernelImagePresent ? "kernel ✓" : "kernel ✕"} · {machine.config.initramfsAttached ? "rootfs ✓" : "rootfs ✕"}</small>
         </article>
-        <label>
-          <span>/init mode</span>
-          <select aria-label={t("PID 1 init mode", "PID 1 init mode")} value={machine.config.initMode} onChange={(event) => changeConfig("initMode", event.target.value)}>
-            <option value="0644">0644 · rw-r--r--</option>
-            <option value="0755">0755 · rwxr-xr-x</option>
-          </select>
-        </label>
-        <label>
-          <span>{t("default return route", "Default return route")}</span>
-          <select aria-label={t("SYN-ACK default return route", "SYN-ACK default return route")} value={machine.config.defaultGateway} onChange={(event) => changeConfig("defaultGateway", event.target.value)}>
-            <option value="">{t("없음", "None")}</option>
-            <option value="10.0.0.1">default via 10.0.0.1</option>
-          </select>
-        </label>
-        <label>
-          <span>/srv/report.txt mode</span>
-          <select aria-label={t("report file mode", "Report file mode")} value={machine.config.reportMode} onChange={(event) => changeConfig("reportMode", event.target.value)}>
-            <option value="0600">0600 · root only</option>
-            <option value="0640">0640 · group read</option>
-            <option value="0666">0666 · world write</option>
-          </select>
-        </label>
+        <ChoiceField
+          label="/init mode"
+          value={machine.config.initMode}
+          onValueChange={(value) => changeConfig("initMode", value)}
+          options={[
+            { value: "0644", label: "0644 · rw-r--r--" },
+            { value: "0755", label: "0755 · rwxr-xr-x" },
+          ]}
+        />
+        <ChoiceField
+          label={t("default return route", "Default return route")}
+          value={machine.config.defaultGateway}
+          onValueChange={(value) => changeConfig("defaultGateway", value)}
+          options={[
+            { value: "", label: t("없음", "None") },
+            { value: "10.0.0.1", label: "default via 10.0.0.1" },
+          ]}
+        />
+        <ChoiceField
+          label="/srv/report.txt mode"
+          value={machine.config.reportMode}
+          onValueChange={(value) => changeConfig("reportMode", value)}
+          options={[
+            { value: "0600", label: "0600 · root only" },
+            { value: "0640", label: "0640 · group read" },
+            { value: "0666", label: "0666 · world write" },
+          ]}
+        />
       </div>
 
       <fieldset className="tiny-system-run-controls">
         <legend>{t("실행 전 최초 실패 예측", "Predict the first failure before running")}</legend>
-        <label>
-          <span>{t("다음 stop code", "Next stop code")}</span>
-          <select aria-label={t("다음 최초 실패 경계 예측", "Predicted next first-failure boundary")} value={prediction} onChange={(event) => setPrediction(event.target.value as TinyLinuxPredictionId | "")}>
-            <option value="">— {t("먼저 예측", "Predict first")} —</option>
-            {predictionOptions.map((option) => <option value={option.id} key={option.id}>{isKo ? option.ko : option.en}</option>)}
-          </select>
-        </label>
+        <ChoiceField
+          label={t("다음 stop code", "Next stop code")}
+          value={prediction}
+          onValueChange={setPrediction}
+          options={[
+            { value: "", label: `— ${t("먼저 예측", "Predict first")} —` },
+            ...predictionOptions.map((option) => ({ value: option.id, label: isKo ? option.ko : option.en })),
+          ]}
+        />
         <button type="button" className="button button-primary" onClick={runAssembly}>{t("부팅·요청 실행하고 판정", "Run boot and request, then grade")}</button>
       </fieldset>
 

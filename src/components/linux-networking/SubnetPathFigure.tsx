@@ -1,6 +1,7 @@
 import { ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import { useLocale } from "../../features/localization/localization";
+import { canExecuteSequentialPhase, hasMasteredSequentialEvidence } from "../../features/chapters/sequential-execution";
 import {
   SUBNET_GATEWAY_ADDRESS,
   SUBNET_PEER_ADDRESS,
@@ -10,6 +11,7 @@ import {
   type SubnetPhaseId,
 } from "../../features/linux-networking/subnets-neighbors-and-gateways";
 import { ExecutableFigure } from "../interactive/ExecutableFigure";
+import { DirectChoiceGroup } from "../interactive/DirectChoiceGroup";
 import "./subnets-neighbors-gateways.css";
 
 const labels = {
@@ -22,14 +24,18 @@ export function SubnetPathFigure({ onMasteryChange }: { onMasteryChange?: (maste
   const t = (ko: string, en: string) => locale === "ko" ? ko : en;
   const [phase, setPhase] = useState<SubnetPhaseId>("inspect-prefix");
   const [visited, setVisited] = useState<Set<SubnetPhaseId>>(() => new Set(["inspect-prefix"]));
+  const [prediction, setPrediction] = useState("");
   const snapshot = subnetPhaseSnapshot(phase);
   const decision = snapshot.decision;
   const currentIndex = subnetPhaseIds.indexOf(phase);
-  const mastered = subnetPhaseIds.every((id) => visited.has(id));
+  const predictionCorrect = prediction === "gateway";
+  const mastered = hasMasteredSequentialEvidence({ predictionCorrect, visitedCount: visited.size, phaseCount: subnetPhaseIds.length });
 
   useEffect(() => onMasteryChange?.(mastered), [mastered, onMasteryChange]);
 
   function choose(next: SubnetPhaseId) {
+    const nextIndex = subnetPhaseIds.indexOf(next);
+    if (!canExecuteSequentialPhase({ phaseIndex: nextIndex, visitedCount: visited.size, predictionCorrect })) return;
     setPhase(next);
     setVisited((current) => new Set([...current, next]));
   }
@@ -37,6 +43,7 @@ export function SubnetPathFigure({ onMasteryChange }: { onMasteryChange?: (maste
   function reset() {
     setPhase("inspect-prefix");
     setVisited(new Set(["inspect-prefix"]));
+    setPrediction("");
   }
 
   return (
@@ -49,15 +56,34 @@ export function SubnetPathFigure({ onMasteryChange }: { onMasteryChange?: (maste
       figureAttributes={{ "data-phase": phase, "data-mastered": mastered }}
       footer={<span>{mastered ? t("모든 경로 상태를 관찰했습니다.", "Every path state has been observed.") : t(`${visited.size} / ${subnetPhaseIds.length} 상태 관찰`, `${visited.size} / ${subnetPhaseIds.length} states observed`)}</span>}
     >
+      <div className="network-figure-prediction">
+        <DirectChoiceGroup
+          label={t("203.0.113.20으로 보낼 때 ARP할 대상은?", "Which address should ARP resolve when sending to 203.0.113.20?")}
+          value={prediction}
+          options={[
+            { value: "gateway", label: t("같은 링크의 기본 게이트웨이 10.20.0.1", "The on-link default gateway 10.20.0.1") },
+            { value: "remote", label: t("원격 목적지 203.0.113.20", "The remote destination 203.0.113.20") },
+            { value: "dns", label: t("DNS resolver 주소", "The DNS resolver address") },
+          ]}
+          onChange={setPrediction}
+          controlId="subnet-next-hop-prediction"
+        />
+        <p role="status">{prediction === ""
+          ? t("다음 홉을 예측하면 경로 실행이 열립니다.", "Predict the next hop to unlock path execution.")
+          : predictionCorrect
+            ? t("예측이 맞았습니다. 상태를 순서대로 실행하세요.", "Prediction confirmed. Execute each state in order.")
+            : t("원격 주소는 현재 링크에 없습니다. 현재 링크에서 도달 가능한 대상을 다시 고르세요.", "The remote address is not on this link. Choose the reachable target on the current link.")}</p>
+      </div>
       <div className="subnet-command-rail" role="toolbar" aria-label={t("패킷 경로 명령", "Packet path commands")}>
         {subnetPhaseIds.map((id, index) => (
-          <button key={id} type="button" className={phase === id ? "is-active" : visited.has(id) ? "is-visited" : undefined} aria-current={phase === id ? "step" : undefined} onClick={() => choose(id)}>
+          <button key={id} type="button" className={phase === id ? "is-active" : visited.has(id) ? "is-visited" : undefined} aria-current={phase === id ? "step" : undefined} disabled={!canExecuteSequentialPhase({ phaseIndex: index, visitedCount: visited.size, predictionCorrect })} onClick={() => choose(id)}>
             <span>{String(index + 1).padStart(2, "0")}</span>{labels[locale][index]}
           </button>
         ))}
         <button className="subnet-reset" type="button" onClick={reset} aria-label={t("실습 초기화", "Reset lab")}><ArrowCounterClockwiseIcon /></button>
       </div>
 
+      {predictionCorrect ? <>
       <div className="subnet-stage">
         <div className="subnet-boundary-label">10.20.0.0/24 · LOCAL LINK</div>
         <div className="subnet-node subnet-host">
@@ -90,6 +116,7 @@ export function SubnetPathFigure({ onMasteryChange }: { onMasteryChange?: (maste
         {snapshot.output.map((line) => <pre key={line}>{line}</pre>)}
       </div>
       <p className="subnet-phase-note"><strong>{currentIndex + 1} / 6</strong> {t("ARP는 다음 홉의 MAC을 찾습니다. 원격 IP 자체의 MAC을 찾지 않습니다.", "ARP resolves the next hop's MAC. It does not resolve the remote IP's MAC.")}</p>
+      </> : <div className="network-evidence-locked" role="status">{t("예측을 확정하기 전에는 다음 홉과 프레임 판정을 숨깁니다.", "Next-hop and frame verdicts stay hidden until the prediction is confirmed.")}</div>}
     </ExecutableFigure>
   );
 }
