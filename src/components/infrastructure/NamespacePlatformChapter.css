@@ -201,9 +201,124 @@
   margin: 0.9rem 0 0;
 }
 
-.namespace-platform-control-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.namespace-platform-design-workspace .infrastructure-workspace {
   margin-top: 1rem;
+  border: 1px solid var(--code-border);
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+
+.namespace-platform-design-workspace .infrastructure-workspace-stage {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.namespace-platform-design-workspace .infrastructure-workspace-stage > .namespace-platform-visualization {
+  margin: 0;
+}
+
+.namespace-platform-control-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--code-border);
+}
+
+.namespace-platform-paired-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--code-border);
+}
+
+.namespace-platform-control-grid > .infrastructure-choice-rail {
+  padding-top: 1rem;
+  border-top: 1px solid var(--code-border);
+}
+
+.namespace-platform-control-grid > .infrastructure-choice-rail:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.namespace-platform-design-workspace .infrastructure-choice-label {
+  color: color-mix(in srgb, var(--code-text) 72%, transparent);
+}
+
+.namespace-platform-contract-inspector {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.namespace-platform-contract-inspector > span {
+  color: color-mix(in srgb, var(--platform-chapter-accent) 58%, white);
+  font: 800 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.namespace-platform-contract-inspector > strong {
+  color: var(--code-text);
+  font: 800 clamp(1.7rem, 4vw, 2.35rem)/1 var(--mono);
+}
+
+.namespace-platform-contract-inspector ul {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.namespace-platform-contract-inspector li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.6rem;
+  border: 1px solid var(--danger-border);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--danger-bg) 34%, transparent);
+  color: color-mix(in srgb, var(--code-text) 72%, transparent);
+  font-size: var(--text-caption);
+}
+
+.namespace-platform-contract-inspector li > span {
+  flex: 1;
+  min-width: 0;
+}
+
+.namespace-platform-contract-inspector li > small {
+  color: color-mix(in srgb, var(--danger-fg) 58%, white);
+  font: 800 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.03em;
+  text-align: right;
+}
+
+.namespace-platform-contract-inspector li::before {
+  content: "×";
+  color: color-mix(in srgb, var(--danger-fg) 58%, white);
+  font-weight: 900;
+}
+
+.namespace-platform-contract-inspector li[data-ready="true"] {
+  border-color: var(--success-border);
+  background: color-mix(in srgb, var(--success-bg) 32%, transparent);
+  color: var(--code-text);
+}
+
+.namespace-platform-contract-inspector li[data-ready="true"]::before {
+  content: "✓";
+  color: color-mix(in srgb, var(--success-fg) 58%, white);
+}
+
+.namespace-platform-contract-inspector li[data-ready="true"] > small {
+  color: color-mix(in srgb, var(--success-fg) 58%, white);
+}
+
+.namespace-platform-contract-inspector p {
+  margin: 0;
+  color: color-mix(in srgb, var(--code-text) 66%, transparent);
+  font-size: var(--text-caption);
 }
 
 .namespace-platform-control-grid label,
@@ -237,6 +352,7 @@
   border: 1px solid var(--line);
   border-radius: 0.85rem;
   background: var(--paper-subtle);
+  color: var(--ink);
   overflow: hidden;
 }
 
@@ -471,7 +587,7 @@
   margin: 0.65rem 0;
 }
 
-.namespace-platform-incident-grid button {
+.namespace-platform-incident-grid article > .button {
   margin-top: 0.75rem;
 }
 
@@ -498,9 +614,12 @@
 
 @media (max-width: 760px) {
   .namespace-platform-requirement-grid,
-  .namespace-platform-control-grid,
   .namespace-platform-incident-grid,
   .namespace-platform-decision-record {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .namespace-platform-paired-controls {
     grid-template-columns: minmax(0, 1fr);
   }
 

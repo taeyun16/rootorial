@@ -1,10 +1,21 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/attention";
 const publicPath = "/curricula/transformer-from-zero/chapters/attention";
 
 type TestPage = Parameters<typeof signInTestUser>[0];
+
+function choiceGroup(scope: Locator, label: string) {
+  return scope.getByRole("group", { name: label });
+}
+
+async function choose(scope: Locator, label: string, value: string) {
+  const option = choiceGroup(scope, label).locator(`[data-choice-value="${value}"]`);
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
 
 async function signInAsAdmin(page: TestPage) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
@@ -71,7 +82,7 @@ test("completes routing evidence, four repairs, and concepts in the Korean draft
 
   const lab = page.locator(".attention-routing-lab");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
-  const prediction = lab.getByLabel("top source row 예측");
+  const prediction = choiceGroup(lab, "top source row 예측");
   const run = lab.getByRole("button", { name: "Attention routing 실행" });
   const query0 = lab.getByLabel("query 성분 q0");
   const query1 = lab.getByLabel("query 성분 q1");
@@ -83,17 +94,17 @@ test("completes routing evidence, four repairs, and concepts in the Korean draft
 
   await query0.fill("1.79e308");
   await query1.fill("1.79e308");
-  await prediction.selectOption("subject");
+  await choose(lab, "top source row 예측", "subject");
   await run.click();
   await expect(lab.locator(".attention-runtime-fallback")).toContainText("로컬 Attention runtime 실패");
   const recover = lab.getByRole("button", { name: "고정 preset으로 안전하게 복구" });
   await recover.click();
-  await expect(prediction).toBeFocused();
+  await expect(prediction.getByRole("button").first()).toBeFocused();
   await expect(query0).toHaveValue("1.4");
   await expect(query1).toHaveValue("0.1");
   await expect(lab.locator(".attention-runtime-fallback")).toHaveCount(0);
 
-  await prediction.selectOption("place");
+  await choose(lab, "top source row 예측", "place");
   await run.click();
   await expect(run).toBeFocused();
   await expect(lab.locator(".attention-live-feedback")).toContainText("실제 top은 주체 단서");
@@ -101,7 +112,7 @@ test("completes routing evidence, four repairs, and concepts in the Korean draft
   await expect(lab.locator(".attention-evidence")).toHaveAttribute("data-mastered", "false");
 
   await lab.getByRole("button", { name: "현재 설정 다시 예측" }).click();
-  await prediction.selectOption("subject");
+  await choose(lab, "top source row 예측", "subject");
   await run.click();
   await expect(lab.locator(".attention-live-feedback")).toContainText("예측이 맞았습니다");
   await expect(lab.locator(".attention-evidence .is-complete")).toHaveCount(0);
@@ -110,7 +121,7 @@ test("completes routing evidence, four repairs, and concepts in the Korean draft
   const placePreset = lab.locator('[data-attention-preset="find-place"]');
   await placePreset.click();
   await expect(placePreset).toHaveAttribute("aria-pressed", "true");
-  await prediction.selectOption("place");
+  await choose(lab, "top source row 예측", "place");
   await run.click();
   await expect(lab.locator(".attention-live-feedback")).toContainText("예측이 맞았습니다");
   await expect(lab.locator(".attention-evidence .is-complete")).toHaveCount(0);
@@ -124,7 +135,7 @@ test("completes routing evidence, four repairs, and concepts in the Korean draft
   await expect(placeContribution).toHaveAttribute("aria-pressed", "true");
   await expect(lab.locator(".attention-evidence .is-complete")).toHaveCount(1);
 
-  await lab.getByLabel("value-only counterfactual 예측").selectOption("scores-and-weights-stay-context-changes");
+  await choose(lab, "value-only counterfactual 예측", "scores-and-weights-stay-context-changes");
   const runCounterfactual = lab.getByRole("button", { name: "value-only 반사실 실행" });
   await runCounterfactual.click();
   await expect(runCounterfactual).toBeFocused();
@@ -134,7 +145,7 @@ test("completes routing evidence, four repairs, and concepts in the Korean draft
 
   const actionPreset = lab.locator('[data-attention-preset="find-action"]');
   await actionPreset.click();
-  await prediction.selectOption("action");
+  await choose(lab, "top source row 예측", "action");
   await run.click();
   await expect(lab.locator(".attention-live-feedback")).toContainText("예측이 맞았습니다");
   await expect(lab.locator(".attention-evidence")).toHaveAttribute("data-mastered", "true");
@@ -143,7 +154,7 @@ test("completes routing evidence, four repairs, and concepts in the Korean draft
   const incidents = page.locator(".attention-debug-card");
   await expect(incidents).toHaveCount(4);
   const softmaxIncident = incidents.nth(0);
-  await softmaxIncident.getByRole("combobox", { name: "1번 Attention 사건 repair" }).selectOption("normalize-values-by-feature");
+  await choose(softmaxIncident, "1번 Attention 사건 repair", "normalize-values-by-feature");
   await softmaxIncident.getByRole("button", { name: "1번 Attention 사건 repair 적용 및 계약 실행" }).click();
   await expect(softmaxIncident).toHaveClass(/is-incorrect/);
   await expect(softmaxIncident.locator(".attention-debug-feedback")).toContainText("value feature를 정규화");
@@ -156,7 +167,7 @@ test("completes routing evidence, four repairs, and concepts in the Korean draft
   ] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const incident = incidents.nth(index);
-    await incident.getByRole("combobox", { name: `${index + 1}번 Attention 사건 repair` }).selectOption(repairs[index]);
+    await choose(incident, `${index + 1}번 Attention 사건 repair`, repairs[index]);
     const applyRepair = incident.getByRole("button", { name: `${index + 1}번 Attention 사건 repair 적용 및 계약 실행` });
     await applyRepair.click();
     await expect(applyRepair).toBeFocused();
@@ -236,8 +247,8 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(actionPreset).toHaveAttribute("aria-pressed", "true");
   expect(await actionPreset.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
 
-  const prediction = lab.getByLabel("Top source row prediction");
-  await prediction.selectOption("action");
+  const prediction = choiceGroup(lab, "Top source row prediction");
+  await choose(lab, "Top source row prediction", "action");
   const run = lab.getByRole("button", { name: "Run Attention routing" });
   await run.focus();
   await run.press("Enter");
@@ -271,7 +282,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   expect(await attentionOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
 
-  await lab.getByLabel("Value-only counterfactual prediction").selectOption("scores-change");
+  await choose(lab, "Value-only counterfactual prediction", "scores-change");
   await lab.getByRole("button", { name: "Run value-only counterfactual" }).click();
   await expect(lab.locator(".attention-live-feedback")).toContainText("choose an unrevealed preset or reset the entire lab");
 
@@ -280,12 +291,12 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await resetLab.focus();
   await resetLab.press("Enter");
   await expect(resetLab).toBeFocused();
-  await expect(prediction).toHaveValue("");
+  await expect(prediction.locator('[aria-pressed="true"]')).toHaveCount(0);
   await expect(lab.locator(".attention-evidence .is-complete")).toHaveCount(0);
 
   const firstIncident = page.locator(".attention-debug-card").first();
-  const repairSelect = firstIncident.getByRole("combobox", { name: "Repair for Attention incident 1" });
-  await repairSelect.selectOption("normalize-values-by-feature");
+  const repairSelect = choiceGroup(firstIncident, "Repair for Attention incident 1");
+  await choose(firstIncident, "Repair for Attention incident 1", "normalize-values-by-feature");
   const applyRepair = firstIncident.getByRole("button", { name: "Apply repair and run contract for Attention incident 1" });
   await applyRepair.focus();
   await applyRepair.press("Enter");

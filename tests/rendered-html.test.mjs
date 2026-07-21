@@ -438,6 +438,46 @@ test("renders an infrastructure-specific curriculum landing without Transformer 
   );
 });
 
+test("SSR-renders the split Adam notebook with fixed setup and learner code", async () => {
+  const rows = [
+    {
+      resource_key: "chapter:transformer-from-zero/training",
+      resource_kind: "chapter",
+      curriculum_slug: "transformer-from-zero",
+      chapter_slug: "training",
+      publication_status: "published",
+      listing: "listed",
+      scheduled_at: null,
+      published_at: 1,
+      version: 1,
+      updated_by_user_id: "user_test",
+      created_at: 1,
+      updated_at: 1,
+    },
+  ];
+  const response = await renderWithPublicationRows(
+    "/curricula/transformer-from-zero/chapters/training",
+    rows,
+  );
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /한 epoch Adam 상태 trace/);
+  assert.match(html, /고정 실행 준비/);
+  assert.match(html, /27줄 · 실행 시 자동 포함/);
+  assert.match(html, /핵심 코드 보기/);
+
+  const englishResponse = await renderWithPublicationRows(
+    "/curricula/transformer-from-zero/chapters/training?lang=en",
+    rows,
+  );
+  assert.equal(englishResponse.status, 200);
+  const englishHtml = await englishResponse.text();
+  assert.match(englishHtml, /Trace Adam state across one epoch/);
+  assert.match(englishHtml, /Fixed runtime setup/);
+  assert.match(englishHtml, /27 lines · included automatically/);
+  assert.match(englishHtml, /Show learner code/);
+});
+
 test("SSR-renders the bilingual Self-Attention chapter with an explicit test-only publication override", async () => {
   const rows = [
     {
@@ -467,6 +507,9 @@ test("SSR-renders the bilingual Self-Attention chapter with an explicit test-onl
   );
   assert.match(html, /raw = \[2, 1, 0, 1\]/);
   assert.match(html, /고정 trace와 mask repair를 실제 NumPy로 다시 실행합니다/);
+  assert.match(html, /고정 실행 준비/);
+  assert.match(html, /43줄 · 실행 시 자동 포함/);
+  assert.match(html, /50줄 · 실행 시 자동 포함/);
   assert.match(html, /08 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
   assert.match(html, /CORE LAB · 핵심 3 \+ 선택 2/);
 
@@ -483,6 +526,9 @@ test("SSR-renders the bilingual Self-Attention chapter with an explicit test-onl
   );
   assert.match(englishHtml, /raw = \[2, 1, 0, 1\]/);
   assert.match(englishHtml, /Re-execute the fixed trace and mask repair in real NumPy/);
+  assert.match(englishHtml, /Fixed runtime setup/);
+  assert.match(englishHtml, /43 lines · included automatically/);
+  assert.match(englishHtml, /50 lines · included automatically/);
   assert.match(englishHtml, /08 — OPTIONAL REMEDIATION · REPAIR CONSOLE/);
   assert.match(englishHtml, /CORE LAB · 3 CORE \+ 2 OPTIONAL/);
 });

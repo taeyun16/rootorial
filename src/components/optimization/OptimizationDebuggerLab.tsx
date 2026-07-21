@@ -10,6 +10,7 @@ import {
   type OptimizerDebugResult,
 } from "../../features/optimization/gradient-descent";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { MathFormula } from "../MathFormula";
 
 type DebugAnswer = {
@@ -178,33 +179,21 @@ export function OptimizationDebuggerLab({
                 </dl>
               </div>
               <p>{copy.clue[locale]}</p>
-              <label>
-                <span>{t("optimizer 동작", "Optimizer action")}</span>
-                <select
-                  value={answer?.action ?? ""}
-                  onChange={(event) => {
-                    const action = event.currentTarget.value as OptimizerActionId;
-                    changeAnswer(scenarioId, {
-                      action,
-                      learningRate: action === "stop" ? 0 : undefined,
-                    });
-                  }}
-                >
-                  <option value="" disabled>{t("동작 선택", "Choose an action")}</option>
-                  {optimizerActionIds.map((action) => <option value={action} key={action}>{actionCopy[action][locale]}</option>)}
-                </select>
-              </label>
-              <label>
-                <span>{t("학습률 η", "Learning rate η")}</span>
-                <select
-                  value={answer?.action === "stop" ? "" : answer?.learningRate ?? ""}
-                  disabled={!answer?.action || answer.action === "stop"}
-                  onChange={(event) => changeAnswer(scenarioId, { learningRate: Number(event.currentTarget.value) })}
-                >
-                  <option value="" disabled>{answer?.action === "stop" ? "0" : t("η 선택", "Choose η")}</option>
-                  {scenario.learningRates.filter((rate) => rate > 0).map((rate) => <option value={rate} key={rate}>{rate}</option>)}
-                </select>
-              </label>
+              <DirectChoice
+                compact
+                label={t("optimizer 동작", "Optimizer action")}
+                value={answer?.action ?? ""}
+                options={optimizerActionIds.map((action) => ({ value: action, label: actionCopy[action][locale] }))}
+                onChange={(action) => changeAnswer(scenarioId, { action, learningRate: action === "stop" ? 0 : undefined })}
+              />
+              <DirectChoice
+                compact
+                label={t("학습률 η", "Learning rate η")}
+                value={answer?.action === "stop" ? "" : answer?.learningRate ?? ""}
+                disabled={!answer?.action || answer.action === "stop"}
+                options={scenario.learningRates.filter((rate) => rate > 0).map((rate) => ({ value: rate, label: String(rate) }))}
+                onChange={(learningRate) => changeAnswer(scenarioId, { learningRate })}
+              />
               <button
                 type="button"
                 className="button button-secondary"

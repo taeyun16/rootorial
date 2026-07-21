@@ -21,6 +21,7 @@ import {
   type TransformerBlockTrace,
 } from "../../features/transformer-block/transformer-block-model";
 import { useLocale } from "../../features/localization/localization";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { MatrixGrid } from "../interactive/MatrixGrid";
 import { StepExplorer } from "../interactive/StepExplorer";
@@ -61,7 +62,7 @@ export function TransformerBlockLab({ onCompletionChange }: { onCompletionChange
   const [successfulAttempt, setSuccessfulAttempt] = useState<SuccessfulAttempt | null>(null);
   const eventCounter = useRef(0);
   const attemptCounter = useRef(0);
-  const predictionRef = useRef<HTMLSelectElement>(null);
+  const predictionRef = useRef<HTMLDivElement>(null);
   const resetButtonRef = useRef<HTMLButtonElement>(null);
   const recoveryButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -169,7 +170,7 @@ export function TransformerBlockLab({ onCompletionChange }: { onCompletionChange
     setPrediction("");
     setActiveStage(inspection.stage);
     invalidateRun();
-    requestAnimationFrame(() => predictionRef.current?.focus());
+    requestAnimationFrame(() => predictionRef.current?.querySelector<HTMLButtonElement>("button")?.focus());
   };
 
   const updateConfig = (patch: Partial<TransformerBlockConfig>) => {
@@ -221,7 +222,7 @@ export function TransformerBlockLab({ onCompletionChange }: { onCompletionChange
         title: grade.predictionCorrect ? t("조립 설정이 아직 깨져 있습니다", "The assembly setup is still broken") : t("예측과 실행 결과가 다릅니다", "The prediction differs from the executed result"),
         message: grade.predictionCorrect ? configHint : misconceptionHints[prediction] ?? configHint,
       });
-      requestAnimationFrame(() => predictionRef.current?.focus());
+      requestAnimationFrame(() => predictionRef.current?.querySelector<HTMLButtonElement>("button")?.focus());
     } catch {
       setTrace(null);
       setSuccessfulAttempt(null);
@@ -297,7 +298,7 @@ export function TransformerBlockLab({ onCompletionChange }: { onCompletionChange
     setTrace(null);
     setRuntimeFailure(false);
     setSuccessfulAttempt(null);
-    requestAnimationFrame(() => predictionRef.current?.focus());
+    requestAnimationFrame(() => predictionRef.current?.querySelector<HTMLButtonElement>("button")?.focus());
   };
 
   const rowLabels = [...transformerBlockTokens];
@@ -354,13 +355,17 @@ export function TransformerBlockLab({ onCompletionChange }: { onCompletionChange
         </div>
 
         <div className="transformer-block-control-panel">
-          <label><span>{t("position scale · canonical 1", "Position scale · canonical 1")}</span><input aria-label={t("Transformer block position scale", "Transformer block position scale")} type="number" inputMode="decimal" min="0" max="2" step="0.25" value={positionScaleInput} onChange={(event) => { setPositionScaleInput(event.currentTarget.value); invalidateRun(); }} /></label>
-          <label><span>{t("block ordering", "Block ordering")}</span><select aria-label={t("Transformer block pre-norm", "Transformer block pre-norm")} value={configState.preNorm ? "pre" : "bypass"} onChange={(event) => updateConfig({ preNorm: event.currentTarget.value === "pre" })}><option value="bypass">{t("LN branch 우회", "bypass normalized branch")}</option><option value="pre">pre-LayerNorm</option></select></label>
-          <label><span>{t("Attention skip", "Attention skip")}</span><select aria-label={t("Transformer block 첫 residual", "Transformer block first residual")} value={configState.firstResidual ? "add" : "replace"} onChange={(event) => updateConfig({ firstResidual: event.currentTarget.value === "add" })}><option value="replace">{t("x₀ 교체", "replace x0")}</option><option value="add">x₀ + MHA</option></select></label>
-          <label><span>{t("FFN parameters", "FFN parameters")}</span><select aria-label={t("Transformer block FFN 공유", "Transformer block FFN sharing")} value={configState.sharedFfn ? "shared" : "per-position"} onChange={(event) => updateConfig({ sharedFfn: event.currentTarget.value === "shared" })}><option value="per-position">{t("position별 별도", "separate per position")}</option><option value="shared">{t("모든 row 공유", "shared by every row")}</option></select></label>
-          <label><span>{t("FFN skip", "FFN skip")}</span><select aria-label={t("Transformer block 두 번째 residual", "Transformer block second residual")} value={configState.secondResidual ? "add" : "replace"} onChange={(event) => updateConfig({ secondResidual: event.currentTarget.value === "add" })}><option value="replace">{t("x₁ 교체", "replace x1")}</option><option value="add">x₁ + FFN</option></select></label>
-          <label><span>LayerNorm epsilon</span><input aria-label={t("Transformer block LayerNorm epsilon", "Transformer block LayerNorm epsilon")} type="number" inputMode="decimal" min="0" max="0.01" step="0.00001" value={epsilonInput} onChange={(event) => { setEpsilonInput(event.currentTarget.value); invalidateRun(); }} /></label>
-          <label><span>{t("실행 전 예측", "Prediction before running")}</span><select ref={predictionRef} aria-label={t("Transformer block challenge 예측", "Transformer block challenge prediction")} value={prediction} onChange={(event) => { setPrediction(event.currentTarget.value as TransformerBlockPrediction); invalidateRun(); }}><option value="">{t("예측 선택", "Choose a prediction")}</option>{challengeCopy[challengeId].predictions.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+          <p className="challenge-control-summary">{t("현재 challenge의 깨진 경계 하나만 복구합니다. 다른 block invariant는 preset이 canonical 값으로 유지합니다.", "Repair the one broken boundary for this challenge. The preset keeps every other block invariant canonical.")}</p>
+          {challengeId === "position-input" ? <label><span>{t("position scale · canonical 1", "Position scale · canonical 1")}</span><input aria-label={t("Transformer block position scale", "Transformer block position scale")} type="number" inputMode="decimal" min="0" max="2" step="0.25" value={positionScaleInput} onChange={(event) => { setPositionScaleInput(event.currentTarget.value); invalidateRun(); }} /></label> : null}
+          {challengeId === "layernorm" ? <DirectChoice compact label={t("Transformer block pre-norm", "Transformer block pre-norm")} value={configState.preNorm ? 1 : 0} options={[{ value: 0, label: t("LN branch 우회", "bypass normalized branch") }, { value: 1, label: "pre-LayerNorm" }]} onChange={(value) => updateConfig({ preNorm: value === 1 })} /> : null}
+          {challengeId === "attention-residual" ? <DirectChoice compact label={t("Transformer block 첫 residual", "Transformer block first residual")} value={configState.firstResidual ? 1 : 0} options={[{ value: 0, label: t("x₀ 교체", "replace x0") }, { value: 1, label: "x₀ + MHA" }]} onChange={(value) => updateConfig({ firstResidual: value === 1 })} /> : null}
+          {challengeId === "positionwise-ffn" ? <DirectChoice compact label={t("Transformer block FFN 공유", "Transformer block FFN sharing")} value={configState.sharedFfn ? 1 : 0} options={[{ value: 0, label: t("position별 별도", "separate per position") }, { value: 1, label: t("모든 row 공유", "shared by every row") }]} onChange={(value) => updateConfig({ sharedFfn: value === 1 })} /> : null}
+          {challengeId === "block-handoff" ? <DirectChoice compact label={t("Transformer block 두 번째 residual", "Transformer block second residual")} value={configState.secondResidual ? 1 : 0} options={[{ value: 0, label: t("x₁ 교체", "replace x1") }, { value: 1, label: "x₁ + FFN" }]} onChange={(value) => updateConfig({ secondResidual: value === 1 })} /> : null}
+          <details className="challenge-advanced-settings">
+            <summary>{t("고급 수치 설정", "Advanced numeric settings")}</summary>
+            <div><label><span>LayerNorm epsilon</span><input aria-label={t("Transformer block LayerNorm epsilon", "Transformer block LayerNorm epsilon")} type="number" inputMode="decimal" min="0" max="0.01" step="0.00001" value={epsilonInput} onChange={(event) => { setEpsilonInput(event.currentTarget.value); invalidateRun(); }} /></label></div>
+          </details>
+          <DirectChoice className="direct-choice-prediction" groupRef={predictionRef} label={t("실행 전 예측", "Prediction before running")} ariaLabel={t("Transformer block challenge 예측", "Transformer block challenge prediction")} value={prediction} options={challengeCopy[challengeId].predictions.map(([value, label]) => ({ value, label }))} onChange={(value) => { setPrediction(value as TransformerBlockPrediction); invalidateRun(); }} />
           <div className="transformer-block-run-actions">
             <button type="button" className="button button-primary" disabled={!prediction} aria-label={t("Transformer block 조립 실행", "Assemble and run the Transformer block")} onClick={runChallenge}>{t("예측 고정 · block 조립", "Lock prediction · assemble block")}</button>
             <button type="button" className="button button-secondary" aria-label={t("현재 Transformer block challenge 초기화", "Reset the current Transformer block challenge")} onClick={resetCurrent}>{t("현재 설정 초기화", "Reset current setup")}</button>

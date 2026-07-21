@@ -1,10 +1,21 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/embeddings";
 const publicPath = "/curricula/transformer-from-zero/chapters/embeddings";
 
 type TestPage = Parameters<typeof signInTestUser>[0];
+
+function choiceGroup(scope: Locator, label: string) {
+  return scope.getByRole("group", { name: label });
+}
+
+async function choose(scope: Locator, label: string, value: string) {
+  const option = choiceGroup(scope, label).locator(`[data-choice-value="${value}"]`);
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
 
 async function signInAsAdmin(page: TestPage) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
@@ -119,7 +130,7 @@ test("completes lookup evidence, four repairs, and concepts in the Korean admin 
   await expect(lab.locator(".embeddings-live-feedback")).toContainText("정확히 2배");
   await expect(lab.locator(".embeddings-evidence .is-complete")).toHaveCount(3);
 
-  await lab.getByLabel("바뀌지 않은 row 직접 검사").selectOption("4");
+  await choose(lab, "바뀌지 않은 row 직접 검사", "4");
   await lab.getByRole("button", { name: "update 전후 비교" }).click();
   await expect(lab.locator(".embeddings-live-feedback")).toContainText("data-gradient update 전후");
   await expect(lab.locator(".embeddings-evidence .is-complete")).toHaveCount(4);
@@ -127,7 +138,7 @@ test("completes lookup evidence, four repairs, and concepts in the Korean admin 
   const incidents = page.locator(".embeddings-debug-card");
   await expect(incidents).toHaveCount(4);
   const lookupIncident = incidents.nth(0);
-  await lookupIncident.getByRole("combobox", { name: "1번 사건 repair" }).selectOption("softmax-row");
+  await choose(lookupIncident, "1번 사건 repair", "softmax-row");
   await lookupIncident.getByRole("button", { name: "계약 실행" }).click();
   await expect(lookupIncident).toHaveClass(/is-incorrect/);
   await expect(lookupIncident.locator(".embeddings-debug-feedback")).toContainText("좌표는 음수여도 됩니다");
@@ -140,7 +151,7 @@ test("completes lookup evidence, four repairs, and concepts in the Korean admin 
   ] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const incident = incidents.nth(index);
-    await incident.getByRole("combobox", { name: `${index + 1}번 사건 repair` }).selectOption(repairs[index]);
+    await choose(incident, `${index + 1}번 사건 repair`, repairs[index]);
     const run = incident.getByRole("button", { name: "계약 실행" });
     await run.click();
     await expect(run).toBeFocused();
@@ -231,7 +242,7 @@ test("keeps the English draft keyboard-usable at 390px with fallback and no heav
   await expect(affectedRows).toHaveAttribute("inputmode", "text");
   await affectedRows.fill("2,5");
   await lab.getByRole("button", { name: "Run embedding update" }).click();
-  await lab.getByLabel("Verify an unchanged row").selectOption("4");
+  await choose(lab, "Verify an unchanged row", "4");
   await lab.getByRole("button", { name: "Compare before and after" }).click();
   await expect(lab.locator(".embeddings-evidence .is-complete")).toHaveCount(4);
 
@@ -247,7 +258,7 @@ test("keeps the English draft keyboard-usable at 390px with fallback and no heav
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
 
   const firstIncident = page.locator(".embeddings-debug-card").first();
-  await firstIncident.getByRole("combobox", { name: "Repair for incident 1" }).selectOption("softmax-row");
+  await choose(firstIncident, "Repair for incident 1", "softmax-row");
   const runRepair = firstIncident.getByRole("button", { name: "Run contract" });
   await runRepair.focus();
   await runRepair.press("Enter");
@@ -257,7 +268,7 @@ test("keeps the English draft keyboard-usable at 390px with fallback and no heav
   const resetDebugger = page.getByRole("button", { name: "Reset debugger" });
   await resetDebugger.focus();
   await resetDebugger.press("Enter");
-  await expect(firstIncident.getByRole("combobox", { name: "Repair for incident 1" })).toHaveValue("");
+  await expect(choiceGroup(firstIncident, "Repair for incident 1").locator('[aria-pressed="true"]')).toHaveCount(0);
 
   await lab.getByRole("button", { name: "Reset lab" }).click();
   await lab.getByLabel("Text to tokenize").fill("123");

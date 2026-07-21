@@ -231,12 +231,11 @@ test("keeps the rendered concept checks aligned with the active registry", async
   );
   assert.equal(response.status, 200);
   const html = await response.text();
-  const renderedQuestionIds = [
-    ...html.matchAll(
-      /<fieldset[^>]*class="concept-question"[\s\S]*?<input[^>]*name="([^"]+)"/g,
-    ),
-  ]
-    .map((match) => match[1])
+  const renderedQuestionIds = [...html.matchAll(/<fieldset[^>]*>/g)]
+    .map((match) => match[0])
+    .filter((tag) => tag.includes('class="concept-question"'))
+    .map((tag) => tag.match(/data-question-id="([^"]+)"/)?.[1])
+    .filter((questionId) => questionId !== undefined)
     .filter((questionId, index, all) => all.indexOf(questionId) === index)
     .sort();
   const registeredQuestionIds = Object.keys(

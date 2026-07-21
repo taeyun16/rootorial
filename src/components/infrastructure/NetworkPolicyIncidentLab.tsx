@@ -7,6 +7,7 @@ import {
   type NetworkPolicyIncidentRepair,
 } from "../../features/infrastructure/network-policy";
 import { useLocale } from "../../features/localization/localization";
+import { InfrastructureChoiceRail } from "./InfrastructureInteractionPrimitives";
 
 const incidentIds = Object.keys(networkPolicyIncidentFixtures) as NetworkPolicyIncidentId[];
 
@@ -26,6 +27,10 @@ export function NetworkPolicyIncidentLab({
 
   useEffect(() => setInteractiveReady(true), []);
 
+  useEffect(() => {
+    onCompletionChange(completed.length === incidentIds.length);
+  }, [completed, onCompletionChange]);
+
   function chooseRepair(incidentId: NetworkPolicyIncidentId, repair: NetworkPolicyIncidentRepair) {
     setRuntimeFailed(false);
     setRepairs((current) => ({ ...current, [incidentId]: repair }));
@@ -34,9 +39,7 @@ export function NetworkPolicyIncidentLab({
       delete next[incidentId];
       return next;
     });
-    const nextCompleted = completed.filter((candidate) => candidate !== incidentId);
-    setCompleted(nextCompleted);
-    onCompletionChange(nextCompleted.length === incidentIds.length);
+    setCompleted((current) => current.filter((candidate) => candidate !== incidentId));
   }
 
   function runIncident(incidentId: NetworkPolicyIncidentId) {
@@ -46,16 +49,13 @@ export function NetworkPolicyIncidentLab({
       setRuntimeFailed(false);
       const result = evaluateNetworkPolicyIncident(incidentId, repair);
       setResults((current) => ({ ...current, [incidentId]: result }));
-      const nextCompleted = result.passed
-        ? [...new Set([...completed, incidentId])]
-        : completed.filter((candidate) => candidate !== incidentId);
-      setCompleted(nextCompleted);
-      onCompletionChange(nextCompleted.length === incidentIds.length);
+      setCompleted((current) => result.passed
+        ? [...new Set([...current, incidentId])]
+        : current.filter((candidate) => candidate !== incidentId));
     } catch {
       setRuntimeFailed(true);
       setResults((current) => ({ ...current, [incidentId]: undefined }));
-      setCompleted(completed.filter((candidate) => candidate !== incidentId));
-      onCompletionChange(false);
+      setCompleted((current) => current.filter((candidate) => candidate !== incidentId));
     }
   }
 
@@ -63,8 +63,7 @@ export function NetworkPolicyIncidentLab({
     setRuntimeFailed(false);
     setRepairs({});
     setResults({});
-    setCompleted([]);
-    onCompletionChange(false);
+    setCompleted(() => []);
   }
 
   const copy: Record<NetworkPolicyIncidentId, {
@@ -156,17 +155,14 @@ export function NetworkPolicyIncidentLab({
               <h4>{item.title}</h4>
               <pre aria-label={t(`${item.title} 증거`, `${item.title} evidence`)}>{item.evidence}</pre>
               <p>{item.prompt}</p>
-              <label>
-                <span>{t("진단·수리 선택", "Choose diagnosis or repair")}</span>
-                <select
-                  aria-label={t(`${item.title} 수리`, `Repair ${item.title}`)}
-                  value={repairs[incidentId] ?? ""}
-                  onChange={(event) => chooseRepair(incidentId, event.target.value as NetworkPolicyIncidentRepair)}
-                >
-                  <option value="">—</option>
-                  {fixture.repairOptions.map((repair) => <option key={repair} value={repair}>{optionLabel(repair)}</option>)}
-                </select>
-              </label>
+              <InfrastructureChoiceRail
+                compact
+                controlId={`policy-incident-${incidentId}-repair`}
+                label={t("packet trace에 적용할 최소 수리", "Minimal repair for the packet trace")}
+                value={repairs[incidentId] ?? ""}
+                options={fixture.repairOptions.map((repair) => ({ value: repair, label: optionLabel(repair) }))}
+                onChange={(repair) => chooseRepair(incidentId, repair)}
+              />
               <div className="network-policy-incident-actions">
                 <button type="button" className="button button-primary" disabled={!repairs[incidentId]} onClick={() => runIncident(incidentId)}>{t("packet suite 재실행·판정", "Re-run packet suite and grade")}</button>
               </div>

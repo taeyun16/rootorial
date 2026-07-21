@@ -8,10 +8,44 @@ import {
   type NetworkNamespaceId,
 } from "../../features/infrastructure/network-namespaces";
 import { useLocale } from "../../features/localization/localization";
-import { NetworkNamespaceBoundaryView } from "./NetworkNamespaceBoundaryView";
+import {
+  InfrastructureChoiceRail,
+  InfrastructureWorkspace,
+} from "./InfrastructureInteractionPrimitives";
+import {
+  NetworkNamespaceBoundaryView,
+  type NamespaceEditableObjectId,
+} from "./NetworkNamespaceBoundaryView";
+import "./network-namespace-interactive.css";
 
 type Prediction = "" | "both-local-only" | "host-can-reach" | "no-local-health";
+type PredictionChoice = Exclude<Prediction, "">;
 type LocalizedMessage = { ko: string; en: string };
+type NamespacePlacementField =
+  | "appProcessNamespace"
+  | "dataProcessNamespace"
+  | "appProbeNamespace"
+  | "dataProbeNamespace"
+  | "appListenerNamespace"
+  | "dataListenerNamespace";
+
+const objectPlacementFields: Record<NamespaceEditableObjectId, NamespacePlacementField> = {
+  "app-service": "appProcessNamespace",
+  "data-service": "dataProcessNamespace",
+  "app-probe": "appProbeNamespace",
+  "data-probe": "dataProbeNamespace",
+  "app-listener": "appListenerNamespace",
+  "data-listener": "dataListenerNamespace",
+};
+
+const objectLabels: Record<NamespaceEditableObjectId, string> = {
+  "app-service": "app service process",
+  "data-service": "data service process",
+  "app-probe": "app local health probe",
+  "data-probe": "data local health probe",
+  "app-listener": "app listener · 127.0.0.1:8080",
+  "data-listener": "data listener · 127.0.0.1:5432",
+};
 
 const initialDraft: NamespaceTopologyDraft = {
   ...namespaceTopologyPresets.collapsed,
@@ -38,23 +72,27 @@ export function NetworkNamespaceTopologyLab({
   const [evaluation, setEvaluation] = useState<NamespaceTopologyEvaluation | null>(null);
   const [message, setMessage] = useState<LocalizedMessage>(initialMessage);
   const [complete, setComplete] = useState(false);
+  const [selectedObjectId, setSelectedObjectId] = useState<NamespaceEditableObjectId | null>(null);
   const [interactiveReady, setInteractiveReady] = useState(false);
 
   useEffect(() => {
     setInteractiveReady(true);
   }, []);
 
+  useEffect(() => {
+    onCompletionChange(complete);
+  }, [complete, onCompletionChange]);
+
   const preview = useMemo(() => evaluateNamespaceTopology(draft), [draft]);
 
-  function invalidate(nextMessage?: LocalizedMessage) {
+  function invalidate(nextMessage: LocalizedMessage) {
     setEvaluation(null);
-    setComplete(false);
-    onCompletionChange(false);
-    if (nextMessage) setMessage(nextMessage);
+    setComplete(() => false);
+    setMessage(nextMessage);
   }
 
   function setNamespaceField(
-    field: keyof NamespaceTopologyDraft,
+    field: NamespacePlacementField,
     value: NetworkNamespaceId,
   ) {
     setDraft((current) => ({ ...current, [field]: value }));
@@ -72,6 +110,7 @@ export function NetworkNamespaceTopologyLab({
   function applyPreset(id: "collapsed" | "isolated-but-down") {
     setDraft({ ...namespaceTopologyPresets[id] });
     setPrediction("");
+    setSelectedObjectId(null);
     invalidate(id === "collapsed"
       ? localizedMessage("모든 workload가 host에 겹친 출발점입니다. 격리 경계를 설계하세요.", "Every workload starts collapsed onto the host. Design isolation boundaries.")
       : localizedMessage("service는 격리됐지만 두 lo가 down입니다. local health가 왜 실패하는지 수리하세요.", "Services are isolated, but both lo devices are down. Repair the local health failure."));
@@ -80,7 +119,13 @@ export function NetworkNamespaceTopologyLab({
   function reset() {
     setDraft({ ...initialDraft });
     setPrediction("");
+    setSelectedObjectId(null);
     invalidate(localizedMessage("초기화했습니다. host에 겹친 workload를 다시 분리하세요.", "Reset. Separate the workloads collapsed on the host again."));
+  }
+
+  function moveSelectedObject(namespaceId: NetworkNamespaceId) {
+    if (!selectedObjectId) return;
+    setNamespaceField(objectPlacementFields[selectedObjectId], namespaceId);
   }
 
   function runDesign() {
@@ -92,8 +137,7 @@ export function NetworkNamespaceTopologyLab({
       const result = evaluateNamespaceTopology(draft);
       const passed = result.passed && prediction === "both-local-only";
       setEvaluation(result);
-      setComplete(passed);
-      onCompletionChange(passed);
+      setComplete(() => passed);
       if (passed) {
         setMessage(localizedMessage(
           "설계 통과 — app·data local health는 각자의 lo와 socket table에서 성공하고, host localhost와 app localhost:5432 조회에는 대상 listener가 없습니다.",
@@ -124,8 +168,7 @@ export function NetworkNamespaceTopologyLab({
       }
     } catch {
       setEvaluation(null);
-      setComplete(false);
-      onCompletionChange(false);
+      setComplete(() => false);
       setMessage(localizedMessage(
         "브라우저 모델 실행에 실패했습니다. 초기화 후 다시 시도하세요. 설명과 선택 Linux 관찰은 계속 사용할 수 있습니다.",
         "The browser model failed to run. Reset and try again; the explanation and optional Linux observation remain available.",
@@ -136,6 +179,40 @@ export function NetworkNamespaceTopologyLab({
   const namespaceLabel = (namespaceId: NetworkNamespaceId) => namespaceId === "host"
     ? "host"
     : `${namespaceId} netns`;
+  const selectedNamespaceId = selectedObjectId
+    ? draft[objectPlacementFields[selectedObjectId]]
+    : "";
+  const selectedNamespaceLabel = selectedNamespaceId
+    ? namespaceLabel(selectedNamespaceId)
+    : "";
+  const predictionOptions = [
+    {
+      value: "both-local-only",
+      eyebrow: t("의도한 경계", "INTENDED BOUNDARY"),
+      label: t("두 local health만 성공", "Only both local health checks connect"),
+      detail: t("host와 다른 namespace의 localhost 조회는 실패", "Host and cross-namespace localhost lookups fail"),
+    },
+    {
+      value: "host-can-reach",
+      eyebrow: t("경계 누출", "BOUNDARY LEAK"),
+      label: t("host가 두 listener에 도달", "The host reaches both listeners"),
+      detail: t("127.0.0.1이 모든 namespace에 공유된다고 예측", "Predicts that 127.0.0.1 is shared across namespaces"),
+    },
+    {
+      value: "no-local-health",
+      eyebrow: t("과도한 격리", "OVER-ISOLATION"),
+      label: t("격리하면 local health도 실패", "Isolation also breaks local health"),
+      detail: t("같은 namespace의 probe도 연결되지 않는다고 예측", "Predicts that even same-namespace probes cannot connect"),
+    },
+  ] as const;
+  const destinationOptions = networkNamespaceIds.map((namespaceId) => ({
+    value: namespaceId,
+    eyebrow: namespaceId === "host" ? "ROOT VIEW" : "ISOLATED VIEW",
+    label: namespaceLabel(namespaceId),
+    detail: namespaceId === "host"
+      ? t("초기 공유 network view", "Initial shared network view")
+      : t(`${namespaceId} 전용 socket·lo`, `${namespaceId}-local sockets and loopback`),
+  }));
   return (
     <section
       className="interactive-lab namespace-lab namespace-topology-lab"
@@ -160,85 +237,76 @@ export function NetworkNamespaceTopologyLab({
         <button type="button" className="button button-ghost" onClick={reset}>{t("전체 초기화", "Reset all")}</button>
       </div>
 
-      <label>
-        <span>{t("실행 전 reachability 예측", "Predict reachability before execution")}</span>
-        <select
-          aria-label={t("namespace 설계 결과 예측", "Predict namespace design result")}
+      <div className="namespace-prediction-step">
+        <span className="namespace-editor-step">01 · PREDICT</span>
+        <InfrastructureChoiceRail<PredictionChoice>
+          label={t("실행 전 reachability 결과를 선택하세요", "Choose the reachability outcome before running")}
           value={prediction}
-          onChange={(event) => {
-            setPrediction(event.target.value as Prediction);
-            invalidate();
+          options={predictionOptions}
+          onChange={(value) => {
+            setPrediction(value);
+            invalidate(localizedMessage(
+              "예측이 바뀌었습니다. 현재 reachability를 다시 실행하세요.",
+              "Prediction changed. Run the current reachability again.",
+            ));
           }}
-        >
-          <option value="">—</option>
-          <option value="both-local-only">{t("두 local health만 성공, 다른 localhost 조회는 실패", "Only both local health checks succeed; other localhost lookups fail")}</option>
-          <option value="host-can-reach">{t("host가 두 localhost listener에 모두 도달", "The host reaches both localhost listeners")}</option>
-          <option value="no-local-health">{t("격리하면 local health도 항상 실패", "Isolation always breaks local health")}</option>
-        </select>
-      </label>
-
-      <div className="namespace-design-grid">
-        <ServiceBoundaryEditor
-          title="APP · 127.0.0.1:8080"
-          processValue={draft.appProcessNamespace}
-          probeValue={draft.appProbeNamespace}
-          listenerValue={draft.appListenerNamespace}
-          onProcess={(value) => setNamespaceField("appProcessNamespace", value)}
-          onProbe={(value) => setNamespaceField("appProbeNamespace", value)}
-          onListener={(value) => setNamespaceField("appListenerNamespace", value)}
-          t={t}
+          controlId="namespace-prediction"
         />
-        <ServiceBoundaryEditor
-          title="DATA · 127.0.0.1:5432"
-          processValue={draft.dataProcessNamespace}
-          probeValue={draft.dataProbeNamespace}
-          listenerValue={draft.dataListenerNamespace}
-          onProcess={(value) => setNamespaceField("dataProcessNamespace", value)}
-          onProbe={(value) => setNamespaceField("dataProbeNamespace", value)}
-          onListener={(value) => setNamespaceField("dataListenerNamespace", value)}
-          t={t}
-        />
-        <fieldset>
-          <legend>{t("설계 계약", "Design contract")}</legend>
-          <p>{t("같은 namespace", "SAME NAMESPACE")}: service process · listener · local health probe</p>
-          <p>{t("서로 다른 namespace", "DIFFERENT NAMESPACES")}: app · data · host</p>
-          <p>{t("interface 상태", "INTERFACE STATE")}: app lo UP · data lo UP</p>
-          <p>{t("아직 없는 것", "NOT BUILT YET")}: veth · bridge · router · NAT</p>
-        </fieldset>
       </div>
 
-      <div className="namespace-lab-grid" role="group" aria-label={t("namespace별 현재 network view", "Current network view per namespace")}>
-        {networkNamespaceIds.map((namespaceId) => {
-          const processes = preview.machine.processes.filter((candidate) => candidate.namespaceId === namespaceId);
-          const listeners = preview.machine.listeners.filter((candidate) => candidate.namespaceId === namespaceId);
-          const loopback = preview.machine.interfaces.find((candidate) => candidate.namespaceId === namespaceId && candidate.kind === "loopback");
-          return (
-            <article className="namespace-state-card" key={namespaceId}>
-              <span>{namespaceLabel(namespaceId)}</span>
-              <strong>lo {loopback?.up ? "UP" : "DOWN"}</strong>
-              {namespaceId !== "host" ? (
-                <label className="namespace-loopback-control">
-                  <input
-                    type="checkbox"
-                    checked={namespaceId === "app" ? draft.appLoopbackUp : draft.dataLoopbackUp}
-                    onChange={(event) => setBooleanField(
-                      namespaceId === "app" ? "appLoopbackUp" : "dataLoopbackUp",
-                      event.target.checked,
-                    )}
-                  />
-                  {t(`${namespaceId} lo admin state`, `${namespaceId} lo admin state`)}
-                </label>
+      <div className="namespace-editor-workspace">
+        <InfrastructureWorkspace
+          label={t("network namespace 경계 직접 편집기", "Direct network namespace boundary editor")}
+          stage={(
+            <NetworkNamespaceBoundaryView
+              preview={preview}
+              evaluation={evaluation}
+              selectedObjectId={selectedObjectId}
+              onSelectObject={setSelectedObjectId}
+              onLoopbackChange={(namespaceId, up) => setBooleanField(
+                namespaceId === "app" ? "appLoopbackUp" : "dataLoopbackUp",
+                up,
+              )}
+            />
+          )}
+          inspector={(
+            <div className="namespace-editor-inspector">
+              <span className="namespace-editor-step">02 · PLACE OBJECTS</span>
+              <h4>{selectedObjectId
+                ? objectLabels[selectedObjectId]
+                : t("지도에서 object를 선택하세요", "Select an object on the map")}</h4>
+              <p className="namespace-editor-selection" role="status" aria-live="polite" aria-atomic="true">
+                {selectedObjectId
+                  ? t(
+                    `${objectLabels[selectedObjectId]} 선택됨 · 현재 ${selectedNamespaceLabel}`,
+                    `${objectLabels[selectedObjectId]} selected · currently in ${selectedNamespaceLabel}`,
+                  )
+                  : t(
+                    "process, listener, health probe 중 하나를 선택하면 이동 destination이 열립니다.",
+                    "Select a process, listener, or health probe to reveal its destinations.",
+                  )}
+              </p>
+              {selectedObjectId ? (
+                <InfrastructureChoiceRail<NetworkNamespaceId>
+                  label={t("이 object를 이동할 network view", "Move this object to a network view")}
+                  value={selectedNamespaceId}
+                  options={destinationOptions}
+                  onChange={moveSelectedObject}
+                  controlId="namespace-object-destination"
+                  compact
+                />
               ) : null}
-              <ul>
-                <li>{t("process", "processes")}: {processes.map(({ label }) => label).join(" · ") || "—"}</li>
-                <li>{t("listener", "listeners")}: {listeners.map(({ address, port }) => `${address}:${port}`).join(" · ") || "—"}</li>
-              </ul>
-            </article>
-          );
-        })}
+              <div className="namespace-editor-contract">
+                <span>{t("설계 계약", "DESIGN CONTRACT")}</span>
+                <p><strong>{t("같은 namespace", "SAME NAMESPACE")}</strong> service process · listener · local health probe</p>
+                <p><strong>{t("서로 다른 namespace", "DIFFERENT NAMESPACES")}</strong> app · data · host</p>
+                <p><strong>{t("interface 상태", "INTERFACE STATE")}</strong> app lo UP · data lo UP</p>
+                <p><strong>{t("아직 없는 것", "NOT BUILT YET")}</strong> veth · bridge · router · NAT</p>
+              </div>
+            </div>
+          )}
+        />
       </div>
-
-      <NetworkNamespaceBoundaryView preview={preview} evaluation={evaluation} />
 
       <div className="namespace-lab-actions">
         <button type="button" className="button button-primary" onClick={runDesign}>{t("reachability 실행·설계 판정", "Run reachability and grade design")}</button>
@@ -248,46 +316,5 @@ export function NetworkNamespaceTopologyLab({
         {message[locale]}
       </div>
     </section>
-  );
-}
-
-function ServiceBoundaryEditor({
-  title,
-  processValue,
-  probeValue,
-  listenerValue,
-  onProcess,
-  onProbe,
-  onListener,
-  t,
-}: {
-  title: string;
-  processValue: NetworkNamespaceId;
-  probeValue: NetworkNamespaceId;
-  listenerValue: NetworkNamespaceId;
-  onProcess: (value: NetworkNamespaceId) => void;
-  onProbe: (value: NetworkNamespaceId) => void;
-  onListener: (value: NetworkNamespaceId) => void;
-  t: (ko: string, en: string) => string;
-}) {
-  const select = (
-    label: string,
-    value: NetworkNamespaceId,
-    onChange: (value: NetworkNamespaceId) => void,
-  ) => (
-    <label>
-      <span>{label}</span>
-      <select value={value} onChange={(event) => onChange(event.target.value as NetworkNamespaceId)}>
-        {networkNamespaceIds.map((namespaceId) => <option value={namespaceId} key={namespaceId}>{namespaceId}</option>)}
-      </select>
-    </label>
-  );
-  return (
-    <fieldset>
-      <legend>{title}</legend>
-      {select(t("service process 위치", "service process namespace"), processValue, onProcess)}
-      {select(t("listener 생성 위치", "listener creation namespace"), listenerValue, onListener)}
-      {select(t("local health probe 위치", "local health probe namespace"), probeValue, onProbe)}
-    </fieldset>
   );
 }

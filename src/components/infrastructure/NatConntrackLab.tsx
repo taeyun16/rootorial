@@ -10,6 +10,10 @@ import {
   type NatTarget,
 } from "../../features/infrastructure/egress-nat";
 import { useLocale } from "../../features/localization/localization";
+import {
+  InfrastructureChoiceRail,
+  InfrastructureStateSwitch,
+} from "./InfrastructureInteractionPrimitives";
 import { NatConntrackView } from "./NatConntrackView";
 
 type Prediction = "" | "round-trip" | "forward-only" | "blocked-before-external";
@@ -46,16 +50,31 @@ export function NatConntrackLab({
 
   useEffect(() => setInteractiveReady(true), []);
 
-  function publishCompletion(next: Completion) {
-    setCompleted(next);
-    onCompletionChange(next);
+  useEffect(() => {
+    onCompletionChange(completed);
+  }, [completed, onCompletionChange]);
+
+  function setModeCompletion(mode: NatMode, complete: boolean) {
+    setCompleted((current) => current[mode] === complete
+      ? current
+      : { ...current, [mode]: complete });
   }
 
   function invalidate(nextFeedback: LocalizedMessage, mode = draft.mode) {
     setEvaluation(null);
     setPrediction("");
-    publishCompletion({ ...completed, [mode]: false });
+    setModeCompletion(mode, false);
     setFeedback(nextFeedback);
+  }
+
+  function changePrediction(value: Exclude<Prediction, "">) {
+    setPrediction(value);
+    setEvaluation(null);
+    setModeCompletion(draft.mode, false);
+    setFeedback(message(
+      "예측이 바뀌었습니다. 현재 packet 왕복을 다시 실행하세요.",
+      "Prediction changed. Re-run the current packet round trip.",
+    ));
   }
 
   function applyScaffold(mode: NatMode) {
@@ -98,7 +117,7 @@ export function NatConntrackLab({
       const result = evaluateNatFlow(draft);
       setEvaluation(result);
       const passed = result.passed && prediction === "round-trip";
-      publishCompletion({ ...completed, [draft.mode]: passed });
+      setModeCompletion(draft.mode, passed);
       if (passed) {
         setFeedback(draft.mode === "snat"
           ? message("SNAT 통과 — 고정 egress address와 conntrack reply가 original private tuple을 복원합니다.", "SNAT passed — the fixed egress address and conntrack reply restore the original private tuple.")
@@ -114,7 +133,7 @@ export function NatConntrackLab({
       }
     } catch {
       setEvaluation(null);
-      publishCompletion({ ...completed, [draft.mode]: false });
+      setModeCompletion(draft.mode, false);
       setFeedback(message("브라우저 packet-state model을 실행하지 못했습니다. 현재 mode를 초기화하세요.", "The browser packet-state model failed. Reset the current mode."));
     }
   }
@@ -147,33 +166,129 @@ export function NatConntrackLab({
         <button type="button" className="button button-ghost" onClick={() => applyScaffold(draft.mode)}>{t("현재 mode 초기화", "Reset current mode")}</button>
       </div>
 
-      <div className="nat-control-grid">
-        <fieldset>
-          <legend>{t("route와 forwarding", "Routes and forwarding")}</legend>
-          <label className="nat-check-control"><input type="checkbox" checked={draft.clientLinkUp} onChange={(event) => setField("clientLinkUp", event.target.checked)} />{t("client veth 양 endpoint UP", "Both client-veth endpoints UP")}</label>
-          <label className="nat-check-control"><input type="checkbox" checked={draft.routerLinksUp} onChange={(event) => setField("routerLinksUp", event.target.checked)} />{t("router private·egress link UP", "Router private and egress links UP")}</label>
-          <label className="nat-check-control"><input type="checkbox" checked={draft.privateRoute} onChange={(event) => setField("privateRoute", event.target.checked)} />{t("client default route 존재", "Client default route present")}</label>
-          <label className="nat-check-control"><input type="checkbox" checked={draft.forwarding} onChange={(event) => setField("forwarding", event.target.checked)} />router net.ipv4.ip_forward=1</label>
-        </fieldset>
-
-        <fieldset>
-          <legend>{t("source translation", "Source translation")}</legend>
-          <label><span>{t("egress address 수명", "Egress address lifetime")}</span><select aria-label={t("egress address 수명", "Egress address lifetime")} value={draft.egressAddressMode} onChange={(event) => setField("egressAddressMode", event.target.value as NatFlowDraft["egressAddressMode"])}><option value="static">{t("고정 · 203.0.113.10", "static · 203.0.113.10")}</option><option value="dynamic">{t("동적 lease · 203.0.113.77", "dynamic lease · 203.0.113.77")}</option></select></label>
-          <label><span>{t("NAT rule hook", "NAT rule hook")}</span><select aria-label={t("NAT rule hook", "NAT rule hook")} value={draft.natHook} onChange={(event) => setField("natHook", event.target.value as NatRuleHook)}><option value="none">{t("rule 없음", "no rule")}</option><option value="prerouting">prerouting</option><option value="postrouting">postrouting</option></select></label>
-          {draft.mode === "snat" ? <label><span>SNAT target</span><select aria-label="SNAT target" value={draft.natTarget} onChange={(event) => setField("natTarget", event.target.value as NatTarget)}><option value="unowned-address">203.0.113.99 · {t("미소유", "unowned")}</option><option value="egress-address">{publicAddress} · {t("egress 소유", "egress-owned")}</option></select></label> : <p className="nat-derived-state">{t("MASQUERADE는 실행 시점의 egress interface address를 선택합니다.", "Masquerade selects the egress interface address at execution time.")}</p>}
-          <label className="nat-check-control"><input type="checkbox" checked={draft.egressAddressPresent} onChange={(event) => setField("egressAddressPresent", event.target.checked)} />{t("egress interface에 usable address 존재", "Egress interface has a usable address")}</label>
-        </fieldset>
-
-        <fieldset>
-          <legend>{t("reply와 conntrack", "Reply and conntrack")}</legend>
-          <label className="nat-check-control"><input type="checkbox" checked={draft.externalListener} onChange={(event) => setField("externalListener", event.target.checked)} />external 198.51.100.20:443 LISTEN</label>
-          <label className="nat-check-control"><input type="checkbox" checked={draft.externalReturnRoute} onChange={(event) => setField("externalReturnRoute", event.target.checked)} />{t("translated source로 upstream return route", "Upstream return route to translated source")}</label>
-          <label className="nat-check-control"><input type="checkbox" checked={draft.conntrackEnabled} onChange={(event) => setField("conntrackEnabled", event.target.checked)} />{t("conntrack state 생성", "Create conntrack state")}</label>
-          <label><span>{t("reply가 지나는 router", "Router traversed by reply")}</span><select aria-label={t("reply가 지나는 router", "Router traversed by reply")} value={draft.returnRouter} onChange={(event) => setField("returnRouter", event.target.value as NatReturnRouter)}><option value="different-router">{t("다른 router · state 없음", "different router · no state")}</option><option value="same-router">{t("original NAT router", "original NAT router")}</option></select></label>
-        </fieldset>
-      </div>
-
-      <NatConntrackView draft={draft} evaluation={evaluation} />
+      <NatConntrackView
+        draft={draft}
+        evaluation={evaluation}
+        nodeControls={{
+          client: <div className="nat-node-control-stack">
+            <InfrastructureStateSwitch
+              controlId="nat-client-link"
+              label={t("client veth pair", "Client veth pair")}
+              checked={draft.clientLinkUp}
+              onChange={(value) => setField("clientLinkUp", value)}
+              stateOn="UP"
+              stateOff="DOWN"
+            />
+            <InfrastructureStateSwitch
+              controlId="nat-private-route"
+              label={t("client default route", "Client default route")}
+              checked={draft.privateRoute}
+              onChange={(value) => setField("privateRoute", value)}
+              stateOn="INSTALLED"
+              stateOff="MISSING"
+            />
+          </div>,
+          router: <div className="nat-node-control-stack">
+            <div className="nat-node-switch-grid">
+              <InfrastructureStateSwitch
+                controlId="nat-router-links"
+                label={t("private·egress link", "Private and egress links")}
+                checked={draft.routerLinksUp}
+                onChange={(value) => setField("routerLinksUp", value)}
+                stateOn="UP"
+                stateOff="DOWN"
+              />
+              <InfrastructureStateSwitch
+                controlId="nat-forwarding"
+                label="net.ipv4.ip_forward"
+                checked={draft.forwarding}
+                onChange={(value) => setField("forwarding", value)}
+                stateOn="1"
+                stateOff="0"
+              />
+              <InfrastructureStateSwitch
+                controlId="nat-egress-address-present"
+                label={t("egress interface address", "Egress interface address")}
+                checked={draft.egressAddressPresent}
+                onChange={(value) => setField("egressAddressPresent", value)}
+                stateOn="USABLE"
+                stateOff="MISSING"
+              />
+              <InfrastructureStateSwitch
+                controlId="nat-conntrack"
+                label="conntrack"
+                checked={draft.conntrackEnabled}
+                onChange={(value) => setField("conntrackEnabled", value)}
+                stateOn="STATEFUL"
+                stateOff="DISABLED"
+              />
+            </div>
+            <InfrastructureChoiceRail<NatFlowDraft["egressAddressMode"]>
+              controlId="nat-egress-address-mode"
+              label={t("egress address 수명", "Egress address lifetime")}
+              value={draft.egressAddressMode}
+              compact
+              options={[
+                { value: "static", label: t("고정 address", "Static address"), detail: "203.0.113.10" },
+                { value: "dynamic", label: t("동적 lease", "Dynamic lease"), detail: "203.0.113.77" },
+              ]}
+              onChange={(value) => setField("egressAddressMode", value)}
+            />
+            <InfrastructureChoiceRail<NatRuleHook>
+              controlId="nat-hook"
+              label={t("source translation rule을 놓을 hook", "Hook for the source-translation rule")}
+              value={draft.natHook}
+              compact
+              options={[
+                { value: "none", label: t("rule 없음", "No rule"), eyebrow: "EMPTY" },
+                { value: "prerouting", label: "PREROUTING", eyebrow: "BEFORE ROUTE" },
+                { value: "postrouting", label: "POSTROUTING", eyebrow: "AFTER ROUTE" },
+              ]}
+              onChange={(value) => setField("natHook", value)}
+            />
+            {draft.mode === "snat" ? <InfrastructureChoiceRail<NatTarget>
+              controlId="nat-snat-target"
+              label="SNAT target"
+              value={draft.natTarget}
+              compact
+              options={[
+                { value: "unowned-address", label: "203.0.113.99", detail: t("router 미소유", "Not owned by router") },
+                { value: "egress-address", label: publicAddress, detail: t("egress 소유", "Owned by egress") },
+              ]}
+              onChange={(value) => setField("natTarget", value)}
+            /> : <p className="nat-derived-state">{t("MASQUERADE는 실행 시점의 egress interface address를 직접 읽습니다.", "Masquerade reads the egress interface address at execution time.")}</p>}
+          </div>,
+          external: <div className="nat-node-control-stack">
+            <InfrastructureStateSwitch
+              controlId="nat-external-listener"
+              label="198.51.100.20:443"
+              checked={draft.externalListener}
+              onChange={(value) => setField("externalListener", value)}
+              stateOn="LISTEN"
+              stateOff="CLOSED"
+            />
+            <InfrastructureStateSwitch
+              controlId="nat-external-return-route"
+              label={t("translated source return route", "Translated-source return route")}
+              checked={draft.externalReturnRoute}
+              onChange={(value) => setField("externalReturnRoute", value)}
+              stateOn="ROUTED"
+              stateOff="MISSING"
+            />
+            <InfrastructureChoiceRail<NatReturnRouter>
+              controlId="nat-return-router"
+              label={t("reply가 통과할 router", "Router traversed by the reply")}
+              value={draft.returnRouter}
+              compact
+              options={[
+                { value: "different-router", label: t("다른 router", "Different router"), detail: t("state 없음", "No state") },
+                { value: "same-router", label: t("original NAT router", "Original NAT router"), detail: t("conntrack state 재사용", "Reuse conntrack state") },
+              ]}
+              onChange={(value) => setField("returnRouter", value)}
+            />
+          </div>,
+        }}
+      />
 
       <div className="nat-command-evidence">
         <span>{t("현재 namespace-scoped command evidence", "Current namespace-scoped command evidence")}</span>
@@ -181,7 +296,17 @@ export function NatConntrackLab({
       </div>
 
       <div className="nat-run-row">
-        <label><span>{t("실행 전 왕복 결과 예측", "Predict the round-trip result before execution")}</span><select aria-label={t("NAT flow 실행 결과 예측", "Predict NAT flow execution result")} value={prediction} onChange={(event) => { setPrediction(event.target.value as Prediction); setEvaluation(null); }}><option value="">—</option><option value="round-trip">{t("request·reply tuple 모두 복원", "Both request and reply tuples restore")}</option><option value="forward-only">{t("request만 external에 도착", "Only the request reaches external")}</option><option value="blocked-before-external">{t("request가 external 전에 차단", "The request is blocked before external")}</option></select></label>
+        <InfrastructureChoiceRail<Exclude<Prediction, "">>
+          controlId="nat-prediction"
+          label={t("실행 전 packet 왕복 결과 예측", "Predict the packet round-trip before execution")}
+          value={prediction}
+          options={[
+            { value: "round-trip", label: t("tuple 왕복 복원", "Round trip restores tuples"), detail: t("request·reply 모두 연결", "Request and reply connect") },
+            { value: "forward-only", label: t("forward만 도착", "Forward only"), detail: t("reply 복원 실패", "Reply restoration fails") },
+            { value: "blocked-before-external", label: t("external 전 차단", "Blocked before external"), detail: t("request가 service에 도달하지 못함", "Request does not reach the service") },
+          ]}
+          onChange={changePrediction}
+        />
         <button type="button" className="button button-primary" onClick={runFlow}>{t("forward·return NAT flow 실행", "Run forward and return NAT flow")}</button>
       </div>
 

@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 import {
   buildNetworkPolicyVisualState,
   type NetworkPolicyGradeState,
@@ -15,10 +15,15 @@ export function NetworkPolicyView({
   preview,
   evaluation,
   gradeState,
+  controls,
 }: {
   preview: NetworkPolicyEvaluation;
   evaluation: NetworkPolicyEvaluation | null;
   gradeState: NetworkPolicyGradeState;
+  controls?: {
+    boundary?: ReactNode;
+    chain?: ReactNode;
+  };
 }) {
   const { locale } = useLocale();
   const isKo = locale === "ko";
@@ -88,8 +93,9 @@ export function NetworkPolicyView({
 
       <div
         className="network-policy-map"
-        role="img"
-        aria-labelledby={`${titleId} ${descriptionId}`}
+        role="group"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
       >
         <span className="sr-only" id={titleId}>{t("FORWARD와 INPUT firewall policy 지도", "FORWARD and INPUT firewall policy map")}</span>
         <span className="sr-only" id={descriptionId}>{visual.mode === "forward"
@@ -108,6 +114,7 @@ export function NetworkPolicyView({
           <span>router netns · inet filter</span>
           <strong>{visual.hook.toUpperCase()} hook</strong>
           <small>policy {visual.defaultPolicy}</small>
+          {controls?.boundary}
         </article>
         <svg className="network-policy-connector" viewBox="0 0 100 24" aria-hidden="true" focusable="false">
           <path d="M2 12H91" />
@@ -123,6 +130,7 @@ export function NetworkPolicyView({
       <div className="network-policy-trace-grid">
         <div className="network-policy-chain">
           <div><span>{t("ordered terminal rules", "Ordered terminal rules")}</span><strong>hook {visual.hook} · policy {visual.defaultPolicy}</strong></div>
+          {controls?.chain}
           <ol>
             {visual.rules.map((rule) => (
               <li key={rule.id} data-rule-id={rule.id} data-rule-position={rule.position}>

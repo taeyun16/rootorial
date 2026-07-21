@@ -1,3 +1,4 @@
+import { useId, type ReactNode } from "react";
 import { buildNatVisualState } from "../../features/infrastructure/egress-nat-visual";
 import type {
   NatFlowDraft,
@@ -9,13 +10,21 @@ import { useLocale } from "../../features/localization/localization";
 export function NatConntrackView({
   draft,
   evaluation,
+  nodeControls,
 }: {
   draft: NatFlowDraft;
   evaluation: NatFlowEvaluation | null;
+  nodeControls?: {
+    client?: ReactNode;
+    router?: ReactNode;
+    external?: ReactNode;
+  };
 }) {
   const { locale } = useLocale();
   const isKo = locale === "ko";
   const t = (ko: string, en: string) => isKo ? ko : en;
+  const topologyTitleId = useId();
+  const topologyDescriptionId = useId();
   const visual = buildNatVisualState(draft, evaluation);
   const forward = visual.stages.filter(({ direction }) => direction === "forward");
   const reply = visual.stages.filter(({ direction }) => direction === "return");
@@ -49,12 +58,18 @@ export function NatConntrackView({
 
       <div
         className="nat-topology-map"
-        role="img"
-        aria-label={t(
+        role="group"
+        aria-labelledby={topologyTitleId}
+        aria-describedby={topologyDescriptionId}
+      >
+        <span className="sr-only" id={topologyTitleId}>{t(
+          "private client와 NAT router, external service topology 지도",
+          "Private client, NAT router, and external service topology map",
+        )}</span>
+        <span className="sr-only" id={topologyDescriptionId}>{t(
           `${draft.mode === "snat" ? "SNAT" : "MASQUERADE"}를 거쳐 private client request와 external service reply가 같은 router conntrack state로 왕복하는 지도`,
           `Map of a private-client request and external-service reply traversing ${draft.mode === "snat" ? "SNAT" : "masquerade"} through the same router conntrack state`,
-        )}
-      >
+        )}</span>
         <NatNode
           id="private-client"
           eyebrow="PRIVATE NETNS"
@@ -66,6 +81,7 @@ export function NatConntrackView({
             t("default route → 10.20.0.1", "default route → 10.20.0.1"),
             "socket · 10.20.0.2:41000",
           ]}
+          controls={nodeControls?.client}
         />
         <NatConnector label={t("원본 source", "original source")} />
         <NatNode
@@ -81,6 +97,7 @@ export function NatConntrackView({
               ? `conntrack · ${visual.conntrack.state}`
               : t("conntrack · 실행 전 비공개", "conntrack · hidden before run"),
           ]}
+          controls={nodeControls?.router}
         />
         <NatConnector label={t("번역된 source", "translated source")} />
         <NatNode
@@ -96,6 +113,7 @@ export function NatConntrackView({
               ? t("return → 같은 NAT router", "return → same NAT router")
               : t("return → 다른 router", "return → different router"),
           ]}
+          controls={nodeControls?.external}
         />
       </div>
 
@@ -121,6 +139,7 @@ function NatNode({
   address,
   state,
   rows,
+  controls,
 }: {
   id: string;
   eyebrow: string;
@@ -128,6 +147,7 @@ function NatNode({
   address: string;
   state: "ready" | "attention";
   rows: string[];
+  controls?: ReactNode;
 }) {
   return (
     <article className="nat-node" data-node-id={id} data-node-state={state}>
@@ -135,6 +155,7 @@ function NatNode({
       <strong>{title}</strong>
       <code>{address}</code>
       <ul>{rows.map((row) => <li key={row}>{row}</li>)}</ul>
+      {controls ? <div className="nat-node-controls">{controls}</div> : null}
     </article>
   );
 }

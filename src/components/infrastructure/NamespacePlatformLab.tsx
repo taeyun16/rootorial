@@ -16,6 +16,10 @@ import {
   type NamespacePlatformEvidenceReceipt,
 } from "../../features/infrastructure/namespace-platform-evidence";
 import { useLocale } from "../../features/localization/localization";
+import {
+  InfrastructureChoiceRail,
+  InfrastructureWorkspace,
+} from "./InfrastructureInteractionPrimitives";
 import { NamespacePlatformView } from "./NamespacePlatformView";
 
 export type NamespacePlatformLabCompletion = {
@@ -112,17 +116,19 @@ export function NamespacePlatformLab({
       const working = cloneNamespacePlatformDraft(namespacePlatformPresets.working);
       if (kind === "public-ingress") {
         const edgeListener = { ...working.listeners.find(({ id }) => id === "edge-https")! };
-        const internalListeners = working.listeners
-          .filter(({ id }) => id === "app-http" || id === "data-postgres")
+        const retainedListeners = current.listeners
+          .filter(({ id, namespaceId, exposure }) => id !== "edge-https"
+            && id !== "app-public-https"
+            && (exposure !== "public" || namespaceId === "data"))
           .map((item) => ({ ...item }));
         const appPublic = { id: "app-public-https", namespaceId: "app" as const, address: current.namespaces.find(({ id }) => id === "app")?.address ?? "10.30.0.10", port: 443, exposure: "public" as const, up: true };
         return {
           ...current,
           listeners: value === "edge-443-only"
-            ? [...internalListeners, edgeListener]
+            ? [...retainedListeners, edgeListener]
             : value === "edge-and-app-443"
-              ? [...internalListeners, edgeListener, appPublic]
-              : [...internalListeners, appPublic],
+              ? [...retainedListeners, edgeListener, appPublic]
+              : [...retainedListeners, appPublic],
         };
       }
       if (kind === "app-exposure" || kind === "data-exposure") {
@@ -133,27 +139,49 @@ export function NamespacePlatformLab({
           listeners: current.listeners.map((item) => item.namespaceId === namespaceId ? { ...item, exposure: value as "public" | "private" } : item),
         };
       }
-      if (kind === "edge-app" || kind === "app-data") {
-        const routeId = kind === "edge-app" ? "edge-app" : "app-data";
+      if (kind.startsWith("edge-app-") || kind.startsWith("app-data-")) {
+        const routeId = kind.startsWith("edge-app-") ? "edge-app" : "app-data";
         const workingRoute = working.routes.find(({ id }) => id === routeId)!;
         const workingListener = working.listeners.find(({ namespaceId }) => namespaceId === workingRoute.destinationNamespaceId)!;
         const workingEndpoint = working.serviceEndpoints.find(({ namespaceId }) => namespaceId === workingRoute.destinationNamespaceId)!;
         const workingPolicy = working.policyRules.find(({ id }) => id === `allow-${routeId}`)!;
-        const wrongPort = kind === "edge-app" ? 8443 : 3306;
-        const withoutRoute = current.routes.filter(({ id }) => id !== routeId);
-        return {
-          ...current,
-          routes: value === "missing" ? withoutRoute : [...withoutRoute, { ...workingRoute, destinationPort: value === "correct" ? workingRoute.destinationPort : wrongPort }],
-          listeners: value === "correct"
-            ? [...current.listeners.filter(({ id }) => id !== workingListener.id), { ...workingListener }]
-            : current.listeners,
-          serviceEndpoints: value === "correct"
-            ? [...current.serviceEndpoints.filter(({ name }) => name !== workingEndpoint.name), { ...workingEndpoint }]
-            : current.serviceEndpoints,
-          policyRules: value === "correct"
-            ? [...current.policyRules.filter(({ id }) => id !== workingPolicy.id), { ...workingPolicy }]
-            : current.policyRules,
-        };
+        const wrongPort = routeId === "edge-app" ? 8443 : 3306;
+        if (kind.endsWith("-route")) {
+          const retainedRoutes = current.routes.filter(({ id }) => id !== routeId);
+          return {
+            ...current,
+            routes: value === "missing"
+              ? retainedRoutes
+              : [...retainedRoutes, { ...workingRoute, destinationPort: value === "correct" ? workingRoute.destinationPort : wrongPort }],
+          };
+        }
+        if (kind.endsWith("-listener")) {
+          const retainedListeners = current.listeners.filter(({ id }) => id !== workingListener.id);
+          return {
+            ...current,
+            listeners: value === "missing"
+              ? retainedListeners
+              : [...retainedListeners, value === "correct" ? { ...workingListener } : { ...workingListener, port: wrongPort }],
+          };
+        }
+        if (kind.endsWith("-discovery")) {
+          const retainedEndpoints = current.serviceEndpoints.filter(({ name }) => name !== workingEndpoint.name);
+          return {
+            ...current,
+            serviceEndpoints: value === "missing"
+              ? retainedEndpoints
+              : [...retainedEndpoints, value === "correct" ? { ...workingEndpoint } : { ...workingEndpoint, port: wrongPort, healthy: false }],
+          };
+        }
+        if (kind.endsWith("-policy")) {
+          const retainedRules = current.policyRules.filter(({ id }) => id !== workingPolicy.id);
+          return {
+            ...current,
+            policyRules: value === "missing"
+              ? retainedRules
+              : [...retainedRules, value === "correct" ? { ...workingPolicy } : { ...workingPolicy, destinationPort: wrongPort }],
+          };
+        }
       }
       if (kind === "private-egress") {
         const workingRoute = working.routes.find(({ id }) => id === "app-external")!;
@@ -191,23 +219,37 @@ export function NamespacePlatformLab({
   }
 
   const publicListeners = draft.listeners.filter(({ exposure, up }) => exposure === "public" && up);
-  const publicIngressChoice = publicListeners.length === 1 && publicListeners[0]?.namespaceId === "edge" && publicListeners[0].port === 443
+  const edgePublicListeners = publicListeners.filter(({ namespaceId, port }) => namespaceId === "edge" && port === 443);
+  const appPublicListeners = publicListeners.filter(({ namespaceId, port }) => namespaceId === "app" && port === 443);
+  const publicIngressChoice: "" | "edge-443-only" | "edge-and-app-443" | "app-443-only" = publicListeners.length === 1 && edgePublicListeners.length === 1
     ? "edge-443-only"
-    : publicListeners.some(({ namespaceId }) => namespaceId === "edge") && publicListeners.some(({ namespaceId }) => namespaceId === "app")
+    : publicListeners.length === 2 && edgePublicListeners.length === 1 && appPublicListeners.length === 1
       ? "edge-and-app-443"
-      : "app-443-only";
+      : publicListeners.length === 1 && appPublicListeners.length === 1
+        ? "app-443-only"
+        : "";
   const namespaceScope = (namespaceId: "app" | "data") => draft.namespaces.find(({ id }) => id === namespaceId)?.addressScope ?? "private";
   const readiness = evaluateNamespacePlatformDraftChecks(draft);
-  const pathChoice = (
-    routeId: "edge-app" | "app-data",
-    expectedPort: number,
-    ready: boolean,
-  ) => {
-    const item = draft.routes.find(({ id }) => id === routeId);
-    if (!item) return "missing";
-    if (item.destinationPort !== expectedPort) return "wrong-port";
-    return ready ? "correct" : "incomplete";
+  const sameFields = <Item extends object>(item: Item | undefined, expected: Item) => Boolean(item)
+    && Object.entries(expected).every(([key, value]) => item?.[key as keyof Item] === value);
+  const pathArtifactChoices = (routeId: "edge-app" | "app-data") => {
+    const expectedRoute = namespacePlatformPresets.working.routes.find(({ id }) => id === routeId)!;
+    const expectedListener = namespacePlatformPresets.working.listeners.find(({ namespaceId }) => namespaceId === expectedRoute.destinationNamespaceId)!;
+    const expectedEndpoint = namespacePlatformPresets.working.serviceEndpoints.find(({ namespaceId }) => namespaceId === expectedRoute.destinationNamespaceId)!;
+    const expectedPolicy = namespacePlatformPresets.working.policyRules.find(({ id }) => id === `allow-${routeId}`)!;
+    const route = draft.routes.find(({ id }) => id === routeId);
+    const listener = draft.listeners.find(({ id }) => id === expectedListener.id);
+    const endpoint = draft.serviceEndpoints.find(({ name }) => name === expectedEndpoint.name);
+    const policy = draft.policyRules.find(({ id }) => id === expectedPolicy.id);
+    return {
+      route: !route ? "missing" : sameFields(route, expectedRoute) ? "correct" : "mismatch",
+      listener: !listener ? "missing" : sameFields(listener, expectedListener) ? "correct" : "mismatch",
+      discovery: !endpoint ? "missing" : sameFields(endpoint, expectedEndpoint) ? "correct" : "mismatch",
+      policy: !policy ? "missing" : sameFields(policy, expectedPolicy) ? "correct" : "mismatch",
+    } as const;
   };
+  const edgeAppChoices = pathArtifactChoices("edge-app");
+  const appDataChoices = pathArtifactChoices("app-data");
   const egressRoute = draft.routes.find(({ id }) => id === "app-external");
   const egressChoice = egressRoute?.viaNamespaceId !== "edge"
     ? "direct-public"
@@ -216,6 +258,33 @@ export function NamespacePlatformLab({
       : "edge-without-conntrack";
   const placementsSplit = ["edge", "app", "data"].every((namespaceId) =>
     draft.placements.some((item) => item.namespaceId === namespaceId && item.zone === "zone-b" && item.healthy));
+  const capacityChoice = draft.peakCapacity.linkMegabitsPerSecond >= 160
+    && draft.peakCapacity.connectionLimit >= 300
+    && draft.peakCapacity.queueLimitPackets >= 160
+    ? "headroom"
+    : "undersized";
+  const contractReadiness = [
+    {
+      id: "public-ingress",
+      label: t("공개 ingress", "Public ingress"),
+      ready: readiness["edge-only-public-443"] && readiness["ingress-policy"],
+    },
+    {
+      id: "private-service-path",
+      label: t("사설 service path", "Private service path"),
+      ready: readiness["app-private"] && readiness["data-private"] && readiness["edge-to-app-8080"] && readiness["app-to-data-5432"],
+    },
+    {
+      id: "stateful-egress",
+      label: t("상태 기반 egress", "Stateful egress"),
+      ready: readiness["egress-through-edge-nat-conntrack"],
+    },
+    {
+      id: "failure-capacity-budget",
+      label: t("장애·용량 예산", "Failure and capacity budget"),
+      ready: readiness["zone-a-survival"] && readiness["capacity-headroom"],
+    },
+  ] as const;
 
   function assembleEvidence() {
     try {
@@ -262,6 +331,21 @@ export function NamespacePlatformLab({
     }
   }
 
+  function selectScenario(scenarioId: NamespacePlatformScenarioId) {
+    if (scenarioId === activeScenario) return;
+    const hasStoredResult = Boolean(scenarioResults[scenarioId]);
+    setActiveScenario(scenarioId);
+    setFeedback({
+      tone: "idle",
+      ko: hasStoredResult
+        ? `${scenarioTitle(scenarioId, true)} scenario를 선택했습니다. 저장된 결과를 확인하거나 다시 실행하세요.`
+        : `${scenarioTitle(scenarioId, true)} scenario를 선택했습니다. 아직 실행되지 않았습니다. 현재 scenario를 실행하세요.`,
+      en: hasStoredResult
+        ? `${scenarioTitle(scenarioId, false)} scenario selected. Review the stored result or run it again.`
+        : `${scenarioTitle(scenarioId, false)} scenario selected. It has not run yet. Run the current scenario.`,
+    });
+  }
+
   return (
     <section
       className="interactive-lab namespace-platform-lab"
@@ -295,29 +379,220 @@ export function NamespacePlatformLab({
           <button type="button" className="button button-ghost" onClick={() => loadPreset("scaffold")}>{t("불완전한 scaffold", "Incomplete scaffold")}</button>
           <button type="button" className="button button-secondary" onClick={() => loadPreset("working")}>{t("검증 가능한 blueprint", "Verifiable blueprint")}</button>
         </div>
-        <div className="namespace-platform-control-grid">
-          <label><span>{t("public ingress", "Public ingress")}</span><select aria-label={t("public ingress 경계", "Public ingress boundary")} value={publicIngressChoice} onChange={(event) => applyDesignChoice("public-ingress", event.target.value)}><option value="edge-443-only">edge tcp/443 only</option><option value="edge-and-app-443">edge + app tcp/443</option><option value="app-443-only">app tcp/443 only</option></select></label>
-          <label><span>{t("app exposure", "App exposure")}</span><select aria-label={t("app address 노출", "App address exposure")} value={namespaceScope("app")} onChange={(event) => applyDesignChoice("app-exposure", event.target.value)}><option value="private">private</option><option value="public">public</option></select></label>
-          <label><span>{t("data exposure", "Data exposure")}</span><select aria-label={t("data address 노출", "Data address exposure")} value={namespaceScope("data")} onChange={(event) => applyDesignChoice("data-exposure", event.target.value)}><option value="private">private</option><option value="public">public</option></select></label>
-          <label><span>edge → app</span><select aria-label={t("edge에서 app 경로", "Edge to app path")} value={pathChoice("edge-app", 8080, readiness["edge-to-app-8080"])} onChange={(event) => applyDesignChoice("edge-app", event.target.value)}><option value="correct">tcp/8080</option><option value="incomplete" disabled>{t("tcp/8080 · boundary 불일치", "tcp/8080 · boundary mismatch")}</option><option value="wrong-port">tcp/8443</option><option value="missing">missing</option></select></label>
-          <label><span>app → data</span><select aria-label={t("app에서 data 경로", "App to data path")} value={pathChoice("app-data", 5432, readiness["app-to-data-5432"])} onChange={(event) => applyDesignChoice("app-data", event.target.value)}><option value="correct">tcp/5432</option><option value="incomplete" disabled>{t("tcp/5432 · boundary 불일치", "tcp/5432 · boundary mismatch")}</option><option value="wrong-port">tcp/3306</option><option value="missing">missing</option></select></label>
-          <label><span>{t("private egress", "Private egress")}</span><select aria-label={t("app 외부 update 경로", "App external update path")} value={egressChoice} onChange={(event) => applyDesignChoice("private-egress", event.target.value)}><option value="edge-nat-conntrack">edge NAT + conntrack</option><option value="edge-without-conntrack">edge NAT, no conntrack</option><option value="direct-public">direct public</option></select></label>
-          <label><span>{t("failure placement", "Failure placement")}</span><select aria-label={t("edge app data zone 배치", "Edge app data zone placement")} value={placementsSplit ? "split-zones" : "zone-a-only"} onChange={(event) => applyDesignChoice("placement", event.target.value)}><option value="split-zones">zone A + B</option><option value="zone-a-only">zone A only</option></select></label>
-          <label><span>{t("peak capacity", "Peak capacity")}</span><select aria-label={t("900 rps capacity plan", "900 rps capacity plan")} value={draft.peakCapacity.linkMegabitsPerSecond >= 160 && draft.peakCapacity.connectionLimit >= 300 && draft.peakCapacity.queueLimitPackets >= 160 ? "headroom" : "undersized"} onChange={(event) => applyDesignChoice("capacity", event.target.value)}><option value="headroom">900 rps · 30% headroom</option><option value="undersized">900 rps · undersized</option></select></label>
-        </div>
+        <InfrastructureWorkspace
+          label={t("namespace platform 아키텍처 작업 공간", "Namespace platform architecture workspace")}
+          stage={(
+            <>
+              <NamespacePlatformView draft={draft} scenarioId={activeScenario} scenario={activeResult} evidence={evidence} />
+              <div className="namespace-platform-control-grid">
+                <InfrastructureChoiceRail
+                  controlId="platform-public-ingress"
+                  label={t("공개 요청을 어디서 끝낼까?", "Where should public requests terminate?")}
+                  value={publicIngressChoice}
+                  options={[
+                    { value: "edge-443-only", eyebrow: "EDGE", label: "edge tcp/443 only", detail: t("public listener를 edge에만 유지", "Keep the only public listener at edge") },
+                    { value: "edge-and-app-443", eyebrow: "EDGE + APP", label: "edge + app tcp/443", detail: t("app도 공개 경계에 노출", "Expose app at the public boundary too") },
+                    { value: "app-443-only", eyebrow: "APP", label: "app tcp/443 only", detail: t("edge를 건너뛰", "Bypass the edge boundary") },
+                  ]}
+                  onChange={(value) => applyDesignChoice("public-ingress", value)}
+                />
+                <div className="namespace-platform-paired-controls">
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-app-exposure"
+                    label={t("app address 노출", "App address exposure")}
+                    value={namespaceScope("app")}
+                    options={[
+                      { value: "private", label: "private", detail: "10.30.0.10" },
+                      { value: "public", label: "public", detail: t("외부에 직접 노출", "Directly exposed") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("app-exposure", value)}
+                  />
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-data-exposure"
+                    label={t("data address 노출", "Data address exposure")}
+                    value={namespaceScope("data")}
+                    options={[
+                      { value: "private", label: "private", detail: "10.40.0.20" },
+                      { value: "public", label: "public", detail: t("외부에 직접 노출", "Directly exposed") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("data-exposure", value)}
+                  />
+                </div>
+                <div className="namespace-platform-paired-controls">
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-edge-app-route"
+                    label={t("edge → app route", "Edge → app route")}
+                    value={edgeAppChoices.route}
+                    options={[
+                      { value: "correct", label: "route tcp/8080", detail: "edge → 10.30.0.10" },
+                      { value: "mismatch", label: "route tcp/8443", detail: t("route만 잘못된 port로 변경", "Change only the route to a wrong port") },
+                      { value: "missing", label: "missing", detail: t("route 없음", "No route") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("edge-app-route", value)}
+                  />
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-edge-app-listener"
+                    label={t("app listener", "App listener")}
+                    value={edgeAppChoices.listener}
+                    options={[
+                      { value: "correct", label: "listen tcp/8080", detail: "app · private · UP" },
+                      { value: "mismatch", label: "listen tcp/8443", detail: t("listener만 잘못된 port로 변경", "Change only the listener to a wrong port") },
+                      { value: "missing", label: "missing", detail: t("listener 없음", "No listener") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("edge-app-listener", value)}
+                  />
+                </div>
+                <div className="namespace-platform-paired-controls">
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-edge-app-discovery"
+                    label={t("app service discovery", "App service discovery")}
+                    value={edgeAppChoices.discovery}
+                    options={[
+                      { value: "correct", label: "app.internal:8080", detail: "healthy" },
+                      { value: "mismatch", label: "app.internal:8443", detail: t("endpoint만 unhealthy로 변경", "Change only the endpoint to unhealthy") },
+                      { value: "missing", label: "missing", detail: t("service endpoint 없음", "No service endpoint") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("edge-app-discovery", value)}
+                  />
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-edge-app-policy"
+                    label={t("edge → app policy", "Edge → app policy")}
+                    value={edgeAppChoices.policy}
+                    options={[
+                      { value: "correct", label: "allow tcp/8080", detail: "edge → app · NEW" },
+                      { value: "mismatch", label: "allow tcp/8443", detail: t("policy만 잘못된 port로 변경", "Change only the policy to a wrong port") },
+                      { value: "missing", label: "missing", detail: t("allow rule 없음", "No allow rule") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("edge-app-policy", value)}
+                  />
+                </div>
+                <div className="namespace-platform-paired-controls">
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-app-data-route"
+                    label={t("app → data route", "App → data route")}
+                    value={appDataChoices.route}
+                    options={[
+                      { value: "correct", label: "route tcp/5432", detail: "app → 10.40.0.10" },
+                      { value: "mismatch", label: "route tcp/3306", detail: t("route만 잘못된 port로 변경", "Change only the route to a wrong port") },
+                      { value: "missing", label: "missing", detail: t("route 없음", "No route") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("app-data-route", value)}
+                  />
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-app-data-listener"
+                    label={t("data listener", "Data listener")}
+                    value={appDataChoices.listener}
+                    options={[
+                      { value: "correct", label: "listen tcp/5432", detail: "data · private · UP" },
+                      { value: "mismatch", label: "listen tcp/3306", detail: t("listener만 잘못된 port로 변경", "Change only the listener to a wrong port") },
+                      { value: "missing", label: "missing", detail: t("listener 없음", "No listener") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("app-data-listener", value)}
+                  />
+                </div>
+                <div className="namespace-platform-paired-controls">
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-app-data-discovery"
+                    label={t("data service discovery", "Data service discovery")}
+                    value={appDataChoices.discovery}
+                    options={[
+                      { value: "correct", label: "data.internal:5432", detail: "healthy" },
+                      { value: "mismatch", label: "data.internal:3306", detail: t("endpoint만 unhealthy로 변경", "Change only the endpoint to unhealthy") },
+                      { value: "missing", label: "missing", detail: t("service endpoint 없음", "No service endpoint") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("app-data-discovery", value)}
+                  />
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-app-data-policy"
+                    label={t("app → data policy", "App → data policy")}
+                    value={appDataChoices.policy}
+                    options={[
+                      { value: "correct", label: "allow tcp/5432", detail: "app → data · NEW" },
+                      { value: "mismatch", label: "allow tcp/3306", detail: t("policy만 잘못된 port로 변경", "Change only the policy to a wrong port") },
+                      { value: "missing", label: "missing", detail: t("allow rule 없음", "No allow rule") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("app-data-policy", value)}
+                  />
+                </div>
+                <InfrastructureChoiceRail
+                  controlId="platform-private-egress"
+                  label={t("사설 app의 외부 update 경로", "External update path for the private app")}
+                  value={egressChoice}
+                  options={[
+                    { value: "edge-nat-conntrack", eyebrow: "STATEFUL", label: "edge NAT + conntrack", detail: t("반환 경로를 edge에서 역변환", "Reverse the return path at edge") },
+                    { value: "edge-without-conntrack", eyebrow: "STATE LOST", label: "edge NAT, no conntrack", detail: t("반환 packet의 역변환 상태 없음", "No reverse-translation state") },
+                    { value: "direct-public", eyebrow: "BYPASS", label: "direct public", detail: t("private boundary를 건너뛰", "Bypass the private boundary") },
+                  ]}
+                  onChange={(value) => applyDesignChoice("private-egress", value)}
+                />
+                <div className="namespace-platform-paired-controls">
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-placement"
+                    label={t("zone A 실패를 버틸 배치", "Placement that survives Zone A")}
+                    value={placementsSplit ? "split-zones" : "zone-a-only"}
+                    options={[
+                      { value: "split-zones", label: "zone A + B", detail: t("독립 경로 유지", "Keep an independent path") },
+                      { value: "zone-a-only", label: "zone A only", detail: t("상관 실패", "Correlated failure") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("placement", value)}
+                  />
+                  <InfrastructureChoiceRail
+                    compact
+                    controlId="platform-capacity"
+                    label={t("900 rps peak capacity", "900 rps peak capacity")}
+                    value={capacityChoice}
+                    options={[
+                      { value: "headroom", label: "30% headroom", detail: t("모든 utilization ≤ 70%", "Every utilization ≤ 70%") },
+                      { value: "undersized", label: "undersized", detail: t("한 resource 이상 초과", "At least one resource exceeds budget") },
+                    ]}
+                    onChange={(value) => applyDesignChoice("capacity", value)}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+          inspector={(
+            <div className="namespace-platform-contract-inspector">
+              <span>LIVE CONTRACT</span>
+              <strong>{Object.values(readiness).filter(Boolean).length} / {Object.keys(readiness).length}</strong>
+              <ul aria-live="polite">
+                {contractReadiness.map(({ id, label, ready }) => {
+                  const status = ready ? t("준비됨", "ready") : t("준비되지 않음", "not ready");
+                  return (
+                    <li key={id} data-ready={ready} aria-label={`${label}: ${status}`}>
+                      <span>{label}</span>
+                      <small>{status}</small>
+                    </li>
+                  );
+                })}
+              </ul>
+              <p>{t("카드를 누르면 아키텍처 계약과 시각 상태가 즉시 다시 계산됩니다.", "Each card immediately recalculates the architecture contract and visual state.")}</p>
+            </div>
+          )}
+        />
       </section>
 
       <section className="namespace-platform-scenario-workspace" aria-labelledby="namespace-platform-scenario-title">
         <header><div><span>03 · FOUR EXECUTABLE SCENARIOS</span><h4 id="namespace-platform-scenario-title">{t("정상·egress·zone 장애·peak 부하를 분리 실행", "Run normal, egress, zone-failure, and peak-load paths separately")}</h4></div><strong>{Number(completion.normal) + Number(completion.egress) + Number(completion.failure) + Number(completion.peak)} / 4</strong></header>
         <div className="namespace-platform-scenario-toolbar" role="group" aria-label={t("platform scenario", "Platform scenarios") }>
           {namespacePlatformScenarioIds.map((scenarioId) => (
-            <button type="button" className="button button-ghost" aria-pressed={activeScenario === scenarioId} onClick={() => setActiveScenario(scenarioId)} key={scenarioId}>
+            <button type="button" className="button button-ghost" aria-pressed={activeScenario === scenarioId} onClick={() => selectScenario(scenarioId)} key={scenarioId}>
               {scenarioTitle(scenarioId, isKo)} {completion[scenarioCompletionKey[scenarioId]] ? "✓" : ""}
             </button>
           ))}
           <button type="button" className="button button-primary" onClick={runActiveScenario}>{t("현재 scenario 실행", "Run current scenario")}</button>
         </div>
-        <NamespacePlatformView draft={draft} scenarioId={activeScenario} scenario={activeResult} evidence={evidence} />
       </section>
 
       <div className={`namespace-platform-feedback${feedback.tone === "success" ? " is-success" : feedback.tone === "error" ? " is-error" : ""}`} role="status" aria-live="polite">

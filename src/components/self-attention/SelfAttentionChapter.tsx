@@ -7,7 +7,9 @@ import {
 } from "../../data/curriculum";
 import {
   selfAttentionForwardTraceCode,
+  selfAttentionForwardTraceSupportCode,
   selfAttentionMaskRepairCode,
+  selfAttentionMaskRepairSupportCode,
 } from "../../data/selfAttentionNotebook";
 import { canCompleteSelfAttentionChapter } from "../../features/self-attention/self-attention-model";
 import { useLocale } from "../../features/localization/localization";
@@ -288,6 +290,7 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
             <NotebookCell
               title={t("Q/K/V 투영부터 two-head concat까지 실행", "Run Q/K/V projections through two-head concat")}
               initialCode={selfAttentionForwardTraceCode}
+              supportCode={selfAttentionForwardTraceSupportCode}
               description={<p>{t("[4,4] 입력을 Q/K/V로 투영하고 [2,4,2] head로 나눕니다. sat의 head 1 raw score [2,1,0,1], mask 후 weight, context와 [4] concat이 위 worked trace와 같은지 확인하세요.", "Project the [4,4] input into Q/K/V and split it into [2,4,2] heads. Verify that sat's head 1 raw scores [2,1,0,1], masked weights, context, and [4] concatenation match the worked trace above.")}</p>}
               hint={<p>{t("key_visible의 마지막 값을 True로 바꿔 padding key가 active row의 분모와 context를 어떻게 바꾸는지 관찰한 뒤 셀을 초기화하세요.", "Change the final key_visible value to True, observe how a padding key changes active-row denominators and contexts, then reset the cell.")}</p>}
               editorMinHeight={850}
@@ -296,6 +299,7 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
             <NotebookCell
               title={t("Softmax 뒤 mask 버그 수리", "Repair the mask-after-softmax bug")}
               initialCode={selfAttentionMaskRepairCode}
+              supportCode={selfAttentionMaskRepairSupportCode}
               description={<p>{t("기본 실행은 active row 합 [0.097785,0.330238,0.778819]를 출력한 뒤 assertion에 실패합니다. REPAIR의 boolean 한 줄을 True로 바꿔 합 [1,1,1], future mass 0, padding-key mass 0, inactive-query mass 0을 동시에 복구하세요.", "The default run prints active row sums [0.097785,0.330238,0.778819] and then fails its assertion. Change the one REPAIR boolean to True to restore sums [1,1,1], zero future mass, zero padding-key mass, and zero inactive-query mass together.")}</p>}
               hint={<p>{t("0으로 지우는 위치가 아니라 정규화 순서를 고칩니다. mask_before_softmax = True 한 줄이면 masked_row_softmax가 허용 key만 분모에 넣습니다.", "Repair normalization order, not the location of a zero assignment. One line, mask_before_softmax = True, makes masked_row_softmax include only allowed keys in its denominator.")}</p>}
               editorMinHeight={730}

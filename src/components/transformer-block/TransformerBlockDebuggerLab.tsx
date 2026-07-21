@@ -8,6 +8,7 @@ import {
   type TransformerBlockRepairResult,
 } from "../../features/transformer-block/transformer-block-model";
 import { useLocale } from "../../features/localization/localization";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 
 const incidentCopy: Record<TransformerBlockDebuggerScenarioId, {
@@ -266,13 +267,12 @@ export function TransformerBlockDebuggerLab({
             >
               <legend>{copy.title[locale]}</legend>
               <p id={clueId}>{copy.clue[locale]}</p>
-              <label>
-                <span>{scenario[isKo ? "labelKo" : "labelEn"]} · {t("실행할 repair", "Repair to execute")}</span>
-                <select value={answer} onChange={(event) => chooseRepair(scenarioId, event.currentTarget.value as TransformerBlockRepair)} aria-label={t(`${index + 1}번 Transformer block 사건 repair`, `Repair for Transformer block incident ${index + 1}`)}>
-                  <option value="" disabled>{t("repair 선택", "Choose a repair")}</option>
-                  {scenario.options.map((option) => <option value={option.id} key={option.id}>{option[isKo ? "labelKo" : "labelEn"]}</option>)}
-                </select>
-              </label>
+              <DirectChoice
+                label={t(`${index + 1}번 Transformer block 사건 repair`, `Repair for Transformer block incident ${index + 1}`)}
+                value={answer}
+                options={scenario.options.map((option) => ({ value: option.id, label: option[isKo ? "labelKo" : "labelEn"] }))}
+                onChange={(value) => chooseRepair(scenarioId, value as TransformerBlockRepair)}
+              />
               <div className="transformer-block-debug-actions">
                 <button
                   ref={(node) => { runButtonRefs.current[scenarioId] = node; }}

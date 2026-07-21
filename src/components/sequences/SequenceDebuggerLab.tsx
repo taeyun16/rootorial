@@ -9,6 +9,7 @@ import {
 } from "../../features/sequences/sequence-model";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 
 const scenarioCopy: Record<SequenceDebuggerScenarioId, {
   title: { ko: string; en: string };
@@ -141,7 +142,7 @@ export function SequenceDebuggerLab({
   const [answers, setAnswers] = useState<Partial<Record<SequenceDebuggerScenarioId, SequenceRepair>>>({});
   const [results, setResults] = useState<Partial<Record<SequenceDebuggerScenarioId, SequenceRepairResult>>>({});
   const [runtimeError, setRuntimeError] = useState(false);
-  const firstSelectRef = useRef<HTMLSelectElement>(null);
+  const firstChoiceRef = useRef<HTMLDivElement>(null);
   const focusFirstAfterRecovery = useRef(false);
   const solved = sequenceDebuggerScenarioIds.filter((scenario) => results[scenario]?.correct).length;
   const complete = solved === sequenceDebuggerScenarioIds.length;
@@ -153,7 +154,7 @@ export function SequenceDebuggerLab({
   useEffect(() => {
     if (!runtimeError && focusFirstAfterRecovery.current) {
       focusFirstAfterRecovery.current = false;
-      firstSelectRef.current?.focus();
+      firstChoiceRef.current?.querySelector("button")?.focus();
     }
   }, [runtimeError]);
 
@@ -261,20 +262,15 @@ export function SequenceDebuggerLab({
             >
               <legend>{copy.title[locale]}</legend>
               <p>{copy.clue[locale]}</p>
-              <label>
-                <span>{t("실행할 repair", "Repair to run")}</span>
-                <select
-                  ref={index === 0 ? firstSelectRef : undefined}
-                  value={answer}
-                  onChange={(event) => chooseRepair(scenario, event.currentTarget.value as SequenceRepair)}
-                  aria-label={t(`${index + 1}번 sequence 사건 repair`, `Repair for sequence incident ${index + 1}`)}
-                >
-                  <option value="" disabled>{t("repair 선택", "Choose a repair")}</option>
-                  {sequenceRepairOptions[scenario].map((repair) => (
-                    <option value={repair} key={repair}>{repairCopy[repair][locale]}</option>
-                  ))}
-                </select>
-              </label>
+              <DirectChoice
+                compact
+                groupRef={index === 0 ? firstChoiceRef : undefined}
+                label={t("실행할 repair", "Repair to run")}
+                ariaLabel={t(`${index + 1}번 sequence 사건 repair`, `Repair for sequence incident ${index + 1}`)}
+                value={answer}
+                options={sequenceRepairOptions[scenario].map((repair) => ({ value: repair, label: repairCopy[repair][locale] }))}
+                onChange={(repair) => chooseRepair(scenario, repair)}
+              />
               <div className="sequences-debug-actions">
                 <button
                   type="button"

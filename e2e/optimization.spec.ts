@@ -1,8 +1,19 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/optimization";
 const publicPath = "/curricula/transformer-from-zero/chapters/optimization";
+
+function choiceGroup(scope: Locator, label: string) {
+  return scope.getByRole("group", { name: label });
+}
+
+async function choose(scope: Locator, label: string, value: string) {
+  const option = choiceGroup(scope, label).locator(`[data-choice-value="${value}"]`);
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
 
 async function signInAsAdmin(page: Parameters<typeof signInTestUser>[0]) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
@@ -16,29 +27,28 @@ async function completeLearningRateRepair(
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, {
     timeout: 30_000,
   });
-  const prediction = lab.getByRole("combobox", { name: "예상 loss trace" });
   const runButton = lab.getByRole("button", { name: "12회 실행" });
   await expect(runButton).toBeDisabled();
 
-  await prediction.selectOption("converging");
+  await choose(lab, "예상 loss trace", "converging");
   await runButton.click();
   await expect(lab.getByText(/예측: '안정적으로 수렴', 실제: '손실이 커지며 발산'/)).toBeVisible();
 
-  await prediction.selectOption("diverging");
+  await choose(lab, "예상 loss trace", "diverging");
   await runButton.click();
   await expect(lab.getByText(/예측과 일치합니다: 손실이 커지며 발산/)).toBeVisible();
   await expect(lab.getByText("나쁜 학습률을 정확히 예측·관찰")).toHaveClass(/is-complete/);
 
   await lab.getByRole("spinbutton", { name: "시작 bias" }).fill("1");
-  await lab.getByRole("combobox", { name: "업데이트 횟수" }).selectOption("8");
-  await prediction.selectOption("converging");
+  await choose(lab, "업데이트 횟수", "8");
+  await choose(lab, "예상 loss trace", "converging");
   await lab.getByRole("button", { name: "8회 실행" }).click();
   await expect(lab.getByText(/시작 W 또는 업데이트 횟수가 달라 학습률 효과를 비교할 수 없습니다/)).toBeVisible();
   await expect(lab.getByText("안정적 수렴")).not.toHaveClass(/is-complete/);
 
   await lab.getByRole("button", { name: "안정적 · η 0.30" }).click();
   await expect(runButton).toBeDisabled();
-  await prediction.selectOption("converging");
+  await choose(lab, "예상 loss trace", "converging");
   await lab.getByRole("button", { name: "첫 업데이트 계산" }).click();
   await expect(lab.locator(".optimization-vector-strip")).toContainText("[-0.2, 0.2]");
   await runButton.click();
@@ -80,8 +90,8 @@ test("completes both optimization activities in the admin draft preview", async 
 
   const incidents = page.locator(".optimization-debug-card");
   const firstIncident = incidents.nth(0);
-  await firstIncident.getByRole("combobox", { name: "optimizer 동작" }).selectOption("add-gradient");
-  await firstIncident.getByRole("combobox", { name: "학습률 η" }).selectOption("0.25");
+  await choose(firstIncident, "optimizer 동작", "add-gradient");
+  await choose(firstIncident, "학습률 η", "0.25");
   await firstIncident.getByRole("button", { name: "업데이트 실행·판정" }).click();
   await expect(firstIncident.getByText("업데이트를 다시 설계하세요", { exact: true })).toBeVisible();
   await expect(firstIncident).toHaveClass(/is-incorrect/);
@@ -94,9 +104,9 @@ test("completes both optimization activities in the admin draft preview", async 
   ] as const;
   for (let index = 0; index < answers.length; index += 1) {
     const incident = incidents.nth(index);
-    await incident.getByRole("combobox", { name: "optimizer 동작" }).selectOption(answers[index][0]);
+    await choose(incident, "optimizer 동작", answers[index][0]);
     if (answers[index][1]) {
-      await incident.getByRole("combobox", { name: "학습률 η" }).selectOption(answers[index][1]);
+      await choose(incident, "학습률 η", answers[index][1]);
     }
     await incident.getByRole("button", { name: "업데이트 실행·판정" }).click();
     await expect(incident).toHaveClass(/is-correct/);
@@ -173,7 +183,7 @@ test("keeps the English draft keyboard-usable at 390px and its public URL closed
     timeout: 30_000,
   });
   const lab = page.locator(".optimization-descent-lab");
-  await lab.getByRole("combobox", { name: "Predicted loss trace" }).selectOption("diverging");
+  await choose(lab, "Predicted loss trace", "diverging");
   await lab.getByRole("button", { name: "Run 12 updates" }).click();
   await expect(lab.getByRole("img", { name: /Prediction line before and after updates/ })).toBeVisible();
   await expect(lab.getByRole("img", { name: /Loss history by update/ })).toBeVisible();
@@ -190,7 +200,7 @@ test("keeps the English draft keyboard-usable at 390px and its public URL closed
   await usefulPreset.focus();
   await usefulPreset.press("Enter");
   await expect(page.getByRole("slider", { name: "Learning rate" })).toHaveValue("0.3");
-  await lab.getByRole("combobox", { name: "Predicted loss trace" }).selectOption("converging");
+  await choose(lab, "Predicted loss trace", "converging");
   const firstUpdate = lab.getByRole("button", { name: "Calculate first update" });
   await firstUpdate.focus();
   await firstUpdate.press("Enter");
@@ -205,14 +215,14 @@ test("keeps the English draft keyboard-usable at 390px and its public URL closed
   await expect(page.getByRole("slider", { name: "Learning rate" })).toHaveValue("1.1");
 
   const firstIncident = page.locator(".optimization-debug-card").first();
-  await firstIncident.getByRole("combobox", { name: "Optimizer action" }).selectOption("add-gradient");
-  await firstIncident.getByRole("combobox", { name: "Learning rate η" }).selectOption("0.25");
+  await choose(firstIncident, "Optimizer action", "add-gradient");
+  await choose(firstIncident, "Learning rate η", "0.25");
   await firstIncident.getByRole("button", { name: "Run and grade update" }).click();
   await expect(firstIncident.getByText("Redesign the update", { exact: true })).toBeVisible();
   const resetDebugger = page.getByRole("button", { name: "Reset debugger" });
   await resetDebugger.focus();
   await resetDebugger.press("Enter");
-  await expect(firstIncident.getByRole("combobox", { name: "Optimizer action" })).toHaveValue("");
+  await expect(choiceGroup(firstIncident, "Optimizer action").locator('[aria-pressed="true"]')).toHaveCount(0);
 
   expect(optionalRuntimeRequests).toEqual([]);
   const publicResponse = await page.goto(`${publicPath}?lang=en`);

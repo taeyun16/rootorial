@@ -14,6 +14,7 @@ import {
   type TrainingStepSnapshot,
 } from "../../features/training/training-simulator";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { MatrixGrid } from "../interactive/MatrixGrid";
 
 const predictionOptions: TrainingPrediction[] = [
@@ -275,20 +276,15 @@ export function TrainingBatchLab({
                   `Predict CE after update ${state.cursor + 1}`,
                 )}
           </legend>
-          <label>
-            <span>{t("batch / full 방향", "Batch / full direction")}</span>
-            <select
-              value={prediction}
-              disabled={epochComplete}
-              onChange={(event) => setPrediction(event.currentTarget.value as TrainingPrediction)}
-              aria-label={t("다음 update의 batch와 전체 CE 방향", "Batch and full CE direction for the next update")}
-            >
-              <option value="" disabled>{t("실행 전 예측", "Predict before running")}</option>
-              {predictionOptions.map((option) => (
-                <option value={option} key={option}>{predictionCopy[option][locale]}</option>
-              ))}
-            </select>
-          </label>
+          <DirectChoice
+            compact
+            label={t("batch / full 방향", "Batch / full direction")}
+            ariaLabel={t("다음 update의 batch와 전체 CE 방향", "Batch and full CE direction for the next update")}
+            value={prediction}
+            disabled={epochComplete}
+            options={predictionOptions.map((option) => ({ value: option, label: predictionCopy[option][locale] }))}
+            onChange={setPrediction}
+          />
           <button type="button" className="button button-primary" onClick={runNextBatch}>
             {epochComplete
               ? t("epoch 완료 · 결과 설명 보기", "Epoch complete · review result")

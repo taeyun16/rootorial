@@ -8,6 +8,7 @@ import {
 import {
   transformerBlockResidualRepairCode,
   transformerBlockStageLedgerCode,
+  transformerBlockStageLedgerSupportCode,
 } from "../../data/transformerBlockNotebook";
 import { canCompleteTransformerBlockChapter } from "../../features/transformer-block/transformer-block-model";
 import { useLocale } from "../../features/localization/localization";
@@ -127,6 +128,20 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
               <article><span>TRANSFORMER BLOCK</span><strong>state update</strong><p>position · LN · residual · FFN</p></article>
               <article><span>MINI TRANSFORMER</span><strong>model path</strong><p>one block · logits · loss</p></article>
             </div>
+            <figure className="chapter-shape-ledger">
+              <figcaption>{t("BLOCK SHAPE LEDGER · 실행 전에 각 stage의 입출력과 보존 조건을 읽으세요", "BLOCK SHAPE LEDGER · Read each stage's input, output, and preserved contract before running")}</figcaption>
+              <div className="chapter-shape-ledger-scroll">
+                <table>
+                  <thead><tr><th scope="col">STAGE</th><th scope="col">INPUT</th><th scope="col">OUTPUT</th><th scope="col">INVARIANT</th></tr></thead>
+                  <tbody>
+                    <tr><th scope="row">E + P</th><td>E, P · [T,d]</td><td>x₀ · [T,d]</td><td>{t("position을 한 번 더함", "add position once")}</td></tr>
+                    <tr><th scope="row">LN → MHA</th><td>x₀ · [T,d]</td><td>A · [T,d]</td><td>{t("token 수와 폭 보존", "preserve tokens and width")}</td></tr>
+                    <tr><th scope="row">ADD 1</th><td>x₀ + A</td><td>x₁ · [T,d]</td><td>{t("같은 좌표끼리 덧셈", "element-wise addition")}</td></tr>
+                    <tr><th scope="row">LN → FFN → ADD 2</th><td>x₁ · [T,d]</td><td>y · [T,d]</td><td>{t("row별 FFN, 다음 block으로 handoff", "row-wise FFN, hand off to next block")}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </figure>
             <div className="concept-callout transformer-block-prerequisite"><span className="callout-mark">↩</span><div>
               <strong>{t("선행 개념", "Prerequisites")}</strong>
               <p>{t("[T,d_model] embedding row, causal multi-head output, element-wise 덧셈, 평균·분산, 두 선형층과 ReLU를 사용합니다.", "Reuse [T,d_model] embedding rows, causal multi-head output, element-wise addition, mean and variance, two linear layers, and ReLU.")}</p>
@@ -221,9 +236,10 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
               <NotebookCell
                 title={t("Pre-norm 블록 stage 원장 검증", "Verify the pre-norm block stage ledger")}
                 initialCode={transformerBlockStageLedgerCode}
+                supportCode={transformerBlockStageLedgerSupportCode}
                 description={<p>{t("실행 후 token0.LN(x0), token0.x1, token0.FFN, token0.y와 일곱 개 [4,4] stage shape를 손계산 표와 대조하세요.", "Run the cell, then compare token0.LN(x0), token0.x1, token0.FFN, token0.y, and all seven [4,4] stage shapes with the hand-worked ledger.")}</p>}
-                hint={<p>{t("x0_fixture의 첫 행에서 2를 3으로 바꾸면 mean·variance·정규화 좌표와 뒤 stage가 함께 어떻게 변하는지 관찰한 뒤 초기화하세요.", "Change 2 to 3 in the first row of x0_fixture, observe how the mean, variance, normalized coordinates, and downstream stages move together, then reset.")}</p>}
-                editorMinHeight={940}
+                hint={<p>{t("TRY 줄의 주석을 풀어 x₀[0,2]에 1을 더하면 mean·variance·정규화 좌표와 뒤 stage가 함께 어떻게 변하는지 관찰한 뒤 초기화하세요.", "Uncomment the TRY line to add one to x0[0,2], observe how the mean, variance, normalized coordinates, and downstream stages move together, then reset.")}</p>}
+                editorMinHeight={640}
                 ariaLabel={t("Transformer block stage 원장 NumPy 코드", "NumPy code for the Transformer block stage ledger")}
               />
               <NotebookCell

@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   miniTransformerGenerationRepairCode,
   miniTransformerLmHeadUpdateCode,
+  miniTransformerLmHeadUpdateSupportCode,
 } from "../src/data/miniTransformerNotebook.ts";
 import {
   MINI_TRANSFORMER_BOS_ID,
@@ -48,8 +49,9 @@ import {
 const TOLERANCE = 1e-10;
 
 test("ships independent English-only NumPy bridges for shifted loss and generation repair", () => {
-  assert.match(miniTransformerLmHeadUpdateCode, /token_ids = np\.array\(\[0, 1, 2, 3, 4\]\)/);
-  assert.match(miniTransformerLmHeadUpdateCode, /target_ids = np\.array\(\[1, 2, 3, 4, 5\]\)/);
+  const lmHeadExecutionCode = `${miniTransformerLmHeadUpdateSupportCode}\n${miniTransformerLmHeadUpdateCode}`;
+  assert.match(miniTransformerLmHeadUpdateSupportCode, /token_ids = np\.array\(\[0, 1, 2, 3, 4\]\)/);
+  assert.match(miniTransformerLmHeadUpdateSupportCode, /target_ids = np\.array\(\[1, 2, 3, 4, 5\]\)/);
   assert.match(miniTransformerLmHeadUpdateCode, /logits_before = hidden @ vocab_projection \+ vocab_bias/);
   assert.match(miniTransformerLmHeadUpdateCode, /gradient_logits\[np\.arange\(len\(target_ids\)\), target_ids\] -= 1/);
   assert.match(miniTransformerLmHeadUpdateCode, /updated_projection = vocab_projection - learning_rate \* gradient_projection/);
@@ -58,6 +60,7 @@ test("ships independent English-only NumPy bridges for shifted loss and generati
   assert.match(miniTransformerLmHeadUpdateCode, /1\.5525973714/);
   assert.match(miniTransformerLmHeadUpdateCode, /1\.7646455697/);
   assert.match(miniTransformerLmHeadUpdateCode, /PASS: one gradient-descent LM-head update lowers same-batch loss/);
+  assert.match(lmHeadExecutionCode, /def mean_cross_entropy[\s\S]*logits_before = hidden/);
 
   assert.match(miniTransformerGenerationRepairCode, /prefix = tokenize_fixed\("the cat"\)/);
   assert.match(miniTransformerGenerationRepairCode, /logits = recompute_full_prefix\(prefix\)/);
@@ -70,6 +73,7 @@ test("ships independent English-only NumPy bridges for shifted loss and generati
   assert.match(miniTransformerGenerationRepairCode, /PASS: greedy decoding appends, recomputes, and obeys the stop boundary/);
 
   assert.doesNotMatch(miniTransformerLmHeadUpdateCode, /[가-힣]/);
+  assert.doesNotMatch(miniTransformerLmHeadUpdateSupportCode, /[가-힣]/);
   assert.doesNotMatch(miniTransformerGenerationRepairCode, /[가-힣]/);
 });
 

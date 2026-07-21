@@ -19,6 +19,7 @@ import {
 } from "../../features/self-attention/self-attention-model";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { MatrixGrid } from "../interactive/MatrixGrid";
 import { StepExplorer } from "../interactive/StepExplorer";
 
@@ -69,7 +70,7 @@ export function SelfAttentionLab({ onCompletionChange }: { onCompletionChange: (
   const [successfulAttempt, setSuccessfulAttempt] = useState<SuccessfulAttempt | null>(null);
   const eventCounter = useRef(0);
   const attemptCounter = useRef(0);
-  const predictionRef = useRef<HTMLSelectElement>(null);
+  const predictionRef = useRef<HTMLDivElement>(null);
   const resetButtonRef = useRef<HTMLButtonElement>(null);
   const recoveryButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -157,7 +158,7 @@ export function SelfAttentionLab({ onCompletionChange }: { onCompletionChange: (
     setActiveStage(requiredInspection[next]);
     setPrediction("");
     invalidateRun();
-    requestAnimationFrame(() => predictionRef.current?.focus());
+    requestAnimationFrame(() => predictionRef.current?.querySelector<HTMLButtonElement>("button")?.focus());
   };
 
   const updateConfig = (patch: Partial<SelfAttentionRunConfig>) => {
@@ -201,7 +202,7 @@ export function SelfAttentionLab({ onCompletionChange }: { onCompletionChange: (
         title: grade.predictionCorrect ? t("설정 계약이 아직 깨져 있습니다", "The setup contract is still broken") : t("예측과 실행 결과가 다릅니다", "The prediction differs from the executed result"),
         message: configHint,
       });
-      requestAnimationFrame(() => predictionRef.current?.focus());
+      requestAnimationFrame(() => predictionRef.current?.querySelector<HTMLButtonElement>("button")?.focus());
     } catch {
       setTrace(null);
       setSuccessfulAttempt(null);
@@ -305,7 +306,7 @@ export function SelfAttentionLab({ onCompletionChange }: { onCompletionChange: (
     setTrace(null);
     setRuntimeFailure(false);
     setSuccessfulAttempt(null);
-    requestAnimationFrame(() => predictionRef.current?.focus());
+    requestAnimationFrame(() => predictionRef.current?.querySelector<HTMLButtonElement>("button")?.focus());
   };
 
   const head = trace?.heads[selectedHead];
@@ -338,13 +339,21 @@ export function SelfAttentionLab({ onCompletionChange }: { onCompletionChange: (
         </div>
 
         <div className="self-attention-control-panel">
-          <label><span>{t("관찰할 query token", "Query token to inspect")}</span><select aria-label={t("관찰할 query token", "Query token to inspect")} value={selectedQuery} onChange={(event) => { setSelectedQuery(Number(event.currentTarget.value)); setSelectedCell(null); }}>{selfAttentionTokens.slice(0, 3).map((token, index) => <option value={index} key={token}>{index} · {token}</option>)}</select></label>
-          <label><span>{t("관찰할 head", "Head to inspect")}</span><select aria-label={t("관찰할 Self-Attention head", "Self-Attention head to inspect")} value={selectedHead} onChange={(event) => { setSelectedHead(Number(event.currentTarget.value)); setSelectedCell(null); }}><option value={0}>head 0</option><option value={1}>head 1</option></select></label>
-          <label><span>{t("score scaling", "Score scaling")}</span><select aria-label={t("Self-Attention score scaling", "Self-Attention score scaling")} value={configState.scaleScores ? "sqrt" : "none"} onChange={(event) => updateConfig({ scaleScores: event.currentTarget.value === "sqrt" })}><option value="none">{t("나누지 않음", "unscaled")}</option><option value="sqrt">÷ √d_h</option></select></label>
-          <label><span>{t("visibility mask", "Visibility mask")}</span><select aria-label={t("Self-Attention causal mask", "Self-Attention causal mask")} value={configState.causal ? "causal" : "none"} onChange={(event) => updateConfig({ causal: event.currentTarget.value === "causal" })}><option value="none">{t("양방향", "bidirectional")}</option><option value="causal">causal · j≤i</option></select></label>
-          <label><span>{t("padding key", "Padding key")}</span><select aria-label={t("Self-Attention padding key visibility", "Self-Attention padding key visibility")} value={configState.exposePaddingKey ? "exposed" : "masked"} onChange={(event) => updateConfig({ exposePaddingKey: event.currentTarget.value === "exposed" })}><option value="masked">{t("차단", "masked")}</option><option value="exposed">{t("반사실 노출", "counterfactual: exposed")}</option></select></label>
-          <label><span>{t("입력 gain · canonical 1.0", "Input gain · canonical 1.0")}</span><input aria-label={t("Self-Attention 입력 gain", "Self-Attention input gain")} type="number" inputMode="decimal" min="0.25" max="4" step="0.25" value={gainInput} onChange={(event) => { setGainInput(event.currentTarget.value); invalidateRun(); }} /></label>
-          <label><span>{t("실행 전 예측", "Prediction before running")}</span><select ref={predictionRef} aria-label={t("Self-Attention challenge 예측", "Self-Attention challenge prediction")} value={prediction} onChange={(event) => { setPrediction(event.currentTarget.value as SelfAttentionPrediction); invalidateRun(); }}><option value="">{t("예측 선택", "Choose a prediction")}</option>{challengeCopy[challengeId].predictions.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+          <p className="challenge-control-summary">{t("현재 challenge가 바꾸는 경계만 표시합니다. 나머지 invariant는 preset이 canonical 값으로 고정합니다.", "Only the boundary changed by this challenge is shown. The preset locks every other invariant to its canonical value.")}</p>
+          {challengeId === "scaling" ? <DirectChoice compact label={t("Self-Attention score scaling", "Self-Attention score scaling")} value={configState.scaleScores ? 1 : 0} options={[{ value: 0, label: t("나누지 않음", "unscaled") }, { value: 1, label: "÷ √d_h" }]} onChange={(value) => updateConfig({ scaleScores: value === 1 })} /> : null}
+          {challengeId === "causal-mask" ? <DirectChoice compact label={t("Self-Attention causal mask", "Self-Attention causal mask")} value={configState.causal ? 1 : 0} options={[{ value: 0, label: t("양방향", "bidirectional") }, { value: 1, label: "causal · j≤i" }]} onChange={(value) => updateConfig({ causal: value === 1 })} /> : null}
+          {challengeId === "padding-key" ? <DirectChoice compact label={t("Self-Attention padding key visibility", "Self-Attention padding key visibility")} value={configState.exposePaddingKey ? 1 : 0} options={[{ value: 0, label: t("차단", "masked") }, { value: 1, label: t("반사실 노출", "counterfactual exposed") }]} onChange={(value) => updateConfig({ exposePaddingKey: value === 1 })} /> : null}
+          {challengeId === "projection" ? <div className="challenge-locked-invariant"><strong>Q/K/V</strong><span>{t("같은 X에서 서로 다른 projection을 계산", "Separate projections are computed from the same X")}</span></div> : null}
+          {challengeId === "multi-head" ? <div className="challenge-locked-invariant"><strong>[T, d_model]</strong><span>{t("head feature concat 뒤 Wₒ handoff", "Concatenate head features, then hand off through W_O")}</span></div> : null}
+          <details className="challenge-advanced-settings">
+            <summary>{t("고급 검사 설정", "Advanced inspection settings")}</summary>
+            <div>
+              <DirectChoice compact label={t("관찰할 query token", "Query token to inspect")} value={selectedQuery} options={selfAttentionTokens.slice(0, 3).map((token, index) => ({ value: index, label: `${index} · ${token}` }))} onChange={(value) => { setSelectedQuery(value); setSelectedCell(null); }} />
+              <DirectChoice compact label={t("관찰할 Self-Attention head", "Self-Attention head to inspect")} value={selectedHead} options={[{ value: 0, label: "head 0" }, { value: 1, label: "head 1" }]} onChange={(value) => { setSelectedHead(value); setSelectedCell(null); }} />
+              <label><span>{t("입력 gain · fixture stress test", "Input gain · fixture stress test")}</span><input aria-label={t("Self-Attention 입력 gain", "Self-Attention input gain")} type="number" inputMode="decimal" min="0.25" max="4" step="0.25" value={gainInput} onChange={(event) => { setGainInput(event.currentTarget.value); invalidateRun(); }} /></label>
+            </div>
+          </details>
+          <DirectChoice className="direct-choice-prediction" groupRef={predictionRef} label={t("실행 전 예측", "Prediction before running")} ariaLabel={t("Self-Attention challenge 예측", "Self-Attention challenge prediction")} value={prediction} options={challengeCopy[challengeId].predictions.map(([value, label]) => ({ value, label }))} onChange={(value) => { setPrediction(value as SelfAttentionPrediction); invalidateRun(); }} />
           <div className="self-attention-run-actions">
             <button type="button" className="button button-primary" disabled={!prediction} aria-label={t("Self-Attention pipeline 실행", "Run the Self-Attention pipeline")} onClick={runChallenge}>{t("예측 고정 · pipeline 실행", "Lock prediction · run pipeline")}</button>
             <button type="button" className="button button-secondary" aria-label={t("현재 Self-Attention challenge 설정 초기화", "Reset the current Self-Attention challenge setup")} onClick={resetCurrent}>{t("현재 설정 초기화", "Reset current setup")}</button>

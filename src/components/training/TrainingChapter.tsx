@@ -8,6 +8,8 @@ import {
 import {
   trainingAdamEpochCode,
   trainingAdamEpochCodeEn,
+  trainingAdamEpochSupportCode,
+  trainingAdamEpochSupportCodeEn,
   trainingSoftmaxAxisRepairCode,
   trainingSoftmaxAxisRepairCodeEn,
 } from "../../data/trainingNotebook";
@@ -291,6 +293,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             <NotebookCell
               title={t("한 epoch Adam 상태 trace", "Trace Adam state across one epoch")}
               initialCode={isKo ? trainingAdamEpochCode : trainingAdamEpochCodeEn}
+              supportCode={isKo ? trainingAdamEpochSupportCode : trainingAdamEpochSupportCodeEn}
               description={<p>{t(
                 "각 batch에서 grad_logits를 새 배열로 만들지만 m·v·step은 loop 밖에서 이어집니다. 출력에서 batch [6]인 마지막 1행도 처리되고, adam_step=4와 final_full_loss=0.225353에 도달하는지 확인하세요.",
                 "Each batch creates a fresh grad_logits array while m, v, and step persist outside the loop. Confirm that the final one-row batch [6] runs and reaches adam_step=4 with final_full_loss=0.225353.",

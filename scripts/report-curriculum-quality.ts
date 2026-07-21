@@ -25,6 +25,7 @@ type SourceMetrics = {
   hasConceptCheck: boolean;
   hasCompletionGate: boolean;
   hasTransferSection: boolean;
+  nativeSelectDefinitions: number;
 };
 
 export type ChapterQualityResult = {
@@ -48,6 +49,8 @@ export type ChapterQualityResult = {
   learningExperienceScore: number;
   editorialScore: number;
   editorialMaximum: 45;
+  nativeSelectDefinitions: number;
+  maxPythonCellLines: number;
   issues: string[];
   targetGaps: string[];
 };
@@ -92,6 +95,7 @@ function analyzeSource(sourceFile: string, sourceText: string): SourceMetrics {
   let paragraphs = 0;
   let listItems = 0;
   let bilingualCalls = 0;
+  let nativeSelectDefinitions = 0;
 
   const recordTag = (tagName: ts.JsxTagNameExpression, attributes: ts.JsxAttributes) => {
     const tag = tagName.getText(source);
@@ -101,6 +105,7 @@ function analyzeSource(sourceFile: string, sourceText: string): SourceMetrics {
     }
     if (tag === "p") paragraphs += 1;
     if (tag === "li") listItems += 1;
+    if (tag === "select") nativeSelectDefinitions += 1;
     if (/^[A-Z]/.test(tag)) {
       componentInstances[tag] = (componentInstances[tag] ?? 0) + 1;
     }
@@ -136,7 +141,59 @@ function analyzeSource(sourceFile: string, sourceText: string): SourceMetrics {
       name.endsWith("ConceptCheck") || name === "ConceptCheck"),
     hasCompletionGate: (componentInstances.CompleteChapter ?? 0) > 0,
     hasTransferSection: sectionIds.includes("transfer"),
+    nativeSelectDefinitions,
   };
+}
+
+const transformerNotebookFiles: Record<TransformerChapterSlug, string> = {
+  vectors: "src/data/vectorNotebook.ts",
+  optimization: "src/data/optimizationNotebook.ts",
+  "neural-networks": "src/data/neuralNetworksNotebook.ts",
+  training: "src/data/trainingNotebook.ts",
+  embeddings: "src/data/embeddingsNotebook.ts",
+  sequences: "src/data/sequencesNotebook.ts",
+  attention: "src/data/attentionNotebook.ts",
+  "self-attention": "src/data/selfAttentionNotebook.ts",
+  "transformer-block": "src/data/transformerBlockNotebook.ts",
+  "mini-transformer": "src/data/miniTransformerNotebook.ts",
+};
+
+function notebookCodeLineCounts(repoRoot: string, slug: TransformerChapterSlug) {
+  const sourcePath = path.join(repoRoot, transformerNotebookFiles[slug]);
+  if (!fs.existsSync(sourcePath)) return [];
+  const sourceText = fs.readFileSync(sourcePath, "utf8");
+  const source = ts.createSourceFile(sourcePath, sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const counts: number[] = [];
+  const visit = (node: ts.Node) => {
+    if (
+      ts.isVariableDeclaration(node)
+      && ts.isIdentifier(node.name)
+      && node.name.text.endsWith("Code")
+      && !node.name.text.endsWith("CodeEn")
+      && node.initializer
+      && (ts.isNoSubstitutionTemplateLiteral(node.initializer) || ts.isStringLiteral(node.initializer))
+    ) {
+      counts.push(node.initializer.text.split("\n").length);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return counts;
+}
+
+function componentSourceIndex(repoRoot: string) {
+  const index = new Map<string, string>();
+  const visitDirectory = (directory: string) => {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const entryPath = path.join(directory, entry.name);
+      if (entry.isDirectory()) visitDirectory(entryPath);
+      else if (entry.isFile() && entry.name.endsWith(".tsx")) {
+        index.set(path.basename(entry.name, ".tsx"), entryPath);
+      }
+    }
+  };
+  visitDirectory(path.join(repoRoot, "src/components"));
+  return index;
 }
 
 const learningExperienceTargets = {
@@ -180,6 +237,7 @@ export function analyzeCurriculumQuality(
   repoRoot = defaultRepoRoot,
 ): CurriculumQualityReport {
   const resources = publicationResources();
+  const componentSources = componentSourceIndex(repoRoot);
   const learningGuideSourcePath = path.join(
     repoRoot,
     "src/components/TransformerLearningGuide.tsx",
@@ -219,6 +277,8 @@ export function analyzeCurriculumQuality(
         learningExperienceScore: 0,
         editorialScore: editorialScore(contract.editorialReview, 0, 0),
         editorialMaximum: 45,
+        nativeSelectDefinitions: 0,
+        maxPythonCellLines: 0,
         issues: [`missing source file: ${contract.sourceFile}`],
         targetGaps: [],
       };
@@ -226,6 +286,14 @@ export function analyzeCurriculumQuality(
 
     const sourceText = fs.readFileSync(sourcePath, "utf8");
     const metrics = analyzeSource(contract.sourceFile, sourceText);
+    const activityComponentNames = new Set(contract.activities.map(({ component }) => component));
+    const nativeSelectDefinitions = [...activityComponentNames].reduce((total, component) => {
+      const componentPath = componentSources.get(component);
+      if (!componentPath) return total;
+      const componentText = fs.readFileSync(componentPath, "utf8");
+      return total + analyzeSource(componentPath, componentText).nativeSelectDefinitions;
+    }, metrics.nativeSelectDefinitions);
+    const maxPythonCellLines = Math.max(0, ...notebookCodeLineCounts(repoRoot, slug));
     const e2eText = fs.existsSync(e2ePath) ? fs.readFileSync(e2ePath, "utf8") : "";
     const registration = chapterRegistry[`transformer-from-zero/${slug}`];
     const conceptQuestions = registration
@@ -381,6 +449,12 @@ export function analyzeCurriculumQuality(
         `interaction budget ${experience.maxAllowedInteractionBudget}/${learningExperienceTargets.maxAllowedInteractionBudget} max`,
       );
     }
+    if (nativeSelectDefinitions > 0) {
+      targetGaps.push(`native select definitions ${nativeSelectDefinitions}/0 allowed`);
+    }
+    if (maxPythonCellLines > 80) {
+      targetGaps.push(`largest Python cell ${maxPythonCellLines}/80 lines max`);
+    }
 
     return {
       slug,
@@ -407,6 +481,8 @@ export function analyzeCurriculumQuality(
         experienceScore,
       ),
       editorialMaximum: 45,
+      nativeSelectDefinitions,
+      maxPythonCellLines,
       issues,
       targetGaps,
     };
@@ -427,15 +503,15 @@ export function renderCurriculumQualityMarkdown(report: CurriculumQualityReport)
     const gaps = chapter.targetGaps.length ? chapter.targetGaps.join("; ") : "—";
     const help = chapter.visibleClarificationAccess ? "yes" : "no";
     const actions = `${chapter.estimatedMinimumSuccessfulActions}/${chapter.maxAllowedInteractionBudget}`;
-    return `| ${chapter.number} | ${chapter.title} | ${chapter.sections} | ${chapter.activities} (${chapter.activityKinds}종) | ${chapter.pythonCells} | ${chapter.conceptQuestions} | ${chapter.terminologySupportCount} | ${help} | ${chapter.requiredCheckpointGroups} | ${actions} | ${chapter.editorialScore}/45 | ${chapter.defaultPublication} | ${gaps} |`;
+    return `| ${chapter.number} | ${chapter.title} | ${chapter.sections} | ${chapter.activities} (${chapter.activityKinds}종) | ${chapter.pythonCells} | ${chapter.maxPythonCellLines} | ${chapter.nativeSelectDefinitions} | ${chapter.conceptQuestions} | ${chapter.terminologySupportCount} | ${help} | ${chapter.requiredCheckpointGroups} | ${actions} | ${chapter.editorialScore}/45 | ${chapter.defaultPublication} | ${gaps} |`;
   });
   return [
     "# Transformer curriculum content-quality report",
     "",
     `Generated: ${report.generatedAt}`,
     "",
-    "| # | Chapter | Sections | Activities | Python | Questions | Terms | Help | Required groups | Actions min/max | Quality | Default | Target gaps |",
-    "|---:|---|---:|---:|---:|---:|---:|:---:|---:|---:|---:|---|---|",
+    "| # | Chapter | Sections | Activities | Python | Max code lines | Native selects | Questions | Terms | Help | Required groups | Actions min/max | Quality | Default | Target gaps |",
+    "|---:|---|---:|---:|---:|---:|---:|---:|---:|:---:|---:|---:|---:|---|---|",
     ...rows,
     "",
     `Structural contract issues: ${report.issues.length}`,

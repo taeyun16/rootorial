@@ -8,6 +8,7 @@ import {
   type MiniTransformerRepairResult,
 } from "../../features/mini-transformer/mini-transformer-model";
 import { useLocale } from "../../features/localization/localization";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 
 const incidentCopy: Record<MiniTransformerDebuggerScenarioId, {
@@ -199,7 +200,12 @@ export function MiniTransformerDebuggerLab({
             <fieldset className={`mini-transformer-debug-card${result ? result.correct ? " is-correct" : " is-incorrect" : ""}`} data-mini-transformer-incident={scenarioId} key={scenarioId}>
               <legend>{isKo ? copy.title.ko : copy.title.en}</legend>
               <p id={clueId}>{isKo ? copy.clue.ko : copy.clue.en}</p>
-              <label htmlFor={`${scenarioId}-mini-transformer-repair`}><span>{t(`${index + 1}번 Mini Transformer 사건 repair`, `Mini Transformer incident ${index + 1} repair`)}</span><select id={`${scenarioId}-mini-transformer-repair`} aria-describedby={`${clueId} ${feedbackId}`} value={answer} onChange={(event) => chooseRepair(scenarioId, event.currentTarget.value as MiniTransformerRepair)}><option value="">{t("repair 선택", "Choose a repair")}</option>{scenario.options.map((option) => <option value={option.id} key={option.id}>{isKo ? option.labelKo : option.labelEn}</option>)}</select></label>
+              <DirectChoice
+                label={t(`${index + 1}번 Mini Transformer 사건 repair`, `Mini Transformer incident ${index + 1} repair`)}
+                value={answer}
+                options={scenario.options.map((option) => ({ value: option.id, label: isKo ? option.labelKo : option.labelEn }))}
+                onChange={(value) => chooseRepair(scenarioId, value as MiniTransformerRepair)}
+              />
               <div className="mini-transformer-debug-actions">
                 <button ref={(element) => { runButtonRefs.current[scenarioId] = element; }} type="button" className="button button-primary" disabled={!answer} aria-label={t(`${index + 1}번 Mini Transformer repair 실행`, `Run Mini Transformer repair ${index + 1}`)} onClick={() => runRepair(scenarioId)}>{t("후보 실행 · invariant 검사", "Run candidate · check invariants")}</button>
                 <button type="button" className="button button-secondary" aria-label={t(`${index + 1}번 Mini Transformer 사건 초기화`, `Reset Mini Transformer incident ${index + 1}`)} onClick={() => resetScenario(scenarioId)}>{t("사건 초기화", "Reset incident")}</button>

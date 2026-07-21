@@ -6,6 +6,7 @@ import {
   type ServiceDiscoveryIncidentRepair,
 } from "../../features/infrastructure/service-discovery";
 import { useLocale } from "../../features/localization/localization";
+import { InfrastructureChoiceRail } from "./InfrastructureInteractionPrimitives";
 
 const incidentIds = Object.keys(serviceDiscoveryIncidentFixtures) as ServiceDiscoveryIncidentId[];
 type IncidentResult = ReturnType<typeof evaluateServiceDiscoveryIncident>;
@@ -26,6 +27,10 @@ export function ServiceDiscoveryIncidentLab({
 
   useEffect(() => setInteractiveReady(true), []);
 
+  useEffect(() => {
+    onCompletionChange(completed.length === incidentIds.length);
+  }, [completed, onCompletionChange]);
+
   function chooseRepair(incidentId: ServiceDiscoveryIncidentId, repair: ServiceDiscoveryIncidentRepair) {
     setRuntimeFailed(false);
     setRepairs((current) => ({ ...current, [incidentId]: repair }));
@@ -34,9 +39,7 @@ export function ServiceDiscoveryIncidentLab({
       delete next[incidentId];
       return next;
     });
-    const nextCompleted = completed.filter((candidate) => candidate !== incidentId);
-    setCompleted(nextCompleted);
-    onCompletionChange(nextCompleted.length === incidentIds.length);
+    setCompleted((current) => current.filter((candidate) => candidate !== incidentId));
   }
 
   function diagnose(incidentId: ServiceDiscoveryIncidentId) {
@@ -46,24 +49,20 @@ export function ServiceDiscoveryIncidentLab({
       setRuntimeFailed(false);
       const result = evaluateServiceDiscoveryIncident(incidentId, repair);
       setResults((current) => ({ ...current, [incidentId]: result }));
-      const nextCompleted = result.passed
-        ? [...new Set([...completed, incidentId])]
-        : completed.filter((candidate) => candidate !== incidentId);
-      setCompleted(nextCompleted);
-      onCompletionChange(nextCompleted.length === incidentIds.length);
+      setCompleted((current) => result.passed
+        ? [...new Set([...current, incidentId])]
+        : current.filter((candidate) => candidate !== incidentId));
     } catch {
       setRuntimeFailed(true);
-      setCompleted(completed.filter((candidate) => candidate !== incidentId));
-      onCompletionChange(false);
+      setCompleted((current) => current.filter((candidate) => candidate !== incidentId));
     }
   }
 
   function resetAll() {
     setRepairs({});
     setResults({});
-    setCompleted([]);
+    setCompleted(() => []);
     setRuntimeFailed(false);
-    onCompletionChange(false);
   }
 
   const copy: Record<ServiceDiscoveryIncidentId, { number: string; title: string; evidence: string; prompt: string }> = {
@@ -145,7 +144,7 @@ export function ServiceDiscoveryIncidentLab({
               <h4>{item.title}</h4>
               <pre aria-label={t(`${item.title} 증거`, `${item.title} evidence`)}>{item.evidence}</pre>
               <p>{item.prompt}</p>
-              <label><span>{t("진단·수리 선택", "Choose diagnosis or repair")}</span><select aria-label={t(`${item.title} 수리`, `Repair ${item.title}`)} value={repairs[incidentId] ?? ""} onChange={(event) => chooseRepair(incidentId, event.target.value as ServiceDiscoveryIncidentRepair)}><option value="">—</option>{fixture.repairs.map((repair) => <option key={repair} value={repair}>{optionLabel(repair)}</option>)}</select></label>
+              <InfrastructureChoiceRail compact controlId={`service-incident-${incidentId}-repair`} label={t("service path에 적용할 최소 수리", "Minimal repair for the service path")} value={repairs[incidentId] ?? ""} options={fixture.repairs.map((repair) => ({ value: repair, label: optionLabel(repair) }))} onChange={(repair) => chooseRepair(incidentId, repair)} />
               <div className="service-incident-actions"><button type="button" className="button button-primary" disabled={!repairs[incidentId]} onClick={() => diagnose(incidentId)}>{t("상태 재실행·판정", "Re-run state and grade")}</button></div>
               <div className={`service-feedback${result?.passed ? " is-success" : result ? " is-error" : ""}`} role="status" aria-live="polite">{result ? resultMessage(result) : t("증거와 최초 실패 invariant를 연결하세요.", "Connect the evidence to the first failed invariant.")}</div>
             </article>

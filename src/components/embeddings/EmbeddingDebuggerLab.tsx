@@ -8,6 +8,7 @@ import {
 } from "../../features/embeddings/embedding-model";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 
 const scenarioCopy: Record<EmbeddingDebuggerScenarioId, {
   title: { ko: string; en: string };
@@ -237,19 +238,14 @@ export function EmbeddingDebuggerLab({
             >
               <legend>{copy.title[locale]}</legend>
               <p>{copy.clue[locale]}</p>
-              <label>
-                <span>{t("실행할 repair", "Repair to run")}</span>
-                <select
-                  value={answer}
-                  onChange={(event) => changeAnswer(scenario, event.currentTarget.value as EmbeddingRepair)}
-                  aria-label={t(`${index + 1}번 사건 repair`, `Repair for incident ${index + 1}`)}
-                >
-                  <option value="" disabled>{t("repair 선택", "Choose a repair")}</option>
-                  {copy.options.map((option) => (
-                    <option value={option} key={option}>{repairCopy[option][locale]}</option>
-                  ))}
-                </select>
-              </label>
+              <DirectChoice
+                compact
+                label={t("실행할 repair", "Repair to run")}
+                ariaLabel={t(`${index + 1}번 사건 repair`, `Repair for incident ${index + 1}`)}
+                value={answer}
+                options={copy.options.map((option) => ({ value: option, label: repairCopy[option][locale] }))}
+                onChange={(repair) => changeAnswer(scenario, repair)}
+              />
               <div className="embeddings-debug-actions">
                 <button
                   type="button"

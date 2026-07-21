@@ -1,0 +1,330 @@
+.namespace-topology-lab.interactive-lab {
+  margin: 1.5rem 0;
+  padding: 0;
+  border-color: color-mix(in srgb, var(--chapter-accent) 45%, var(--line));
+  border-radius: 1rem;
+  background: color-mix(in srgb, var(--paper-raised) 96%, var(--chapter-accent-soft));
+}
+
+.namespace-topology-lab .namespace-lab-header {
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.namespace-topology-lab .namespace-lab-header > div {
+  max-width: 58rem;
+}
+
+.namespace-topology-lab .namespace-lab-header > strong {
+  padding: 0.4rem 0.65rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  color: var(--chapter-accent);
+  font: 800 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.namespace-topology-lab .namespace-lab-toolbar {
+  justify-content: flex-start;
+  padding: 0 clamp(1rem, 3vw, 1.5rem) clamp(1rem, 3vw, 1.5rem);
+}
+
+.namespace-prediction-step {
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border-top: 1px solid var(--line);
+  background: var(--paper-subtle);
+}
+
+.namespace-editor-step {
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--chapter-accent);
+  font: 850 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.09em;
+}
+
+.namespace-prediction-step .infrastructure-choice-rail > div {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.namespace-prediction-step .infrastructure-choice-card {
+  min-height: 7rem;
+}
+
+.namespace-editor-workspace {
+  min-width: 0;
+}
+
+.namespace-editor-workspace .infrastructure-workspace {
+  border-bottom: 0;
+}
+
+.namespace-editor-workspace .infrastructure-workspace-stage {
+  padding: clamp(0.85rem, 2vw, 1.5rem);
+}
+
+.namespace-editor-workspace .namespace-boundary-visualization {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.namespace-editor-workspace .namespace-boundary-visual-header div > strong {
+  color: #f2f7f4;
+}
+
+.namespace-editor-workspace .namespace-boundary-visual-header div > span {
+  color: #aab9b0;
+}
+
+.namespace-editor-workspace .namespace-boundary-state-badge {
+  border-color: color-mix(in srgb, var(--chapter-accent) 58%, #dce8e1);
+}
+
+.namespace-editor-workspace .namespace-kernel-boundary-map {
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--chapter-accent) 5%, transparent) 1px, transparent 1px),
+    linear-gradient(color-mix(in srgb, var(--chapter-accent) 5%, transparent) 1px, transparent 1px),
+    var(--paper-subtle);
+  background-size: 1.5rem 1.5rem;
+}
+
+.namespace-topology-lab .namespace-boundary-map-card {
+  min-height: 23rem;
+}
+
+.namespace-topology-lab .namespace-boundary-loopback:not(.is-fixed) {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.namespace-topology-lab .namespace-boundary-loopback .infrastructure-state-switch {
+  min-height: 3.7rem;
+  border-radius: 0.7rem;
+  font-family: inherit;
+}
+
+.namespace-topology-lab .namespace-boundary-loopback .infrastructure-state-switch b {
+  flex: 0 0 auto;
+}
+
+.namespace-topology-lab .namespace-boundary-object-lanes li.is-editable {
+  padding: 0;
+  overflow: hidden;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.namespace-topology-lab .namespace-boundary-object-lanes li.is-editable:hover {
+  border-color: var(--chapter-accent);
+  transform: translateY(-1px);
+}
+
+.namespace-topology-lab .namespace-boundary-object-lanes li.is-selected {
+  border-color: var(--chapter-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--chapter-accent) 24%, transparent);
+}
+
+.namespace-topology-lab .namespace-boundary-object-lanes li > button,
+.namespace-topology-lab .namespace-boundary-object-lanes li > div {
+  width: 100%;
+  min-height: 4.25rem;
+  padding: 0.55rem 0.6rem;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
+.namespace-topology-lab .namespace-boundary-object-lanes li > button {
+  display: block;
+  cursor: pointer;
+}
+
+.namespace-topology-lab .namespace-boundary-object-lanes li > button > span,
+.namespace-topology-lab .namespace-boundary-object-lanes li > div > span {
+  display: block;
+  margin-top: 0.28rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.35;
+}
+
+.namespace-topology-lab .namespace-boundary-object-lanes li > button:focus-visible,
+.namespace-topology-lab .namespace-boundary-loopback .infrastructure-state-switch:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--chapter-accent) 58%, white);
+  outline-offset: -3px;
+}
+
+.namespace-editor-inspector {
+  display: grid;
+  gap: 0.9rem;
+  align-content: start;
+  color: var(--code-text);
+}
+
+.namespace-editor-inspector h4,
+.namespace-editor-inspector p {
+  margin: 0;
+}
+
+.namespace-editor-inspector h4 {
+  color: var(--code-text);
+  font-size: 1rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.namespace-editor-selection {
+  min-height: 4.4rem;
+  padding: 0.75rem;
+  border: 1px solid var(--code-border);
+  border-radius: 0.65rem;
+  background: color-mix(in srgb, var(--code-bg) 82%, transparent);
+  color: color-mix(in srgb, var(--code-text) 75%, transparent);
+  font-size: var(--text-caption);
+  line-height: 1.55;
+}
+
+.namespace-editor-inspector .infrastructure-choice-label {
+  color: #aab9b0;
+}
+
+.namespace-editor-inspector .infrastructure-choice-rail > div {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.namespace-editor-inspector .infrastructure-choice-card {
+  border-color: var(--code-border);
+  background: var(--code-bg);
+  color: var(--code-text);
+}
+
+.namespace-editor-inspector .infrastructure-choice-card[aria-pressed="true"] {
+  border-color: var(--chapter-accent);
+  background: color-mix(in srgb, var(--chapter-accent) 68%, #17201b);
+  color: #fff;
+}
+
+.namespace-editor-contract {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--code-border);
+}
+
+.namespace-editor-contract > span {
+  color: #aab9b0;
+  font: 800 0.66rem/1.2 var(--mono);
+  letter-spacing: 0.08em;
+}
+
+.namespace-editor-contract p {
+  display: grid;
+  gap: 0.2rem;
+  color: color-mix(in srgb, var(--code-text) 72%, transparent);
+  font-size: 0.74rem;
+  line-height: 1.45;
+}
+
+.namespace-editor-contract strong {
+  color: var(--code-text);
+  font: 800 0.64rem/1.2 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.namespace-editor-workspace .namespace-boundary-probe-list li,
+.namespace-editor-workspace .namespace-boundary-current-state {
+  border-color: color-mix(in srgb, var(--line) 82%, transparent);
+}
+
+.namespace-topology-lab .namespace-lab-actions,
+.namespace-topology-lab > .namespace-feedback {
+  margin: 0;
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.namespace-topology-lab .namespace-lab-actions {
+  border-top: 1px solid var(--line);
+}
+
+.namespace-topology-lab .namespace-lab-actions .button-primary {
+  min-height: 3rem;
+}
+
+.namespace-topology-lab > .namespace-feedback {
+  border-radius: 0;
+}
+
+@media (max-width: 900px) {
+  .namespace-editor-inspector .infrastructure-choice-rail > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .namespace-topology-lab .namespace-lab-header,
+  .namespace-topology-lab .namespace-lab-toolbar {
+    align-items: stretch;
+  }
+
+  .namespace-topology-lab .namespace-lab-header > strong {
+    align-self: flex-start;
+  }
+
+  .namespace-topology-lab .namespace-lab-toolbar .button,
+  .namespace-topology-lab .namespace-lab-actions .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .namespace-prediction-step .infrastructure-choice-rail > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .namespace-prediction-step .infrastructure-choice-card {
+    min-height: 5.75rem;
+  }
+
+  .namespace-editor-workspace .infrastructure-workspace-stage,
+  .namespace-editor-workspace .infrastructure-workspace-inspector {
+    padding: 0.8rem;
+  }
+
+  .namespace-topology-lab .namespace-boundary-map-card {
+    min-height: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .namespace-topology-lab.interactive-lab {
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+  }
+
+  .namespace-editor-inspector .infrastructure-choice-rail > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .namespace-topology-lab .namespace-boundary-loopback .infrastructure-state-switch {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .namespace-topology-lab .namespace-boundary-loopback .infrastructure-state-switch b {
+    min-width: 4.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .namespace-topology-lab .namespace-boundary-object-lanes li.is-editable {
+    transition: none;
+  }
+
+  .namespace-topology-lab .namespace-boundary-object-lanes li.is-editable:hover {
+    transform: none;
+  }
+}

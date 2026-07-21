@@ -6,6 +6,17 @@ const publicPath = "/curricula/transformer-from-zero/chapters/mini-transformer";
 
 type TestPage = Parameters<typeof signInTestUser>[0];
 
+function choiceGroup(scope: Locator, label: string) {
+  return scope.getByRole("group", { name: label });
+}
+
+async function choose(scope: Locator, label: string, value: string) {
+  const option = choiceGroup(scope, label).locator(`[data-choice-value="${value}"]`);
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
+
 async function signInAsAdmin(page: TestPage) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
   await signInTestUser(page, process.env.E2E_ADMIN_EMAIL!);
@@ -74,7 +85,7 @@ async function completeChallenge({
   await preset.click();
   await expect(preset).toHaveAttribute("aria-pressed", "true");
   await configure();
-  await lab.getByLabel("Mini Transformer challenge 예측").selectOption(prediction);
+  await choose(lab, "Mini Transformer challenge 예측", prediction);
   await lab.getByRole("button", { name: "Mini Transformer 실행" }).click();
   await expect(lab.locator(".mini-transformer-live-feedback")).toContainText("예측과 실행 계약이 맞았습니다");
   await lab.getByRole("button", { name: requiredCell }).click();
@@ -111,33 +122,35 @@ test("completes five model challenges, four repairs, and concepts in the Korean 
 
   const lab = page.locator(".mini-transformer-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
-  const prediction = lab.getByLabel("Mini Transformer challenge 예측");
+  const prediction = choiceGroup(lab, "Mini Transformer challenge 예측");
   const run = lab.getByRole("button", { name: "Mini Transformer 실행" });
+  const embedStressPreset = lab.locator('[data-mini-transformer-preset="embed-position"]');
+  await embedStressPreset.click();
   const positionScale = lab.getByLabel("Mini Transformer position scale");
-  const bos = lab.getByLabel("Mini Transformer BOS 추가");
 
   await positionScale.fill("3");
-  await prediction.selectOption("bos-and-vocabulary-ids");
+  await choose(lab, "Mini Transformer challenge 예측", "embedding-plus-position-once");
   await run.click();
   await expect(lab.locator(".mini-transformer-runtime-fallback")).toContainText("로컬 Mini Transformer runtime 실패");
   const recover = lab.getByRole("button", { name: "challenge 시작 preset으로 안전하게 복구" });
   await expect(recover).toBeFocused();
   await recover.click();
-  await expect(prediction).toBeFocused();
-  await expect(positionScale).toHaveValue("1");
-  await expect(bos).toHaveValue("prompt");
+  await expect(prediction.getByRole("button").first()).toBeFocused();
+  await expect(positionScale).toHaveValue("0");
   await expect(lab.locator(".mini-transformer-runtime-fallback")).toHaveCount(0);
   await expect(lab.locator(".mini-transformer-evidence .is-complete")).toHaveCount(0);
 
   const tokenizePreset = lab.locator('[data-mini-transformer-preset="tokenize"]');
   await tokenizePreset.click();
-  await bos.selectOption("bos");
-  await prediction.selectOption("prompt-only-no-bos");
+  const bos = choiceGroup(lab, "Mini Transformer BOS 추가");
+  await expect(bos.locator('[data-choice-value="0"]')).toHaveAttribute("aria-pressed", "true");
+  await choose(lab, "Mini Transformer BOS 추가", "1");
+  await choose(lab, "Mini Transformer challenge 예측", "prompt-only-no-bos");
   await run.click();
   await expect(lab.locator(".mini-transformer-live-feedback")).toContainText("예측의 경계를 다시 보세요");
   await expect(lab.locator(".mini-transformer-live-feedback")).toContainText("BOS");
   await expect(lab.locator(".mini-transformer-evidence .is-complete")).toHaveCount(0);
-  await prediction.selectOption("bos-and-vocabulary-ids");
+  await choose(lab, "Mini Transformer challenge 예측", "bos-and-vocabulary-ids");
   await run.click();
   await expect(lab.locator(".mini-transformer-live-feedback")).toContainText("예측과 실행 계약이 맞았습니다");
   await lab.getByRole("button", { name: /^token IDs \[T,1\], 1:the, id: 1$/ }).click();
@@ -158,7 +171,7 @@ test("completes five model challenges, four repairs, and concepts in the Korean 
     lab,
     id: "causal-block",
     prediction: "causal-prefix-preserves-shape",
-    configure: async () => lab.getByLabel("Mini Transformer causal mask").selectOption("causal"),
+    configure: async () => choose(lab, "Mini Transformer causal mask", "1"),
     requiredCell: /^head 0 attention weights \[T,T\], 0:<bos>, the:/,
     completedCount: 3,
   });
@@ -166,7 +179,7 @@ test("completes five model challenges, four repairs, and concepts in the Korean 
     lab,
     id: "vocab-projection",
     prediction: "last-hidden-to-vocab-row-softmax",
-    configure: async () => lab.getByLabel("Mini Transformer probability axis").selectOption("vocabulary"),
+    configure: async () => choose(lab, "Mini Transformer probability axis", "vocabulary"),
     requiredCell: /^vocabulary probabilities \[T,8\], cat, sat:/,
     completedCount: 4,
   });
@@ -174,7 +187,7 @@ test("completes five model challenges, four repairs, and concepts in the Korean 
     lab,
     id: "autoregressive-decode",
     prediction: "append-recompute-stop-eos-or-limit",
-    configure: async () => lab.getByLabel("Mini Transformer prefix 재실행").selectOption("rerun"),
+    configure: async () => choose(lab, "Mini Transformer prefix 재실행", "1"),
     requiredCell: /^last-row next-token probabilities by generation step, step 1, \.:/,
     completedCount: 5,
   });
@@ -197,14 +210,14 @@ test("completes five model challenges, four repairs, and concepts in the Korean 
   ] as const;
   for (let index = 0; index < 4; index += 1) {
     const incident = incidents.nth(index);
-    const repair = incident.getByRole("combobox", { name: `${index + 1}번 Mini Transformer 사건 repair` });
+    const repairLabel = `${index + 1}번 Mini Transformer 사건 repair`;
     const applyRepair = incident.getByRole("button", { name: `${index + 1}번 Mini Transformer repair 실행` });
-    await repair.selectOption(wrongRepairs[index]);
+    await choose(incident, repairLabel, wrongRepairs[index]);
     await applyRepair.click();
     await expect(applyRepair).toBeFocused();
     await expect(incident).toHaveClass(/is-incorrect/);
     await expect(incident.locator(".mini-transformer-debug-feedback")).toContainText("계약 불일치");
-    await repair.selectOption(correctRepairs[index]);
+    await choose(incident, repairLabel, correctRepairs[index]);
     await applyRepair.click();
     await expect(applyRepair).toBeFocused();
     await expect(incident).toHaveClass(/is-correct/);
@@ -283,32 +296,34 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
 
   const lab = page.locator(".mini-transformer-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
-  const prediction = lab.getByLabel("Mini Transformer challenge prediction");
+  const prediction = choiceGroup(lab, "Mini Transformer challenge prediction");
+  const embedStressPreset = lab.locator('[data-mini-transformer-preset="embed-position"]');
+  await activate(embedStressPreset, true);
   const positionScale = lab.getByLabel("Mini Transformer position scale");
   const run = lab.getByRole("button", { name: "Run the Mini Transformer" });
 
   await positionScale.fill("3");
-  await prediction.selectOption("bos-and-vocabulary-ids");
+  await choose(lab, "Mini Transformer challenge prediction", "embedding-plus-position-once");
   await activate(run, true);
   await expect(lab.locator(".mini-transformer-runtime-fallback")).toContainText("Local Mini Transformer runtime failure");
   const recover = lab.getByRole("button", { name: "Recover safely to the challenge starting preset" });
   await expect(recover).toBeFocused();
   await activate(recover, true);
-  await expect(prediction).toBeFocused();
-  await expect(positionScale).toHaveValue("1");
+  await expect(prediction.getByRole("button").first()).toBeFocused();
+  await expect(positionScale).toHaveValue("0");
 
   const embedPreset = lab.locator('[data-mini-transformer-preset="embed-position"]');
   await activate(embedPreset, true);
   await expect(embedPreset).toHaveAttribute("aria-pressed", "true");
-  await expect(prediction).toBeFocused();
+  await expect(prediction.getByRole("button").first()).toBeFocused();
   expect(await embedPreset.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
 
-  await prediction.selectOption("embedding-plus-position-once");
+  await choose(lab, "Mini Transformer challenge prediction", "embedding-plus-position-once");
   await activate(run, true);
   await expect(lab.locator(".mini-transformer-live-feedback")).toContainText("Repair the execution settings");
   await expect(lab.locator(".mini-transformer-live-feedback")).toContainText("Position error");
   await positionScale.fill("1");
-  await prediction.selectOption("embedding-plus-position-once");
+  await choose(lab, "Mini Transformer challenge prediction", "embedding-plus-position-once");
   await activate(run, true);
   await expect(run).toBeFocused();
   await expect(lab.locator(".mini-transformer-live-feedback")).toContainText("Prediction and execution contracts match");
@@ -337,7 +352,8 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await adjacentCell.press("ArrowLeft");
   await expect(embedCell).toBeFocused();
 
-  for (const control of [embedPreset, positionScale, prediction, run, embedStage, embedCell]) {
+  const selectedPrediction = choiceGroup(lab, "Mini Transformer challenge prediction").locator('[aria-pressed="true"]');
+  for (const control of [embedPreset, positionScale, selectedPrediction, run, embedStage, embedCell]) {
     await expectMinimumTarget(control);
   }
   expect(await miniTransformerOverflow(page)).toEqual([]);
@@ -346,12 +362,12 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const resetLab = lab.getByRole("button", { name: "Reset the entire Mini Transformer lab", exact: true });
   await activate(resetLab, true);
   await expect(resetLab).toBeFocused();
-  await expect(prediction).toHaveValue("");
+  await expect(prediction.locator('[aria-pressed="true"]')).toHaveCount(0);
   await expect(lab.locator(".mini-transformer-evidence .is-complete")).toHaveCount(0);
 
   const firstIncident = page.locator('.mini-transformer-debug-card[data-mini-transformer-incident="tokenizer-boundary"]');
-  const repairSelect = firstIncident.getByRole("combobox", { name: "Mini Transformer incident 1 repair" });
-  await repairSelect.selectOption("character-codepoints");
+  const repairSelect = choiceGroup(firstIncident, "Mini Transformer incident 1 repair");
+  await choose(firstIncident, "Mini Transformer incident 1 repair", "character-codepoints");
   const applyRepair = firstIncident.getByRole("button", { name: "Run Mini Transformer repair 1" });
   await activate(applyRepair, true);
   await expect(applyRepair).toBeFocused();
@@ -362,12 +378,12 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const resetIncident = firstIncident.getByRole("button", { name: "Reset Mini Transformer incident 1" });
   await activate(resetIncident, true);
   await expect(resetIncident).toBeFocused();
-  await expect(repairSelect).toHaveValue("");
+  await expect(repairSelect.locator('[aria-pressed="true"]')).toHaveCount(0);
 
   const resetDebugger = page.getByRole("button", { name: "Reset the entire Mini Transformer debugger", exact: true });
   await activate(resetDebugger, true);
   await expect(resetDebugger).toBeFocused();
-  await expect(repairSelect).toHaveValue("");
+  await expect(repairSelect.locator('[aria-pressed="true"]')).toHaveCount(0);
 
   const conceptAnswers = [
     'input[name="shifted-target"][value="prefix-row-predicts-following-token"]',

@@ -22,6 +22,7 @@ import {
 } from "../../features/embeddings/embedding-model";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 
 const presets = {
   subword: { text: "kitten sleeps", mode: "subword" as const },
@@ -503,12 +504,13 @@ export function EmbeddingLookupLab({
 
           {beforeUpdate ? (
             <div className="embeddings-stability-check">
-              <label>
-                <span>{t("바뀌지 않은 row 직접 검사", "Verify an unchanged row")}</span>
-                <select value={stableRowId} onChange={(event) => setStableRowId(Number(event.currentTarget.value))}>
-                  {embeddingVocabulary.map(({ id, token }) => <option value={id} key={id}>row {id} · {token}</option>)}
-                </select>
-              </label>
+              <DirectChoice
+                compact
+                label={t("바뀌지 않은 row 직접 검사", "Verify an unchanged row")}
+                value={stableRowId}
+                options={embeddingVocabulary.map(({ id, token }) => ({ value: id, label: `row ${id} · ${token}` }))}
+                onChange={setStableRowId}
+              />
               <button type="button" className="button button-secondary" onClick={verifyStableRow}>
                 {t("update 전후 비교", "Compare before and after")}
               </button>

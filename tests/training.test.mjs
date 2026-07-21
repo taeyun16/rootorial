@@ -20,6 +20,8 @@ import {
 import {
   trainingAdamEpochCode,
   trainingAdamEpochCodeEn,
+  trainingAdamEpochSupportCode,
+  trainingAdamEpochSupportCodeEn,
   trainingSoftmaxAxisRepairCode,
   trainingSoftmaxAxisRepairCodeEn,
 } from "../src/data/trainingNotebook.ts";
@@ -34,17 +36,22 @@ function close(actual, expected, tolerance = 1e-9) {
 test("ships independent Python bridges for Softmax-axis repair and a full Adam epoch", () => {
   assert.equal(trainingSoftmaxAxisRepairCodeEn, trainingSoftmaxAxisRepairCode);
   assert.equal(trainingAdamEpochCodeEn, trainingAdamEpochCode);
+  assert.equal(trainingAdamEpochSupportCodeEn, trainingAdamEpochSupportCode);
+  const adamEpochProgram = `${trainingAdamEpochSupportCode}\n\n${trainingAdamEpochCode}`;
   assert.match(trainingSoftmaxAxisRepairCode, /class_axis = 0/);
   assert.match(trainingSoftmaxAxisRepairCode, /np\.allclose\(row_sums, np\.ones\(2\)\)/);
   assert.match(trainingSoftmaxAxisRepairCode, /first_row_shift < 1e-12/);
   assert.match(trainingSoftmaxAxisRepairCode, /0\.288725992/);
-  assert.match(trainingAdamEpochCode, /np\.array\(\[6\]\)/);
-  assert.match(trainingAdamEpochCode, /grad_logits = probabilities\.copy\(\)/);
-  assert.match(trainingAdamEpochCode, /m_W = beta_1 \* m_W/);
-  assert.match(trainingAdamEpochCode, /assert step == 4/);
-  assert.match(trainingAdamEpochCode, /0\.225353/);
+  assert.match(adamEpochProgram, /np\.array\(\[6\]\)/);
+  assert.match(adamEpochProgram, /grad_logits = probabilities\.copy\(\)/);
+  assert.match(adamEpochProgram, /m_W = beta_1 \* m_W/);
+  assert.match(adamEpochProgram, /assert step == 4/);
+  assert.match(adamEpochProgram, /0\.225353/);
+  assert.ok(trainingAdamEpochCode.split("\n").length <= 80);
+  assert.ok(trainingAdamEpochSupportCode.split("\n").length <= 80);
   assert.doesNotMatch(trainingSoftmaxAxisRepairCode, /[가-힣]/);
   assert.doesNotMatch(trainingAdamEpochCode, /[가-힣]/);
+  assert.doesNotMatch(trainingAdamEpochSupportCode, /[가-힣]/);
 });
 
 test("computes stable row softmax without coupling samples", () => {

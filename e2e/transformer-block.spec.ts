@@ -6,6 +6,17 @@ const publicPath = "/curricula/transformer-from-zero/chapters/transformer-block"
 
 type TestPage = Parameters<typeof signInTestUser>[0];
 
+function choiceGroup(scope: Locator, label: string) {
+  return scope.getByRole("group", { name: label });
+}
+
+async function choose(scope: Locator, label: string, value: string) {
+  const option = choiceGroup(scope, label).locator(`[data-choice-value="${value}"]`);
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
+
 async function signInAsAdmin(page: TestPage) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
   await signInTestUser(page, process.env.E2E_ADMIN_EMAIL!);
@@ -59,7 +70,7 @@ async function completeChallenge({
   await preset.click();
   await expect(preset).toHaveAttribute("aria-pressed", "true");
   await configure();
-  await lab.getByLabel("Transformer block challenge 예측").selectOption(prediction);
+  await choose(lab, "Transformer block challenge 예측", prediction);
   await lab.getByRole("button", { name: "Transformer block 조립 실행" }).click();
   await expect(lab.locator(".transformer-block-live-feedback")).toContainText("예측과 실행 계약이 맞았습니다");
   await lab.getByRole("button", { name: requiredCell }).click();
@@ -96,18 +107,18 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
 
   const lab = page.locator(".transformer-block-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
-  const prediction = lab.getByLabel("Transformer block challenge 예측");
+  const prediction = choiceGroup(lab, "Transformer block challenge 예측");
   const run = lab.getByRole("button", { name: "Transformer block 조립 실행" });
   const positionScale = lab.getByLabel("Transformer block position scale");
 
   await positionScale.fill("3");
-  await prediction.selectOption("position-added-before-attention");
+  await choose(lab, "Transformer block challenge 예측", "position-added-before-attention");
   await run.click();
   await expect(lab.locator(".transformer-block-runtime-fallback")).toContainText("로컬 Transformer block runtime 실패");
   const recover = lab.getByRole("button", { name: "challenge 시작 preset으로 안전하게 복구" });
   await expect(recover).toBeFocused();
   await recover.click();
-  await expect(prediction).toBeFocused();
+  await expect(prediction.getByRole("button").first()).toBeFocused();
   await expect(positionScale).toHaveValue("0");
   await expect(lab.locator(".transformer-block-runtime-fallback")).toHaveCount(0);
   await expect(lab.locator(".transformer-block-evidence .is-complete")).toHaveCount(0);
@@ -115,11 +126,11 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
   const positionPreset = lab.locator('[data-transformer-block-preset="position-input"]');
   await positionPreset.click();
   await positionScale.fill("1");
-  await prediction.selectOption("position-omitted");
+  await choose(lab, "Transformer block challenge 예측", "position-omitted");
   await run.click();
   await expect(lab.locator(".transformer-block-live-feedback")).toContainText("causal mask는 미래 visibility만 제한");
   await expect(lab.locator(".transformer-block-evidence .is-complete")).toHaveCount(0);
-  await prediction.selectOption("position-added-before-attention");
+  await choose(lab, "Transformer block challenge 예측", "position-added-before-attention");
   await run.click();
   await expect(lab.locator(".transformer-block-live-feedback")).toContainText("예측과 실행 계약이 맞았습니다");
   await lab.getByRole("button", { name: /^target x₀ = E \+ P \[4,4\], the, d0:/ }).click();
@@ -132,7 +143,7 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
     lab,
     id: "layernorm",
     prediction: "feature-axis-centered-with-epsilon",
-    configure: async () => lab.getByLabel("Transformer block pre-norm").selectOption("pre"),
+    configure: async () => choose(lab, "Transformer block pre-norm", "1"),
     requiredCell: /^target LN\(x₀\) \[4,4\], cat, d2:/,
     completedCount: 2,
   });
@@ -140,7 +151,7 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
     lab,
     id: "attention-residual",
     prediction: "attention-update-adds-to-x0",
-    configure: async () => lab.getByLabel("Transformer block 첫 residual").selectOption("add"),
+    configure: async () => choose(lab, "Transformer block 첫 residual", "1"),
     requiredCell: /^target x₁ \[4,4\], cat, d0:/,
     completedCount: 3,
   });
@@ -148,7 +159,7 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
     lab,
     id: "positionwise-ffn",
     prediction: "shared-rowwise-relu-permutation-equivariant",
-    configure: async () => lab.getByLabel("Transformer block FFN 공유").selectOption("shared"),
+    configure: async () => choose(lab, "Transformer block FFN 공유", "1"),
     requiredCell: /^target FFN output \[4,4\], sat, d1:/,
     completedCount: 4,
   });
@@ -156,7 +167,7 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
     lab,
     id: "block-handoff",
     prediction: "second-skip-preserves-tokens-and-width",
-    configure: async () => lab.getByLabel("Transformer block 두 번째 residual").selectOption("add"),
+    configure: async () => choose(lab, "Transformer block 두 번째 residual", "1"),
     requiredCell: /^target block output y \[4,4\], sat, d0:/,
     completedCount: 5,
   });
@@ -180,14 +191,14 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
   ] as const;
   for (let index = 0; index < incidentCount; index += 1) {
     const incident = incidents.nth(index);
-    const repair = incident.getByRole("combobox", { name: `${index + 1}번 Transformer block 사건 repair` });
+    const repairLabel = `${index + 1}번 Transformer block 사건 repair`;
     const applyRepair = incident.getByRole("button", { name: `${index + 1}번 Transformer block 사건 repair 적용 및 계약 실행` });
-    await repair.selectOption(wrongRepairs[index]);
+    await choose(incident, repairLabel, wrongRepairs[index]);
     await applyRepair.click();
     await expect(applyRepair).toBeFocused();
     await expect(incident).toHaveAttribute("data-repair-result", "incorrect");
     await expect(incident.locator(".transformer-block-debug-feedback")).toContainText("결함이 남아 있습니다");
-    await repair.selectOption(correctRepairs[index]);
+    await choose(incident, repairLabel, correctRepairs[index]);
     await applyRepair.click();
     await expect(applyRepair).toBeFocused();
     await expect(incident).toHaveAttribute("data-repair-result", "correct");
@@ -266,41 +277,40 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
 
   const lab = page.locator(".transformer-block-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
-  const prediction = lab.getByLabel("Transformer block challenge prediction");
+  const prediction = choiceGroup(lab, "Transformer block challenge prediction");
   const positionScale = lab.getByLabel("Transformer block position scale");
   const run = lab.getByRole("button", { name: "Assemble and run the Transformer block" });
 
   await positionScale.fill("3");
-  await prediction.selectOption("position-added-before-attention");
+  await choose(lab, "Transformer block challenge prediction", "position-added-before-attention");
   await run.focus();
   await run.press("Enter");
   await expect(lab.locator(".transformer-block-runtime-fallback")).toContainText("Local Transformer block runtime failure");
   const recover = lab.getByRole("button", { name: "Recover safely to the challenge starting preset" });
   await expect(recover).toBeFocused();
   await recover.press("Enter");
-  await expect(prediction).toBeFocused();
+  await expect(prediction.getByRole("button").first()).toBeFocused();
   await expect(positionScale).toHaveValue("0");
 
   const layerNormPreset = lab.locator('[data-transformer-block-preset="layernorm"]');
   await layerNormPreset.focus();
   await layerNormPreset.press("Enter");
   await expect(layerNormPreset).toHaveAttribute("aria-pressed", "true");
-  await expect(prediction).toBeFocused();
+  await expect(prediction.getByRole("button").first()).toBeFocused();
   expect(await layerNormPreset.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
 
-  const preNorm = lab.getByLabel("Transformer block pre-norm");
-  await prediction.selectOption("feature-axis-centered-with-epsilon");
+  await choose(lab, "Transformer block challenge prediction", "feature-axis-centered-with-epsilon");
   await run.focus();
   await run.press("Enter");
   await expect(lab.locator(".transformer-block-live-feedback")).toContainText("assembly setup is still broken");
   await expect(lab.locator(".transformer-block-stage-panel")).toContainText("LAYERNORM BYPASSED IN EXECUTED BRANCH");
   await expect(lab.locator(".transformer-block-stage-panel")).toContainText("REFERENCE LN STATS · NOT APPLIED");
   await expect(lab.getByRole("button", { name: /^executed Attention input x₀ · LN bypassed \[4,4\], cat, d2:/ })).toBeVisible();
-  await preNorm.selectOption("pre");
-  await prediction.selectOption("feature-axis-centered-with-epsilon");
+  const preNormChoice = await choose(lab, "Transformer block pre-norm", "1");
+  const correctPrediction = await choose(lab, "Transformer block challenge prediction", "feature-axis-centered-with-epsilon");
   await run.focus();
   await run.press("Enter");
-  await expect(prediction).toBeFocused();
+  await expect(correctPrediction).toBeFocused();
   await expect(lab.locator(".transformer-block-live-feedback")).toContainText("Prediction and executed contract match");
 
   const normStage = lab.locator(".step-explorer").getByRole("tab", { name: "02 LN(x₀)", exact: true });
@@ -314,7 +324,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(normCell).toBeFocused();
   await expect(lab.locator(".transformer-block-evidence .is-complete")).toHaveCount(1);
 
-  const coreControls = [layerNormPreset, preNorm, prediction, run, normStage, normCell];
+  const coreControls = [layerNormPreset, preNormChoice, correctPrediction, run, normStage, normCell];
   for (const target of coreControls) {
     const box = await target.boundingBox();
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
@@ -327,12 +337,12 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await resetLab.focus();
   await resetLab.press("Enter");
   await expect(resetLab).toBeFocused();
-  await expect(prediction).toHaveValue("");
+  await expect(prediction.locator('[aria-pressed="true"]')).toHaveCount(0);
   await expect(lab.locator(".transformer-block-evidence .is-complete")).toHaveCount(0);
 
   const firstIncident = page.locator('.transformer-block-debug-card[data-scenario-id="position-placement"]');
-  const repairSelect = firstIncident.getByRole("combobox", { name: "Repair for Transformer block incident 1" });
-  await repairSelect.selectOption("omit-position-signal");
+  const repairSelect = choiceGroup(firstIncident, "Repair for Transformer block incident 1");
+  await choose(firstIncident, "Repair for Transformer block incident 1", "omit-position-signal");
   const applyRepair = firstIncident.getByRole("button", { name: "Apply repair and run contract for Transformer block incident 1" });
   await applyRepair.focus();
   await applyRepair.press("Enter");
@@ -349,13 +359,13 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await resetIncident.focus();
   await resetIncident.press("Enter");
   await expect(resetIncident).toBeFocused();
-  await expect(repairSelect).toHaveValue("");
+  await expect(repairSelect.locator('[aria-pressed="true"]')).toHaveCount(0);
 
   const resetDebugger = page.getByRole("button", { name: "Reset the entire Transformer block debugger", exact: true });
   await resetDebugger.focus();
   await resetDebugger.press("Enter");
   await expect(resetDebugger).toBeFocused();
-  await expect(repairSelect).toHaveValue("");
+  await expect(repairSelect.locator('[aria-pressed="true"]')).toHaveCount(0);
 
   const conceptAnswers = [
     ['input[name="position-input"][value="add-sinusoidal-once-before-first-block"]'],

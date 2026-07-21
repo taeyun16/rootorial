@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   analyzeCurriculumQuality,
@@ -91,6 +92,37 @@ test("keeps the core learning path visible, supported, and within its interactio
   );
 });
 
+test("audits native select density and Python cell size independently from the quality score", () => {
+  const report = analyzeCurriculumQuality();
+  const chapters = Object.fromEntries(report.chapters.map((chapter) => [chapter.slug, chapter]));
+
+  for (const slug of report.chapters.map((chapter) => chapter.slug)) {
+    assert.equal(chapters[slug].nativeSelectDefinitions, 0);
+  }
+  assert.equal(chapters.training.maxPythonCellLines, 66);
+  assert.equal(chapters["self-attention"].maxPythonCellLines, 55);
+  assert.equal(report.targetGaps.filter((gap) => gap.includes("native select")).length, 0);
+  assert.equal(report.targetGaps.filter((gap) => gap.includes("Python cell")).length, 0);
+});
+
+test("keeps Transformer repair code focused and full editors optional by default", () => {
+  const notebookCell = readFileSync(new URL("../src/components/NotebookCell.tsx", import.meta.url), "utf8");
+  const directChoice = readFileSync(
+    new URL("../src/components/interactive/DirectChoice.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(notebookCell, /defaultExpanded = false/);
+  assert.match(notebookCell, /supportCode\?: string/);
+  assert.match(notebookCell, /executionCode = supportCode/);
+  assert.match(notebookCell, /notebook-cell-support-code/);
+  assert.match(notebookCell, /notebook-cell-guided-repair/);
+  assert.match(notebookCell, /전체 코드 보기/);
+  assert.doesNotMatch(directChoice, /<select/);
+  assert.match(directChoice, /data-choice-value/);
+  assert.match(directChoice, /aria-pressed/);
+});
+
 test("renders a reviewable Markdown report with score and draft state", () => {
   const markdown = renderCurriculumQualityMarkdown(analyzeCurriculumQuality());
 
@@ -104,7 +136,7 @@ test("renders a reviewable Markdown report with score and draft state", () => {
   assert.match(markdown, /Self-Attention.*2.*45\/45.*draft/);
   assert.match(markdown, /Transformer 블록.*2.*45\/45.*draft/);
   assert.match(markdown, /Mini Transformer.*2.*45\/45.*draft/);
-  assert.match(markdown, /\| Terms \| Help \| Required groups \| Actions min\/max \| Quality \|/);
+  assert.match(markdown, /\| Max code lines \| Native selects \| Questions \| Terms \| Help \| Required groups \| Actions min\/max \| Quality \|/);
   assert.match(markdown, /벡터와 텐서.*\| 5 \| yes \| 3 \| 17\/18 \| 45\/45/);
   assert.match(markdown, /분류와 신경망.*\| 6 \| yes \| 3 \| 16\/18 \| 45\/45/);
   assert.match(markdown, /Mini Transformer.*\| 5 \| yes \| 2 \| 15\/16 \| 45\/45/);

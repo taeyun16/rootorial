@@ -12,6 +12,10 @@ import {
 } from "../../features/infrastructure/network-policy";
 import type { NetworkPolicyGradeState } from "../../features/infrastructure/network-policy-visual";
 import { useLocale } from "../../features/localization/localization";
+import {
+  InfrastructureChoiceRail,
+  InfrastructureStateSwitch,
+} from "./InfrastructureInteractionPrimitives";
 import { NetworkPolicyView } from "./NetworkPolicyView";
 
 type Prediction = "" | "intended-only" | "all-allowed" | "all-blocked";
@@ -52,16 +56,31 @@ export function NetworkPolicyLab({
 
   useEffect(() => setInteractiveReady(true), []);
 
-  function publishCompletion(next: Completion) {
-    setCompleted(next);
-    onCompletionChange(next);
+  useEffect(() => {
+    onCompletionChange(completed);
+  }, [completed, onCompletionChange]);
+
+  function setModeCompletion(mode: NetworkPolicyMode, complete: boolean) {
+    setCompleted((current) => current[mode] === complete
+      ? current
+      : { ...current, [mode]: complete });
   }
 
   function invalidate(nextFeedback: LocalizedMessage, mode = draft.mode) {
     setEvaluation(null);
     setPrediction("");
-    publishCompletion({ ...completed, [mode]: false });
+    setModeCompletion(mode, false);
     setFeedback(nextFeedback);
+  }
+
+  function changePrediction(value: Exclude<Prediction, "">) {
+    setPrediction(value);
+    setEvaluation(null);
+    setModeCompletion(draft.mode, false);
+    setFeedback(message(
+      "예측이 바뀌었습니다. 현재 packet probe suite를 다시 실행하세요.",
+      "Prediction changed. Re-run the current packet-probe suite.",
+    ));
   }
 
   function applyScaffold(mode: NetworkPolicyMode) {
@@ -100,7 +119,7 @@ export function NetworkPolicyLab({
       const result = evaluateNetworkPolicy(draft);
       setEvaluation(result);
       const passed = result.passed && prediction === "intended-only";
-      publishCompletion({ ...completed, [draft.mode]: passed });
+      setModeCompletion(draft.mode, passed);
       if (passed) {
         setFeedback(draft.mode === "forward"
           ? message("FORWARD 통과 — app:8080 NEW와 ESTABLISHED reply만 accept되고 나머지는 drop됩니다.", "FORWARD passed — only app:8080 NEW and its ESTABLISHED reply are accepted; everything else drops.")
@@ -116,7 +135,7 @@ export function NetworkPolicyLab({
       }
     } catch {
       setEvaluation(null);
-      publishCompletion({ ...completed, [draft.mode]: false });
+      setModeCompletion(draft.mode, false);
       setFeedback(message("브라우저 policy model을 실행하지 못했습니다. 현재 mode를 초기화하세요.", "The browser policy model failed. Reset the current mode."));
     }
   }
@@ -145,58 +164,73 @@ export function NetworkPolicyLab({
         <button type="button" className="button button-ghost" onClick={() => applyScaffold(draft.mode)}>{t("현재 mode 초기화", "Reset current mode")}</button>
       </div>
 
-      <div className="network-policy-control-grid">
-        <fieldset>
-          <legend>{t("base chain 경계", "Base-chain boundary")}</legend>
-          <label>
-            <span>{t("base chain hook", "Base chain hook")}</span>
-            <select aria-label={t("base chain hook", "Base chain hook")} value={draft.hook} onChange={(event) => setField("hook", event.target.value as NetworkPolicyHook)}>
-              <option value="input">INPUT</option>
-              <option value="forward">FORWARD</option>
-            </select>
-          </label>
-          <label>
-            <span>{t("base chain policy", "Base chain policy")}</span>
-            <select aria-label={t("base chain policy", "Base chain policy")} value={draft.defaultPolicy} onChange={(event) => setField("defaultPolicy", event.target.value as NetworkPolicyDefault)}>
-              <option value="accept">policy accept</option>
-              <option value="drop">policy drop</option>
-            </select>
-          </label>
-          <p className="network-policy-derived-state">{draft.mode === "forward"
-            ? t("목적지가 router 자체가 아닌 transit packet만 FORWARD hook을 통과합니다.", "Only transit packets not addressed to the router itself cross the FORWARD hook.")
-            : t("router-local socket이 최종 목적지인 packet만 INPUT hook을 통과합니다.", "Only packets whose final destination is a router-local socket cross the INPUT hook.")}</p>
-        </fieldset>
-
-        <fieldset>
-          <legend>{t("state와 allow 범위", "State and allow scope")}</legend>
-          <label className="network-policy-check-control">
-            <input type="checkbox" checked={draft.statefulRule} onChange={(event) => setField("statefulRule", event.target.checked)} />
-            ct state established,related accept
-          </label>
-          <label>
-            <span>{t("required allow scope", "Required allow scope")}</span>
-            <select aria-label={t("required allow scope", "Required allow scope")} value={draft.allowScope} onChange={(event) => setField("allowScope", event.target.value as NetworkPolicyAllowScope)}>
-              <option value="exact">{draft.mode === "forward" ? "10.20.0.2 → 10.30.0.2:8080/tcp" : "198.51.100.25 → router:22/tcp"}</option>
-              <option value="any-source">{t("모든 source에서 service port", "service port from any source")}</option>
-              <option value="any-port">{t("승인 source의 모든 TCP port", "every TCP port from the approved source")}</option>
-            </select>
-          </label>
-        </fieldset>
-
-        <fieldset>
-          <legend>{t("ordered terminal verdict", "Ordered terminal verdict")}</legend>
-          <label>
-            <span>{t("terminal rule order", "Terminal rule order")}</span>
-            <select aria-label={t("terminal rule order", "Terminal rule order")} value={draft.ruleOrder} onChange={(event) => setField("ruleOrder", event.target.value as NetworkPolicyRuleOrder)}>
-              <option value="stateful-specific-deny">ESTABLISHED accept → specific NEW accept → drop</option>
-              <option value="deny-specific-stateful">drop → specific NEW accept → ESTABLISHED accept</option>
-            </select>
-          </label>
-          <p className="network-policy-derived-state">{t("counter는 non-terminal일 수 있지만 이 lab의 accept·drop verdict는 현재 single base chain의 평가를 끝냅니다.", "A counter may be non-terminal, but this lab's accept and drop verdicts end evaluation in the current single base chain.")}</p>
-        </fieldset>
-      </div>
-
-      <NetworkPolicyView preview={preview} evaluation={evaluation} gradeState={gradeState} />
+      <NetworkPolicyView
+        preview={preview}
+        evaluation={evaluation}
+        gradeState={gradeState}
+        controls={{
+          boundary: <div className="network-policy-boundary-controls">
+            <InfrastructureChoiceRail<NetworkPolicyHook>
+              controlId="policy-hook"
+              label={t("packet을 어느 base-chain hook에 놓을까요?", "Which base-chain hook should receive the packet?")}
+              value={draft.hook}
+              compact
+              options={[
+                { value: "input", label: "INPUT", detail: t("router-local destination", "Router-local destination") },
+                { value: "forward", label: "FORWARD", detail: t("transit destination", "Transit destination") },
+              ]}
+              onChange={(value) => setField("hook", value)}
+            />
+            <InfrastructureChoiceRail<NetworkPolicyDefault>
+              controlId="policy-default"
+              label={t("unmatched packet의 base policy", "Base policy for unmatched packets")}
+              value={draft.defaultPolicy}
+              compact
+              options={[
+                { value: "accept", label: "policy accept", eyebrow: "FAIL OPEN" },
+                { value: "drop", label: "policy drop", eyebrow: "FAIL CLOSED" },
+              ]}
+              onChange={(value) => setField("defaultPolicy", value)}
+            />
+            <p className="network-policy-derived-state">{draft.mode === "forward"
+              ? t("router 자체가 목적지가 아닌 transit packet은 FORWARD를 통과합니다.", "Transit packets not addressed to the router cross FORWARD.")
+              : t("router-local socket이 목적지인 packet은 INPUT을 통과합니다.", "Packets targeting a router-local socket cross INPUT.")}</p>
+          </div>,
+          chain: <div className="network-policy-chain-controls">
+            <InfrastructureStateSwitch
+              controlId="policy-stateful-rule"
+              label="ct state established,related accept"
+              detail={t("reply traffic용 stateful rule", "Stateful rule for reply traffic")}
+              checked={draft.statefulRule}
+              onChange={(value) => setField("statefulRule", value)}
+              stateOn="IN CHAIN"
+              stateOff="REMOVED"
+            />
+            <InfrastructureChoiceRail<NetworkPolicyAllowScope>
+              controlId="policy-allow-scope"
+              label={t("specific NEW allow card의 범위", "Scope of the specific NEW allow card")}
+              value={draft.allowScope}
+              compact
+              options={[
+                { value: "exact", label: draft.mode === "forward" ? "10.20.0.2 → app:8080" : "198.51.100.25 → router:22", eyebrow: "EXACT" },
+                { value: "any-source", label: t("모든 source", "Any source"), detail: t("service port 고정", "Service port fixed") },
+                { value: "any-port", label: t("모든 TCP port", "Any TCP port"), detail: t("source만 고정", "Source fixed") },
+              ]}
+              onChange={(value) => setField("allowScope", value)}
+            />
+            <InfrastructureChoiceRail<NetworkPolicyRuleOrder>
+              controlId="policy-rule-order"
+              label={t("rule card 순서", "Rule-card order")}
+              value={draft.ruleOrder}
+              options={[
+                { value: "stateful-specific-deny", label: t("stateful → specific → drop", "Stateful → specific → drop"), detail: t("필요한 두 flow 뒤 terminal deny", "Required flows before terminal deny") },
+                { value: "deny-specific-stateful", label: t("drop → specific → stateful", "Drop → specific → stateful"), detail: t("terminal deny가 먼저 실행", "Terminal deny runs first") },
+              ]}
+              onChange={(value) => setField("ruleOrder", value)}
+            />
+          </div>,
+        }}
+      />
 
       <div className="network-policy-command-evidence">
         <span>{t("현재 nftables ruleset projection", "Current nftables ruleset projection")}</span>
@@ -204,15 +238,17 @@ export function NetworkPolicyLab({
       </div>
 
       <div className="network-policy-run-row">
-        <label>
-          <span>{t("policy 실행 결과 예측", "Predict the policy result")}</span>
-          <select aria-label={t("policy 실행 결과 예측", "Predict the policy result")} value={prediction} onChange={(event) => { setPrediction(event.target.value as Prediction); setEvaluation(null); }}>
-            <option value="">—</option>
-            <option value="intended-only">{t("요구한 두 flow만 accept", "only the two required flows are accepted")}</option>
-            <option value="all-allowed">{t("모든 probe accept", "all probes are accepted")}</option>
-            <option value="all-blocked">{t("모든 probe drop", "all probes are dropped")}</option>
-          </select>
-        </label>
+        <InfrastructureChoiceRail<Exclude<Prediction, "">>
+          controlId="policy-prediction"
+          label={t("packet probe suite 결과 예측", "Predict the packet-probe suite")}
+          value={prediction}
+          options={[
+            { value: "intended-only", label: t("요구한 두 flow만 ACCEPT", "Only two required flows ACCEPT"), eyebrow: "LEAST ALLOW" },
+            { value: "all-allowed", label: t("모든 probe ACCEPT", "All probes ACCEPT"), eyebrow: "FAIL OPEN" },
+            { value: "all-blocked", label: t("모든 probe DROP", "All probes DROP"), eyebrow: "LOCKED OUT" },
+          ]}
+          onChange={changePrediction}
+        />
         <button type="button" className="button button-primary" onClick={runPolicy}>{t("packet probe suite 실행", "Run packet probe suite")}</button>
       </div>
 

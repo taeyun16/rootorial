@@ -7,6 +7,7 @@ import {
 } from "../../features/neural-networks/backpropagation";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { MatrixGrid } from "../interactive/MatrixGrid";
 
 type UpstreamFactor =
@@ -189,36 +190,8 @@ export function NeuralNetworkBackpropLab({
       <fieldset className="neural-backprop-controls">
         <legend>{t("backward graph의 두 빈칸", "Two missing factors in the backward graph")}</legend>
         <div className="neural-config-grid">
-          <label>
-            <span>{t("hidden으로 돌아오는 upstream factor", "Upstream factor returning to hidden")}</span>
-            <select
-              value={upstreamFactor}
-              onChange={(event) => {
-                setUpstreamFactor(event.currentTarget.value as UpstreamFactor);
-                revokeResult();
-              }}
-            >
-              <option value="" disabled>{t("연결을 선택하세요", "Choose the connection")}</option>
-              <option value="output-weight-transpose">W²ᵀ</option>
-              <option value="first-weight-transpose">W¹ᵀ</option>
-              <option value="skip-upstream">1 · {t("연결 weight 생략", "skip connection weights")}</option>
-            </select>
-          </label>
-          <label>
-            <span>{t("hidden sigmoid의 local derivative", "Hidden sigmoid local derivative")}</span>
-            <select
-              value={localDerivative}
-              onChange={(event) => {
-                setLocalDerivative(event.currentTarget.value as LocalDerivative);
-                revokeResult();
-              }}
-            >
-              <option value="" disabled>{t("local derivative를 선택하세요", "Choose the local derivative")}</option>
-              <option value="sigmoid-local-derivative">H ⊙ (1 − H)</option>
-              <option value="activation-value">H</option>
-              <option value="skip-local">1 · {t("activation derivative 생략", "skip activation derivative")}</option>
-            </select>
-          </label>
+          <DirectChoice compact label={t("hidden으로 돌아오는 upstream factor", "Upstream factor returning to hidden")} value={upstreamFactor} options={[{ value: "output-weight-transpose", label: "W²ᵀ" }, { value: "first-weight-transpose", label: "W¹ᵀ" }, { value: "skip-upstream", label: `1 · ${t("연결 weight 생략", "skip connection weights")}` }]} onChange={(value: Exclude<UpstreamFactor, "">) => { setUpstreamFactor(value); revokeResult(); }} />
+          <DirectChoice compact label={t("hidden sigmoid의 local derivative", "Hidden sigmoid local derivative")} value={localDerivative} options={[{ value: "sigmoid-local-derivative", label: "H ⊙ (1 − H)" }, { value: "activation-value", label: "H" }, { value: "skip-local", label: `1 · ${t("activation derivative 생략", "skip activation derivative")}` }]} onChange={(value: Exclude<LocalDerivative, "">) => { setLocalDerivative(value); revokeResult(); }} />
         </div>
         <button
           type="button"

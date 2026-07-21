@@ -140,6 +140,22 @@
   margin: 0.9rem 0;
 }
 
+.network-observability-evidence-workspace .infrastructure-workspace {
+  margin-top: 0.9rem;
+  border: 1px solid var(--code-border);
+  border-radius: 0.9rem;
+  overflow: hidden;
+}
+
+.network-observability-evidence-workspace .infrastructure-workspace-stage {
+  display: grid;
+  gap: 1rem;
+}
+
+.network-observability-evidence-workspace .network-observability-visualization {
+  margin-top: 0;
+}
+
 .network-observability-window-key code {
   padding: 0.25rem 0.45rem;
   border-radius: 0.35rem;
@@ -172,6 +188,44 @@
   display: block;
   margin: 0.55rem 0;
   overflow-wrap: anywhere;
+}
+
+.network-observability-evidence-grid article .infrastructure-choice-rail + .infrastructure-choice-rail {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+}
+
+.network-observability-evidence-grid article .infrastructure-choice-card {
+  min-height: 3.25rem;
+  padding: 0.55rem 0.6rem;
+}
+
+.network-observability-evidence-contract {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.network-observability-evidence-contract > span {
+  color: color-mix(in srgb, var(--observability-accent) 55%, white);
+  font: 800 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.07em;
+}
+
+.network-observability-evidence-contract strong {
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--code-border);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--code-bg) 78%, transparent);
+  color: var(--code-text);
+  font: 700 var(--text-caption)/1.35 var(--mono);
+  overflow-wrap: anywhere;
+}
+
+.network-observability-evidence-contract p {
+  margin: 0.25rem 0 0;
+  color: color-mix(in srgb, var(--code-text) 72%, transparent);
+  font-size: var(--text-caption);
 }
 
 .network-observability-evidence-grid label,
@@ -215,9 +269,30 @@
   margin-top: 0.9rem;
 }
 
+.network-observability-capacity-controls {
+  display: grid;
+  align-items: stretch;
+  gap: 1rem;
+}
+
+.network-observability-capacity-controls > .infrastructure-choice-rail {
+  padding: 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--paper-subtle);
+}
+
+.network-observability-capacity-controls > .button {
+  justify-self: start;
+}
+
 .network-observability-fixture-ledger {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-top: 0.9rem;
+}
+
+.network-observability-capacity-controls .network-observability-fixture-ledger {
+  margin-top: 0;
 }
 
 .network-observability-fixture-ledger div {

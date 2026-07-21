@@ -1,4 +1,4 @@
-export const selfAttentionForwardTraceCode = `import numpy as np
+export const selfAttentionForwardTraceSupportCode = `import numpy as np
 
 tokens = ["the", "cat", "sat", "<pad>"]
 X = np.array([
@@ -40,8 +40,9 @@ def masked_row_softmax(scores, allowed):
         out=np.zeros_like(exponentials),
         where=totals > 0,
     ), masked
+`;
 
-Q = X @ W_Q
+export const selfAttentionForwardTraceCode = `Q = X @ W_Q
 K = X @ W_K
 V = X @ W_V
 Q_heads = split_heads(Q)
@@ -97,7 +98,10 @@ np.testing.assert_allclose(weights[:, 3, :], np.zeros((2, 4)))
 print("PASS: projections, head split, causal attention, and concat agree")
 `;
 
-export const selfAttentionMaskRepairCode = `import numpy as np
+export const selfAttentionForwardTraceSupportCodeEn = selfAttentionForwardTraceSupportCode;
+export const selfAttentionForwardTraceCodeEn = selfAttentionForwardTraceCode;
+
+export const selfAttentionMaskRepairSupportCode = `import numpy as np
 
 # This cell rebuilds its own fixture; it does not depend on another cell.
 X = np.array([
@@ -146,8 +150,9 @@ def masked_row_softmax(scores, visibility):
         out=np.zeros_like(exponentials),
         where=totals > 0,
     )
+`;
 
-# REPAIR: masking must happen before softmax can renormalize allowed keys.
+export const selfAttentionMaskRepairCode = `# REPAIR: masking must happen before softmax can renormalize allowed keys.
 mask_before_softmax = False
 
 if mask_before_softmax:
@@ -186,3 +191,5 @@ assert np.isclose(padding_key_mass, 0.0)
 assert np.isclose(inactive_query_mass, 0.0)
 print("PASS: mask-before-softmax preserves unit active rows and zero blocked mass")
 `;
+
+export const selfAttentionMaskRepairSupportCodeEn = selfAttentionMaskRepairSupportCode;

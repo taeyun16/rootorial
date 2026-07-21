@@ -43,43 +43,57 @@ async function activate(control: Locator) {
   await control.press("Enter");
 }
 
-async function configureBoundary(
+async function moveObject(
   lab: Locator,
-  title: string,
-  namespaceId: "app" | "data",
-  labels: {
-    process: string;
-    listener: string;
-    probe: string;
-  },
+  objectId: string,
+  namespaceId: "host" | "app" | "data",
 ) {
-  const boundary = lab.getByRole("group", { name: title });
-  await boundary.getByLabel(labels.process).selectOption(namespaceId);
-  await boundary.getByLabel(labels.listener).selectOption(namespaceId);
-  await boundary.getByLabel(labels.probe).selectOption(namespaceId);
-  await lab.getByLabel(`${namespaceId} lo admin state`).check();
+  const object = lab.locator(`[data-object-id="${objectId}"] button`);
+  await activate(object);
+  await expect(object).toHaveAttribute("aria-pressed", "true");
+  const destination = lab.locator(
+    `[data-control-id="namespace-object-destination"] [data-choice-value="${namespaceId}"]`,
+  );
+  await activate(destination);
+  await expect(destination).toBeFocused();
+  await expect(destination).toHaveAttribute("aria-pressed", "true");
+  await expect(lab.locator(`[data-object-id="${objectId}"]`))
+    .toHaveAttribute("data-owner-namespace", namespaceId);
+}
+
+async function setLoopback(lab: Locator, namespaceId: "app" | "data", checked: boolean) {
+  const control = lab.locator(`[data-control-id="${namespaceId}-loopback"]`);
+  if (await control.getAttribute("aria-checked") !== String(checked)) {
+    await activate(control);
+    await expect(control).toBeFocused();
+  }
+  await expect(control).toHaveAttribute("aria-checked", String(checked));
 }
 
 async function completeTopology(lab: Locator, locale: "ko" | "en") {
   const isKo = locale === "ko";
-  await lab.getByLabel(isKo ? "namespace 설계 결과 예측" : "Predict namespace design result")
-    .selectOption("both-local-only");
-  await configureBoundary(lab, "APP · 127.0.0.1:8080", "app", {
-    process: isKo ? "service process 위치" : "service process namespace",
-    listener: isKo ? "listener 생성 위치" : "listener creation namespace",
-    probe: isKo ? "local health probe 위치" : "local health probe namespace",
-  });
-  await configureBoundary(lab, "DATA · 127.0.0.1:5432", "data", {
-    process: isKo ? "service process 위치" : "service process namespace",
-    listener: isKo ? "listener 생성 위치" : "listener creation namespace",
-    probe: isKo ? "local health probe 위치" : "local health probe namespace",
-  });
+  const prediction = lab.locator(
+    '[data-control-id="namespace-prediction"] [data-choice-value="both-local-only"]',
+  );
+  await activate(prediction);
+  await expect(prediction).toBeFocused();
+  await expect(prediction).toHaveAttribute("aria-pressed", "true");
+  await moveObject(lab, "app-service", "app");
+  await moveObject(lab, "app-listener", "app");
+  await moveObject(lab, "app-probe", "app");
+  await moveObject(lab, "data-service", "data");
+  await moveObject(lab, "data-listener", "data");
+  await moveObject(lab, "data-probe", "data");
+  await setLoopback(lab, "app", true);
+  await setLoopback(lab, "data", true);
   const visual = lab.getByTestId("network-namespace-visualization");
   await expect(visual).toHaveAttribute("data-boundary-state", "working-boundaries");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
-  await lab.getByRole("button", {
+  const run = lab.getByRole("button", {
     name: isKo ? "reachability 실행·설계 판정" : "Run reachability and grade design",
-  }).click();
+  });
+  await activate(run);
+  await expect(run).toBeFocused();
   await expect(visual).toHaveAttribute("data-grade-state", "passed");
 }
 
@@ -92,11 +106,21 @@ async function repairAllIncidents(page: TestPage) {
     "recreate-listener-in-app",
     "run-probe-in-app",
   ] as const;
+  const incidentIds = [
+    "wrong-inspection-context",
+    "loopback-down",
+    "socket-created-before-setns",
+    "wildcard-stays-local",
+  ] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const incident = incidents.nth(index);
-    await incident.getByRole("combobox").selectOption(repairs[index]);
+    const repair = incident.locator(
+      `[data-control-id="namespace-incident-${incidentIds[index]}-repair"] [data-choice-value="${repairs[index]}"]`,
+    );
+    await activate(repair);
+    await expect(repair).toHaveAttribute("aria-pressed", "true");
     const run = incident.getByRole("button", { name: "상태 재실행·판정" });
-    await run.click();
+    await activate(run);
     await expect(run).toBeFocused();
     await expect(incident.locator(".namespace-feedback")).toHaveClass(/is-success/);
   }
@@ -105,7 +129,7 @@ async function repairAllIncidents(page: TestPage) {
 
 function namespaceOverflow(page: TestPage) {
   return page.locator(
-    ".network-namespaces-chapter-shell, .namespace-view-grid, .namespace-loopback-strip, .namespace-ownership-grid, .namespace-evidence-pipeline, .namespace-lab, .namespace-design-grid, .namespace-lab-grid, .namespace-boundary-visualization, .namespace-kernel-boundary-map, .namespace-boundary-map-grid, .namespace-boundary-map-card, .namespace-boundary-object-lanes, .namespace-boundary-probe-list, .namespace-incident-grid, .namespace-incident-card, .network-completion-checklist",
+    ".network-namespaces-chapter-shell, .namespace-view-grid, .namespace-loopback-strip, .namespace-ownership-story, .namespace-ownership-timeline, .namespace-ownership-frame, .namespace-ownership-scene, .namespace-ownership-controls, .namespace-evidence-pipeline, .namespace-lab, .namespace-editor-workspace, .infrastructure-workspace, .infrastructure-workspace-stage, .infrastructure-workspace-inspector, .infrastructure-choice-rail, .namespace-boundary-visualization, .namespace-kernel-boundary-map, .namespace-boundary-map-grid, .namespace-boundary-map-card, .namespace-boundary-object-lanes, .namespace-boundary-probe-list, .namespace-incident-grid, .namespace-incident-card, .network-completion-checklist",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({
@@ -210,8 +234,11 @@ test("completes the namespace topology, four incidents, and concepts in the Kore
   const topology = page.locator(".namespace-topology-lab");
   await expect(topology).toHaveAttribute("data-interactive-ready", "true");
   await expect(topology.getByRole("heading", { name: "namespace별 local health와 격리 행렬 설계" })).toBeVisible();
+  await expect(topology.locator("select")).toHaveCount(0);
+  await expect(topology.locator('input[type="checkbox"]')).toHaveCount(0);
   const visual = topology.getByTestId("network-namespace-visualization");
-  await expect(visual.getByRole("img", { name: /네트워크 namespace 경계 지도/ })).toBeVisible();
+  await expect(visual.getByRole("img")).toHaveCount(0);
+  await expect(visual.locator(".namespace-kernel-boundary-map")).toBeVisible();
   await expect(visual).toHaveAttribute("data-boundary-state", "collapsed");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(visual).toHaveAttribute("data-cross-namespace-path", "absent");
@@ -219,16 +246,17 @@ test("completes the namespace topology, four incidents, and concepts in the Kore
   await expect(visual.locator('[data-namespace-id="app"]')).toHaveAttribute("data-loopback-state", "down");
   await expect(visual.locator('[data-namespace-id="data"]')).toHaveAttribute("data-loopback-state", "down");
   await expect(visual.locator('[data-result="not-run"]')).toHaveCount(5);
-  const appBoundary = topology.getByRole("group", { name: "APP · 127.0.0.1:8080" });
   await topology.getByRole("button", { name: "격리됨 · lo down" }).click();
-  await expect(appBoundary.getByLabel("service process 위치")).toHaveValue("app");
   await expect(visual).toHaveAttribute("data-boundary-state", "isolated-down");
   await expect(visual.locator('[data-object-id="app-service"]')).toHaveAttribute("data-owner-namespace", "app");
   await expect(visual.locator('[data-object-id="app-listener"]')).toHaveAttribute("data-owner-namespace", "app");
+  await expect(topology.locator('[data-control-id="app-loopback"]')).toHaveAttribute("aria-checked", "false");
   await topology.getByRole("button", { name: "전체 초기화" }).click();
-  await expect(appBoundary.getByLabel("service process 위치")).toHaveValue("host");
+  await expect(visual.locator('[data-object-id="app-service"]')).toHaveAttribute("data-owner-namespace", "host");
   await expect(visual).toHaveAttribute("data-boundary-state", "collapsed");
-  await topology.getByLabel("namespace 설계 결과 예측").selectOption("host-can-reach");
+  await activate(topology.locator(
+    '[data-control-id="namespace-prediction"] [data-choice-value="host-can-reach"]',
+  ));
   await topology.getByRole("button", { name: "reachability 실행·설계 판정" }).click();
   await expect(topology.locator(".namespace-feedback")).toContainText("예측을 다시 보세요");
   await expect(visual).toHaveAttribute("data-grade-state", "failed");
@@ -242,12 +270,12 @@ test("completes the namespace topology, four incidents, and concepts in the Kore
   await expect(visual.locator('[data-result="connected"]')).toHaveCount(2);
   await expect(visual.locator('[data-result="connection-refused"]')).toHaveCount(3);
 
-  await appBoundary.getByLabel("listener 생성 위치").selectOption("host");
+  await moveObject(topology, "app-listener", "host");
   await expect(visual).toHaveAttribute("data-boundary-state", "misconfigured");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(visual.locator('[data-object-id="app-listener"]')).toHaveAttribute("data-owner-namespace", "host");
   await expect(visual.locator('[data-result="not-run"]')).toHaveCount(5);
-  await appBoundary.getByLabel("listener 생성 위치").selectOption("app");
+  await moveObject(topology, "app-listener", "app");
   await expect(visual).toHaveAttribute("data-boundary-state", "working-boundaries");
   await topology.getByRole("button", { name: "reachability 실행·설계 판정" }).click();
   await expect(visual).toHaveAttribute("data-grade-state", "passed");
@@ -386,16 +414,18 @@ test("keeps the English draft keyboard-usable and resettable at 390px without ov
 
   const topology = page.locator(".namespace-topology-lab");
   await expect(topology).toHaveAttribute("data-interactive-ready", "true");
+  await expect(topology.locator("select")).toHaveCount(0);
+  await expect(topology.locator('input[type="checkbox"]')).toHaveCount(0);
   const visual = topology.getByTestId("network-namespace-visualization");
-  await expect(visual.getByRole("img", { name: /Network namespace boundary map/ })).toBeVisible();
-  await expect(visual.getByRole("img")).toHaveCount(1);
+  await expect(visual.getByRole("img")).toHaveCount(0);
+  await expect(visual.locator(".namespace-kernel-boundary-map")).toBeVisible();
   await expect(visual).toHaveAttribute("data-boundary-state", "collapsed");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(visual).toHaveAttribute("data-cross-namespace-path", "absent");
   const isolatedPreset = topology.getByRole("button", { name: "Isolated · lo down" });
   await activate(isolatedPreset);
   await expect(isolatedPreset).toBeFocused();
-  await expect(topology.getByLabel("app lo admin state")).not.toBeChecked();
+  await expect(topology.locator('[data-control-id="app-loopback"]')).toHaveAttribute("aria-checked", "false");
   await expect(visual).toHaveAttribute("data-boundary-state", "isolated-down");
   await completeTopology(topology, "en");
   await expect(topology.getByText("DESIGN PASSED", { exact: true })).toBeVisible();
@@ -407,16 +437,20 @@ test("keeps the English draft keyboard-usable and resettable at 390px without ov
   const resetTopology = topology.getByRole("button", { name: "Reset all" });
   await activate(resetTopology);
   await expect(resetTopology).toBeFocused();
-  await expect(topology.getByLabel("Predict namespace design result")).toHaveValue("");
-  await expect(topology.getByRole("group", { name: "APP · 127.0.0.1:8080" })
-    .getByLabel("service process namespace")).toHaveValue("host");
+  await expect(topology.locator(
+    '[data-control-id="namespace-prediction"] [aria-pressed="true"]',
+  )).toHaveCount(0);
+  await expect(visual.locator('[data-object-id="app-service"]')).toHaveAttribute("data-owner-namespace", "host");
   await expect(visual).toHaveAttribute("data-boundary-state", "collapsed");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(visual.locator('[data-result="not-run"]')).toHaveCount(5);
 
   const firstIncident = page.locator(".namespace-incident-card").first();
-  const repair = firstIncident.getByRole("combobox");
-  await repair.selectOption("inspect-app");
+  const repair = firstIncident.locator(
+    '[data-control-id="namespace-incident-wrong-inspection-context-repair"] [data-choice-value="inspect-app"]',
+  );
+  await activate(repair);
+  await expect(repair).toHaveAttribute("aria-pressed", "true");
   const runRepair = firstIncident.getByRole("button", { name: "Re-run state and grade" });
   await activate(runRepair);
   await expect(runRepair).toBeFocused();
@@ -424,7 +458,7 @@ test("keeps the English draft keyboard-usable and resettable at 390px without ov
   const resetCard = firstIncident.getByRole("button", { name: "Reset card" });
   await activate(resetCard);
   await expect(resetCard).toBeFocused();
-  await expect(repair).toHaveValue("");
+  await expect(repair).toHaveAttribute("aria-pressed", "false");
   await expect(firstIncident.locator(".namespace-feedback")).not.toHaveClass(/is-success/);
 
   const conceptAnswers = [

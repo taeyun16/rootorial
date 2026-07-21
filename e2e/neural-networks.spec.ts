@@ -1,10 +1,25 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/neural-networks";
 const publicPath = "/curricula/transformer-from-zero/chapters/neural-networks";
 
 type TestPage = Parameters<typeof signInTestUser>[0];
+
+function choiceGroup(scope: Locator, label: string) {
+  return scope.getByRole("group", { name: label });
+}
+
+function choiceOption(scope: Locator, label: string, value: string) {
+  return choiceGroup(scope, label).locator(`[data-choice-value="${value}"]`);
+}
+
+async function choose(scope: Locator, label: string, value: string) {
+  const option = choiceOption(scope, label, value);
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
 
 async function signInAsAdmin(page: TestPage) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
@@ -34,15 +49,12 @@ async function completeXorLab(
   { includeWrongPrediction = false }: { includeWrongPrediction?: boolean } = {},
 ) {
   const lab = page.locator(".neural-xor-lab");
-  const prediction = lab.getByRole("combobox", {
-    name: "XOR 네 점 중 한 affine+sigmoid가 맞힐 수 있는 최대 개수는?",
-  });
   const runBoundary = lab.getByRole("button", { name: "직선 경계 실행" });
-  await expect(prediction).toHaveValue("");
+  await expect(choiceGroup(lab, "XOR 네 점 중 한 affine+sigmoid가 맞힐 수 있는 최대 개수는?").locator('[aria-pressed="true"]')).toHaveCount(0);
 
   if (includeWrongPrediction) {
-    await prediction.selectOption("four");
-    await expect(prediction).toHaveValue("four");
+    await choose(lab, "XOR 네 점 중 한 affine+sigmoid가 맞힐 수 있는 최대 개수는?", "four");
+    await expect(choiceOption(lab, "XOR 네 점 중 한 affine+sigmoid가 맞힐 수 있는 최대 개수는?", "four")).toHaveAttribute("aria-pressed", "true");
     await expect(runBoundary).toBeEnabled();
     await runBoundary.click();
     const wrongFeedback = lab.locator(".neural-prediction-step p.is-incorrect");
@@ -53,8 +65,8 @@ async function completeXorLab(
     );
   }
 
-  await prediction.selectOption("three");
-  await expect(prediction).toHaveValue("three");
+  await choose(lab, "XOR 네 점 중 한 affine+sigmoid가 맞힐 수 있는 최대 개수는?", "three");
+  await expect(choiceOption(lab, "XOR 네 점 중 한 affine+sigmoid가 맞힐 수 있는 최대 개수는?", "three")).toHaveAttribute("aria-pressed", "true");
   await expect(runBoundary).toBeEnabled();
   await runBoundary.click();
   const correctFeedback = lab.locator(".neural-prediction-step p.is-correct");
@@ -64,8 +76,8 @@ async function completeXorLab(
     "맞았습니다. 대표 직선은 3/4",
   );
 
-  await lab.getByRole("combobox", { name: "hidden activation" }).selectOption("sigmoid");
-  await lab.getByRole("combobox", { name: "hidden unit h₂" }).selectOption("nand");
+  await choose(lab, "hidden activation", "sigmoid");
+  await choose(lab, "hidden unit h₂", "nand");
   await lab.getByRole("button", { name: "네 행 forward pass 실행·판정" }).click();
 
   const masteryFeedback = lab.locator(".neural-live-feedback");
@@ -81,17 +93,11 @@ async function completeBackpropLab(
   { includeWrongFactors = false }: { includeWrongFactors?: boolean } = {},
 ) {
   const lab = page.locator(".neural-backprop-lab");
-  const upstream = lab.getByRole("combobox", {
-    name: "hidden으로 돌아오는 upstream factor",
-  });
-  const localDerivative = lab.getByRole("combobox", {
-    name: "hidden sigmoid의 local derivative",
-  });
   const runStep = lab.getByRole("button", { name: "역전파 1 step 실행·판정" });
 
   if (includeWrongFactors) {
-    await upstream.selectOption("first-weight-transpose");
-    await localDerivative.selectOption("activation-value");
+    await choose(lab, "hidden으로 돌아오는 upstream factor", "first-weight-transpose");
+    await choose(lab, "hidden sigmoid의 local derivative", "activation-value");
     await runStep.click();
     await expect(lab.locator("#neural-backprop-feedback")).toContainText(
       "두 factor를 모두 다시 보세요",
@@ -100,8 +106,8 @@ async function completeBackpropLab(
     await expect(lab.locator(".neural-evidence .is-complete")).toHaveCount(0);
   }
 
-  await upstream.selectOption("output-weight-transpose");
-  await localDerivative.selectOption("sigmoid-local-derivative");
+  await choose(lab, "hidden으로 돌아오는 upstream factor", "output-weight-transpose");
+  await choose(lab, "hidden sigmoid의 local derivative", "sigmoid-local-derivative");
   await runStep.click();
 
   const gradientTrace = lab.getByRole("group", { name: "hidden-layer gradient shape 추적" });
@@ -157,7 +163,7 @@ test("completes XOR, hidden backprop, network surgery, and concepts in the Korea
   const xorLab = page.locator(".neural-xor-lab");
   await xorLab.getByRole("button", { name: "전체 초기화" }).click();
   await expect(xorLab.locator(".neural-evidence .is-complete")).toHaveCount(0);
-  await expect(xorLab.getByRole("combobox", { name: "hidden activation" })).toHaveValue("identity");
+  await expect(choiceOption(xorLab, "hidden activation", "identity")).toHaveAttribute("aria-pressed", "true");
   await completeXorLab(page);
   await expect(completeButton).toHaveAttribute("data-completion-ready", "false");
 
@@ -165,13 +171,13 @@ test("completes XOR, hidden backprop, network surgery, and concepts in the Korea
   const backpropLab = page.locator(".neural-backprop-lab");
   await backpropLab.getByRole("button", { name: "실습 초기화" }).click();
   await expect(backpropLab.locator(".neural-evidence .is-complete")).toHaveCount(0);
-  await expect(backpropLab.getByRole("combobox", { name: "hidden으로 돌아오는 upstream factor" })).toHaveValue("");
+  await expect(choiceGroup(backpropLab, "hidden으로 돌아오는 upstream factor").locator('[aria-pressed="true"]')).toHaveCount(0);
   await completeBackpropLab(page);
   await expect(completeButton).toHaveAttribute("data-completion-ready", "false");
 
   const incidents = page.locator(".neural-debug-card");
   const missingActivation = incidents.nth(1);
-  await missingActivation.getByRole("combobox", { name: "적용할 patch" }).selectOption("identity");
+  await choose(missingActivation, "적용할 patch", "identity");
   await missingActivation.getByRole("button", { name: "patch 적용·실행" }).click();
   await expect(missingActivation).toHaveClass(/is-incorrect/);
   await expect(missingActivation.locator(".neural-debug-feedback")).toContainText("결함이 남아 있습니다");
@@ -179,7 +185,7 @@ test("completes XOR, hidden backprop, network surgery, and concepts in the Korea
   const repairs = ["2x2", "sigmoid", "xor", "sigmoid"] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const incident = incidents.nth(index);
-    await incident.getByRole("combobox", { name: "적용할 patch" }).selectOption(repairs[index]);
+    await choose(incident, "적용할 patch", repairs[index]);
     await incident.getByRole("button", { name: "patch 적용·실행" }).click();
     await expect(incident).toHaveClass(/is-correct/);
     await expect(incident.locator(".neural-debug-feedback")).toContainText("계약 복구");
@@ -258,33 +264,29 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   const invertedPreset = xorLab.getByRole("button", { name: "Inverted output" });
   await invertedPreset.focus();
   await invertedPreset.press("Enter");
-  await expect(xorLab.getByRole("combobox", { name: "Output affine head" })).toHaveValue("inverted");
+  await expect(choiceOption(xorLab, "Output affine head", "inverted")).toHaveAttribute("aria-pressed", "true");
 
   const collapsedPreset = xorLab.getByRole("button", { name: "Collapsed linear" });
   await collapsedPreset.focus();
   await collapsedPreset.press("Enter");
-  await expect(xorLab.getByRole("combobox", { name: "Hidden activation" })).toHaveValue("identity");
-  await expect(xorLab.getByRole("combobox", { name: "Hidden unit h₂" })).toHaveValue("nand");
+  await expect(choiceOption(xorLab, "Hidden activation", "identity")).toHaveAttribute("aria-pressed", "true");
+  await expect(choiceOption(xorLab, "Hidden unit h₂", "nand")).toHaveAttribute("aria-pressed", "true");
 
   const resetLab = xorLab.getByRole("button", { name: "Reset lab" });
   await resetLab.focus();
   await resetLab.press("Enter");
-  await expect(xorLab.getByRole("combobox", {
-    name: "At most how many XOR points can one affine+sigmoid classify?",
-  })).toHaveValue("");
-  await expect(xorLab.getByRole("combobox", { name: "Hidden unit h₂" })).toHaveValue("and");
+  await expect(choiceGroup(xorLab, "At most how many XOR points can one affine+sigmoid classify?").locator('[aria-pressed="true"]')).toHaveCount(0);
+  await expect(choiceOption(xorLab, "Hidden unit h₂", "and")).toHaveAttribute("aria-pressed", "true");
 
-  await xorLab.getByRole("combobox", {
-    name: "At most how many XOR points can one affine+sigmoid classify?",
-  }).selectOption("three");
+  await choose(xorLab, "At most how many XOR points can one affine+sigmoid classify?", "three");
   const runBoundary = xorLab.getByRole("button", { name: "Run linear boundary" });
   await runBoundary.focus();
   await runBoundary.press("Enter");
   await expect(xorLab.locator(".neural-prediction-step p.is-correct")).toContainText(
     "Correct. The representative line gets 3/4",
   );
-  await xorLab.getByRole("combobox", { name: "Hidden activation" }).selectOption("sigmoid");
-  await xorLab.getByRole("combobox", { name: "Hidden unit h₂" }).selectOption("nand");
+  await choose(xorLab, "Hidden activation", "sigmoid");
+  await choose(xorLab, "Hidden unit h₂", "nand");
   const runForward = xorLab.getByRole("button", { name: "Run and grade four-row forward pass" });
   await runForward.focus();
   await runForward.press("Enter");
@@ -296,12 +298,8 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
 
   const backpropLab = page.locator(".neural-backprop-lab");
-  await backpropLab.getByRole("combobox", {
-    name: "Upstream factor returning to hidden",
-  }).selectOption("output-weight-transpose");
-  await backpropLab.getByRole("combobox", {
-    name: "Hidden sigmoid local derivative",
-  }).selectOption("sigmoid-local-derivative");
+  await choose(backpropLab, "Upstream factor returning to hidden", "output-weight-transpose");
+  await choose(backpropLab, "Hidden sigmoid local derivative", "sigmoid-local-derivative");
   const runBackprop = backpropLab.getByRole("button", { name: "Run and grade one backprop step" });
   await runBackprop.focus();
   await runBackprop.press("Enter");
@@ -314,22 +312,18 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   const resetBackprop = backpropLab.getByRole("button", { name: "Reset lab" });
   await resetBackprop.focus();
   await resetBackprop.press("Enter");
-  await expect(backpropLab.getByRole("combobox", {
-    name: "Upstream factor returning to hidden",
-  })).toHaveValue("");
-  await expect(backpropLab.getByRole("combobox", {
-    name: "Hidden sigmoid local derivative",
-  })).toHaveValue("");
+  await expect(choiceGroup(backpropLab, "Upstream factor returning to hidden").locator('[aria-pressed="true"]')).toHaveCount(0);
+  await expect(choiceGroup(backpropLab, "Hidden sigmoid local derivative").locator('[aria-pressed="true"]')).toHaveCount(0);
   await expect(backpropLab.locator(".neural-evidence .is-complete")).toHaveCount(0);
 
   const firstIncident = page.locator(".neural-debug-card").first();
-  await firstIncident.getByRole("combobox", { name: "Patch to apply" }).selectOption("3x2");
+  await choose(firstIncident, "Patch to apply", "3x2");
   await firstIncident.getByRole("button", { name: "Apply patch and run" }).click();
   await expect(firstIncident).toHaveClass(/is-incorrect/);
   const resetDebugger = page.getByRole("button", { name: "Reset debugger" });
   await resetDebugger.focus();
   await resetDebugger.press("Enter");
-  await expect(firstIncident.getByRole("combobox", { name: "Patch to apply" })).toHaveValue("");
+  await expect(choiceGroup(firstIncident, "Patch to apply").locator('[aria-pressed="true"]')).toHaveCount(0);
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
 
   expect(heavyRuntimeRequests).toEqual([]);

@@ -40,6 +40,18 @@ function watchConsoleErrors(page: TestPage) {
   return errors;
 }
 
+async function choose(controlRoot: Locator, controlId: string, value: string) {
+  await controlRoot
+    .locator(`[data-control-id="${controlId}"] [data-choice-value="${value}"]`)
+    .click();
+}
+
+async function expectGroupDescription(group: Locator, expected: string | RegExp) {
+  const descriptionId = await group.getAttribute("aria-describedby");
+  expect(descriptionId, "the observability path group must reference a detailed description").toBeTruthy();
+  await expect(group.locator(`[id="${descriptionId}"]`)).toContainText(expected);
+}
+
 async function completeEvidence(lab: Locator, locale: "ko" | "en") {
   const values = [
     ["client-route", "client", "route-identifies-egress-only"],
@@ -49,8 +61,8 @@ async function completeEvidence(lab: Locator, locale: "ko" | "en") {
   ] as const;
   for (const [probeId, namespaceId, claim] of values) {
     const editor = lab.locator(`[data-probe-editor="${probeId}"]`);
-    await editor.getByRole("combobox").nth(0).selectOption(namespaceId);
-    await editor.getByRole("combobox").nth(1).selectOption(claim);
+    await choose(editor, `evidence-${probeId}-scope`, namespaceId);
+    await choose(editor, `evidence-${probeId}-claim`, claim);
   }
   const visual = lab.getByTestId("network-observability-visualization");
   await expect(visual).toHaveAttribute("data-evidence-state", "aligned");
@@ -73,11 +85,16 @@ async function completeCapacityScenario(
     plannedUtilization: string;
   },
 ) {
-  await lab.getByRole("button", { name: values.scenarioButton }).click();
-  await lab.getByLabel(locale === "ko" ? "limiting resource 예측" : "Limiting resource prediction").selectOption(values.prediction);
-  await lab.getByLabel(locale === "ko" ? "capacity plan" : "Capacity plan").selectOption(values.plan);
   const visual = lab.getByTestId("network-observability-visualization");
+  const feedback = lab.locator(".network-observability-lab-feedback");
+  await lab.getByRole("button", { name: values.scenarioButton }).click();
+  await expect(feedback).not.toHaveClass(/is-success|is-error/);
+  await expect(feedback).toContainText(locale === "ko" ? "scenario로 전환했습니다" : "scenario selected");
   await expect(visual).toHaveAttribute("data-capacity-scenario", values.scenarioId);
+  await expect(visual).toHaveAttribute("data-grade-state", "not-run");
+  await expect(visual).toHaveAttribute("data-bottleneck", "not-run");
+  await choose(lab, "capacity-bottleneck-prediction", values.prediction);
+  await choose(lab, "capacity-plan", values.plan);
   await expect(visual).toHaveAttribute("data-bottleneck", "not-run");
   await expect(visual.locator('[data-utilization-state="not-run"]')).toHaveCount(3);
   await lab.getByRole("button", {
@@ -89,6 +106,15 @@ async function completeCapacityScenario(
     .toHaveAttribute("data-displayed-utilization", values.plannedUtilization);
   await expect(visual.locator(`[data-capacity-resource="${values.plannedResource}"]`))
     .toHaveAttribute("data-utilization-state", "headroom");
+  const resourceLabel = ({
+    "edge-bandwidth": "edge bandwidth",
+    "edge-queue": "edge burst queue",
+    "app-connections": "app connections",
+  } as const)[values.plannedResource as "edge-bandwidth" | "edge-queue" | "app-connections"];
+  const utilizationPercent = Math.round(Number(values.plannedUtilization) * 100);
+  await expect(visual.getByTestId("network-observability-capacity-summary")).toContainText(
+    new RegExp(`${resourceLabel}.*utilization ${utilizationPercent}%.*${locale === "ko" ? "상태 30% headroom 확보" : "status 30% headroom available"}`),
+  );
 }
 
 async function repairIncidents(page: TestPage, locale: "ko" | "en") {
@@ -102,7 +128,7 @@ async function repairIncidents(page: TestPage, locale: "ko" | "en") {
   ] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const card = cards.nth(index);
-    await card.getByRole("combobox").selectOption(repairs[index]);
+    await card.locator(`[data-control-id^="observability-incident-"] [data-choice-value="${repairs[index]}"]`).click();
     await card.getByRole("button", {
       name: locale === "ko" ? "증거·용량 재실행" : "Re-run evidence and capacity",
     }).click();
@@ -126,7 +152,7 @@ async function answerConcepts(page: TestPage, locale: "ko" | "en") {
 
 function observabilityOverflow(page: TestPage) {
   return page.locator(
-    ".network-observability-chapter-shell, .network-observability-coordinate-strip, .network-observability-formula-grid, .network-observability-capacity-lab, .network-observability-evidence-grid, .network-observability-fixture-ledger, .network-observability-visualization, .network-observability-boundary-grid, .network-observability-capacity-grid, .network-observability-capacity-controls, .network-observability-incident-lab, .network-observability-incident-grid, .network-observability-incident-card, .network-observability-completion-checklist",
+    ".network-observability-chapter-shell, .network-observability-coordinate-strip, .network-observability-formula-grid, .network-observability-capacity-lab, .infrastructure-workspace, .infrastructure-choice-rail, .network-observability-evidence-grid, .network-observability-fixture-ledger, .network-observability-visualization, .network-observability-boundary-grid, .network-observability-capacity-grid, .network-observability-capacity-controls, .network-observability-incident-lab, .network-observability-incident-grid, .network-observability-incident-card, .network-observability-completion-checklist",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({ className: element.className, overflow: element.scrollWidth - element.clientWidth })));
@@ -158,16 +184,23 @@ test("completes evidence, three capacity scenarios, incidents, and concepts in t
   const lab = page.locator(".network-observability-capacity-lab");
   await expect(lab).toHaveAttribute("data-interactive-ready", "true");
   const visual = lab.getByTestId("network-observability-visualization");
-  await expect(visual.getByRole("img", { name: /packet path.*bandwidth, queue.*connection capacity/ })).toBeVisible();
-  await expect(visual.getByRole("img")).toHaveCount(1);
+  const pathGroup = visual.getByRole("group", { name: /namespace별 probe packet path와 capacity 비교/ });
+  await expect(pathGroup).toBeVisible();
+  await expect(pathGroup).toHaveAttribute("aria-labelledby", /.+/);
+  await expectGroupDescription(pathGroup, /ip route get: host namespace · 잘못된 scope/);
+  await expect(visual.getByRole("img")).toHaveCount(0);
   await expect(visual).toHaveAttribute("data-evidence-state", "unaligned");
   await expect(visual).toHaveAttribute("data-bottleneck", "not-run");
+  await expect(visual.getByTestId("network-observability-capacity-summary"))
+    .toContainText(/edge bandwidth.*utilization 계산 전.*상태 계산 전/);
+  await expect(lab.locator("select, input[type=checkbox]")).toHaveCount(0);
   await expect(visual.locator('[data-observation-scope="host"]')).toHaveCount(0);
   await expect(visual.locator('[data-boundary-id="host"]')).toContainText("ip route get");
 
   await completeEvidence(lab, "ko");
   await expect(visual.locator('[data-placement-state="scoped"]')).toHaveCount(4);
   await expect(visual.locator('[data-boundary-id="host"]')).toHaveCount(0);
+  await expectGroupDescription(pathGroup, /ip route get: client namespace · scope 일치/);
 
   await completeCapacityScenario(lab, "ko", {
     scenarioButton: /^BANDWIDTH/,
@@ -177,6 +210,14 @@ test("completes evidence, three capacity scenarios, incidents, and concepts in t
     plannedResource: "edge-bandwidth",
     plannedUtilization: "0.64",
   });
+  await choose(lab, "capacity-plan", "increase-edge-queue");
+  await lab.getByRole("button", { name: "baseline 계산·plan 판정" }).click();
+  await expect(visual).toHaveAttribute("data-grade-state", "failed");
+  await expect(visual.getByTestId("network-observability-capacity-summary"))
+    .toContainText(/edge bandwidth.*utilization 128%.*상태 포화 또는 용량 초과/);
+  await choose(lab, "capacity-plan", "upgrade-edge-link");
+  await lab.getByRole("button", { name: "baseline 계산·plan 판정" }).click();
+  await expect(visual).toHaveAttribute("data-grade-state", "passed");
   await completeCapacityScenario(lab, "ko", {
     scenarioButton: /^BURST QUEUE/,
     scenarioId: "burst-queue",
@@ -195,18 +236,18 @@ test("completes evidence, three capacity scenarios, incidents, and concepts in t
   });
   await expect(lab.locator(".network-observability-lab-header > strong")).toHaveText("4 / 4");
 
-  await lab.getByLabel("limiting resource 예측").selectOption("edge-bandwidth");
+  await choose(lab, "capacity-bottleneck-prediction", "edge-bandwidth");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(visual).toHaveAttribute("data-bottleneck", "not-run");
-  await lab.getByLabel("limiting resource 예측").selectOption("app-connections");
+  await choose(lab, "capacity-bottleneck-prediction", "app-connections");
   await lab.getByRole("button", { name: "baseline 계산·plan 판정" }).click();
   await expect(visual).toHaveAttribute("data-grade-state", "passed");
 
   const routeEditor = lab.locator('[data-probe-editor="client-route"]');
-  await routeEditor.getByRole("combobox").nth(0).selectOption("host");
+  await choose(routeEditor, "evidence-client-route-scope", "host");
   await lab.getByRole("button", { name: "네 evidence receipt 판정" }).click();
   await expect(lab.locator(".network-observability-lab-feedback")).toHaveClass(/is-error/);
-  await routeEditor.getByRole("combobox").nth(0).selectOption("client");
+  await choose(routeEditor, "evidence-client-route-scope", "client");
   await lab.getByRole("button", { name: "네 evidence receipt 판정" }).click();
   await expect(lab.locator(".network-observability-lab-feedback")).toHaveClass(/is-success/);
 
@@ -267,8 +308,15 @@ test("keeps the English draft keyboard-usable at 390px without overflow or untra
 
   const lab = page.locator(".network-observability-capacity-lab");
   const visual = lab.getByTestId("network-observability-visualization");
-  await expect(visual.getByRole("img", { name: /Map aligning namespace-scoped probes/ })).toBeVisible();
+  const pathGroup = visual.getByRole("group", { name: /Namespace-scoped probe packet path and capacity comparison/ });
+  await expect(pathGroup).toBeVisible();
+  await expect(pathGroup).toHaveAttribute("aria-labelledby", /.+/);
+  await expectGroupDescription(pathGroup, /ip route get: host namespace · mis-scoped/);
+  await expect(visual.getByRole("img")).toHaveCount(0);
+  await expect(visual.getByTestId("network-observability-capacity-summary"))
+    .toContainText(/edge bandwidth.*utilization not calculated.*status not calculated/);
   await completeEvidence(lab, "en");
+  await expectGroupDescription(pathGroup, /ip route get: client namespace · scoped/);
   await completeCapacityScenario(lab, "en", {
     scenarioButton: /^BANDWIDTH/,
     scenarioId: "bandwidth-saturation",
@@ -285,11 +333,11 @@ test("keeps the English draft keyboard-usable at 390px without overflow or untra
   await reset.press("Enter");
   await expect(reset).toBeFocused();
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
-  await expect(lab.getByLabel("Limiting resource prediction")).toHaveValue("");
+  await expect(lab.locator('[data-control-id="capacity-bottleneck-prediction"] [aria-pressed="true"]')).toHaveCount(0);
   expect(await reset.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
 
   const firstIncident = page.locator(".network-observability-incident-card").first();
-  await firstIncident.getByRole("combobox").selectOption("inspect-app-sockets");
+  await firstIncident.locator('[data-control-id^="observability-incident-"] [data-choice-value="inspect-app-sockets"]').click();
   const runIncident = firstIncident.getByRole("button", { name: "Re-run evidence and capacity" });
   await runIncident.focus();
   await runIncident.press("Enter");

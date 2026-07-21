@@ -1,6 +1,8 @@
+import { useId } from "react";
 import {
   buildNetworkObservabilityVisualState,
   type ObservabilityGradeState,
+  type ObservabilityVisualMetric,
 } from "../../features/infrastructure/network-observability-capacity-visual";
 import type {
   CapacityEvaluation,
@@ -29,6 +31,8 @@ export function NetworkObservabilityCapacityView({
   const { locale } = useLocale();
   const isKo = locale === "ko";
   const t = (ko: string, en: string) => isKo ? ko : en;
+  const pathTitleId = useId();
+  const pathDescriptionId = useId();
   const state = buildNetworkObservabilityVisualState({
     evidence,
     capacity,
@@ -54,6 +58,15 @@ export function NetworkObservabilityCapacityView({
     "connection-limit": t("connection limit", "connection limit"),
   } as const)[scenarioId];
   const hostProbes = state.probes.filter(({ namespaceId }) => namespaceId === "host");
+  const probeDescription = state.probes
+    .map((probe) => `${probeLabel(probe.probeId)}: ${probe.namespaceId} namespace · ${probe.placement === "scoped" ? t("scope 일치", "scoped") : t("잘못된 scope", "mis-scoped")}`)
+    .join(". ");
+  const utilizationStateLabel = (metricState: ObservabilityVisualMetric["state"]) => ({
+    "not-run": t("계산 전", "not calculated"),
+    headroom: t("30% headroom 확보", "30% headroom available"),
+    warning: t("30% headroom 부족", "below the 30% headroom target"),
+    saturated: t("포화 또는 용량 초과", "saturated or overloaded"),
+  }[metricState]);
 
   return (
     <figure
@@ -84,12 +97,18 @@ export function NetworkObservabilityCapacityView({
 
       <div
         className="network-observability-path-map"
-        role="img"
-        aria-label={t(
+        role="group"
+        aria-labelledby={pathTitleId}
+        aria-describedby={pathDescriptionId}
+      >
+        <span className="sr-only" id={pathTitleId}>{t(
+          "namespace별 probe packet path와 capacity 비교",
+          "Namespace-scoped probe packet path and capacity comparison",
+        )}</span>
+        <span className="sr-only" id={pathDescriptionId}>{t(
           `client에서 data까지의 packet path에 namespace별 probe를 배치하고 ${scenarioLabel}의 bandwidth, queue와 connection capacity를 비교하는 지도`,
           `Map aligning namespace-scoped probes from client to data and comparing bandwidth, queue, and connection capacity for ${scenarioLabel}`,
-        )}
-      >
+        )}. {t("현재 probe 위치와 상태", "Current probe locations and status")}: {probeDescription}.</span>
         <svg viewBox="0 0 960 48" preserveAspectRatio="none" aria-hidden="true" focusable="false">
           <line x1="80" y1="24" x2="880" y2="24" />
           <path d="M860 12 L884 24 L860 36" />
@@ -156,8 +175,17 @@ export function NetworkObservabilityCapacityView({
         })}
       </div>
 
-      <p className="sr-only">
-        {state.metrics.map((metric) => `${resourceLabel(metric.resource)} demand ${formatMetric(metric.demand)}, limit ${formatMetric(metric.capacity)} ${metric.unit}`).join(". ")}
+      <p
+        className="sr-only"
+        data-testid="network-observability-capacity-summary"
+        aria-live="polite"
+      >
+        {state.metrics.map((metric) => {
+          const utilization = metric.displayedUtilization === null
+            ? t("utilization 계산 전", "utilization not calculated")
+            : `${t("utilization", "utilization")} ${Math.round(metric.displayedUtilization * 100)}%`;
+          return `${resourceLabel(metric.resource)}: ${t("요구", "demand")} ${formatMetric(metric.demand)}, ${t("한도", "limit")} ${formatMetric(metric.capacity)} ${metric.unit}; ${utilization}; ${t("상태", "status")} ${utilizationStateLabel(metric.state)}`;
+        }).join(". ")}
       </p>
     </figure>
   );

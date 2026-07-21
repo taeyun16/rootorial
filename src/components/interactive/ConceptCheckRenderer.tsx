@@ -39,6 +39,7 @@ export function ConceptCheckRenderer<QuestionId extends string>({
 }: ConceptCheckRendererProps<QuestionId>) {
   const [answers, setAnswers] = useState<Partial<Record<QuestionId, string>>>({});
   const [submitted, setSubmitted] = useState(false);
+  const allAnswered = questions.every((question) => Boolean(answers[question.id]));
   const mastered = submitted && questions.every((question) => answers[question.id] === question.correctAnswer);
 
   function chooseAnswer(questionId: QuestionId, answer: string) {
@@ -72,6 +73,7 @@ export function ConceptCheckRenderer<QuestionId extends string>({
           <fieldset
             className="concept-question"
             aria-describedby={submitted ? feedbackId : undefined}
+            data-question-id={question.id}
             key={question.id}
           >
             <legend>
@@ -79,18 +81,17 @@ export function ConceptCheckRenderer<QuestionId extends string>({
               <span className="concept-question-copy">{question.prompt}</span>
             </legend>
             <div className="concept-options">
-              {question.options.map((option) => (
-                <label className="concept-option" key={option.value}>
-                  <input
-                    type="radio"
-                    name={question.id}
-                    value={option.value}
-                    checked={answers[question.id] === option.value}
-                    onChange={() => chooseAnswer(question.id, option.value)}
-                    required
-                  />
+              {question.options.map((option, optionIndex) => (
+                <button
+                  type="button"
+                  className="concept-option"
+                  aria-pressed={answers[question.id] === option.value}
+                  onClick={() => chooseAnswer(question.id, option.value)}
+                  key={option.value}
+                >
+                  <span aria-hidden="true">{answers[question.id] === option.value ? "✓" : String.fromCharCode(65 + optionIndex)}</span>
                   <code>{option.label}</code>
-                </label>
+                </button>
               ))}
             </div>
             {submitted ? (
@@ -111,7 +112,7 @@ export function ConceptCheckRenderer<QuestionId extends string>({
       })}
 
       <div className="concept-check-actions">
-        <button type="submit" className="button button-primary concept-check-submit">
+        <button type="submit" className="button button-primary concept-check-submit" disabled={!allAnswered}>
           {copy.checkAnswers}
         </button>
         <div className="concept-check-summary" role="status" aria-live="polite">

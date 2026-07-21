@@ -8,6 +8,7 @@ import {
   type SelfAttentionRepairResult,
 } from "../../features/self-attention/self-attention-model";
 import { useLocale } from "../../features/localization/localization";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 
 const incidentCopy: Record<SelfAttentionDebuggerScenarioId, {
@@ -296,21 +297,15 @@ export function SelfAttentionDebuggerLab({
             >
               <legend>{copy.title[locale]}</legend>
               <p id={clueId}>{copy.clue[locale]}</p>
-              <label>
-                <span>{scenario[isKo ? "labelKo" : "labelEn"]} · {t("실행할 repair", "Repair to execute")}</span>
-                <select
-                  value={answer}
-                  onChange={(event) => chooseRepair(scenarioId, event.currentTarget.value as SelfAttentionRepair)}
-                  aria-label={t(`${index + 1}번 Self-Attention 사건 repair`, `Repair for Self-Attention incident ${index + 1}`)}
-                >
-                  <option value="" disabled>{t("repair 선택", "Choose a repair")}</option>
-                  {scenario.options.map((option) => (
-                    <option value={option.id} key={option.id}>
-                      {option[isKo ? "labelKo" : "labelEn"]}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <DirectChoice
+                label={t(`${index + 1}번 Self-Attention 사건 repair`, `Repair for Self-Attention incident ${index + 1}`)}
+                value={answer}
+                options={scenario.options.map((option) => ({
+                  value: option.id,
+                  label: option[isKo ? "labelKo" : "labelEn"],
+                }))}
+                onChange={(value) => chooseRepair(scenarioId, value as SelfAttentionRepair)}
+              />
               <div className="self-attention-debug-actions">
                 <button
                   ref={(node) => {

@@ -106,7 +106,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
 
   return (
     <main
-      className={`chapter-shell${topbarHidden ? " chapter-shell-topbar-hidden" : ""}`}
+      className={`chapter-shell vectors-chapter-shell${topbarHidden ? " chapter-shell-topbar-hidden" : ""}`}
     >
       <header
         className={`chapter-topbar${topbarHidden ? " chapter-topbar-hidden" : ""}`}

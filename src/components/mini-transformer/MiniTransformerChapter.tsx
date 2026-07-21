@@ -8,6 +8,7 @@ import {
 import {
   miniTransformerGenerationRepairCode,
   miniTransformerLmHeadUpdateCode,
+  miniTransformerLmHeadUpdateSupportCode,
 } from "../../data/miniTransformerNotebook";
 import { canCompleteMiniTransformerChapter } from "../../features/mini-transformer/mini-transformer-model";
 import { useLocale } from "../../features/localization/localization";
@@ -155,6 +156,20 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
               <article><span>FINAL LN</span><strong>Ĥ</strong><p>[T,d]</p></article><span aria-hidden="true">→</span>
               <article><span>VOCAB PROJECTION</span><strong>Z</strong><p>[T,V]</p></article>
             </div>
+            <figure className="chapter-shape-ledger">
+              <figcaption>{t("END-TO-END SHAPE LEDGER · vocabulary 폭이 생기는 경계를 분리해서 읽으세요", "END-TO-END SHAPE LEDGER · Isolate the boundary where vocabulary width first appears")}</figcaption>
+              <div className="chapter-shape-ledger-scroll">
+                <table>
+                  <thead><tr><th scope="col">STAGE</th><th scope="col">INPUT</th><th scope="col">OUTPUT</th><th scope="col">READ</th></tr></thead>
+                  <tbody>
+                    <tr><th scope="row">TOKENIZER</th><td>{t("text", "text")}</td><td>ids · [T]</td><td>{t("BOS와 고정 vocabulary", "BOS and fixed vocabulary")}</td></tr>
+                    <tr><th scope="row">DECODER BLOCK</th><td>ids · [T]</td><td>H · [T,d]</td><td>{t("causal hidden state", "causal hidden state")}</td></tr>
+                    <tr><th scope="row">LM HEAD</th><td>Ĥ · [T,d]</td><td>Z · [T,V]</td><td>{t("각 row의 vocabulary 후보", "vocabulary candidates per row")}</td></tr>
+                    <tr><th scope="row">DECODE</th><td>{t("마지막 row · [V]", "last row · [V]")}</td><td>{t("next token · scalar", "next token · scalar")}</td><td>{t("append → prefix 재실행", "append → rerun prefix")}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </figure>
             <div className="mini-transformer-formula-stack">
               <MathFormula latex={String.raw`H=\operatorname{Block}(E[\mathrm{ids}]+P),\qquad \hat H=\operatorname{LN}_{final}(H)`} display />
               <MathFormula latex={String.raw`Z=\hat H W_{vocab}+b_{vocab},\qquad W_{vocab}\in\mathbb{R}^{d_{model}\times V}`} display />
@@ -210,9 +225,10 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
             <NotebookCell
               title={t("shifted cross entropy와 LM-head 한 번 갱신", "Shifted cross entropy and one LM-head update")}
               initialCode={miniTransformerLmHeadUpdateCode}
+              supportCode={miniTransformerLmHeadUpdateSupportCode}
               description={<p>{t("입력 ID [0,1,2,3,4]를 target [1,2,3,4,5]와 맞춥니다. logits shape (5,8), loss 1.655967, gradient L2 0.728164를 확인하고 learning rate 0.2의 올바른 뺄셈 update가 같은 batch loss를 1.552597로 낮추는지 실행하세요. 반대로 gradient를 더하면 1.764646으로 오릅니다.", "Align input IDs [0,1,2,3,4] with targets [1,2,3,4,5]. Run the cell to verify logits shape (5,8), loss 1.655967, and gradient L2 0.728164, then confirm that a correct subtractive update at learning rate 0.2 lowers same-batch loss to 1.552597. Adding the gradient instead raises it to 1.764646.")}</p>}
               hint={<p>{t("target 위치에서 1을 뺀 probability gradient를 다섯 row로 평균한 뒤 W와 b에서 빼야 합니다. learning_rate 부호를 바꿔 ascent 대조값도 확인해 보세요.", "Subtract one at each target position, average the probability gradient over five rows, then subtract the resulting gradients from W and b. Flip the learning-rate sign to inspect the ascent counterexample.")}</p>}
-              editorMinHeight={820}
+              editorMinHeight={660}
               ariaLabel={t("shifted cross entropy와 LM-head 갱신 NumPy 코드", "NumPy code for shifted cross entropy and an LM-head update")}
             />
             <NotebookCell

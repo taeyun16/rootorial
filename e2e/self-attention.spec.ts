@@ -1,10 +1,25 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/self-attention";
 const publicPath = "/curricula/transformer-from-zero/chapters/self-attention";
 
 type TestPage = Parameters<typeof signInTestUser>[0];
+
+function choiceGroup(scope: Locator, label: string) {
+  return scope.getByRole("group", { name: label });
+}
+
+function choiceOption(scope: Locator, label: string, value: string) {
+  return choiceGroup(scope, label).locator(`[data-choice-value="${value}"]`);
+}
+
+async function choose(scope: Locator, label: string, value: string) {
+  const option = choiceOption(scope, label, value);
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
 
 async function signInAsAdmin(page: TestPage) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
@@ -69,6 +84,8 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   await expect(page.getByText("Q/K/V 투영부터 two-head concat까지 실행", { exact: true })).toBeVisible();
   await expect(page.getByText("Softmax 뒤 mask 버그 수리", { exact: true })).toBeVisible();
   await expect(page.locator(".self-attention-python-bridge .notebook-cell")).toHaveCount(2);
+  await expect(page.locator(".self-attention-python-bridge .notebook-cell-support-code")).toHaveCount(2);
+  await expect(page.getByRole("button", { name: "핵심 코드 보기" })).toHaveCount(2);
 
   const completionButton = page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" });
   await expect(completionButton).toHaveAttribute("data-completion-ready", "false");
@@ -76,42 +93,43 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
 
   const lab = page.locator(".self-attention-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
-  const prediction = lab.getByLabel("Self-Attention challenge 예측");
+  await lab.locator(".challenge-advanced-settings summary").click();
+  const prediction = choiceGroup(lab, "Self-Attention challenge 예측");
   const run = lab.getByRole("button", { name: "Self-Attention pipeline 실행" });
   const gain = lab.getByLabel("Self-Attention 입력 gain");
 
   await gain.fill("5");
-  await prediction.selectOption("same-x-separate-qkv");
+  await choose(lab, "Self-Attention challenge 예측", "same-x-separate-qkv");
   await run.click();
   await expect(lab.locator(".self-attention-runtime-fallback")).toContainText("로컬 Self-Attention runtime 실패");
   const recover = lab.getByRole("button", { name: "challenge 시작 preset으로 안전하게 복구" });
   await expect(recover).toBeFocused();
   await recover.click();
-  await expect(prediction).toBeFocused();
+  await expect(prediction.getByRole("button").first()).toBeFocused();
   await expect(gain).toHaveValue("1");
   await expect(lab.locator(".self-attention-runtime-fallback")).toHaveCount(0);
   await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(0);
 
-  await prediction.selectOption("same-x-separate-qkv");
+  const projectionPrediction = await choose(lab, "Self-Attention challenge 예측", "same-x-separate-qkv");
   await run.click();
-  await expect(prediction).toBeFocused();
+  await expect(projectionPrediction).toBeFocused();
   await expect(lab.locator(".self-attention-live-feedback")).toContainText("예측과 실행 계약이 맞았습니다");
   const inspectProjection = lab.getByRole("button", { name: "선택 token의 Q/K/V row 검사" });
-  await lab.getByLabel("관찰할 Self-Attention head").selectOption("0");
-  await lab.getByLabel("관찰할 query token").selectOption("1");
+  await choose(lab, "관찰할 Self-Attention head", "0");
+  await choose(lab, "관찰할 query token", "1");
   await inspectProjection.click();
   await expect(lab.locator(".self-attention-live-feedback")).toContainText("아직 필수 수치 증거가 아닙니다");
   await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(0);
-  await lab.getByLabel("관찰할 Self-Attention head").selectOption("1");
-  await lab.getByLabel("관찰할 query token").selectOption("0");
+  await choose(lab, "관찰할 Self-Attention head", "1");
+  await choose(lab, "관찰할 query token", "0");
   await inspectProjection.click();
   await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(1);
 
   const scalingPreset = lab.locator('[data-self-attention-preset="scaling"]');
   await scalingPreset.click();
   await expect(scalingPreset).toHaveAttribute("aria-pressed", "true");
-  await lab.getByLabel("Self-Attention score scaling").selectOption("sqrt");
-  await prediction.selectOption("same-top-higher-entropy");
+  await choose(lab, "Self-Attention score scaling", "1");
+  await choose(lab, "Self-Attention challenge 예측", "same-top-higher-entropy");
   await run.click();
   await lab.getByRole("button", { name: "선택 row의 raw/scaled score 비교" }).click();
   await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(2);
@@ -119,8 +137,8 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   const causalPreset = lab.locator('[data-self-attention-preset="causal-mask"]');
   await causalPreset.click();
   await expect(causalPreset).toHaveAttribute("aria-pressed", "true");
-  await lab.getByLabel("Self-Attention causal mask").selectOption("causal");
-  await prediction.selectOption("future-zero-row-renormalized");
+  await choose(lab, "Self-Attention causal mask", "1");
+  await choose(lab, "Self-Attention challenge 예측", "future-zero-row-renormalized");
   await run.click();
   const futureCell = lab.getByRole("button", { name: "query 1의 미래 또는 padding key 2 차단" });
   await futureCell.click();
@@ -130,8 +148,8 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   const paddingPreset = lab.locator('[data-self-attention-preset="padding-key"]');
   await paddingPreset.click();
   await expect(paddingPreset).toHaveAttribute("aria-pressed", "true");
-  await lab.getByLabel("Self-Attention padding key visibility").selectOption("exposed");
-  await prediction.selectOption("padding-gains-mass-active-renormalizes-pad-query-zero");
+  await choose(lab, "Self-Attention padding key visibility", "1");
+  await choose(lab, "Self-Attention challenge 예측", "padding-gains-mass-active-renormalizes-pad-query-zero");
   await run.click();
   const exposedPaddingCell = lab.getByRole("button", { name: /weights · head 1, the, k3:/ });
   await exposedPaddingCell.click();
@@ -141,7 +159,7 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   const multiHeadPreset = lab.locator('[data-self-attention-preset="multi-head"]');
   await multiHeadPreset.click();
   await expect(multiHeadPreset).toHaveAttribute("aria-pressed", "true");
-  await prediction.selectOption("concat-preserves-token-shape");
+  await choose(lab, "Self-Attention challenge 예측", "concat-preserves-token-shape");
   await run.click();
   await lab.getByRole("button", { name: "선택 token의 두 head와 [T,4] handoff 검사" }).click();
   await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(5);
@@ -151,7 +169,7 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   await expect(page.locator('.self-attention-debug-progress[data-interactive-ready="true"]')).toHaveCount(1);
   await expect(incidents).toHaveCount(4);
   const projectionIncident = incidents.nth(0);
-  await projectionIncident.getByRole("combobox", { name: "1번 Self-Attention 사건 repair" }).selectOption("reuse-query-for-kv");
+  await choose(projectionIncident, "1번 Self-Attention 사건 repair", "reuse-query-for-kv");
   await projectionIncident.getByRole("button", { name: "1번 Self-Attention 사건 repair 적용 및 계약 실행" }).click();
   await expect(projectionIncident).toHaveAttribute("data-repair-result", "incorrect");
   await expect(projectionIncident.locator(".self-attention-debug-feedback")).toContainText("역할별 값이 붕괴");
@@ -164,7 +182,7 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   ] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const incident = incidents.nth(index);
-    await incident.getByRole("combobox", { name: `${index + 1}번 Self-Attention 사건 repair` }).selectOption(repairs[index]);
+    await choose(incident, `${index + 1}번 Self-Attention 사건 repair`, repairs[index]);
     const applyRepair = incident.getByRole("button", { name: `${index + 1}번 Self-Attention 사건 repair 적용 및 계약 실행` });
     await applyRepair.click();
     await expect(applyRepair).toBeFocused();
@@ -216,6 +234,8 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(page.getByText("Run Q/K/V projections through two-head concat", { exact: true })).toBeVisible();
   await expect(page.getByText("Repair the mask-after-softmax bug", { exact: true })).toBeVisible();
   await expect(page.locator(".self-attention-python-bridge .notebook-cell")).toHaveCount(2);
+  await expect(page.locator(".self-attention-python-bridge .notebook-cell-support-code")).toHaveCount(2);
+  await expect(page.getByRole("button", { name: "Show learner code" })).toHaveCount(2);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];
@@ -245,20 +265,19 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const lab = page.locator(".self-attention-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
   const scalingPreset = lab.locator('[data-self-attention-preset="scaling"]');
-  const prediction = lab.getByLabel("Self-Attention challenge prediction");
+  const prediction = choiceGroup(lab, "Self-Attention challenge prediction");
   await scalingPreset.focus();
   await scalingPreset.press("Enter");
   await expect(scalingPreset).toHaveAttribute("aria-pressed", "true");
-  await expect(prediction).toBeFocused();
+  await expect(prediction.getByRole("button").first()).toBeFocused();
   expect(await scalingPreset.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
 
-  const scaling = lab.getByLabel("Self-Attention score scaling");
-  await scaling.selectOption("sqrt");
-  await prediction.selectOption("same-top-higher-entropy");
+  const scaling = await choose(lab, "Self-Attention score scaling", "1");
+  const scalingPrediction = await choose(lab, "Self-Attention challenge prediction", "same-top-higher-entropy");
   const run = lab.getByRole("button", { name: "Run the Self-Attention pipeline" });
   await run.focus();
   await run.press("Enter");
-  await expect(prediction).toBeFocused();
+  await expect(scalingPrediction).toBeFocused();
   await expect(lab.locator(".self-attention-live-feedback")).toContainText("Prediction and executed contract match");
 
   const scoresStage = lab.getByRole("button", { name: /raw · scaled/ });
@@ -284,8 +303,8 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const causalPreset = lab.locator('[data-self-attention-preset="causal-mask"]');
   await causalPreset.focus();
   await causalPreset.press("Enter");
-  await lab.getByLabel("Self-Attention causal mask").selectOption("causal");
-  await prediction.selectOption("future-zero-row-renormalized");
+  await choose(lab, "Self-Attention causal mask", "1");
+  await choose(lab, "Self-Attention challenge prediction", "future-zero-row-renormalized");
   await run.press("Enter");
   const futureCell = lab.getByRole("button", { name: "future or padding key 2 blocked for query 1" });
   await futureCell.focus();
@@ -296,8 +315,8 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const paddingPreset = lab.locator('[data-self-attention-preset="padding-key"]');
   await paddingPreset.focus();
   await paddingPreset.press("Enter");
-  await lab.getByLabel("Self-Attention padding key visibility").selectOption("exposed");
-  await prediction.selectOption("padding-gains-mass-active-renormalizes-pad-query-zero");
+  await choose(lab, "Self-Attention padding key visibility", "1");
+  await choose(lab, "Self-Attention challenge prediction", "padding-gains-mass-active-renormalizes-pad-query-zero");
   await run.press("Enter");
   const paddingCell = lab.locator('button[aria-label^="weights · head 1, the, k3:"]');
   await expect(paddingCell).toHaveCount(1);
@@ -309,7 +328,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const multiHeadPreset = lab.locator('[data-self-attention-preset="multi-head"]');
   await multiHeadPreset.focus();
   await multiHeadPreset.press("Enter");
-  await prediction.selectOption("concat-preserves-token-shape");
+  await choose(lab, "Self-Attention challenge prediction", "concat-preserves-token-shape");
   await run.press("Enter");
   const inspectOutput = lab.getByRole("button", { name: "Inspect both heads and the [T,4] handoff for the selected token" });
   await inspectOutput.focus();
@@ -322,12 +341,12 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await resetLab.focus();
   await resetLab.press("Enter");
   await expect(resetLab).toBeFocused();
-  await expect(prediction).toHaveValue("");
+  await expect(prediction.locator('[aria-pressed="true"]')).toHaveCount(0);
   await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(0);
 
   const firstIncident = page.locator(".self-attention-debug-card").first();
-  const repairSelect = firstIncident.getByRole("combobox", { name: "Repair for Self-Attention incident 1" });
-  await repairSelect.selectOption("reuse-query-for-kv");
+  const repairSelect = choiceGroup(firstIncident, "Repair for Self-Attention incident 1");
+  await choose(firstIncident, "Repair for Self-Attention incident 1", "reuse-query-for-kv");
   const applyRepair = firstIncident.getByRole("button", { name: "Apply repair and run contract for Self-Attention incident 1" });
   await applyRepair.focus();
   await applyRepair.press("Enter");
@@ -344,7 +363,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await resetDebugger.focus();
   await resetDebugger.press("Enter");
   await expect(resetDebugger).toBeFocused();
-  await expect(repairSelect).toHaveValue("");
+  await expect(repairSelect.locator('[aria-pressed="true"]')).toHaveCount(0);
 
   const conceptAnswers = [
     ['input[name="qkv-source"][value="same-x-separate-projections"]'],

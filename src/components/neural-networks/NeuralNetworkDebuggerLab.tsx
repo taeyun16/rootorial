@@ -9,6 +9,7 @@ import {
 } from "../../features/neural-networks/forward-pass";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 
 const scenarioCopy: Record<NetworkDebuggerScenarioId, {
   title: { ko: string; en: string };
@@ -199,19 +200,7 @@ export function NeuralNetworkDebuggerLab({
             >
               <legend>{copy.title[locale]}</legend>
               <p>{copy.clue[locale]}</p>
-              <label>
-                <span>{t("적용할 patch", "Patch to apply")}</span>
-                <select
-                  value={answer ?? ""}
-                  onChange={(event) => {
-                    const repair = event.currentTarget.value as NetworkDebuggerRepair;
-                    changeAnswer(scenarioId, repair);
-                  }}
-                >
-                  <option value="" disabled>{t("수리 선택", "Choose a repair")}</option>
-                  {copy.options.map((option) => <option value={option} key={option}>{optionLabel(option, isKo)}</option>)}
-                </select>
-              </label>
+              <DirectChoice compact label={t("적용할 patch", "Patch to apply")} value={answer ?? ""} options={copy.options.map((option) => ({ value: option, label: optionLabel(option, isKo) }))} onChange={(repair) => changeAnswer(scenarioId, repair)} />
               <div className="neural-debug-actions">
                 <button type="button" className="button button-secondary" disabled={!answer} onClick={() => checkScenario(scenarioId)}>
                   {t("patch 적용·실행", "Apply patch and run")}

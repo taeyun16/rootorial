@@ -18,6 +18,10 @@ import {
   type ObservationProbeId,
 } from "../../features/infrastructure/network-observability-capacity";
 import { useLocale } from "../../features/localization/localization";
+import {
+  InfrastructureChoiceRail,
+  InfrastructureWorkspace,
+} from "./InfrastructureInteractionPrimitives";
 import { NetworkObservabilityCapacityView } from "./NetworkObservabilityCapacityView";
 
 type Completion = {
@@ -147,6 +151,16 @@ export function NetworkObservabilityCapacityLab({
     publishCompletion({ [scenarioCompletionKey[scenarioId]]: false });
   }
 
+  function selectScenario(scenarioId: CapacityScenarioId) {
+    setActiveScenario(scenarioId);
+    setRuntimeFailed(false);
+    const title = scenarioTitle(scenarioId, true);
+    setFeedback(message(
+      `${title} scenario로 전환했습니다. 이 scenario의 예측과 plan을 확인한 뒤 실행하세요.`,
+      `${title} scenario selected. Review its prediction and plan, then run it.`,
+    ));
+  }
+
   function choosePrediction(value: CapacityResource) {
     setPredictions((current) => ({ ...current, [activeScenario]: value }));
     invalidateScenario(activeScenario);
@@ -271,37 +285,62 @@ export function NetworkObservabilityCapacityLab({
           <span>{completed.evidence ? "✓" : "○"}</span>
         </header>
         <p className="network-observability-window-key"><code>flow=request-17</code><code>window=12:00–12:01</code></p>
-        <div className="network-observability-evidence-grid">
-          {evidenceDraft.receipts.map((receipt, index) => (
-            <article data-probe-editor={receipt.probeId} key={receipt.probeId}>
-              <span>{String(index + 1).padStart(2, "0")} · {probeTitle(receipt.probeId)}</span>
-              <code>{receipt.command}</code>
-              <label>
-                <span>{t("실행 network view", "Execution network view")}</span>
-                <select
-                  aria-label={t(`${probeTitle(receipt.probeId)} 실행 namespace`, `${probeTitle(receipt.probeId)} execution namespace`)}
-                  value={receipt.namespaceId}
-                  onChange={(event) => updateReceipt(receipt.probeId, { namespaceId: event.target.value as ObservationNamespace })}
-                >
-                  {(["host", "client", "edge", "app", "data"] as const).map((namespaceId) => <option value={namespaceId} key={namespaceId}>{namespaceId} netns</option>)}
-                </select>
-              </label>
-              <label>
-                <span>{t("허용 가능한 claim", "Bounded claim")}</span>
-                <select
-                  aria-label={t(`${probeTitle(receipt.probeId)} 증거 claim`, `${probeTitle(receipt.probeId)} evidence claim`)}
-                  value={receipt.claim}
-                  onChange={(event) => updateReceipt(receipt.probeId, { claim: event.target.value as ObservationClaim })}
-                >
-                  {claimOptions(receipt.probeId).map((claim) => <option value={claim} key={claim}>{claimLabel(claim, isKo)}</option>)}
-                </select>
-              </label>
-              {receipt.probeId === "edge-counter" ? <small>drops {receipt.counterStart} → {receipt.counterEnd}</small> : null}
-              {receipt.probeId === "edge-capture" ? <small>captured packets = {receipt.capturedPackets}</small> : null}
-              <small>{receipt.pathStage} · point={receipt.interfaceId}</small>
-            </article>
-          ))}
-        </div>
+        <InfrastructureWorkspace
+          label={t("패킷 경로와 probe receipt 작업 공간", "Packet path and probe receipt workspace")}
+          stage={(
+            <>
+              <NetworkObservabilityCapacityView
+                evidence={evidencePreview}
+                capacity={activeResult?.planned ?? capacityPreview}
+                scenarioId={activeScenario}
+                baselineLimitingResource={activeResult?.baseline.limitingResource}
+                evidenceGradeState={evidenceResult ? evidenceResult.passed ? "passed" : "failed" : "not-run"}
+                capacityGradeState={activeResult ? activeResult.passed ? "passed" : "failed" : "not-run"}
+              />
+              <div className="network-observability-evidence-grid">
+                {evidenceDraft.receipts.map((receipt, index) => (
+                  <article data-probe-editor={receipt.probeId} key={receipt.probeId}>
+                    <span>{String(index + 1).padStart(2, "0")} · {probeTitle(receipt.probeId)}</span>
+                    <code>{receipt.command}</code>
+                    <InfrastructureChoiceRail
+                      compact
+                      controlId={`evidence-${receipt.probeId}-scope`}
+                      label={t("어느 network view에서 실행할까?", "Which network view runs the probe?")}
+                      value={receipt.namespaceId}
+                      options={(["host", "client", "edge", "app", "data"] as const).map((namespaceId) => ({
+                        value: namespaceId,
+                        label: `${namespaceId} netns`,
+                      }))}
+                      onChange={(namespaceId: ObservationNamespace) => updateReceipt(receipt.probeId, { namespaceId })}
+                    />
+                    <InfrastructureChoiceRail
+                      compact
+                      controlId={`evidence-${receipt.probeId}-claim`}
+                      label={t("이 receipt가 지지하는 claim은?", "What claim does this receipt support?")}
+                      value={receipt.claim}
+                      options={claimOptions(receipt.probeId).map((claim) => ({
+                        value: claim,
+                        label: claimLabel(claim, isKo),
+                      }))}
+                      onChange={(claim: ObservationClaim) => updateReceipt(receipt.probeId, { claim })}
+                    />
+                    {receipt.probeId === "edge-counter" ? <small>drops {receipt.counterStart} → {receipt.counterEnd}</small> : null}
+                    {receipt.probeId === "edge-capture" ? <small>captured packets = {receipt.capturedPackets}</small> : null}
+                    <small>{receipt.pathStage} · point={receipt.interfaceId}</small>
+                  </article>
+                ))}
+              </div>
+            </>
+          )}
+          inspector={(
+            <div className="network-observability-evidence-contract">
+              <span>{t("관측 계약", "OBSERVATION CONTRACT")}</span>
+              <strong>flow=request-17</strong>
+              <strong>window=12:00–12:01</strong>
+              <p>{t("probe는 object를 소유한 namespace에서 실행하고 claim은 관측 범위 안에 둥니다.", "Run each probe in the namespace that owns the object and keep its claim inside the observed scope.")}</p>
+            </div>
+          )}
+        />
         <div className="network-observability-action-row">
           <button type="button" className="button button-primary" onClick={runEvidence}>{t("네 evidence receipt 판정", "Grade four evidence receipts")}</button>
           <button type="button" className="button button-ghost" onClick={resetEvidence}>{t("증거 scaffold 초기화", "Reset evidence scaffold")}</button>
@@ -322,7 +361,7 @@ export function NetworkObservabilityCapacityLab({
               type="button"
               className="button button-ghost"
               aria-pressed={activeScenario === scenarioId}
-              onClick={() => setActiveScenario(scenarioId)}
+              onClick={() => selectScenario(scenarioId)}
               key={scenarioId}
             >
               {scenarioTitle(scenarioId, isKo)} {completed[scenarioCompletionKey[scenarioId]] ? "✓" : ""}
@@ -331,47 +370,35 @@ export function NetworkObservabilityCapacityLab({
           <button type="button" className="button button-ghost" onClick={resetCapacityScenario}>{t("현재 scenario 초기화", "Reset current scenario")}</button>
         </div>
 
-        <div className="network-observability-fixture-ledger">
-          <div><span>LOAD</span><strong>{activeFixture.draft.requestsPerSecond} rps · {activeFixture.draft.bytesPerTransaction / 1_000} KB/txn</strong></div>
-          <div><span>LINK</span><strong>{activeFixture.draft.linkMegabitsPerSecond} Mbps</strong></div>
-          <div><span>BURST</span><strong>{activeFixture.draft.burstPacketsPerSecond} → {activeFixture.draft.drainPacketsPerSecond} pps · {activeFixture.draft.burstSeconds}s</strong></div>
-          <div><span>SOCKETS</span><strong>{activeFixture.draft.averageConnectionMs} ms · limit {activeFixture.draft.connectionLimit}</strong></div>
-        </div>
-
-        <NetworkObservabilityCapacityView
-          evidence={evidencePreview}
-          capacity={activeResult?.planned ?? capacityPreview}
-          scenarioId={activeScenario}
-          baselineLimitingResource={activeResult?.baseline.limitingResource}
-          evidenceGradeState={evidenceResult ? evidenceResult.passed ? "passed" : "failed" : "not-run"}
-          capacityGradeState={activeResult ? activeResult.passed ? "passed" : "failed" : "not-run"}
-        />
-
         <div className="network-observability-capacity-controls">
-          <label>
-            <span>{t("실행 전 limiting resource 예측", "Predict the limiting resource before execution")}</span>
-            <select
-              aria-label={t("limiting resource 예측", "Limiting resource prediction")}
-              value={activePrediction}
-              onChange={(event) => choosePrediction(event.target.value as CapacityResource)}
-            >
-              <option value="">—</option>
-              <option value="edge-bandwidth">edge bandwidth</option>
-              <option value="edge-queue">edge burst queue</option>
-              <option value="app-connections">app connections</option>
-            </select>
-          </label>
-          <label>
-            <span>{t("30% headroom capacity plan", "Capacity plan for 30% headroom")}</span>
-            <select
-              aria-label={t("capacity plan", "Capacity plan")}
-              value={activePlan}
-              onChange={(event) => choosePlan(event.target.value as CapacityPlanId)}
-            >
-              <option value="">—</option>
-              {activeFixture.planOptions.map((plan) => <option value={plan} key={plan}>{planLabel(plan, isKo)}</option>)}
-            </select>
-          </label>
+          <div className="network-observability-fixture-ledger">
+            <div><span>LOAD</span><strong>{activeFixture.draft.requestsPerSecond} rps · {activeFixture.draft.bytesPerTransaction / 1_000} KB/txn</strong></div>
+            <div><span>LINK</span><strong>{activeFixture.draft.linkMegabitsPerSecond} Mbps</strong></div>
+            <div><span>BURST</span><strong>{activeFixture.draft.burstPacketsPerSecond} → {activeFixture.draft.drainPacketsPerSecond} pps · {activeFixture.draft.burstSeconds}s</strong></div>
+            <div><span>SOCKETS</span><strong>{activeFixture.draft.averageConnectionMs} ms · limit {activeFixture.draft.connectionLimit}</strong></div>
+          </div>
+          <InfrastructureChoiceRail
+            controlId="capacity-bottleneck-prediction"
+            label={t("실행 전 limiting resource를 예측하세요", "Predict the limiting resource before execution")}
+            value={activePrediction}
+            options={(["edge-bandwidth", "edge-queue", "app-connections"] as const).map((resource) => ({
+              value: resource,
+              eyebrow: resource === "edge-bandwidth" ? "LINK" : resource === "edge-queue" ? "BURST" : "SOCKETS",
+              label: resourceCopy(resource)[locale],
+              detail: t("demand ÷ capacity ratio를 비교", "Compare demand ÷ capacity ratio"),
+            }))}
+            onChange={choosePrediction}
+          />
+          <InfrastructureChoiceRail
+            controlId="capacity-plan"
+            label={t("30% headroom을 만들 capacity plan을 선택하세요", "Choose the capacity plan that creates 30% headroom")}
+            value={activePlan}
+            options={activeFixture.planOptions.map((plan) => ({
+              value: plan,
+              label: planLabel(plan, isKo),
+            }))}
+            onChange={choosePlan}
+          />
           <button type="button" className="button button-primary" onClick={runCapacityScenario}>{t("baseline 계산·plan 판정", "Calculate baseline and grade plan")}</button>
         </div>
       </section>

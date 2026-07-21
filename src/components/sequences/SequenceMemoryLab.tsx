@@ -11,6 +11,7 @@ import {
 } from "../../features/sequences/sequence-model";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 
 type SequenceTrace = ReturnType<typeof runSequenceTrace>;
 
@@ -175,7 +176,7 @@ export function SequenceMemoryLab({
   const [feedback, setFeedback] = useState<LabFeedback>({ kind: "idle" });
   const [runtimeError, setRuntimeError] = useState<RuntimeErrorKind | null>(null);
   const [interactiveReady, setInteractiveReady] = useState(false);
-  const predictionRef = useRef<HTMLSelectElement>(null);
+  const predictionRef = useRef<HTMLDivElement>(null);
   const focusPredictionAfterRecovery = useRef(false);
   const revealedSetups = useRef(new Set<string>());
   const mastery = useMemo(() => evaluateSequenceLabMastery(evidence), [evidence]);
@@ -391,21 +392,16 @@ export function SequenceMemoryLab({
 
         <fieldset className="sequences-prediction-fieldset">
           <legend>{t("실행 전 final state 예측", "Predict final state before running")}</legend>
-          <label>
-            <span>{t("초기 신호의 결과", "Outcome of the early signal")}</span>
-            <select
-              ref={predictionRef}
-              value={prediction}
-              disabled={Boolean(trace)}
-              onChange={(event) => setPrediction(event.currentTarget.value as SequencePrediction)}
-              aria-label={t("final state 예측", "Final-state prediction")}
-            >
-              <option value="" disabled>{t("결과를 보기 전에 선택", "Choose before revealing the result")}</option>
-              {predictionOrder.map((candidate) => (
-                <option value={candidate} key={candidate}>{predictionCopy[candidate][locale]}</option>
-              ))}
-            </select>
-          </label>
+          <DirectChoice
+            compact
+            groupRef={predictionRef}
+            label={t("초기 신호의 결과", "Outcome of the early signal")}
+            ariaLabel={t("final state 예측", "Final-state prediction")}
+            value={prediction}
+            disabled={Boolean(trace)}
+            options={predictionOrder.map((candidate) => ({ value: candidate, label: predictionCopy[candidate][locale] }))}
+            onChange={setPrediction}
+          />
           <div className="sequences-run-actions">
             <button
               type="button"

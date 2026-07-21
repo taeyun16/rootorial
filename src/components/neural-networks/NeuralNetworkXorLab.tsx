@@ -15,6 +15,7 @@ import {
 } from "../../features/neural-networks/forward-pass";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { NeuralNetworkStateView } from "./NeuralNetworkStateView";
 
 type LinearPrediction = "four" | "three" | "two";
@@ -193,26 +194,20 @@ export function NeuralNetworkXorLab({
     >
       <fieldset className="neural-prediction-step">
         <legend>{t("1 · 단일 직선 경계 예측", "1 · Predict one linear boundary")}</legend>
-        <label>
-          <span>{t("XOR 네 점 중 한 affine+sigmoid가 맞힐 수 있는 최대 개수는?", "At most how many XOR points can one affine+sigmoid classify?")}</span>
-          <select
-            value={prediction}
-            onChange={(event) => {
-              const value = event.currentTarget.value as LinearPrediction;
-              setPrediction(value);
-              setLinearResult(null);
-              setEvidence((current) => ({ ...current, predictionCorrect: false, linearFailureObserved: false, rebuiltAfterFailure: false }));
-              setRun(null);
-              setMastery(null);
-              onCompletionChange?.(false);
-            }}
-          >
-            <option value="" disabled>{t("먼저 예측하세요", "Predict first")}</option>
-            <option value="four">4 / 4</option>
-            <option value="three">3 / 4</option>
-            <option value="two">2 / 4</option>
-          </select>
-        </label>
+        <DirectChoice
+          compact
+          label={t("XOR 네 점 중 한 affine+sigmoid가 맞힐 수 있는 최대 개수는?", "At most how many XOR points can one affine+sigmoid classify?")}
+          value={prediction}
+          options={[{ value: "four", label: "4 / 4" }, { value: "three", label: "3 / 4" }, { value: "two", label: "2 / 4" }] as const}
+          onChange={(value: LinearPrediction) => {
+            setPrediction(value);
+            setLinearResult(null);
+            setEvidence((current) => ({ ...current, predictionCorrect: false, linearFailureObserved: false, rebuiltAfterFailure: false }));
+            setRun(null);
+            setMastery(null);
+            onCompletionChange?.(false);
+          }}
+        />
         <button type="button" className="button button-secondary" disabled={!prediction} onClick={runLinearPrediction}>
           {t("직선 경계 실행", "Run linear boundary")}
         </button>
@@ -243,42 +238,10 @@ export function NeuralNetworkXorLab({
         </header>
 
         <div className="neural-config-grid">
-          <label>
-            <span>{t("hidden activation", "Hidden activation")}</span>
-            <select value={config.activation} onChange={(event) => patchConfig({ activation: event.currentTarget.value as ActivationId })}>
-              {activationIds.map((id) => <option value={id} key={id}>{activationCopy[id]}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>{t("hidden unit h₁", "Hidden unit h₁")}</span>
-            <select
-              value={config.hiddenFeatures[0]}
-              onChange={(event) => {
-                const feature = event.currentTarget.value as HiddenFeatureId;
-                patchConfig({ hiddenFeatures: [feature, config.hiddenFeatures[1]] });
-              }}
-            >
-              {hiddenFeatureIds.map((id) => <option value={id} key={id}>{hiddenCopy[id]}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>{t("hidden unit h₂", "Hidden unit h₂")}</span>
-            <select
-              value={config.hiddenFeatures[1]}
-              onChange={(event) => {
-                const feature = event.currentTarget.value as HiddenFeatureId;
-                patchConfig({ hiddenFeatures: [config.hiddenFeatures[0], feature] });
-              }}
-            >
-              {hiddenFeatureIds.map((id) => <option value={id} key={id}>{hiddenCopy[id]}</option>)}
-            </select>
-          </label>
-          <label>
-            <span>{t("output affine head", "Output affine head")}</span>
-            <select value={config.outputHead} onChange={(event) => patchConfig({ outputHead: event.currentTarget.value as OutputHeadId })}>
-              {outputHeadIds.map((id) => <option value={id} key={id}>{outputCopy[id]}</option>)}
-            </select>
-          </label>
+          <DirectChoice compact label={t("hidden activation", "Hidden activation")} value={config.activation} options={activationIds.map((id) => ({ value: id, label: activationCopy[id] }))} onChange={(activation: ActivationId) => patchConfig({ activation })} />
+          <DirectChoice compact label={t("hidden unit h₁", "Hidden unit h₁")} value={config.hiddenFeatures[0]} options={hiddenFeatureIds.map((id) => ({ value: id, label: hiddenCopy[id] }))} onChange={(feature: HiddenFeatureId) => patchConfig({ hiddenFeatures: [feature, config.hiddenFeatures[1]] })} />
+          <DirectChoice compact label={t("hidden unit h₂", "Hidden unit h₂")} value={config.hiddenFeatures[1]} options={hiddenFeatureIds.map((id) => ({ value: id, label: hiddenCopy[id] }))} onChange={(feature: HiddenFeatureId) => patchConfig({ hiddenFeatures: [config.hiddenFeatures[0], feature] })} />
+          <DirectChoice compact label={t("output affine head", "Output affine head")} value={config.outputHead} options={outputHeadIds.map((id) => ({ value: id, label: outputCopy[id] }))} onChange={(outputHead: OutputHeadId) => patchConfig({ outputHead })} />
         </div>
         <button type="button" className="button neural-run-button" disabled={!evidence.linearFailureObserved} onClick={runNetwork}>
           {t("네 행 forward pass 실행·판정", "Run and grade four-row forward pass")}

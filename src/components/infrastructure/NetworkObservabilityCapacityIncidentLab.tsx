@@ -8,6 +8,7 @@ import {
   type ObservabilityIncidentRepair,
 } from "../../features/infrastructure/network-observability-capacity";
 import { useLocale } from "../../features/localization/localization";
+import { InfrastructureChoiceRail } from "./InfrastructureInteractionPrimitives";
 
 export function NetworkObservabilityCapacityIncidentLab({
   onCompletionChange,
@@ -151,17 +152,14 @@ export function NetworkObservabilityCapacityIncidentLab({
               <h4>{item.title}</h4>
               <pre>{item.evidence}</pre>
               <p>{item.prompt}</p>
-              <label>
-                <span>{t("최소 수리 선택", "Choose the minimal repair")}</span>
-                <select
-                  aria-label={t(`${item.number} 사건 수리`, `Incident ${item.number} repair`)}
-                  value={repairs[incidentId] ?? ""}
-                  onChange={(event) => chooseRepair(incidentId, event.target.value as ObservabilityIncidentRepair)}
-                >
-                  <option value="">—</option>
-                  {fixture.repairOptions.map((repair) => <option value={repair} key={repair}>{repairLabel(repair)}</option>)}
-                </select>
-              </label>
+              <InfrastructureChoiceRail
+                compact
+                controlId={`observability-incident-${incidentId}-repair`}
+                label={t("증거 경계에 적용할 최소 수리", "Minimal repair for the evidence boundary")}
+                value={repairs[incidentId] ?? ""}
+                options={fixture.repairOptions.map((repair) => ({ value: repair, label: repairLabel(repair) }))}
+                onChange={(repair) => chooseRepair(incidentId, repair)}
+              />
               <button
                 type="button"
                 className="button button-secondary"

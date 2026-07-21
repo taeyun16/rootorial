@@ -7,6 +7,7 @@ import {
   type NatIncidentRepair,
 } from "../../features/infrastructure/egress-nat";
 import { useLocale } from "../../features/localization/localization";
+import { InfrastructureChoiceRail } from "./InfrastructureInteractionPrimitives";
 
 const incidentIds = Object.keys(natIncidentFixtures) as NatIncidentId[];
 
@@ -23,6 +24,10 @@ export function NatConntrackIncidentLab({
   const [interactiveReady, setInteractiveReady] = useState(false);
 
   useEffect(() => setInteractiveReady(true), []);
+
+  useEffect(() => {
+    onCompletionChange(completed.length === incidentIds.length);
+  }, [completed, onCompletionChange]);
 
   const copy: Record<NatIncidentId, { title: string; evidence: string; prompt: string }> = {
     "wrong-nat-hook": {
@@ -65,9 +70,7 @@ export function NatConntrackIncidentLab({
       delete next[incidentId];
       return next;
     });
-    const next = completed.filter((id) => id !== incidentId);
-    setCompleted(next);
-    onCompletionChange(next.length === incidentIds.length);
+    setCompleted((current) => current.filter((id) => id !== incidentId));
   }
 
   function run(incidentId: NatIncidentId) {
@@ -76,23 +79,19 @@ export function NatConntrackIncidentLab({
     try {
       const result = evaluateNatIncident(incidentId, repair);
       setResults((current) => ({ ...current, [incidentId]: result }));
-      const next = result.passed
-        ? [...new Set([...completed, incidentId])]
-        : completed.filter((id) => id !== incidentId);
-      setCompleted(next);
-      onCompletionChange(next.length === incidentIds.length);
+      setCompleted((current) => result.passed
+        ? [...new Set([...current, incidentId])]
+        : current.filter((id) => id !== incidentId));
     } catch {
       setResults((current) => ({ ...current, [incidentId]: undefined }));
-      setCompleted(completed.filter((id) => id !== incidentId));
-      onCompletionChange(false);
+      setCompleted((current) => current.filter((id) => id !== incidentId));
     }
   }
 
   function reset() {
     setRepairs({});
     setResults({});
-    setCompleted([]);
-    onCompletionChange(false);
+    setCompleted(() => []);
   }
 
   return (
@@ -116,7 +115,7 @@ export function NatConntrackIncidentLab({
               <h4>{item.title}</h4>
               <pre>{item.evidence}</pre>
               <p>{item.prompt}</p>
-              <label><span>{t("수리 선택", "Choose a repair")}</span><select aria-label={t(`${item.title} 수리`, `Repair ${item.title}`)} value={repairs[incidentId] ?? ""} onChange={(event) => choose(incidentId, event.target.value as NatIncidentRepair)}><option value="">—</option>{natIncidentFixtures[incidentId].repairOptions.map((repair) => <option value={repair} key={repair}>{optionLabel(repair)}</option>)}</select></label>
+              <InfrastructureChoiceRail compact controlId={`nat-incident-${incidentId}-repair`} label={t("packet 경계에 적용할 최소 수리", "Minimal repair for the packet boundary")} value={repairs[incidentId] ?? ""} options={natIncidentFixtures[incidentId].repairOptions.map((repair) => ({ value: repair, label: optionLabel(repair) }))} onChange={(repair) => choose(incidentId, repair)} />
               <button type="button" className="button button-primary" disabled={!repairs[incidentId]} onClick={() => run(incidentId)}>{t("packet state 재실행", "Re-run packet state")}</button>
               <div className={`nat-feedback${result?.passed ? " is-success" : result ? " is-error" : ""}`} role="status" aria-live="polite">
                 {result ? result.passed ? t("통과 — request와 reply가 동일한 translation contract를 만족합니다.", "Passed — request and reply satisfy the same translation contract.") : t(`실패 — ${result.reason} 경계가 남았습니다.`, `Failed — the ${result.reason} boundary remains.`) : t("증거와 repair를 연결한 뒤 상태를 다시 실행하세요.", "Connect the evidence to a repair, then re-run the state.")}

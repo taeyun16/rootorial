@@ -1,4 +1,4 @@
-export const miniTransformerLmHeadUpdateCode = `import numpy as np
+export const miniTransformerLmHeadUpdateSupportCode = `import numpy as np
 
 # Hand-copied final-LayerNorm fixture from the chapter's deterministic model.
 # Rows align with [BOS, the, cat, sat, .]; only the LM head is updated.
@@ -28,7 +28,9 @@ def row_softmax(logits):
 def mean_cross_entropy(logits, targets):
     probabilities = row_softmax(logits)
     return -np.log(probabilities[np.arange(len(targets)), targets]).mean()
+`;
 
+export const miniTransformerLmHeadUpdateCode = `# Learner-visible LM-head update. The fixed hidden-state fixture is prepared above.
 logits_before = hidden @ vocab_projection + vocab_bias
 probabilities_before = row_softmax(logits_before)
 loss_before = mean_cross_entropy(logits_before, target_ids)

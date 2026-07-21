@@ -40,6 +40,12 @@ function watchConsoleErrors(page: TestPage) {
   return errors;
 }
 
+async function choose(controlRoot: Locator, controlId: string, value: string) {
+  const option = controlRoot.locator(`[data-control-id="${controlId}"] [data-choice-value="${value}"]`);
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+}
+
 async function assembleEvidence(lab: Locator, locale: "ko" | "en") {
   await lab.getByRole("button", {
     name: locale === "ko" ? "7개 evaluator 실행" : "Run seven evaluators",
@@ -56,23 +62,20 @@ async function loadWorkingBlueprint(lab: Locator, locale: "ko" | "en") {
 }
 
 async function repairScaffoldThroughControls(lab: Locator) {
-  await lab.getByLabel("public ingress 경계").selectOption("edge-443-only");
-  await lab.getByLabel("app address 노출").selectOption("private");
-  await lab.getByLabel("data address 노출").selectOption("private");
-  await lab.getByLabel("edge에서 app 경로").selectOption("correct");
-  await lab.getByLabel("app에서 data 경로").selectOption("correct");
-  await lab.getByLabel("app 외부 update 경로").selectOption("edge-nat-conntrack");
-  await lab.getByLabel("edge app data zone 배치").selectOption("split-zones");
-  await lab.getByLabel("900 rps capacity plan").selectOption("headroom");
-
-  await expect(lab.getByLabel("public ingress 경계")).toHaveValue("edge-443-only");
-  await expect(lab.getByLabel("app address 노출")).toHaveValue("private");
-  await expect(lab.getByLabel("data address 노출")).toHaveValue("private");
-  await expect(lab.getByLabel("edge에서 app 경로")).toHaveValue("correct");
-  await expect(lab.getByLabel("app에서 data 경로")).toHaveValue("correct");
-  await expect(lab.getByLabel("app 외부 update 경로")).toHaveValue("edge-nat-conntrack");
-  await expect(lab.getByLabel("edge app data zone 배치")).toHaveValue("split-zones");
-  await expect(lab.getByLabel("900 rps capacity plan")).toHaveValue("headroom");
+  await choose(lab, "platform-public-ingress", "edge-443-only");
+  await choose(lab, "platform-app-exposure", "private");
+  await choose(lab, "platform-data-exposure", "private");
+  await choose(lab, "platform-edge-app-route", "correct");
+  await choose(lab, "platform-edge-app-listener", "correct");
+  await choose(lab, "platform-edge-app-discovery", "correct");
+  await choose(lab, "platform-edge-app-policy", "correct");
+  await choose(lab, "platform-app-data-route", "correct");
+  await choose(lab, "platform-app-data-listener", "correct");
+  await choose(lab, "platform-app-data-discovery", "correct");
+  await choose(lab, "platform-app-data-policy", "correct");
+  await choose(lab, "platform-private-egress", "edge-nat-conntrack");
+  await choose(lab, "platform-placement", "split-zones");
+  await choose(lab, "platform-capacity", "headroom");
 }
 
 async function runScenario(
@@ -82,12 +85,18 @@ async function runScenario(
   scenarioId: string,
 ) {
   const scenarioButton = lab.getByRole("button", { name });
+  const wasActive = await scenarioButton.getAttribute("aria-pressed") === "true";
   await scenarioButton.click();
   await expect(scenarioButton).toHaveAttribute("aria-pressed", "true");
   expect(await scenarioButton.evaluate((element) => getComputedStyle(element).boxShadow)).not.toBe("none");
   const visual = lab.getByTestId("namespace-platform-visualization");
   await expect(visual).toHaveAttribute("data-scenario", scenarioId);
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
+  if (!wasActive) {
+    const feedback = lab.locator(".namespace-platform-feedback");
+    await expect(feedback).not.toHaveClass(/is-(?:success|error)/);
+    await expect(feedback).toContainText(locale === "ko" ? "아직 실행되지 않았습니다" : "has not run yet");
+  }
   await lab.getByRole("button", {
     name: locale === "ko" ? "현재 scenario 실행" : "Run current scenario",
   }).click();
@@ -119,7 +128,7 @@ async function repairIncidents(page: TestPage, locale: "ko" | "en") {
   ] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const card = cards.nth(index);
-    await card.getByRole("combobox").selectOption(repairs[index]);
+    await card.locator(`[data-control-id^="platform-incident-"] [data-choice-value="${repairs[index]}"]`).click();
     await card.getByRole("button", {
       name: locale === "ko" ? "repair 후 전체 contract 재실행" : "Re-run the full contract after repair",
     }).click();
@@ -143,7 +152,7 @@ async function answerConcepts(page: TestPage, locale: "ko" | "en") {
 
 function namespacePlatformOverflow(page: TestPage) {
   return page.locator(
-    ".namespace-platform-chapter-shell, .namespace-platform-requirement-grid, .namespace-platform-path-table, .namespace-platform-lab, .namespace-platform-evidence-workspace, .namespace-platform-design-workspace, .namespace-platform-control-grid, .namespace-platform-scenario-workspace, .namespace-platform-visualization, .namespace-platform-map, .namespace-platform-node-grid, .namespace-platform-edge-grid, .namespace-platform-capacity-grid, .namespace-platform-incident-lab, .namespace-platform-incident-grid, .namespace-platform-completion-checklist",
+    ".namespace-platform-chapter-shell, .namespace-platform-requirement-grid, .namespace-platform-path-table, .namespace-platform-lab, .namespace-platform-evidence-workspace, .namespace-platform-design-workspace, .infrastructure-workspace, .infrastructure-choice-rail, .namespace-platform-control-grid, .namespace-platform-scenario-workspace, .namespace-platform-visualization, .namespace-platform-map, .namespace-platform-node-grid, .namespace-platform-edge-grid, .namespace-platform-capacity-grid, .namespace-platform-incident-lab, .namespace-platform-incident-grid, .namespace-platform-completion-checklist",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({ className: element.className, overflow: element.scrollWidth - element.clientWidth })));
@@ -174,10 +183,38 @@ test("completes the Korean namespace-platform capstone while the public chapter 
   const lab = page.locator(".namespace-platform-lab");
   await expect(lab).toHaveAttribute("data-interactive-ready", "true");
   const visual = lab.getByTestId("namespace-platform-visualization");
+  const designWorkspace = lab.locator(".namespace-platform-design-workspace .infrastructure-workspace");
+  await expect(designWorkspace.getByTestId("namespace-platform-visualization")).toBeVisible();
+  await expect(lab.locator(".namespace-platform-scenario-workspace").getByTestId("namespace-platform-visualization")).toHaveCount(0);
   await expect(visual.getByRole("img", { name: /client, edge, app, data namespace.*443.*8080.*5432/ })).toBeVisible();
   await expect(visual).toHaveAttribute("data-evidence-state", "not-run");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(visual.locator('[data-edge-state="not-run"]')).toHaveCount(4);
+  await expect(lab.locator("select, input[type=checkbox]")).toHaveCount(0);
+  await expect(lab.getByLabel("공개 ingress: 준비되지 않음")).toBeVisible();
+
+  await choose(lab, "platform-edge-app-route", "correct");
+  await expect(lab.locator('[data-control-id="platform-edge-app-listener"] [data-choice-value="mismatch"]'))
+    .toHaveAttribute("aria-pressed", "true");
+  await expect(lab.locator('[data-control-id="platform-edge-app-discovery"] [data-choice-value="mismatch"]'))
+    .toHaveAttribute("aria-pressed", "true");
+  await expect(lab.locator('[data-control-id="platform-edge-app-policy"] [data-choice-value="mismatch"]'))
+    .toHaveAttribute("aria-pressed", "true");
+
+  await loadWorkingBlueprint(lab, "ko");
+  await choose(lab, "platform-app-exposure", "public");
+  await choose(lab, "platform-public-ingress", "edge-443-only");
+  await choose(lab, "platform-app-exposure", "private");
+  await expect(lab.locator('[data-control-id="platform-edge-app-route"] [data-choice-value="correct"]'))
+    .toHaveAttribute("aria-pressed", "true");
+  await expect(lab.locator('[data-control-id="platform-edge-app-listener"] [data-choice-value="missing"]'))
+    .toHaveAttribute("aria-pressed", "true");
+
+  await choose(lab, "platform-public-ingress", "app-443-only");
+  await choose(lab, "platform-app-exposure", "private");
+  await expect(lab.locator('[data-control-id="platform-public-ingress"] [aria-pressed="true"]')).toHaveCount(0);
+  await expect(lab.getByLabel("공개 ingress: 준비되지 않음")).toBeVisible();
+  await lab.getByRole("button", { name: "불완전한 scaffold" }).click();
 
   await assembleEvidence(lab, "ko");
   await repairScaffoldThroughControls(lab);
@@ -188,11 +225,12 @@ test("completes the Korean namespace-platform capstone while the public chapter 
   await expect(visual.locator('[data-capacity-resource="app-connections"]')).toContainText("60%");
   await expect(lab.locator(".namespace-platform-lab-header > strong")).toHaveText("5 / 5");
 
-  await lab.getByLabel("app address 노출").selectOption("public");
+  await choose(lab, "platform-app-exposure", "public");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(completion).toHaveAttribute("data-completion-ready", "false");
-  await lab.getByLabel("app address 노출").selectOption("private");
-  await expect(lab.getByLabel("edge에서 app 경로")).toHaveValue("correct");
+  await choose(lab, "platform-app-exposure", "private");
+  await expect(lab.locator('[data-control-id="platform-edge-app-route"] [data-choice-value="correct"]')).toHaveAttribute("aria-pressed", "true");
+  await expect(lab.locator('[data-control-id="platform-edge-app-listener"] [data-choice-value="correct"]')).toHaveAttribute("aria-pressed", "true");
   await runAllScenarios(lab, "ko");
 
   await repairIncidents(page, "ko");
@@ -258,12 +296,14 @@ test("keeps the English capstone keyboard-usable at 390px with reduced motion", 
   const visual = lab.getByTestId("namespace-platform-visualization");
   await expect(visual.getByRole("img", { name: /Platform map showing client, edge, app, and data namespaces/ })).toBeVisible();
   await expect(visual.locator(".namespace-platform-map > svg")).toBeHidden();
+  await expect(lab.getByLabel("Public ingress: not ready")).toBeVisible();
   const disabledIncidentButton = page.locator(".namespace-platform-incident-grid article").first()
     .getByRole("button", { name: "Re-run the full contract after repair" });
   await expect(disabledIncidentButton).toBeDisabled();
   await expect(disabledIncidentButton).toHaveCSS("opacity", "0.48");
   await assembleEvidence(lab, "en");
   await loadWorkingBlueprint(lab, "en");
+  await expect(lab.getByLabel("Public ingress: ready")).toBeVisible();
   await runScenario(lab, "en", /^Normal request/, "normal-request");
   await runScenario(lab, "en", /^900 rps peak/, "peak-load");
   await expect(visual.locator('[data-utilization-state="headroom"]')).toHaveCount(3);
@@ -283,7 +323,7 @@ test("keeps the English capstone keyboard-usable at 390px with reduced motion", 
   expect(transitionSeconds).toBeLessThan(0.001);
 
   const firstIncident = page.locator('.namespace-platform-incident-grid article[data-incident-id="app-publicly-exposed"]');
-  await firstIncident.getByRole("combobox").selectOption("make-app-private");
+  await firstIncident.locator('[data-control-id^="platform-incident-"] [data-choice-value="make-app-private"]').click();
   const runIncident = firstIncident.getByRole("button", { name: "Re-run the full contract after repair" });
   await runIncident.focus();
   await runIncident.press("Enter");

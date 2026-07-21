@@ -11,6 +11,7 @@ import {
 } from "../../features/attention/attention-model";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 
 const incidentCopy: Record<AttentionDebuggerScenarioId, {
   title: { ko: string; en: string };
@@ -310,21 +311,14 @@ export function AttentionDebuggerLab({
             >
               <legend>{copy.title[locale]}</legend>
               <p id={clueId}>{copy.clue[locale]}</p>
-              <label>
-                <span>{scenario[isKo ? "labelKo" : "labelEn"]} · {t("실행할 repair", "Repair to execute")}</span>
-                <select
-                  value={answer}
-                  onChange={(event) => chooseRepair(scenarioId, event.currentTarget.value as AttentionRepair)}
-                  aria-label={t(`${index + 1}번 Attention 사건 repair`, `Repair for Attention incident ${index + 1}`)}
-                >
-                  <option value="" disabled>{t("repair 선택", "Choose a repair")}</option>
-                  {scenario.options.map((option) => (
-                    <option value={option.id} key={option.id}>
-                      {option[isKo ? "labelKo" : "labelEn"]}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <DirectChoice
+                compact
+                label={`${scenario[isKo ? "labelKo" : "labelEn"]} · ${t("실행할 repair", "Repair to execute")}`}
+                ariaLabel={t(`${index + 1}번 Attention 사건 repair`, `Repair for Attention incident ${index + 1}`)}
+                value={answer}
+                options={scenario.options.map((option) => ({ value: option.id, label: option[isKo ? "labelKo" : "labelEn"] }))}
+                onChange={(repair) => chooseRepair(scenarioId, repair)}
+              />
               <div className="attention-debug-actions">
                 <button
                   ref={(node) => {

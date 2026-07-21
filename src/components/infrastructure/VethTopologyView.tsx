@@ -1,4 +1,4 @@
-import { useId, useMemo } from "react";
+import { useId, useMemo, type ReactNode } from "react";
 import {
   buildVethRoutingVisualState,
   type VethRoutingVisualBoundary,
@@ -15,9 +15,11 @@ import { useLocale } from "../../features/localization/localization";
 export function VethTopologyView({
   preview,
   evaluation,
+  controls,
 }: {
   preview: VethTopologyEvaluation;
   evaluation: VethTopologyEvaluation | null;
+  controls?: ReactNode;
 }) {
   const { locale } = useLocale();
   const isKo = locale === "ko";
@@ -59,7 +61,7 @@ export function VethTopologyView({
         })();
 
   return (
-    <figure
+    <section
       className={`veth-routing-visualization is-${visual.topologyState}`}
       data-testid="veth-routing-visualization"
       data-topology-mode={visual.mode}
@@ -67,15 +69,20 @@ export function VethTopologyView({
       data-grade-state={visual.gradeState}
       data-path-state={visual.pathState}
     >
-      <figcaption className="veth-visual-header">
+      <header className="veth-visual-header">
         <div>
           <span>LIVE NAMESPACE TOPOLOGY</span>
           <strong>{visual.mode === "bridge" ? t("br0를 지나는 하나의 L2 domain", "One Layer 2 domain through br0") : t("router namespace를 지나는 두 L3 link", "Two Layer 3 links through a router namespace")}</strong>
         </div>
         <span className="veth-visual-verdict">{reasonLabel(visual.displayedReason)}</span>
-      </figcaption>
+      </header>
 
-      <div className="veth-topology-map" role="img" aria-labelledby={`${titleId} ${descriptionId}`}>
+      <div
+        className="veth-topology-map"
+        role="group"
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
+      >
         <span className="sr-only" id={titleId}>{t("veth bridge router 왕복 topology 지도", "veth bridge and router round-trip topology map")}</span>
         <span className="sr-only" id={descriptionId}>{description}. {currentState}</span>
         <BoundaryCard boundary={visual.boundaries[0]} t={t} />
@@ -84,6 +91,8 @@ export function VethTopologyView({
         <VethLink link={visual.links[1]} t={t} />
         <BoundaryCard boundary={visual.boundaries[2]} t={t} listenerUp={preview.machine.listener.up} />
       </div>
+
+      {controls}
 
       <div className="veth-path-grid">
         <PathTrace title={t("FORWARD · client request", "FORWARD · client request")} stages={visual.forwardPath} t={t} />
@@ -94,7 +103,7 @@ export function VethTopologyView({
         <span>{t("현재 실행 상태", "CURRENT EXECUTION STATE")}</span>
         {currentState}
       </p>
-    </figure>
+    </section>
   );
 }
 

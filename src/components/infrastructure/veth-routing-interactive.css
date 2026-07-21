@@ -1,0 +1,82 @@
+.veth-topology-inspector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.veth-topology-inspector > section {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.8rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 0.8rem;
+  background: color-mix(in srgb, var(--paper-subtle) 94%, var(--chapter-accent-soft));
+}
+
+.veth-topology-inspector > section > header {
+  display: grid;
+  gap: 0.15rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.veth-topology-inspector > section > header span {
+  color: var(--chapter-accent);
+  font: 800 var(--text-meta)/1.2 var(--mono);
+  letter-spacing: 0.07em;
+}
+
+.veth-topology-inspector > section > header strong {
+  color: var(--ink);
+  font-size: var(--text-caption);
+}
+
+.veth-topology-inspector .infrastructure-choice-rail > div {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 7.4rem), 1fr));
+}
+
+.veth-topology-inspector .infrastructure-choice-card {
+  min-height: 3.25rem;
+  padding: 0.55rem 0.65rem;
+}
+
+.veth-topology-inspector .infrastructure-choice-card strong,
+.veth-topology-inspector .infrastructure-choice-card span {
+  overflow-wrap: anywhere;
+}
+
+.veth-direct-note {
+  margin: 0;
+  padding: 0.75rem;
+  border-left: 0.22rem solid var(--chapter-accent);
+  color: var(--muted);
+  font-size: var(--text-caption);
+}
+
+.veth-run-row {
+  align-items: end;
+}
+
+.veth-run-row > .infrastructure-choice-rail {
+  flex: 1 1 36rem;
+}
+
+@media (max-width: 980px) {
+  .veth-topology-inspector {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .veth-topology-inspector .infrastructure-choice-rail > div {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .veth-run-row > .infrastructure-choice-rail,
+  .veth-run-row > .button {
+    width: 100%;
+  }
+}

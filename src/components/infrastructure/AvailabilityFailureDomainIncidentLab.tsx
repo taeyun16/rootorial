@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { availabilityIncidentFixtures, evaluateAvailabilityIncident, type AvailabilityIncidentId, type AvailabilityRepair } from "../../features/infrastructure/availability-failure-domains";
 import { useLocale } from "../../features/localization/localization";
+import { InfrastructureChoiceRail } from "./InfrastructureInteractionPrimitives";
 
 const incidentIds = Object.keys(availabilityIncidentFixtures) as AvailabilityIncidentId[];
 
@@ -12,6 +13,9 @@ export function AvailabilityFailureDomainIncidentLab({ onCompletionChange }: { o
   const [completed, setCompleted] = useState<AvailabilityIncidentId[]>([]);
   const [ready, setReady] = useState(false);
   useEffect(() => setReady(true), []);
+  useEffect(() => {
+    onCompletionChange(completed.length === incidentIds.length);
+  }, [completed, onCompletionChange]);
   const copy: Record<AvailabilityIncidentId, { title: string; evidence: string }> = {
     "replicas-share-zone": { title: t("replica 셋이 하나의 zone을 공유", "All replicas share one zone"), evidence: "app-a · zone-a\napp-b · zone-a\napp-c · zone-a" },
     "gateways-share-domain": { title: t("gateway 둘이 같은 failure domain을 공유", "Both gateways share one failure domain"), evidence: "gateway-a · rack-a · zone-a\ngateway-b · rack-a · zone-a" },
@@ -31,13 +35,13 @@ export function AvailabilityFailureDomainIncidentLab({ onCompletionChange }: { o
   function choose(id: AvailabilityIncidentId, repair: AvailabilityRepair) {
     setRepairs((current) => ({ ...current, [id]: repair }));
     setResults((current) => { const next = { ...current }; delete next[id]; return next; });
-    const next = completed.filter((candidate) => candidate !== id); setCompleted(next); onCompletionChange(next.length === incidentIds.length);
+    setCompleted((current) => current.filter((candidate) => candidate !== id));
   }
   function run(id: AvailabilityIncidentId) {
     const repair = repairs[id]; if (!repair) return;
     const result = evaluateAvailabilityIncident(id, repair); setResults((current) => ({ ...current, [id]: result }));
-    const next = result.passed ? [...new Set([...completed, id])] : completed.filter((candidate) => candidate !== id); setCompleted(next); onCompletionChange(next.length === incidentIds.length);
+    setCompleted((current) => result.passed ? [...new Set([...current, id])] : current.filter((candidate) => candidate !== id));
   }
-  function reset() { setRepairs({}); setResults({}); setCompleted([]); onCompletionChange(false); }
-  return <section className="interactive-lab availability-incident-lab" data-interactive-ready={ready ? "true" : "false"} aria-labelledby="availability-incidents-title"><div className="availability-lab-header"><div><p className="concept-check-kicker">REQUIRED ACTIVITY · FOUR CORRELATED FAILURES</p><h3 id="availability-incidents-title">{t("replica 수가 아니라 독립 failure domain으로 네 사건을 수리", "Repair four incidents with independent failure domains, not replica counts")}</h3></div><strong>{completed.length} / 4</strong></div><div className="availability-toolbar"><button type="button" className="button button-ghost" onClick={reset}>{t("모든 사건 초기화", "Reset all incidents")}</button></div><div className="availability-incident-grid">{incidentIds.map((id, index) => { const result = results[id]; const item = copy[id]; return <article key={id} data-incident-id={id}><span>{String(index + 1).padStart(2, "0")} · {id}</span><h4>{item.title}</h4><pre>{item.evidence}</pre><label><span>{t("수리 선택", "Choose a repair")}</span><select aria-label={t(`${item.title} 수리`, `Repair ${item.title}`)} value={repairs[id] ?? ""} onChange={(event) => choose(id, event.target.value as AvailabilityRepair)}><option value="">—</option>{availabilityIncidentFixtures[id].repairs.map((repair) => <option key={repair} value={repair}>{optionLabel(repair)}</option>)}</select></label><button type="button" className="button button-primary" disabled={!repairs[id]} onClick={() => run(id)}>{t("failure trace 재실행", "Re-run failure trace")}</button><div className={`availability-feedback${result?.passed ? " is-success" : result ? " is-error" : ""}`} role="status" aria-live="polite">{result ? result.passed ? t("통과 — 독립 failure domain과 degraded contract를 복구했습니다.", "Passed — independent failure domains and the degraded contract are restored.") : t(`실패 — ${result.reason} 상태가 남았습니다.`, `Failed — ${result.reason} remains.`) : t("증거와 첫 correlated boundary를 연결하세요.", "Connect the evidence to the first correlated boundary.")}</div></article>; })}</div></section>;
+  function reset() { setRepairs({}); setResults({}); setCompleted(() => []); }
+  return <section className="interactive-lab availability-incident-lab" data-interactive-ready={ready ? "true" : "false"} aria-labelledby="availability-incidents-title"><div className="availability-lab-header"><div><p className="concept-check-kicker">REQUIRED ACTIVITY · FOUR CORRELATED FAILURES</p><h3 id="availability-incidents-title">{t("replica 수가 아니라 독립 failure domain으로 네 사건을 수리", "Repair four incidents with independent failure domains, not replica counts")}</h3></div><strong>{completed.length} / 4</strong></div><div className="availability-toolbar"><button type="button" className="button button-ghost" onClick={reset}>{t("모든 사건 초기화", "Reset all incidents")}</button></div><div className="availability-incident-grid">{incidentIds.map((id, index) => { const result = results[id]; const item = copy[id]; return <article key={id} data-incident-id={id}><span>{String(index + 1).padStart(2, "0")} · {id}</span><h4>{item.title}</h4><pre>{item.evidence}</pre><InfrastructureChoiceRail compact controlId={`availability-incident-${id}-repair`} label={t("failure domain에 적용할 최소 수리", "Minimal repair for the failure domain")} value={repairs[id] ?? ""} options={availabilityIncidentFixtures[id].repairs.map((repair) => ({ value: repair, label: optionLabel(repair) }))} onChange={(repair) => choose(id, repair)} /><button type="button" className="button button-primary" disabled={!repairs[id]} onClick={() => run(id)}>{t("failure trace 재실행", "Re-run failure trace")}</button><div className={`availability-feedback${result?.passed ? " is-success" : result ? " is-error" : ""}`} role="status" aria-live="polite">{result ? result.passed ? t("통과 — 독립 failure domain과 degraded contract를 복구했습니다.", "Passed — independent failure domains and the degraded contract are restored.") : t(`실패 — ${result.reason} 상태가 남았습니다.`, `Failed — ${result.reason} remains.`) : t("증거와 첫 correlated boundary를 연결하세요.", "Connect the evidence to the first correlated boundary.")}</div></article>; })}</div></section>;
 }

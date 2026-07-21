@@ -10,6 +10,7 @@ import {
   type LinearWeights,
 } from "../../features/optimization/gradient-descent";
 import { InteractiveLab } from "../interactive/InteractiveLab";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { MathFormula } from "../MathFormula";
 
 const outcomeCopy: Record<DescentOutcome, { ko: string; en: string }> = {
@@ -413,35 +414,25 @@ export function OptimizationDescentLab({
           <span>{t("학습률 η", "Learning rate η")} <output>{config.learningRate.toFixed(2)}</output></span>
           <input aria-label={t("학습률", "Learning rate")} type="range" min="0.01" max="1.2" step="0.01" value={config.learningRate} onChange={(event) => changeNumber("learningRate", event.currentTarget.valueAsNumber)} />
         </label>
-        <label>
-          <span>{t("업데이트 횟수", "Number of updates")}</span>
-          <select value={config.steps} onChange={(event) => changeNumber("steps", Number(event.currentTarget.value))}>
-            {[4, 6, 8, 12].map((steps) => <option value={steps} key={steps}>{steps}</option>)}
-          </select>
-        </label>
+        <DirectChoice compact label={t("업데이트 횟수", "Number of updates")} value={config.steps} options={[4, 6, 8, 12].map((steps) => ({ value: steps, label: String(steps) }))} onChange={(steps) => changeNumber("steps", steps)} />
       </div>
 
       {inputError ? <div className="optimization-input-error" role="alert">{inputError}</div> : null}
 
       <div className="optimization-prediction-row">
-        <label>
-          <span>{t("실행 전 예측", "Prediction before running")}</span>
-          <select
-            aria-label={t("예상 loss trace", "Predicted loss trace")}
-            value={prediction}
-            onChange={(event) => {
-              setPrediction(event.currentTarget.value as DescentOutcome);
-              setSimulation(null);
-              setStepPreview(null);
-              revokeMastery();
-            }}
-          >
-            <option value="" disabled>{t("결과를 먼저 고르세요", "Choose an outcome first")}</option>
-            {(["slow", "converging", "diverging"] as const).map((outcome) => (
-              <option value={outcome} key={outcome}>{outcomeCopy[outcome][locale]}</option>
-            ))}
-          </select>
-        </label>
+        <DirectChoice
+          compact
+          label={t("실행 전 예측", "Prediction before running")}
+          ariaLabel={t("예상 loss trace", "Predicted loss trace")}
+          value={prediction}
+          options={(["slow", "converging", "diverging"] as const).map((outcome) => ({ value: outcome, label: outcomeCopy[outcome][locale] }))}
+          onChange={(outcome) => {
+            setPrediction(outcome);
+            setSimulation(null);
+            setStepPreview(null);
+            revokeMastery();
+          }}
+        />
         <div className="optimization-run-actions">
           <button type="button" className="button button-secondary" disabled={!prediction} onClick={previewFirstStep}>{t("첫 업데이트 계산", "Calculate first update")}</button>
           <button type="button" className="button button-primary" disabled={!prediction} onClick={runConfiguredSteps}>{t(`${config.steps}회 실행`, `Run ${config.steps} updates`)}</button>

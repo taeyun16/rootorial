@@ -13,6 +13,7 @@ import {
 } from "../features/attention/attention-model";
 import { useLocale } from "../features/localization/localization";
 import { InteractiveLab } from "./interactive/InteractiveLab";
+import { DirectChoice } from "./interactive/DirectChoice";
 import { MatrixGrid } from "./interactive/MatrixGrid";
 import { StepExplorer, type ExplorerStage } from "./interactive/StepExplorer";
 import { MathFormula } from "./MathFormula";
@@ -98,7 +99,7 @@ export function AttentionPipelineExplorer({
   const [feedbackTone, setFeedbackTone] = useState<"idle" | "correct" | "error">("idle");
   const [runtimeError, setRuntimeError] = useState("");
   const [interactiveReady, setInteractiveReady] = useState(false);
-  const predictionRef = useRef<HTMLSelectElement>(null);
+  const predictionRef = useRef<HTMLDivElement>(null);
   const focusPredictionAfterRecovery = useRef(false);
   const revealedPresets = useRef(new Set<AttentionPresetId>());
   const nextEventId = useRef(0);
@@ -119,7 +120,7 @@ export function AttentionPipelineExplorer({
   useEffect(() => {
     if (!runtimeError && focusPredictionAfterRecovery.current) {
       focusPredictionAfterRecovery.current = false;
-      predictionRef.current?.focus();
+      predictionRef.current?.querySelector("button")?.focus();
     }
   }, [runtimeError]);
 
@@ -219,7 +220,7 @@ export function AttentionPipelineExplorer({
         "결과를 열기 전에 top source row 예측을 선택하세요.",
         "Choose a top-source-row prediction before revealing the result.",
       ));
-      predictionRef.current?.focus();
+      predictionRef.current?.querySelector("button")?.focus();
       return;
     }
 
@@ -436,22 +437,16 @@ export function AttentionPipelineExplorer({
 
         <fieldset className="attention-prediction-controls">
           <legend>{t("실행 전 top source row 예측", "Predict the top source row before running")}</legend>
-          <label>
-            <span>{t("q와 가장 큰 내적을 만들 key", "Key with the largest dot product with q")}</span>
-            <select
-              className="attention-prediction-select"
-              ref={predictionRef}
-              value={prediction}
-              disabled={Boolean(run)}
-              aria-label={t("top source row 예측", "Top source row prediction")}
-              onChange={(event) => setPrediction(event.currentTarget.value as AttentionPrediction)}
-            >
-              <option value="" disabled>{t("결과를 보기 전에 선택", "Choose before revealing the result")}</option>
-              {attentionMemorySlots.map((slot) => (
-                <option value={slot.id} key={slot.id}>{isKo ? slot.labelKo : slot.labelEn}</option>
-              ))}
-            </select>
-          </label>
+          <DirectChoice
+            compact
+            groupRef={predictionRef}
+            label={t("q와 가장 큰 내적을 만들 key", "Key with the largest dot product with q")}
+            ariaLabel={t("top source row 예측", "Top source row prediction")}
+            value={prediction}
+            disabled={Boolean(run)}
+            options={attentionMemorySlots.map((slot) => ({ value: slot.id, label: isKo ? slot.labelKo : slot.labelEn }))}
+            onChange={setPrediction}
+          />
           <div className="attention-run-actions">
             <button type="button" className="button button-primary attention-run-button" onClick={runAttention}>
               {t("Attention routing 실행", "Run Attention routing")}
@@ -549,27 +544,22 @@ export function AttentionPipelineExplorer({
               "Keep the query and every key fixed, then flip only the selected value vector. Predict the contract before running.",
             )}</p>
           </div>
-          <label>
-            <span>{t("변화 예측", "Change prediction")}</span>
-            <select
-              className="attention-counterfactual-select"
-              value={counterfactualPrediction}
-              disabled={counterfactualRevealed}
-              aria-label={t("value-only counterfactual 예측", "Value-only counterfactual prediction")}
-              onChange={(event) => setCounterfactualPrediction(event.currentTarget.value as CounterfactualPrediction)}
-            >
-              <option value="" disabled>{t("실행 전에 선택", "Choose before running")}</option>
-              {counterfactualOrder.map((candidate) => (
-                <option value={candidate} key={candidate}>
-                  {candidate === "scores-and-weights-stay-context-changes"
-                    ? t("score·weight는 같고 context만 변한다", "scores and weights stay; only context changes")
-                    : candidate === "scores-change"
-                      ? t("score부터 변해 weight도 변한다", "scores change, so weights change too")
-                      : t("아무것도 변하지 않는다", "nothing changes")}
-                </option>
-              ))}
-            </select>
-          </label>
+          <DirectChoice
+            compact
+            label={t("변화 예측", "Change prediction")}
+            ariaLabel={t("value-only counterfactual 예측", "Value-only counterfactual prediction")}
+            value={counterfactualPrediction}
+            disabled={counterfactualRevealed}
+            options={counterfactualOrder.map((candidate) => ({
+              value: candidate,
+              label: candidate === "scores-and-weights-stay-context-changes"
+                ? t("score·weight는 같고 context만 변한다", "scores and weights stay; only context changes")
+                : candidate === "scores-change"
+                  ? t("score부터 변해 weight도 변한다", "scores change, so weights change too")
+                  : t("아무것도 변하지 않는다", "nothing changes"),
+            }))}
+            onChange={setCounterfactualPrediction}
+          />
           <button type="button" className="button button-secondary attention-counterfactual-run" onClick={runValueCounterfactual}>
             {t("value-only 반사실 실행", "Run value-only counterfactual")}
           </button>

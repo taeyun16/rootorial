@@ -1,4 +1,4 @@
-export const transformerBlockStageLedgerCode = `import numpy as np
+export const transformerBlockStageLedgerSupportCode = `import numpy as np
 
 np.set_printoptions(precision=6, suppress=True)
 EPSILON = 1e-5
@@ -23,23 +23,28 @@ P = np.zeros((4, 4))
 P[:, 0::2] = np.sin(angles)
 P[:, 1::2] = np.cos(angles)
 E = x0_fixture - P
-x0 = E + P
-
-norm1, mean1, variance1 = layer_norm_rows(x0)
-
-# A transparent attention-branch fixture: every row uses the same feature map.
-attention_output = norm1[:, [2, 0, 1, 3]]
-x1 = x0 + attention_output
-
-norm2, _, _ = layer_norm_rows(x1)
 W1 = np.eye(4)
-hidden = np.maximum(norm2 @ W1, 0.0)
 W2 = np.array([
     [0.45193200356212454, -0.19761685932652193, 0.16238513668269558, -0.24537271571380417],
     [0.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0],
     [0.0, 0.0, 0.0, 0.0],
 ])
+`;
+
+export const transformerBlockStageLedgerCode = `# Learner-visible stage ledger. The deterministic fixture is prepared above.
+x0 = E + P
+# TRY: uncomment the next line, rerun, then reset the cell.
+# x0[0, 2] += 1.0
+
+norm1, mean1, variance1 = layer_norm_rows(x0)
+
+# A transparent attention branch: every row uses the same feature map.
+attention_output = norm1[:, [2, 0, 1, 3]]
+x1 = x0 + attention_output
+
+norm2, _, _ = layer_norm_rows(x1)
+hidden = np.maximum(norm2 @ W1, 0.0)
 ffn_output = hidden @ W2
 y = x1 + ffn_output
 

@@ -43,14 +43,50 @@ async function activate(control: Locator) {
   await control.press("Enter");
 }
 
+function choiceControl(scope: Locator, controlId: string, value: string) {
+  return scope.locator(`[data-control-id="${controlId}"] [data-choice-value="${value}"]`);
+}
+
+async function choose(scope: Locator, controlId: string, value: string) {
+  const control = choiceControl(scope, controlId, value);
+  await control.click();
+  await expect(control).toHaveAttribute("aria-pressed", "true");
+}
+
+async function chooseWithKeyboard(scope: Locator, controlId: string, value: string) {
+  const control = choiceControl(scope, controlId, value);
+  await expect(control).toHaveAttribute("aria-pressed", "false");
+  await control.focus();
+  await control.press("Enter");
+  await expect(control).toHaveAttribute("aria-pressed", "true");
+  await expect(control).toBeFocused();
+}
+
+async function setSwitch(scope: Locator, controlId: string, checked = true) {
+  const control = scope.locator(`[data-control-id="${controlId}"][role="switch"]`);
+  if (await control.getAttribute("aria-checked") !== String(checked)) await control.click();
+  await expect(control).toHaveAttribute("aria-checked", String(checked));
+}
+
+async function enableSwitchWithKeyboard(scope: Locator, controlId: string) {
+  const control = scope.locator(`[data-control-id="${controlId}"][role="switch"]`);
+  await expect(control).toHaveAttribute("aria-checked", "false");
+  await control.focus();
+  await control.press("Space");
+  await expect(control).toHaveAttribute("aria-checked", "true");
+  await expect(control).toBeFocused();
+}
+
 async function completeBridge(lab: Locator, locale: "ko" | "en") {
   const isKo = locale === "ko";
-  await lab.getByLabel(isKo ? "client veth peer 연결 대상" : "Client veth peer target").selectOption("bridge");
-  await lab.getByLabel(isKo ? "app veth peer 연결 대상" : "App veth peer target").selectOption("bridge");
-  await lab.getByLabel(isKo ? "client veth 양 endpoint UP" : "Both client-veth endpoints UP").check();
-  await lab.getByLabel(isKo ? "app veth 양 endpoint UP" : "Both app-veth endpoints UP").check();
-  await lab.getByLabel(isKo ? "app eth0 address" : "App eth0 address").selectOption("10.20.0.3/24");
-  await lab.getByLabel(isKo ? "topology 실행 결과 예측" : "Predict topology execution result").selectOption("round-trip-connected");
+  if (isKo) await choose(lab, "veth-client-peer-target", "bridge");
+  else await chooseWithKeyboard(lab, "veth-client-peer-target", "bridge");
+  await choose(lab, "veth-app-peer-target", "bridge");
+  if (isKo) await setSwitch(lab, "veth-client-link");
+  else await enableSwitchWithKeyboard(lab, "veth-client-link");
+  await setSwitch(lab, "veth-app-link");
+  await choose(lab, "veth-app-address", "10.20.0.3/24");
+  await choose(lab, "veth-prediction", "round-trip-connected");
   const visual = lab.getByTestId("veth-routing-visualization");
   await expect(visual).toHaveAttribute("data-topology-mode", "bridge");
   await expect(visual).toHaveAttribute("data-topology-state", "reachable");
@@ -63,14 +99,14 @@ async function completeBridge(lab: Locator, locale: "ko" | "en") {
 async function completeRouter(lab: Locator, locale: "ko" | "en") {
   const isKo = locale === "ko";
   await lab.getByRole("button", { name: /ROUTER MODE/ }).click();
-  await lab.getByLabel(isKo ? "client veth peer 연결 대상" : "Client veth peer target").selectOption("router");
-  await lab.getByLabel(isKo ? "app veth peer 연결 대상" : "App veth peer target").selectOption("router");
-  await lab.getByLabel(isKo ? "client veth 양 endpoint UP" : "Both client-veth endpoints UP").check();
-  await lab.getByLabel(isKo ? "app veth 양 endpoint UP" : "Both app-veth endpoints UP").check();
-  await lab.getByLabel(isKo ? "client forward route" : "Client forward route").selectOption("correct");
-  await lab.getByLabel(isKo ? "app return route" : "App return route").selectOption("correct");
-  await lab.getByLabel("router net.ipv4.ip_forward=1").check();
-  await lab.getByLabel(isKo ? "topology 실행 결과 예측" : "Predict topology execution result").selectOption("round-trip-connected");
+  await choose(lab, "veth-client-peer-target", "router");
+  await choose(lab, "veth-app-peer-target", "router");
+  await setSwitch(lab, "veth-client-link");
+  await setSwitch(lab, "veth-app-link");
+  await choose(lab, "veth-client-forward-route", "correct");
+  await choose(lab, "veth-app-return-route", "correct");
+  await setSwitch(lab, "veth-router-forwarding");
+  await choose(lab, "veth-prediction", "round-trip-connected");
   const visual = lab.getByTestId("veth-routing-visualization");
   await expect(visual).toHaveAttribute("data-topology-mode", "router");
   await expect(visual).toHaveAttribute("data-topology-state", "reachable");
@@ -84,6 +120,12 @@ async function completeRouter(lab: Locator, locale: "ko" | "en") {
 async function repairIncidents(page: TestPage, locale: "ko" | "en") {
   const cards = page.locator(".veth-incident-card");
   await expect(cards).toHaveCount(4);
+  const incidents = [
+    "dangling-bridge-peer",
+    "duplicate-bridge-address",
+    "forwarding-disabled",
+    "missing-return-route",
+  ] as const;
   const repairs = [
     "attach-peer-to-bridge",
     "assign-distinct-app-address",
@@ -92,7 +134,7 @@ async function repairIncidents(page: TestPage, locale: "ko" | "en") {
   ] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const card = cards.nth(index);
-    await card.getByRole("combobox").selectOption(repairs[index]);
+    await choose(card, `veth-incident-${incidents[index]}-repair`, repairs[index]);
     const run = card.getByRole("button", { name: locale === "ko" ? "상태 재실행·판정" : "Re-run state and grade" });
     await run.click();
     await expect(card.locator(".veth-feedback")).toHaveClass(/is-success/);
@@ -113,7 +155,7 @@ async function answerConcepts(page: TestPage, locale: "ko" | "en") {
 
 function topologyOverflow(page: TestPage) {
   return page.locator(
-    ".veth-routing-chapter-shell, .veth-contract-grid, .veth-topology-lab, .veth-control-grid, .veth-routing-visualization, .veth-topology-map, .veth-boundary-card, .veth-link, .veth-path-grid, .veth-command-evidence, .veth-routing-incident-lab, .veth-incident-grid, .veth-incident-card, .network-completion-checklist",
+    ".veth-routing-chapter-shell, .veth-contract-grid, .veth-topology-lab, .veth-topology-inspector, .veth-routing-visualization, .veth-topology-map, .veth-boundary-card, .veth-link, .veth-path-grid, .veth-command-evidence, .veth-routing-incident-lab, .veth-incident-grid, .veth-incident-card, .network-completion-checklist",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({ className: element.className, overflow: element.scrollWidth - element.clientWidth })));
@@ -144,9 +186,9 @@ test("completes bridge, router, incidents, and concepts in the Korean draft prev
 
   const lab = page.locator(".veth-topology-lab");
   await expect(lab).toHaveAttribute("data-interactive-ready", "true");
+  await expect(lab.locator('select, input[type="checkbox"]')).toHaveCount(0);
   const visual = lab.getByTestId("veth-routing-visualization");
-  await expect(visual.getByRole("img", { name: /veth bridge router 왕복 topology 지도/ })).toBeVisible();
-  await expect(visual.getByRole("img")).toHaveCount(1);
+  await expect(visual.getByRole("group", { name: /veth bridge router 왕복 topology 지도/ })).toBeVisible();
   await expect(visual).toHaveAttribute("data-topology-mode", "bridge");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(visual).toHaveAttribute("data-path-state", "not-run");
@@ -158,12 +200,12 @@ test("completes bridge, router, incidents, and concepts in the Korean draft prev
   await completeRouter(lab, "ko");
   await expect(lab.locator(".veth-lab-header > strong")).toHaveText("2 / 2");
 
-  await lab.getByLabel("app return route").selectOption("missing");
+  await choose(lab, "veth-app-return-route", "missing");
   await expect(visual).toHaveAttribute("data-topology-state", "missing-return-route");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(visual.locator('[data-hop-status="not-run"]')).toHaveCount(10);
-  await lab.getByLabel("app return route").selectOption("correct");
-  await lab.getByLabel("topology 실행 결과 예측").selectOption("round-trip-connected");
+  await choose(lab, "veth-app-return-route", "correct");
+  await choose(lab, "veth-prediction", "round-trip-connected");
   await lab.getByRole("button", { name: "forward·return path 실행" }).click();
   await expect(visual).toHaveAttribute("data-grade-state", "passed");
 
@@ -224,7 +266,7 @@ test("keeps the English draft keyboard-usable at 390px without overflow or untra
 
   const lab = page.locator(".veth-topology-lab");
   const visual = lab.getByTestId("veth-routing-visualization");
-  await expect(visual.getByRole("img", { name: /veth bridge and router round-trip topology map/ })).toBeVisible();
+  await expect(visual.getByRole("group", { name: /veth bridge and router round-trip topology map/ })).toBeVisible();
   await completeBridge(lab, "en");
   expect(await topologyOverflow(page)).toEqual([]);
   await completeRouter(lab, "en");
@@ -236,10 +278,11 @@ test("keeps the English draft keyboard-usable at 390px without overflow or untra
   await expect(reset).toBeFocused();
   await expect(visual).toHaveAttribute("data-topology-mode", "router");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
-  await expect(lab.getByLabel("Predict topology execution result")).toHaveValue("");
+  await expect(lab.locator('[data-control-id="veth-prediction"] [aria-pressed="true"]')).toHaveCount(0);
 
   const firstIncident = page.locator(".veth-incident-card").first();
-  await firstIncident.getByRole("combobox").selectOption("attach-peer-to-bridge");
+  await activate(choiceControl(firstIncident, "veth-incident-dangling-bridge-peer-repair", "attach-peer-to-bridge"));
+  await expect(choiceControl(firstIncident, "veth-incident-dangling-bridge-peer-repair", "attach-peer-to-bridge")).toHaveAttribute("aria-pressed", "true");
   const runIncident = firstIncident.getByRole("button", { name: "Re-run state and grade" });
   await activate(runIncident);
   await expect(runIncident).toBeFocused();

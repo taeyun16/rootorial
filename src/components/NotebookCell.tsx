@@ -31,6 +31,7 @@ type NotebookErrorCategory =
 
 export type NotebookCellProps = {
   initialCode: string;
+  supportCode?: string;
   title?: string;
   description?: ReactNode;
   hint?: ReactNode;
@@ -38,6 +39,7 @@ export type NotebookCellProps = {
   editorMinHeight?: number;
   figureAlt?: string | ((index: number) => string);
   className?: string;
+  defaultExpanded?: boolean;
 };
 
 const statusLabelsKo: Record<NotebookCellStatus, string> = {
@@ -122,6 +124,7 @@ function notebookErrorNextAction(category: NotebookErrorCategory, isKo: boolean)
 
 export function NotebookCell({
   initialCode,
+  supportCode,
   title = "Python 코드 셀",
   description,
   hint,
@@ -129,6 +132,7 @@ export function NotebookCell({
   editorMinHeight = 190,
   figureAlt,
   className,
+  defaultExpanded = false,
 }: NotebookCellProps) {
   const { locale } = useLocale();
   const isKo = locale === "ko";
@@ -143,6 +147,7 @@ export function NotebookCell({
   const [errorCategory, setErrorCategory] = useState<NotebookErrorCategory | null>(null);
   const [figures, setFigures] = useState<string[]>([]);
   const [executionCount, setExecutionCount] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState(defaultExpanded);
   const runVersionRef = useRef(0);
   const inFlightRef = useRef(false);
   const mountedRef = useRef(true);
@@ -168,12 +173,26 @@ export function NotebookCell({
     setErrorCategory(null);
     setFigures([]);
     setExecutionCount(null);
-  }, [initialCode]);
+    setExpanded(defaultExpanded);
+  }, [defaultExpanded, initialCode, supportCode]);
 
   const busy = status === "loading" || status === "queued" || status === "running";
   const changed = code !== initialCode;
   const hasResult = status === "done" || status === "stopped" || status === "error";
   const resolvedAriaLabel = ariaLabel ?? (isKo ? `${title}에 실행할 Python 코드` : `Python code to run for ${title}`);
+  const codeLines = code.split("\n");
+  const supportLineCount = supportCode?.split("\n").length ?? 0;
+  const repairMarkerIndex = codeLines.findIndex((line) => line.includes("REPAIR:"));
+  const repairLineIndex = repairMarkerIndex >= 0 && repairMarkerIndex + 1 < codeLines.length
+    ? repairMarkerIndex + 1
+    : -1;
+
+  function updateRepairLine(nextLine: string) {
+    if (repairLineIndex < 0) return;
+    const nextCodeLines = [...codeLines];
+    nextCodeLines[repairLineIndex] = nextLine;
+    setCode(nextCodeLines.join("\n"));
+  }
 
   async function runCode() {
     if (inFlightRef.current) return;
@@ -193,7 +212,8 @@ export function NotebookCell({
     };
 
     try {
-      const result = await runNotebookCode(code, onPhase);
+      const executionCode = supportCode ? `${supportCode}\n\n${code}` : code;
+      const result = await runNotebookCode(executionCode, onPhase);
       if (!mountedRef.current || runVersionRef.current !== runVersion) return;
 
       setOutput(result.output);
@@ -298,6 +318,18 @@ export function NotebookCell({
           <div className="notebook-cell-actions">
             <button
               type="button"
+              className="notebook-cell-toggle"
+              aria-expanded={expanded}
+              onClick={() => setExpanded((current) => !current)}
+            >
+              {expanded
+                ? (isKo ? "코드 접기" : "Hide code")
+                : supportCode
+                  ? (isKo ? "핵심 코드 보기" : "Show learner code")
+                  : (isKo ? "전체 코드 보기" : "Show full code")}
+            </button>
+            <button
+              type="button"
               className="notebook-cell-reset"
               onClick={resetCell}
               disabled={busy || (!changed && status === "idle")}
@@ -325,21 +357,62 @@ export function NotebookCell({
           <div className="notebook-cell-description">{description}</div>
         ) : null}
 
-        <p className="notebook-cell-instruction">
-          {isKo
-            ? "선택: 코드 수정 → 코드 실행 (Shift+Enter)"
-            : "Optional: edit code → Run code (Shift+Enter)"}
-        </p>
+        {supportCode ? (
+          <details className="notebook-cell-support-code">
+            <summary>
+              <span>{isKo ? "고정 실행 준비" : "Fixed runtime setup"}</span>
+              <strong>{isKo ? `${supportLineCount}줄 · 실행 시 자동 포함` : `${supportLineCount} lines · included automatically`}</strong>
+            </summary>
+            <p>{isKo
+              ? "fixture와 재사용 함수입니다. 아래 핵심 코드와 함께 실행되지만 직접 수정할 필요는 없습니다."
+              : "This fixture and its reusable helpers run with the learner code below; you do not need to edit them."}</p>
+            <pre><code>{supportCode}</code></pre>
+          </details>
+        ) : null}
 
-        <div className="notebook-cell-editor-shell">
-          <NotebookCodeEditor
-            value={code}
-            onChange={setCode}
-            onRun={runCode}
-            ariaLabel={resolvedAriaLabel}
-            minHeight={editorMinHeight}
-          />
-        </div>
+        {repairLineIndex >= 0 ? (
+          <div className="notebook-cell-guided-repair">
+            <div>
+              <span>{isKo ? "수정 지점" : "Repair focus"}</span>
+              <strong>{isKo ? `${repairLineIndex + 1}번 줄만 먼저 고치세요` : `Start with line ${repairLineIndex + 1}`}</strong>
+              <p>{codeLines[repairMarkerIndex].replace(/^\s*#\s*/, "")}</p>
+            </div>
+            <label>
+              <span className="sr-only">{isKo ? `${title} 수정할 코드 한 줄` : `One repair line for ${title}`}</span>
+              <input
+                type="text"
+                value={codeLines[repairLineIndex]}
+                onChange={(event) => updateRepairLine(event.currentTarget.value)}
+                spellCheck={false}
+                aria-label={isKo ? `${title} 수정할 코드 한 줄` : `One repair line for ${title}`}
+              />
+            </label>
+          </div>
+        ) : null}
+
+        {expanded ? (
+          <>
+            <p className="notebook-cell-instruction">
+              {isKo
+                ? supportCode
+                  ? "핵심 단계 수정 → 고정 준비 코드와 함께 실행 (Shift+Enter)"
+                  : "선택: 전체 코드 수정 → 코드 실행 (Shift+Enter)"
+                : supportCode
+                  ? "Edit the learner steps → run with fixed setup (Shift+Enter)"
+                  : "Optional: edit the full code → Run code (Shift+Enter)"}
+            </p>
+
+            <div className="notebook-cell-editor-shell">
+              <NotebookCodeEditor
+                value={code}
+                onChange={setCode}
+                onRun={runCode}
+                ariaLabel={resolvedAriaLabel}
+                minHeight={editorMinHeight}
+              />
+            </div>
+          </>
+        ) : null}
 
         <span className="sr-only" id={statusId} aria-live="polite">
           {statusLabels[status]}

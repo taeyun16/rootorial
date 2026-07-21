@@ -8,13 +8,44 @@ import {
 } from "../../features/infrastructure/network-namespace-visual";
 import type { NamespaceTopologyEvaluation, NetworkNamespaceId } from "../../features/infrastructure/network-namespaces";
 import { useLocale } from "../../features/localization/localization";
+import { InfrastructureStateSwitch } from "./InfrastructureInteractionPrimitives";
+
+export type NamespaceEditableObjectId =
+  | "app-service"
+  | "data-service"
+  | "app-probe"
+  | "data-probe"
+  | "app-listener"
+  | "data-listener";
+
+const editableObjectIds = new Set<NamespaceEditableObjectId>([
+  "app-service",
+  "data-service",
+  "app-probe",
+  "data-probe",
+  "app-listener",
+  "data-listener",
+]);
+
+function isEditableObjectId(id: string): id is NamespaceEditableObjectId {
+  return editableObjectIds.has(id as NamespaceEditableObjectId);
+}
 
 type Props = {
   preview: NamespaceTopologyEvaluation;
   evaluation: NamespaceTopologyEvaluation | null;
+  selectedObjectId: NamespaceEditableObjectId | null;
+  onSelectObject: (objectId: NamespaceEditableObjectId) => void;
+  onLoopbackChange: (namespaceId: "app" | "data", up: boolean) => void;
 };
 
-export function NetworkNamespaceBoundaryView({ preview, evaluation }: Props) {
+export function NetworkNamespaceBoundaryView({
+  preview,
+  evaluation,
+  selectedObjectId,
+  onSelectObject,
+  onLoopbackChange,
+}: Props) {
   const { locale } = useLocale();
   const id = useId().replace(/:/g, "");
   const isKo = locale === "ko";
@@ -100,10 +131,10 @@ export function NetworkNamespaceBoundaryView({ preview, evaluation }: Props) {
         <span className="namespace-boundary-state-badge">{boundaryStateLabel(visual.boundaryState)}</span>
       </figcaption>
 
-      <div
+      <section
         className="namespace-kernel-boundary-map"
-        role="img"
-        aria-labelledby={`${titleId} ${descriptionId}`}
+        aria-labelledby={titleId}
+        aria-describedby={descriptionId}
       >
         <span className="sr-only" id={titleId}>{t("네트워크 namespace 경계 지도", "Network namespace boundary map")}</span>
         <span className="sr-only" id={descriptionId}>{description}</span>
@@ -129,45 +160,106 @@ export function NetworkNamespaceBoundaryView({ preview, evaluation }: Props) {
                   <strong>{t("독립 network view", "ISOLATED NETWORK VIEW")}</strong>
                 </header>
                 <div
-                  className="namespace-boundary-loopback"
+                  className={`namespace-boundary-loopback${boundary.id === "host" ? " is-fixed" : ""}`}
                   data-object-id={loopback?.id}
                   data-object-kind="interface"
                   data-owner-namespace={boundary.id}
                 >
-                  <span>lo · 127.0.0.1</span>
-                  <strong>{boundary.loopbackUp ? "UP" : "DOWN"}</strong>
+                  {boundary.id === "host" ? (
+                    <>
+                      <span>lo · 127.0.0.1</span>
+                      <strong>UP · {t("고정", "FIXED")}</strong>
+                    </>
+                  ) : (
+                    <InfrastructureStateSwitch
+                      label={`${boundary.id} lo`}
+                      detail="127.0.0.1 · namespace-local interface"
+                      checked={boundary.loopbackUp}
+                      onChange={(up) => onLoopbackChange(boundary.id === "app" ? "app" : "data", up)}
+                      stateOn="UP"
+                      stateOff="DOWN"
+                      controlId={`${boundary.id}-loopback`}
+                    />
+                  )}
                 </div>
                 <div className="namespace-boundary-object-lanes">
                   <div>
                     <span>{t("실행 위치", "EXECUTION VIEW")}</span>
                     <ul>
-                      {processes.length ? processes.map((object) => (
-                        <li
-                          key={object.id}
-                          data-object-id={object.id}
-                          data-object-kind={object.kind}
-                          data-owner-namespace={object.ownerNamespace}
-                        >
-                          <small>{kindLabel(object)}</small>
-                          <strong>{objectLabel(object)}</strong>
-                        </li>
-                      )) : <li className="is-empty">—</li>}
+                      {processes.length ? processes.map((object) => {
+                        const editableObjectId = isEditableObjectId(object.id) ? object.id : null;
+                        const selected = editableObjectId !== null && selectedObjectId === editableObjectId;
+                        return (
+                          <li
+                            className={`${editableObjectId ? "is-editable" : "is-fixed"}${selected ? " is-selected" : ""}`}
+                            key={object.id}
+                            data-object-id={object.id}
+                            data-object-kind={object.kind}
+                            data-owner-namespace={object.ownerNamespace}
+                          >
+                            {editableObjectId ? (
+                              <button
+                                type="button"
+                                aria-pressed={selected}
+                                aria-label={t(
+                                  `${objectLabel(object)} 선택 · 현재 ${namespaceLabel(object.ownerNamespace)}`,
+                                  `Select ${objectLabel(object)} · currently in ${namespaceLabel(object.ownerNamespace)}`,
+                                )}
+                                onClick={() => onSelectObject(editableObjectId)}
+                              >
+                                <small>{kindLabel(object)}</small>
+                                <strong>{objectLabel(object)}</strong>
+                                <span>{t("이동할 object 선택", "Select to move")}</span>
+                              </button>
+                            ) : (
+                              <div>
+                                <small>{kindLabel(object)}</small>
+                                <strong>{objectLabel(object)}</strong>
+                                <span>{t("고정된 관측 object", "Fixed observation object")}</span>
+                              </div>
+                            )}
+                          </li>
+                        );
+                      }) : <li className="is-empty">—</li>}
                     </ul>
                   </div>
                   <div>
                     <span>{t("socket table", "SOCKET TABLE")}</span>
                     <ul>
-                      {listeners.length ? listeners.map((object) => (
-                        <li
-                          key={object.id}
-                          data-object-id={object.id}
-                          data-object-kind={object.kind}
-                          data-owner-namespace={object.ownerNamespace}
-                        >
-                          <small>{kindLabel(object)}</small>
-                          <strong>{objectLabel(object)}</strong>
-                        </li>
-                      )) : <li className="is-empty">—</li>}
+                      {listeners.length ? listeners.map((object) => {
+                        const editableObjectId = isEditableObjectId(object.id) ? object.id : null;
+                        const selected = editableObjectId !== null && selectedObjectId === editableObjectId;
+                        return (
+                          <li
+                            className={`${editableObjectId ? "is-editable" : "is-fixed"}${selected ? " is-selected" : ""}`}
+                            key={object.id}
+                            data-object-id={object.id}
+                            data-object-kind={object.kind}
+                            data-owner-namespace={object.ownerNamespace}
+                          >
+                            {editableObjectId ? (
+                              <button
+                                type="button"
+                                aria-pressed={selected}
+                                aria-label={t(
+                                  `${objectLabel(object)} 선택 · 현재 ${namespaceLabel(object.ownerNamespace)}`,
+                                  `Select ${objectLabel(object)} · currently in ${namespaceLabel(object.ownerNamespace)}`,
+                                )}
+                                onClick={() => onSelectObject(editableObjectId)}
+                              >
+                                <small>{kindLabel(object)}</small>
+                                <strong>{objectLabel(object)}</strong>
+                                <span>{t("이동할 object 선택", "Select to move")}</span>
+                              </button>
+                            ) : (
+                              <div>
+                                <small>{kindLabel(object)}</small>
+                                <strong>{objectLabel(object)}</strong>
+                              </div>
+                            )}
+                          </li>
+                        );
+                      }) : <li className="is-empty">—</li>}
                     </ul>
                   </div>
                 </div>
@@ -185,7 +277,7 @@ export function NetworkNamespaceBoundaryView({ preview, evaluation }: Props) {
           <strong>NO VETH · NO BRIDGE · NO ROUTE</strong>
           <p>{t("namespace 사이를 잇는 data path는 아직 없습니다", "No data path connects the namespaces yet")}</p>
         </div>
-      </div>
+      </section>
 
       <ol className="namespace-boundary-probe-list" aria-label={t("localhost reachability 실행 결과", "Executed localhost reachability results")}>
         {visual.probes.map((probe) => (

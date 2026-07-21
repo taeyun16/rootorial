@@ -159,6 +159,37 @@
   padding: 18px;
   border: 1px solid var(--line-strong);
   background: var(--paper-subtle);
+  color: var(--ink);
+}
+
+.service-path-lab .infrastructure-workspace-stage > .service-path-visualization {
+  margin: 0;
+}
+
+.service-path-lab .infrastructure-workspace-inspector {
+  color: var(--code-text);
+}
+
+.service-path-lab .infrastructure-workspace-inspector .service-command-evidence {
+  margin: 0;
+}
+
+.service-path-lab .infrastructure-workspace-inspector .service-command-evidence > span {
+  color: var(--code-muted);
+}
+
+.service-path-lab .infrastructure-workspace-inspector .service-command-evidence > p {
+  margin: 0 0 12px;
+  color: var(--code-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.service-path-lab .infrastructure-workspace-inspector .service-command-evidence pre {
+  border: 1px solid var(--code-border);
+  background: var(--code-bg);
+  color: var(--code-text);
+  font-size: 11px;
 }
 
 .service-visual-heading {
@@ -234,6 +265,23 @@
   border: 1px solid var(--line);
 }
 
+.service-direct-controls {
+  display: grid;
+  gap: 14px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+}
+
+.service-direct-controls .infrastructure-choice-label {
+  color: var(--muted);
+}
+
+.service-direct-controls .infrastructure-state-switch {
+  max-width: 360px;
+}
+
 .service-ttl-timeline > div,
 .service-affinity-trace > span { min-width: 0; padding: 10px; background: var(--paper-raised); }
 .service-ttl-timeline span,
@@ -273,6 +321,7 @@
 
 .service-run-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 12px; margin-top: 18px; }
 .service-run-row label { margin: 0; }
+.service-run-row > .button { min-height: 64px; }
 
 .service-feedback { margin-top: 13px; padding: 12px; border-left: 3px solid var(--line-strong); background: var(--paper-subtle); color: var(--text); }
 .service-feedback.is-success { border-color: var(--success-border); background: var(--success-bg); color: var(--success-fg); }

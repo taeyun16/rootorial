@@ -8,6 +8,7 @@ import {
   type NamespacePlatformIncidentRepair,
 } from "../../features/infrastructure/namespace-platform";
 import { useLocale } from "../../features/localization/localization";
+import { InfrastructureChoiceRail } from "./InfrastructureInteractionPrimitives";
 
 export function NamespacePlatformIncidentLab({
   onCompletionChange,
@@ -113,7 +114,7 @@ export function NamespacePlatformIncidentLab({
               <h4>{item.title}</h4>
               <pre>{item.evidence}</pre>
               <p>{item.prompt}</p>
-              <label><span>{t("최소 repair", "Minimal repair")}</span><select aria-label={t(`${item.number} platform 사건 repair`, `Platform incident ${item.number} repair`)} value={repairs[incidentId] ?? ""} onChange={(event) => chooseRepair(incidentId, event.target.value as NamespacePlatformIncidentRepair)}><option value="">—</option>{fixture.repairOptions.map((repair) => <option value={repair} key={repair}>{repairLabel(repair)}</option>)}</select></label>
+              <InfrastructureChoiceRail compact controlId={`platform-incident-${incidentId}-repair`} label={t("architecture에 적용할 최소 repair", "Minimal architecture repair")} value={repairs[incidentId] ?? ""} options={fixture.repairOptions.map((repair) => ({ value: repair, label: repairLabel(repair) }))} onChange={(repair) => chooseRepair(incidentId, repair)} />
               <button type="button" className="button button-secondary" disabled={!repairs[incidentId]} onClick={() => runIncident(incidentId)}>{t("repair 후 전체 contract 재실행", "Re-run the full contract after repair")}</button>
               <div className={`namespace-platform-incident-feedback${result ? result.passed ? " is-success" : " is-error" : ""}`} role="status" aria-live="polite">
                 {result ? result.passed

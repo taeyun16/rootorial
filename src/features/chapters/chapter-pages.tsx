@@ -1,30 +1,5 @@
+import { lazy, Suspense } from "react";
 import type { ComponentType } from "react";
-import { AttentionChapter } from "../../components/attention/AttentionChapter";
-import { EmbeddingsChapter } from "../../components/embeddings/EmbeddingsChapter";
-import { LinuxBootChapter } from "../../components/linux/LinuxBootChapter";
-import { LinuxProcessesChapter } from "../../components/linux/LinuxProcessesChapter";
-import { LinuxPermissionsChapter } from "../../components/linux/LinuxPermissionsChapter";
-import { LinuxMemoryChapter } from "../../components/linux/LinuxMemoryChapter";
-import { LinuxNetworkingChapter } from "../../components/linux/LinuxNetworkingChapter";
-import { LinuxShellChapter } from "../../components/linux/LinuxShellChapter";
-import { LinuxStorageChapter } from "../../components/linux/LinuxStorageChapter";
-import { LinuxTinySystemChapter } from "../../components/linux/LinuxTinySystemChapter";
-import { AvailabilityFailureDomainsChapter } from "../../components/infrastructure/AvailabilityFailureDomainsChapter";
-import { EgressNatChapter } from "../../components/infrastructure/EgressNatChapter";
-import { NetworkPolicyChapter } from "../../components/infrastructure/NetworkPolicyChapter";
-import { NetworkNamespacesChapter } from "../../components/infrastructure/NetworkNamespacesChapter";
-import { ServiceDiscoveryChapter } from "../../components/infrastructure/ServiceDiscoveryChapter";
-import { NetworkObservabilityCapacityChapter } from "../../components/infrastructure/NetworkObservabilityCapacityChapter";
-import { NamespacePlatformChapter } from "../../components/infrastructure/NamespacePlatformChapter";
-import { VethRoutingChapter } from "../../components/infrastructure/VethRoutingChapter";
-import { MiniTransformerChapter } from "../../components/mini-transformer/MiniTransformerChapter";
-import { NeuralNetworksChapter } from "../../components/neural-networks/NeuralNetworksChapter";
-import { OptimizationChapter } from "../../components/optimization/OptimizationChapter";
-import { SequencesChapter } from "../../components/sequences/SequencesChapter";
-import { SelfAttentionChapter } from "../../components/self-attention/SelfAttentionChapter";
-import { TrainingChapter } from "../../components/training/TrainingChapter";
-import { TransformerBlockChapter } from "../../components/transformer-block/TransformerBlockChapter";
-import { VectorsChapter } from "../../components/VectorsChapter";
 import { chapterId } from "../../data/curriculum";
 import {
   isRegisteredChapterId,
@@ -37,137 +12,47 @@ export type ChapterPageProps = {
   learnerCount: number;
 };
 
-function VectorsChapterPage({ learnerCount }: ChapterPageProps) {
-  return <VectorsChapter learnerCount={learnerCount} />;
-}
+type ChapterComponent = ComponentType<{ learnerCount?: number }>;
+type ChapterModuleLoader = () => Promise<{ default: ChapterComponent }>;
 
-function LinuxShellChapterPage({ learnerCount }: ChapterPageProps) {
-  return <LinuxShellChapter learnerCount={learnerCount} />;
-}
-
-function LinuxBootChapterPage({ learnerCount }: ChapterPageProps) {
-  return <LinuxBootChapter learnerCount={learnerCount} />;
-}
-
-function LinuxProcessesChapterPage({ learnerCount }: ChapterPageProps) {
-  return <LinuxProcessesChapter learnerCount={learnerCount} />;
-}
-
-function LinuxPermissionsChapterPage({ learnerCount }: ChapterPageProps) {
-  return <LinuxPermissionsChapter learnerCount={learnerCount} />;
-}
-
-function LinuxMemoryChapterPage({ learnerCount }: ChapterPageProps) {
-  return <LinuxMemoryChapter learnerCount={learnerCount} />;
-}
-
-function LinuxStorageChapterPage({ learnerCount }: ChapterPageProps) {
-  return <LinuxStorageChapter learnerCount={learnerCount} />;
-}
-
-function LinuxNetworkingChapterPage({ learnerCount }: ChapterPageProps) {
-  return <LinuxNetworkingChapter learnerCount={learnerCount} />;
-}
-
-function LinuxTinySystemChapterPage({ learnerCount }: ChapterPageProps) {
-  return <LinuxTinySystemChapter learnerCount={learnerCount} />;
-}
-
-function OptimizationChapterPage({ learnerCount }: ChapterPageProps) {
-  return <OptimizationChapter learnerCount={learnerCount} />;
-}
-
-function NeuralNetworksChapterPage({ learnerCount }: ChapterPageProps) {
-  return <NeuralNetworksChapter learnerCount={learnerCount} />;
-}
-
-function TrainingChapterPage({ learnerCount }: ChapterPageProps) {
-  return <TrainingChapter learnerCount={learnerCount} />;
-}
-
-function EmbeddingsChapterPage({ learnerCount }: ChapterPageProps) {
-  return <EmbeddingsChapter learnerCount={learnerCount} />;
-}
-
-function SequencesChapterPage({ learnerCount }: ChapterPageProps) {
-  return <SequencesChapter learnerCount={learnerCount} />;
-}
-
-function AttentionChapterPage({ learnerCount }: ChapterPageProps) {
-  return <AttentionChapter learnerCount={learnerCount} />;
-}
-
-function SelfAttentionChapterPage({ learnerCount }: ChapterPageProps) {
-  return <SelfAttentionChapter learnerCount={learnerCount} />;
-}
-
-function TransformerBlockChapterPage({ learnerCount }: ChapterPageProps) {
-  return <TransformerBlockChapter learnerCount={learnerCount} />;
-}
-
-function MiniTransformerChapterPage({ learnerCount }: ChapterPageProps) {
-  return <MiniTransformerChapter learnerCount={learnerCount} />;
-}
-
-function NetworkNamespacesChapterPage({ learnerCount }: ChapterPageProps) {
-  return <NetworkNamespacesChapter learnerCount={learnerCount} />;
-}
-
-function NetworkPolicyChapterPage({ learnerCount }: ChapterPageProps) {
-  return <NetworkPolicyChapter learnerCount={learnerCount} />;
-}
-
-function VethRoutingChapterPage({ learnerCount }: ChapterPageProps) {
-  return <VethRoutingChapter learnerCount={learnerCount} />;
-}
-
-function EgressNatChapterPage({ learnerCount }: ChapterPageProps) {
-  return <EgressNatChapter learnerCount={learnerCount} />;
-}
-
-function ServiceDiscoveryChapterPage({ learnerCount }: ChapterPageProps) {
-  return <ServiceDiscoveryChapter learnerCount={learnerCount} />;
-}
-
-function AvailabilityFailureDomainsChapterPage({ learnerCount }: ChapterPageProps) {
-  return <AvailabilityFailureDomainsChapter learnerCount={learnerCount} />;
-}
-
-function NetworkObservabilityCapacityChapterPage({ learnerCount }: ChapterPageProps) {
-  return <NetworkObservabilityCapacityChapter learnerCount={learnerCount} />;
-}
-
-function NamespacePlatformChapterPage({ learnerCount }: ChapterPageProps) {
-  return <NamespacePlatformChapter learnerCount={learnerCount} />;
+function chapterPage(load: ChapterModuleLoader): ComponentType<ChapterPageProps> {
+  const Chapter = lazy(load);
+  return function LazyChapterPage({ learnerCount }: ChapterPageProps) {
+    return (
+      <Suspense fallback={<main className="chapter-shell chapter-loading-shell"><p role="status">Loading chapter…</p></main>}>
+        <Chapter learnerCount={learnerCount} />
+      </Suspense>
+    );
+  };
 }
 
 const chapterPages = {
-  "transformer-from-zero/vectors": VectorsChapterPage,
-  "transformer-from-zero/optimization": OptimizationChapterPage,
-  "transformer-from-zero/neural-networks": NeuralNetworksChapterPage,
-  "transformer-from-zero/training": TrainingChapterPage,
-  "transformer-from-zero/embeddings": EmbeddingsChapterPage,
-  "transformer-from-zero/sequences": SequencesChapterPage,
-  "transformer-from-zero/attention": AttentionChapterPage,
-  "transformer-from-zero/self-attention": SelfAttentionChapterPage,
-  "transformer-from-zero/transformer-block": TransformerBlockChapterPage,
-  "transformer-from-zero/mini-transformer": MiniTransformerChapterPage,
-  "linux-systems/shell-and-filesystem": LinuxShellChapterPage,
-  "linux-systems/boot-to-shell": LinuxBootChapterPage,
-  "linux-systems/processes-and-signals": LinuxProcessesChapterPage,
-  "linux-systems/users-and-permissions": LinuxPermissionsChapterPage,
-  "linux-systems/memory-and-virtual-addresses": LinuxMemoryChapterPage,
-  "linux-systems/storage-and-filesystems": LinuxStorageChapterPage,
-  "linux-systems/networking-from-a-packet": LinuxNetworkingChapterPage,
-  "linux-systems/assemble-a-tiny-linux": LinuxTinySystemChapterPage,
-  "infrastructure-design/network-policy-and-firewalls": NetworkPolicyChapterPage,
-  "infrastructure-design/network-namespaces-and-boundaries": NetworkNamespacesChapterPage,
-  "infrastructure-design/veth-bridges-and-routing": VethRoutingChapterPage,
-  "infrastructure-design/egress-nat-and-conntrack": EgressNatChapterPage,
-  "infrastructure-design/service-discovery-and-load-balancing": ServiceDiscoveryChapterPage,
-  "infrastructure-design/availability-and-failure-domains": AvailabilityFailureDomainsChapterPage,
-  "infrastructure-design/network-observability-and-capacity": NetworkObservabilityCapacityChapterPage,
-  "infrastructure-design/assemble-a-namespace-platform": NamespacePlatformChapterPage,
+  "transformer-from-zero/vectors": chapterPage(() => import("../../components/VectorsChapter").then(({ VectorsChapter }) => ({ default: VectorsChapter }))),
+  "transformer-from-zero/optimization": chapterPage(() => import("../../components/optimization/OptimizationChapter").then(({ OptimizationChapter }) => ({ default: OptimizationChapter }))),
+  "transformer-from-zero/neural-networks": chapterPage(() => import("../../components/neural-networks/NeuralNetworksChapter").then(({ NeuralNetworksChapter }) => ({ default: NeuralNetworksChapter }))),
+  "transformer-from-zero/training": chapterPage(() => import("../../components/training/TrainingChapter").then(({ TrainingChapter }) => ({ default: TrainingChapter }))),
+  "transformer-from-zero/embeddings": chapterPage(() => import("../../components/embeddings/EmbeddingsChapter").then(({ EmbeddingsChapter }) => ({ default: EmbeddingsChapter }))),
+  "transformer-from-zero/sequences": chapterPage(() => import("../../components/sequences/SequencesChapter").then(({ SequencesChapter }) => ({ default: SequencesChapter }))),
+  "transformer-from-zero/attention": chapterPage(() => import("../../components/attention/AttentionChapter").then(({ AttentionChapter }) => ({ default: AttentionChapter }))),
+  "transformer-from-zero/self-attention": chapterPage(() => import("../../components/self-attention/SelfAttentionChapter").then(({ SelfAttentionChapter }) => ({ default: SelfAttentionChapter }))),
+  "transformer-from-zero/transformer-block": chapterPage(() => import("../../components/transformer-block/TransformerBlockChapter").then(({ TransformerBlockChapter }) => ({ default: TransformerBlockChapter }))),
+  "transformer-from-zero/mini-transformer": chapterPage(() => import("../../components/mini-transformer/MiniTransformerChapter").then(({ MiniTransformerChapter }) => ({ default: MiniTransformerChapter }))),
+  "linux-systems/shell-and-filesystem": chapterPage(() => import("../../components/linux/LinuxShellChapter").then(({ LinuxShellChapter }) => ({ default: LinuxShellChapter }))),
+  "linux-systems/boot-to-shell": chapterPage(() => import("../../components/linux/LinuxBootChapter").then(({ LinuxBootChapter }) => ({ default: LinuxBootChapter }))),
+  "linux-systems/processes-and-signals": chapterPage(() => import("../../components/linux/LinuxProcessesChapter").then(({ LinuxProcessesChapter }) => ({ default: LinuxProcessesChapter }))),
+  "linux-systems/users-and-permissions": chapterPage(() => import("../../components/linux/LinuxPermissionsChapter").then(({ LinuxPermissionsChapter }) => ({ default: LinuxPermissionsChapter }))),
+  "linux-systems/memory-and-virtual-addresses": chapterPage(() => import("../../components/linux/LinuxMemoryChapter").then(({ LinuxMemoryChapter }) => ({ default: LinuxMemoryChapter }))),
+  "linux-systems/storage-and-filesystems": chapterPage(() => import("../../components/linux/LinuxStorageChapter").then(({ LinuxStorageChapter }) => ({ default: LinuxStorageChapter }))),
+  "linux-systems/networking-from-a-packet": chapterPage(() => import("../../components/linux/LinuxNetworkingChapter").then(({ LinuxNetworkingChapter }) => ({ default: LinuxNetworkingChapter }))),
+  "linux-systems/assemble-a-tiny-linux": chapterPage(() => import("../../components/linux/LinuxTinySystemChapter").then(({ LinuxTinySystemChapter }) => ({ default: LinuxTinySystemChapter }))),
+  "infrastructure-design/network-policy-and-firewalls": chapterPage(() => import("../../components/infrastructure/NetworkPolicyChapter").then(({ NetworkPolicyChapter }) => ({ default: NetworkPolicyChapter }))),
+  "infrastructure-design/network-namespaces-and-boundaries": chapterPage(() => import("../../components/infrastructure/NetworkNamespacesChapter").then(({ NetworkNamespacesChapter }) => ({ default: NetworkNamespacesChapter }))),
+  "infrastructure-design/veth-bridges-and-routing": chapterPage(() => import("../../components/infrastructure/VethRoutingChapter").then(({ VethRoutingChapter }) => ({ default: VethRoutingChapter }))),
+  "infrastructure-design/egress-nat-and-conntrack": chapterPage(() => import("../../components/infrastructure/EgressNatChapter").then(({ EgressNatChapter }) => ({ default: EgressNatChapter }))),
+  "infrastructure-design/service-discovery-and-load-balancing": chapterPage(() => import("../../components/infrastructure/ServiceDiscoveryChapter").then(({ ServiceDiscoveryChapter }) => ({ default: ServiceDiscoveryChapter }))),
+  "infrastructure-design/availability-and-failure-domains": chapterPage(() => import("../../components/infrastructure/AvailabilityFailureDomainsChapter").then(({ AvailabilityFailureDomainsChapter }) => ({ default: AvailabilityFailureDomainsChapter }))),
+  "infrastructure-design/network-observability-and-capacity": chapterPage(() => import("../../components/infrastructure/NetworkObservabilityCapacityChapter").then(({ NetworkObservabilityCapacityChapter }) => ({ default: NetworkObservabilityCapacityChapter }))),
+  "infrastructure-design/assemble-a-namespace-platform": chapterPage(() => import("../../components/infrastructure/NamespacePlatformChapter").then(({ NamespacePlatformChapter }) => ({ default: NamespacePlatformChapter }))),
 } satisfies Record<RegisteredChapterId, ComponentType<ChapterPageProps>>;
 
 export function getChapterPage(

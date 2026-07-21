@@ -42,11 +42,15 @@ async function activate(control: Locator) {
   await control.press("Enter");
 }
 
+async function choose(lab: Locator, controlId: string, value: string) {
+  await lab.locator(`[data-control-id="${controlId}"] [data-choice-value="${value}"]`).click();
+}
+
 async function completeDns(lab: Locator, locale: "ko" | "en") {
   const isKo = locale === "ko";
-  await lab.getByLabel(isKo ? "resolver TTL policy" : "Resolver TTL policy").selectOption("honor-ttl");
-  await lab.getByLabel(isKo ? "기존 VIP 종료 시각" : "Old VIP retirement time").selectOption("160");
-  await lab.getByLabel(isKo ? "service path 실행 결과 예측" : "Predict service path execution result").selectOption("cache-then-authority");
+  await choose(lab, "resolver-policy", "honor-ttl");
+  await choose(lab, "old-vip-retirement", "160");
+  await choose(lab, "service-path-prediction", "cache-then-authority");
   const visual = lab.getByTestId("service-path-visualization");
   await expect(visual).toHaveAttribute("data-service-mode", "dns-lifecycle");
   await expect(visual).toHaveAttribute("data-cache-state", "fresh-then-expired");
@@ -59,10 +63,10 @@ async function completeDns(lab: Locator, locale: "ko" | "en") {
 async function completeAffinity(lab: Locator, locale: "ko" | "en") {
   const isKo = locale === "ko";
   await lab.getByRole("button", { name: /HEALTH \+ AFFINITY/ }).click();
-  await lab.getByLabel(isKo ? "backend membership policy" : "Backend membership policy").selectOption("healthy-only");
-  await lab.getByLabel(isKo ? "L4 balancing algorithm" : "Layer 4 balancing algorithm").selectOption("source-affinity");
-  await lab.getByLabel(isKo ? "affinity failure policy" : "Affinity failure policy").selectOption("remap-ineligible");
-  await lab.getByLabel(isKo ? "service path 실행 결과 예측" : "Predict service path execution result").selectOption("stable-then-remap");
+  await choose(lab, "backend-membership", "healthy-only");
+  await choose(lab, "balancing-algorithm", "source-affinity");
+  await choose(lab, "affinity-failure-policy", "remap-ineligible");
+  await choose(lab, "service-path-prediction", "stable-then-remap");
   const visual = lab.getByTestId("service-path-visualization");
   await expect(visual).toHaveAttribute("data-service-mode", "health-affinity");
   await expect(visual).toHaveAttribute("data-selection-state", "healthy-remap");
@@ -83,7 +87,7 @@ async function repairIncidents(page: TestPage, locale: "ko" | "en") {
   ] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const card = cards.nth(index);
-    await card.getByRole("combobox").selectOption(repairs[index]);
+    await card.locator(`[data-control-id^="service-incident-"] [data-choice-value="${repairs[index]}"]`).click();
     await card.getByRole("button", { name: locale === "ko" ? "상태 재실행·판정" : "Re-run state and grade" }).click();
     await expect(card.locator(".service-feedback")).toHaveClass(/is-success/);
   }
@@ -103,7 +107,7 @@ async function answerConcepts(page: TestPage, locale: "ko" | "en") {
 
 function serviceOverflow(page: TestPage) {
   return page.locator(
-    ".service-discovery-chapter-shell, .service-contract-grid, .service-health-grid, .service-path-lab, .service-control-grid, .service-path-visualization, .service-map, .service-boundary-card, .service-backend-pool, .service-backend-node, .service-ttl-timeline, .service-affinity-trace, .service-path-stages, .service-command-evidence, .service-incident-lab, .service-incident-grid, .service-incident-card, .network-completion-checklist",
+    ".service-discovery-chapter-shell, .service-contract-grid, .service-health-grid, .service-path-lab, .infrastructure-workspace, .service-path-visualization, .service-map, .service-boundary-card, .service-backend-pool, .service-backend-node, .service-ttl-timeline, .service-affinity-trace, .service-direct-controls, .service-path-stages, .service-command-evidence, .service-incident-lab, .service-incident-grid, .service-incident-card, .network-completion-checklist",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({ className: element.className, overflow: element.scrollWidth - element.clientWidth })));
@@ -131,8 +135,8 @@ test("completes DNS, affinity, incidents, and concepts in the Korean draft previ
   const lab = page.locator(".service-path-lab");
   await expect(lab).toHaveAttribute("data-interactive-ready", "true");
   const visual = lab.getByTestId("service-path-visualization");
-  await expect(visual.getByRole("img", { name: /client가 api.internal을 조회합니다/ })).toBeVisible();
-  await expect(visual.getByRole("img")).toHaveCount(1);
+  await expect(visual.getByRole("group", { name: /client가 api.internal을 조회합니다/ })).toBeVisible();
+  await expect(visual.locator("select, input[type=checkbox]")).toHaveCount(0);
   await expect(visual).toHaveAttribute("data-service-mode", "dns-lifecycle");
   await expect(visual).toHaveAttribute("data-cache-state", "stale-after-expiry");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
@@ -140,12 +144,12 @@ test("completes DNS, affinity, incidents, and concepts in the Korean draft previ
   await completeDns(lab, "ko");
   await completeAffinity(lab, "ko");
   await expect(lab.locator(".service-lab-header > strong")).toHaveText("2 / 2");
-  await lab.getByLabel("backend membership policy").selectOption("all-registered");
+  await choose(lab, "backend-membership", "all-registered");
   await expect(visual).toHaveAttribute("data-selection-state", "unhealthy-member");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(lab.locator(".service-lab-header > strong")).toHaveText("1 / 2");
-  await lab.getByLabel("backend membership policy").selectOption("healthy-only");
-  await lab.getByLabel("service path 실행 결과 예측").selectOption("stable-then-remap");
+  await choose(lab, "backend-membership", "healthy-only");
+  await choose(lab, "service-path-prediction", "stable-then-remap");
   await lab.getByRole("button", { name: "DNS·connection path 실행" }).click();
   await expect(visual).toHaveAttribute("data-grade-state", "passed");
 
@@ -155,6 +159,26 @@ test("completes DNS, affinity, incidents, and concepts in the Korean draft previ
   await expect(page.locator(".network-completion-checklist .is-complete")).toHaveCount(4);
   await expect(completion).toHaveAttribute("data-completion-ready", "true");
   await expect(completion).toBeDisabled();
+
+  await choose(lab, "service-path-prediction", "round-robin");
+  await expect(visual).toHaveAttribute("data-grade-state", "not-run");
+  await expect(lab.locator(".service-lab-header > strong")).toHaveText("1 / 2");
+  await expect(lab.locator(".service-feedback")).not.toHaveClass(/is-success/);
+  await expect(lab.locator(".service-feedback")).toContainText("예측이 바뀌었습니다.");
+  await expect(completion).toHaveAttribute("data-completion-ready", "false");
+
+  await choose(lab, "service-path-prediction", "stable-then-remap");
+  await lab.getByRole("button", { name: "DNS·connection path 실행" }).click();
+  await expect(visual).toHaveAttribute("data-grade-state", "passed");
+  await expect(lab.locator(".service-lab-header > strong")).toHaveText("2 / 2");
+  await expect(completion).toHaveAttribute("data-completion-ready", "true");
+
+  await lab.getByRole("button", { name: "현재 mode 초기화" }).click();
+  await expect(visual).toHaveAttribute("data-grade-state", "not-run");
+  await expect(lab.locator(".service-lab-header > strong")).toHaveText("1 / 2");
+  await expect(lab.locator('[data-control-id="service-path-prediction"] [aria-pressed="true"]')).toHaveCount(0);
+  await expect(lab.locator(".service-feedback")).not.toHaveClass(/is-success/);
+  await expect(completion).toHaveAttribute("data-completion-ready", "false");
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
   expect(consoleErrors).toEqual([]);
@@ -197,10 +221,11 @@ test("keeps the English draft keyboard-usable at 390px without overflow or untra
 
   const lab = page.locator(".service-path-lab");
   const visual = lab.getByTestId("service-path-visualization");
-  await expect(visual.getByRole("img", { name: /The client resolves api.internal/ })).toBeVisible();
+  await expect(visual.getByRole("group", { name: /The client resolves api.internal/ })).toBeVisible();
   await completeDns(lab, "en");
   expect(await serviceOverflow(page)).toEqual([]);
   await completeAffinity(lab, "en");
+  await expect(lab.locator(".service-lab-header > strong")).toHaveText("2 / 2");
   expect(await serviceOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
 
@@ -209,10 +234,11 @@ test("keeps the English draft keyboard-usable at 390px without overflow or untra
   await expect(reset).toBeFocused();
   await expect(visual).toHaveAttribute("data-service-mode", "health-affinity");
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
-  await expect(lab.getByLabel("Predict service path execution result")).toHaveValue("");
+  await expect(lab.locator(".service-lab-header > strong")).toHaveText("1 / 2");
+  await expect(lab.locator('[data-control-id="service-path-prediction"] [aria-pressed="true"]')).toHaveCount(0);
 
   const firstIncident = page.locator(".service-incident-card").first();
-  await firstIncident.getByRole("combobox").selectOption("refresh-after-ttl");
+  await firstIncident.locator('[data-control-id^="service-incident-"] [data-choice-value="refresh-after-ttl"]').click();
   const runIncident = firstIncident.getByRole("button", { name: "Re-run state and grade" });
   await activate(runIncident);
   await expect(runIncident).toBeFocused();

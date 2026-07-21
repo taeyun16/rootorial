@@ -1,10 +1,21 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/training";
 const publicPath = "/curricula/transformer-from-zero/chapters/training";
 
 type TestPage = Parameters<typeof signInTestUser>[0];
+
+function choiceGroup(scope: Locator, label: string) {
+  return scope.getByRole("group", { name: label });
+}
+
+async function choose(scope: Locator, label: string, value: string) {
+  const option = choiceGroup(scope, label).locator(`[data-choice-value="${value}"]`);
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
 
 async function signInAsAdmin(page: TestPage) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
@@ -33,9 +44,7 @@ async function runBatch(
   lab: ReturnType<TestPage["locator"]>,
   prediction: string,
 ) {
-  await lab.getByRole("combobox", {
-    name: "다음 update의 batch와 전체 CE 방향",
-  }).selectOption(prediction);
+  await choose(lab, "다음 update의 batch와 전체 CE 방향", prediction);
   const run = lab.getByRole("button", { name: "다음 mini-batch forward → Adam" });
   await run.click();
   await expect(lab.locator(".training-prediction-fieldset .button-primary")).toBeFocused();
@@ -64,14 +73,14 @@ test("completes mini-batch training, four repairs, and concepts in the Korean ad
   await expect(page.getByText("Softmax class 축 한 줄 수리", { exact: true })).toBeVisible();
   await expect(page.getByText("한 epoch Adam 상태 trace", { exact: true })).toBeVisible();
   await expect(page.locator(".training-python-bridge .notebook-cell")).toHaveCount(2);
+  await expect(page.locator(".training-python-bridge .notebook-cell-support-code")).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "핵심 코드 보기" })).toHaveCount(1);
 
   const lab = page.locator(".training-batch-lab");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, {
     timeout: 30_000,
   });
-  await lab.getByRole("combobox", {
-    name: "다음 update의 batch와 전체 CE 방향",
-  }).selectOption("both-down");
+  await choose(lab, "다음 update의 batch와 전체 CE 방향", "both-down");
   await lab.getByRole("button", { name: "다음 mini-batch forward → Adam" }).click();
   await expect(lab.locator(".training-live-summary")).toContainText("예측 수정 필요");
   await expect(lab.locator(".training-live-summary")).toContainText("현재 batch CE ↓ · 전체 CE ↑");
@@ -94,7 +103,7 @@ test("completes mini-batch training, four repairs, and concepts in the Korean ad
   const incidents = page.locator(".training-debug-card");
   await expect(incidents).toHaveCount(4);
   const softmaxIncident = incidents.nth(0);
-  await softmaxIncident.getByRole("combobox", { name: "1번 사건 patch" }).selectOption("global-softmax");
+  await choose(softmaxIncident, "1번 사건 patch", "global-softmax");
   await softmaxIncident.getByRole("button", { name: "patch 적용·계약 실행" }).click();
   await expect(softmaxIncident).toHaveClass(/is-incorrect/);
   await expect(softmaxIncident.locator(".training-debug-feedback")).toContainText("softmax 분모");
@@ -107,7 +116,7 @@ test("completes mini-batch training, four repairs, and concepts in the Korean ad
   ] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const incident = incidents.nth(index);
-    await incident.getByRole("combobox", { name: `${index + 1}번 사건 patch` }).selectOption(repairs[index]);
+    await choose(incident, `${index + 1}번 사건 patch`, repairs[index]);
     const run = incident.getByRole("button", { name: "patch 적용·계약 실행" });
     await run.click();
     await expect(run).toBeFocused();
@@ -149,6 +158,8 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   await expect(page.getByText("Repair the Softmax class axis in one line", { exact: true })).toBeVisible();
   await expect(page.getByText("Trace Adam state across one epoch", { exact: true })).toBeVisible();
   await expect(page.locator(".training-python-bridge .notebook-cell")).toHaveCount(2);
+  await expect(page.locator(".training-python-bridge .notebook-cell-support-code")).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Show learner code" })).toHaveCount(1);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];
@@ -185,9 +196,7 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   const resetLab = lab.getByRole("button", { name: "Reset lab" });
   await resetLab.focus();
   await resetLab.press("Enter");
-  await expect(lab.getByRole("combobox", {
-    name: "Batch and full CE direction for the next update",
-  })).toHaveValue("");
+  await expect(choiceGroup(lab, "Batch and full CE direction for the next update").locator('[aria-pressed="true"]')).toHaveCount(0);
 
   const requiredPreset = lab.getByRole("button", { name: "Required diagnostic · grouped classes" });
   await requiredPreset.focus();
@@ -197,9 +206,7 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   await run.focus();
   await run.press("Enter");
   await expect(lab.locator(".training-live-summary")).toContainText("Choose a prediction before running");
-  await lab.getByRole("combobox", {
-    name: "Batch and full CE direction for the next update",
-  }).selectOption("batch-down-full-up");
+  await choose(lab, "Batch and full CE direction for the next update", "batch-down-full-up");
   await run.focus();
   await run.press("Enter");
   await expect(run).toBeFocused();
@@ -216,7 +223,7 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   expect(overflowingSurfaces).toEqual([]);
 
   const firstIncident = page.locator(".training-debug-card").first();
-  await firstIncident.getByRole("combobox", { name: "Patch for incident 1" }).selectOption("column-softmax");
+  await choose(firstIncident, "Patch for incident 1", "column-softmax");
   const runRepair = firstIncident.getByRole("button", { name: "Apply patch and run contract" });
   await runRepair.focus();
   await runRepair.press("Enter");
@@ -226,7 +233,7 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   const resetDebugger = page.getByRole("button", { name: "Reset debugger" });
   await resetDebugger.focus();
   await resetDebugger.press("Enter");
-  await expect(firstIncident.getByRole("combobox", { name: "Patch for incident 1" })).toHaveValue("");
+  await expect(choiceGroup(firstIncident, "Patch for incident 1").locator('[aria-pressed="true"]')).toHaveCount(0);
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
 
   expect(heavyRuntimeRequests).toEqual([]);

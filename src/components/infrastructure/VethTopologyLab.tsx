@@ -9,7 +9,12 @@ import {
   type VethTopologyMode,
 } from "../../features/infrastructure/veth-routing";
 import { useLocale } from "../../features/localization/localization";
+import {
+  InfrastructureChoiceRail,
+  InfrastructureStateSwitch,
+} from "./InfrastructureInteractionPrimitives";
 import { VethTopologyView } from "./VethTopologyView";
+import "./veth-routing-interactive.css";
 
 type Prediction = "" | "round-trip-connected" | "forward-only" | "blocked-before-app";
 type LocalizedMessage = { ko: string; en: string };
@@ -46,16 +51,31 @@ export function VethTopologyLab({
 
   useEffect(() => setInteractiveReady(true), []);
 
-  function publishCompletion(next: Completion) {
-    setCompleted(next);
-    onCompletionChange(next);
+  useEffect(() => {
+    onCompletionChange(completed);
+  }, [completed, onCompletionChange]);
+
+  function setModeCompletion(mode: VethTopologyMode, complete: boolean) {
+    setCompleted((current) => current[mode] === complete
+      ? current
+      : { ...current, [mode]: complete });
   }
 
   function invalidate(nextFeedback: LocalizedMessage, mode = draft.mode) {
     setEvaluation(null);
     setPrediction("");
-    publishCompletion({ ...completed, [mode]: false });
+    setModeCompletion(mode, false);
     setFeedback(nextFeedback);
+  }
+
+  function changePrediction(value: Exclude<Prediction, "">) {
+    setPrediction(value);
+    setEvaluation(null);
+    setModeCompletion(draft.mode, false);
+    setFeedback(message(
+      "예측이 바뀌었습니다. 현재 topology의 forward·return path를 다시 실행하세요.",
+      "Prediction changed. Re-run the current topology's forward and return paths.",
+    ));
   }
 
   function applyScaffold(mode: VethTopologyMode) {
@@ -97,8 +117,7 @@ export function VethTopologyLab({
       const result = evaluateVethTopology(draft);
       setEvaluation(result);
       const passed = result.passed && prediction === "round-trip-connected";
-      const next = { ...completed, [draft.mode]: passed };
-      publishCompletion(next);
+      setModeCompletion(draft.mode, passed);
       if (passed) {
         setFeedback(draft.mode === "bridge"
           ? message("bridge 통과 — 두 veth pair와 br0가 같은 L2 subnet의 request·reply를 전달합니다.", "Bridge passed — both veth pairs and br0 carry request and reply within one Layer 2 subnet.")
@@ -114,7 +133,7 @@ export function VethTopologyLab({
       }
     } catch {
       setEvaluation(null);
-      publishCompletion({ ...completed, [draft.mode]: false });
+      setModeCompletion(draft.mode, false);
       setFeedback(message("브라우저 topology model을 실행하지 못했습니다. 현재 mode를 초기화하세요.", "The browser topology model failed. Reset the current mode."));
     }
   }
@@ -159,37 +178,129 @@ export function VethTopologyLab({
         <button type="button" className="button button-ghost" onClick={() => applyScaffold(draft.mode)}>{t("현재 mode 초기화", "Reset current mode")}</button>
       </div>
 
-      <div className="veth-control-grid">
-        <fieldset>
-          <legend>{t("veth endpoint와 link", "veth endpoints and links")}</legend>
-          <label><span>{t("client peer 연결 대상", "Client peer target")}</span><select aria-label={t("client veth peer 연결 대상", "Client veth peer target")} value={draft.clientPeerTarget} onChange={(event) => setField("clientPeerTarget", event.target.value as VethPeerTarget)}><PeerOptions t={t} /></select></label>
-          <label><span>{t("app peer 연결 대상", "App peer target")}</span><select aria-label={t("app veth peer 연결 대상", "App veth peer target")} value={draft.appPeerTarget} onChange={(event) => setField("appPeerTarget", event.target.value as VethPeerTarget)}><PeerOptions t={t} /></select></label>
-          <label className="veth-check-control"><input type="checkbox" checked={draft.clientLinkUp} onChange={(event) => setField("clientLinkUp", event.target.checked)} />{t("client veth 양 endpoint UP", "Both client-veth endpoints UP")}</label>
-          <label className="veth-check-control"><input type="checkbox" checked={draft.appLinkUp} onChange={(event) => setField("appLinkUp", event.target.checked)} />{t("app veth 양 endpoint UP", "Both app-veth endpoints UP")}</label>
-        </fieldset>
+      <VethTopologyView
+        preview={preview}
+        evaluation={evaluation}
+        controls={(
+          <section
+            className="veth-topology-inspector"
+            role="group"
+            aria-label={t("topology 직접 조작 inspector", "Direct topology inspector")}
+          >
+            <section data-inspector-node="client">
+              <header><span>CLIENT ENDPOINT</span><strong>{t("peer·link·address", "Peer, link, and address")}</strong></header>
+              <InfrastructureChoiceRail<VethPeerTarget>
+                controlId="veth-client-peer-target"
+                label={t("client peer를 어디에 꽂을까요?", "Where should the client peer attach?")}
+                value={draft.clientPeerTarget}
+                compact
+                options={peerChoices(t)}
+                onChange={(value) => setField("clientPeerTarget", value)}
+              />
+              <InfrastructureStateSwitch
+                controlId="veth-client-link"
+                label={t("client veth endpoint", "Client veth endpoints")}
+                detail={t("pair 양쪽 admin state", "Admin state on both ends of the pair")}
+                checked={draft.clientLinkUp}
+                onChange={(value) => setField("clientLinkUp", value)}
+                stateOn="UP"
+                stateOff="DOWN"
+              />
+              <InfrastructureChoiceRail<string>
+                controlId="veth-client-address"
+                label="client eth0"
+                value={draft.clientAddress}
+                compact
+                options={addressChoices(["10.20.0.2/24", "10.20.0.1/24", "10.30.0.2/24"])}
+                onChange={(value) => setField("clientAddress", value)}
+              />
+              {draft.mode === "router" ? <InfrastructureChoiceRail<VethRouteChoice>
+                controlId="veth-client-forward-route"
+                label={t("client route table에 놓을 forward route", "Forward route to place in the client route table")}
+                value={draft.clientForwardRoute}
+                compact
+                options={routeChoices("forward", t)}
+                onChange={(value) => setField("clientForwardRoute", value)}
+              /> : null}
+            </section>
 
-        <fieldset>
-          <legend>{t("endpoint address plan", "Endpoint address plan")}</legend>
-          <label><span>client eth0</span><select aria-label={t("client eth0 address", "Client eth0 address")} value={draft.clientAddress} onChange={(event) => setField("clientAddress", event.target.value)}><option>10.20.0.2/24</option><option>10.20.0.1/24</option><option>10.30.0.2/24</option></select></label>
-          <label><span>app eth0</span><select aria-label={t("app eth0 address", "App eth0 address")} value={draft.appAddress} onChange={(event) => setField("appAddress", event.target.value)}><option>10.30.0.2/24</option><option>10.20.0.3/24</option><option>10.20.0.2/24</option><option>10.30.0.3/24</option></select></label>
-          {draft.mode === "router" ? <>
-            <label><span>router left</span><select aria-label={t("router client-side address", "Router client-side address")} value={draft.routerClientAddress} onChange={(event) => setField("routerClientAddress", event.target.value)}><option>10.20.0.1/24</option><option>10.99.0.1/24</option><option>10.30.0.1/24</option></select></label>
-            <label><span>router right</span><select aria-label={t("router app-side address", "Router app-side address")} value={draft.routerAppAddress} onChange={(event) => setField("routerAppAddress", event.target.value)}><option>10.30.0.1/24</option><option>10.20.1.1/16</option><option>10.99.0.1/24</option></select></label>
-          </> : <p className="veth-derived-state">{t("bridge에는 L3 gateway를 두지 않습니다. 두 endpoint의 connected route가 같은 subnet을 가리켜야 합니다.", "A bridge has no Layer 3 gateway. Both endpoint connected routes must identify the same subnet.")}</p>}
-        </fieldset>
+            <section data-inspector-node="transit">
+              <header><span>{draft.mode === "bridge" ? "BR0" : "ROUTER NETNS"}</span><strong>{t("transit 장치", "Transit device")}</strong></header>
+              {draft.mode === "router" ? <>
+                <InfrastructureChoiceRail<string>
+                  controlId="veth-router-client-address"
+                  label={t("router client-side address", "Router client-side address")}
+                  value={draft.routerClientAddress}
+                  compact
+                  options={addressChoices(["10.20.0.1/24", "10.99.0.1/24", "10.30.0.1/24"])}
+                  onChange={(value) => setField("routerClientAddress", value)}
+                />
+                <InfrastructureChoiceRail<string>
+                  controlId="veth-router-app-address"
+                  label={t("router app-side address", "Router app-side address")}
+                  value={draft.routerAppAddress}
+                  compact
+                  options={addressChoices(["10.30.0.1/24", "10.20.1.1/16", "10.99.0.1/24"])}
+                  onChange={(value) => setField("routerAppAddress", value)}
+                />
+                <InfrastructureStateSwitch
+                  controlId="veth-router-forwarding"
+                  label="net.ipv4.ip_forward"
+                  checked={draft.forwarding}
+                  onChange={(value) => setField("forwarding", value)}
+                  stateOn="1 · FORWARD"
+                  stateOff="0 · BLOCK"
+                />
+              </> : <p className="veth-direct-note">{t("br0 port에 두 host-side peer를 연결하면 같은 L2 domain이 됩니다.", "Attach both host-side peers to br0 to form one Layer 2 domain.")}</p>}
+            </section>
 
-        <fieldset>
-          <legend>{t("route·forwarding·service", "Routes, forwarding, and service")}</legend>
-          {draft.mode === "router" ? <>
-            <label><span>{t("client forward route", "Client forward route")}</span><select aria-label={t("client forward route", "Client forward route")} value={draft.clientForwardRoute} onChange={(event) => setField("clientForwardRoute", event.target.value as VethRouteChoice)}><RouteOptions direction="forward" t={t} /></select></label>
-            <label><span>{t("app return route", "App return route")}</span><select aria-label={t("app return route", "App return route")} value={draft.appReturnRoute} onChange={(event) => setField("appReturnRoute", event.target.value as VethRouteChoice)}><RouteOptions direction="return" t={t} /></select></label>
-            <label className="veth-check-control"><input type="checkbox" checked={draft.forwarding} onChange={(event) => setField("forwarding", event.target.checked)} />router net.ipv4.ip_forward=1</label>
-          </> : <p className="veth-derived-state">{t("같은 subnet에서는 connected route와 br0의 L2 forwarding을 사용합니다.", "Within one subnet, connected routes and br0 Layer 2 forwarding carry the path.")}</p>}
-          <label className="veth-check-control"><input type="checkbox" checked={draft.appListenerUp} onChange={(event) => setField("appListenerUp", event.target.checked)} />app 0.0.0.0:8080 LISTEN</label>
-        </fieldset>
-      </div>
-
-      <VethTopologyView preview={preview} evaluation={evaluation} />
+            <section data-inspector-node="app">
+              <header><span>APP ENDPOINT</span><strong>{t("peer·return·socket", "Peer, return path, and socket")}</strong></header>
+              <InfrastructureChoiceRail<VethPeerTarget>
+                controlId="veth-app-peer-target"
+                label={t("app peer를 어디에 꽂을까요?", "Where should the app peer attach?")}
+                value={draft.appPeerTarget}
+                compact
+                options={peerChoices(t)}
+                onChange={(value) => setField("appPeerTarget", value)}
+              />
+              <InfrastructureStateSwitch
+                controlId="veth-app-link"
+                label={t("app veth endpoint", "App veth endpoints")}
+                detail={t("pair 양쪽 admin state", "Admin state on both ends of the pair")}
+                checked={draft.appLinkUp}
+                onChange={(value) => setField("appLinkUp", value)}
+                stateOn="UP"
+                stateOff="DOWN"
+              />
+              <InfrastructureChoiceRail<string>
+                controlId="veth-app-address"
+                label="app eth0"
+                value={draft.appAddress}
+                compact
+                options={addressChoices(["10.30.0.2/24", "10.20.0.3/24", "10.20.0.2/24", "10.30.0.3/24"])}
+                onChange={(value) => setField("appAddress", value)}
+              />
+              {draft.mode === "router" ? <InfrastructureChoiceRail<VethRouteChoice>
+                controlId="veth-app-return-route"
+                label={t("app route table에 놓을 return route", "Return route to place in the app route table")}
+                value={draft.appReturnRoute}
+                compact
+                options={routeChoices("return", t)}
+                onChange={(value) => setField("appReturnRoute", value)}
+              /> : null}
+              <InfrastructureStateSwitch
+                controlId="veth-app-listener"
+                label="app 0.0.0.0:8080"
+                checked={draft.appListenerUp}
+                onChange={(value) => setField("appListenerUp", value)}
+                stateOn="LISTEN"
+                stateOff="CLOSED"
+              />
+            </section>
+          </section>
+        )}
+      />
 
       <div className="veth-command-evidence">
         <span>{t("현재 namespace-scoped command evidence", "Current namespace-scoped command evidence")}</span>
@@ -197,7 +308,17 @@ export function VethTopologyLab({
       </div>
 
       <div className="veth-run-row">
-        <label><span>{t("실행 전 왕복 결과 예측", "Predict the round-trip result before execution")}</span><select aria-label={t("topology 실행 결과 예측", "Predict topology execution result")} value={prediction} onChange={(event) => { setPrediction(event.target.value as Prediction); setEvaluation(null); }}><option value="">—</option><option value="round-trip-connected">{t("request와 reply 모두 연결", "Both request and reply connect")}</option><option value="forward-only">{t("request만 app에 도착", "Only the request reaches app")}</option><option value="blocked-before-app">{t("request가 app 전에 차단", "The request is blocked before app")}</option></select></label>
+        <InfrastructureChoiceRail<Exclude<Prediction, "">>
+          controlId="veth-prediction"
+          label={t("실행 전 왕복 결과를 지도 위 상태로 예측", "Predict the round-trip result from the map state")}
+          value={prediction}
+          options={[
+            { value: "round-trip-connected", label: t("왕복 연결", "Round trip connects"), detail: t("request와 reply 모두 연결", "Both request and reply connect") },
+            { value: "forward-only", label: t("편도만 도착", "Forward only"), detail: t("request만 app에 도착", "Only the request reaches app") },
+            { value: "blocked-before-app", label: t("app 전 차단", "Blocked before app"), detail: t("request가 app 전에 차단", "Request is blocked before app") },
+          ]}
+          onChange={changePrediction}
+        />
         <button type="button" className="button button-primary" onClick={runTopology}>{t("forward·return path 실행", "Run forward and return paths")}</button>
       </div>
 
@@ -208,26 +329,24 @@ export function VethTopologyLab({
   );
 }
 
-function PeerOptions({ t }: { t: (ko: string, en: string) => string }) {
-  return <>
-    <option value="host">{t("host에 dangling", "dangling on host")}</option>
-    <option value="bridge">br0 port</option>
-    <option value="router">router netns</option>
-  </>;
+function peerChoices(t: (ko: string, en: string) => string) {
+  return [
+    { value: "host", label: t("host에 dangling", "Dangling on host"), eyebrow: "NO OWNER" },
+    { value: "bridge", label: "br0 port", eyebrow: "L2" },
+    { value: "router", label: "router netns", eyebrow: "L3" },
+  ] as const;
 }
 
-function RouteOptions({
-  direction,
-  t,
-}: {
-  direction: "forward" | "return";
-  t: (ko: string, en: string) => string;
-}) {
+function addressChoices(addresses: readonly string[]) {
+  return addresses.map((address) => ({ value: address, label: address }));
+}
+
+function routeChoices(direction: "forward" | "return", t: (ko: string, en: string) => string) {
   const destination = direction === "forward" ? "10.30.0.0/24" : "10.20.0.0/24";
   const gateway = direction === "forward" ? "10.20.0.1" : "10.30.0.1";
-  return <>
-    <option value="missing">{t("route 없음", "missing route")}</option>
-    <option value="correct">{destination} via {gateway}</option>
-    <option value="wrong-gateway">{destination} via 10.99.0.1</option>
-  </>;
+  return [
+    { value: "missing", label: t("route 없음", "Missing route"), eyebrow: "EMPTY" },
+    { value: "correct", label: `${destination} via ${gateway}`, eyebrow: "ON-LINK" },
+    { value: "wrong-gateway", label: `${destination} via 10.99.0.1`, eyebrow: "OFF-LINK" },
+  ] as const;
 }

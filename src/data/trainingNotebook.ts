@@ -43,7 +43,7 @@ print("PASS: class-axis softmax keeps rows normalized and independent")
 
 export const trainingSoftmaxAxisRepairCodeEn = trainingSoftmaxAxisRepairCode;
 
-export const trainingAdamEpochCode = `import numpy as np
+export const trainingAdamEpochSupportCode = `import numpy as np
 
 X = np.array([
     [2.0, 0.0],
@@ -58,7 +58,20 @@ y = np.array([0, 0, 1, 1, 2, 2, 1])
 batches = [np.array([0, 1]), np.array([2, 3]),
            np.array([4, 5]), np.array([6])]
 
-W = np.array([
+def stable_softmax(logits):
+    shifted = logits - np.max(logits, axis=1, keepdims=True)
+    exponentials = np.exp(shifted)
+    return exponentials / np.sum(exponentials, axis=1, keepdims=True)
+
+def mean_cross_entropy(features, labels, weights, intercept):
+    logits = features @ weights + intercept
+    probabilities = stable_softmax(logits)
+    return -np.mean(np.log(
+        probabilities[np.arange(len(labels)), labels]
+    ))
+`;
+
+export const trainingAdamEpochCode = `W = np.array([
     [0.8, 0.0, -0.8],
     [0.0, 0.8, -0.8],
 ])
@@ -74,19 +87,7 @@ beta_1 = 0.9
 beta_2 = 0.999
 epsilon = 1e-8
 
-def stable_softmax(logits):
-    shifted = logits - np.max(logits, axis=1, keepdims=True)
-    exponentials = np.exp(shifted)
-    return exponentials / np.sum(exponentials, axis=1, keepdims=True)
-
-def mean_cross_entropy(features, labels):
-    logits = features @ W + bias
-    probabilities = stable_softmax(logits)
-    return -np.mean(np.log(
-        probabilities[np.arange(len(labels)), labels]
-    ))
-
-initial_full_loss = mean_cross_entropy(X, y)
+initial_full_loss = mean_cross_entropy(X, y, W, bias)
 print(f"initial_full_loss={initial_full_loss:.6f}")
 
 for batch_indices in batches:
@@ -123,10 +124,10 @@ for batch_indices in batches:
         f"step={step}",
         f"batch={batch_indices.tolist()}",
         f"rows={len(batch_indices)}",
-        f"full_loss={mean_cross_entropy(X, y):.6f}",
+        f"full_loss={mean_cross_entropy(X, y, W, bias):.6f}",
     )
 
-final_full_loss = mean_cross_entropy(X, y)
+final_full_loss = mean_cross_entropy(X, y, W, bias)
 print(f"final_full_loss={final_full_loss:.6f}")
 print(f"adam_step={step}", f"tail_batch={batches[-1].tolist()}")
 
@@ -138,3 +139,4 @@ print("PASS: fresh batch gradients and persistent Adam state complete one epoch"
 `;
 
 export const trainingAdamEpochCodeEn = trainingAdamEpochCode;
+export const trainingAdamEpochSupportCodeEn = trainingAdamEpochSupportCode;

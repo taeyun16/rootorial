@@ -25,6 +25,7 @@ import {
   type MiniTransformerPrediction,
 } from "../../features/mini-transformer/mini-transformer-model";
 import { useLocale } from "../../features/localization/localization";
+import { DirectChoice } from "../interactive/DirectChoice";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { MatrixGrid } from "../interactive/MatrixGrid";
 import { StepExplorer } from "../interactive/StepExplorer";
@@ -66,7 +67,7 @@ export function MiniTransformerLab({ onCompletionChange }: { onCompletionChange:
   const [successfulAttempt, setSuccessfulAttempt] = useState<SuccessfulAttempt | null>(null);
   const eventCounter = useRef(0);
   const attemptCounter = useRef(0);
-  const predictionRef = useRef<HTMLSelectElement>(null);
+  const predictionRef = useRef<HTMLDivElement>(null);
   const resetButtonRef = useRef<HTMLButtonElement>(null);
   const recoveryButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -177,7 +178,7 @@ export function MiniTransformerLab({ onCompletionChange }: { onCompletionChange:
     setPrediction("");
     setActiveStage(id);
     invalidateRun();
-    requestAnimationFrame(() => predictionRef.current?.focus());
+    requestAnimationFrame(() => predictionRef.current?.querySelector<HTMLButtonElement>("button")?.focus());
   }
 
   function runChallenge() {
@@ -292,7 +293,7 @@ export function MiniTransformerLab({ onCompletionChange }: { onCompletionChange:
     setPrediction("");
     setRuntimeFailure(false);
     setSuccessfulAttempt(null);
-    requestAnimationFrame(() => predictionRef.current?.focus());
+    requestAnimationFrame(() => predictionRef.current?.querySelector<HTMLButtonElement>("button")?.focus());
   }
 
   const tokenLabels = trace?.tokens.map((token, index) => `${index}:${token}`) ?? [];
@@ -326,14 +327,20 @@ export function MiniTransformerLab({ onCompletionChange }: { onCompletionChange:
         </div>
 
         <div className="mini-transformer-control-panel">
-          <label><span>{t("tokenizer start", "Tokenizer start")}</span><select aria-label={t("Mini Transformer BOS 추가", "Mini Transformer add BOS")} value={configState.addBos ? "bos" : "prompt"} onChange={(event) => updateConfig({ addBos: event.currentTarget.value === "bos" })}><option value="prompt">{t("prompt만", "prompt only")}</option><option value="bos">BOS + prompt</option></select></label>
-          <label><span>{t("position scale · canonical 1", "Position scale · canonical 1")}</span><input aria-label={t("Mini Transformer position scale", "Mini Transformer position scale")} type="number" inputMode="decimal" min="0" max="2" step="0.25" value={positionScaleInput} onChange={(event) => { setPositionScaleInput(event.currentTarget.value); invalidateRun(); }} /></label>
-          <label><span>{t("Attention visibility", "Attention visibility")}</span><select aria-label={t("Mini Transformer causal mask", "Mini Transformer causal mask")} value={configState.causal ? "causal" : "all"} onChange={(event) => updateConfig({ causal: event.currentTarget.value === "causal" })}><option value="all">{t("미래 포함", "future visible")}</option><option value="causal">causal prefix</option></select></label>
-          <label><span>Softmax axis</span><select aria-label={t("Mini Transformer probability axis", "Mini Transformer probability axis")} value={configState.probabilityAxis} onChange={(event) => updateConfig({ probabilityAxis: event.currentTarget.value as MiniTransformerConfig["probabilityAxis"] })}><option value="sequence">{t("token sequence축", "token sequence")}</option><option value="vocabulary">{t("row별 vocabulary축", "vocabulary within each row")}</option></select></label>
-          <label><span>{t("decode prefix", "Decode prefix")}</span><select aria-label={t("Mini Transformer prefix 재실행", "Mini Transformer prefix recomputation")} value={configState.recomputePrefix ? "rerun" : "reuse"} onChange={(event) => updateConfig({ recomputePrefix: event.currentTarget.value === "rerun" })}><option value="reuse">{t("첫 hidden 재사용", "reuse first hidden")}</option><option value="rerun">{t("append 후 전체 재실행", "rerun full prefix after append")}</option></select></label>
-          <label><span>{t("decode stop", "Decode stop")}</span><select aria-label={t("Mini Transformer EOS 정지", "Mini Transformer EOS stopping")} value={configState.stopAtEos ? "eos" : "limit"} onChange={(event) => updateConfig({ stopAtEos: event.currentTarget.value === "eos" })}><option value="limit">{t("한도에서만", "limit only")}</option><option value="eos">EOS + maxNewTokens</option></select></label>
-          <label><span>maxNewTokens</span><select aria-label="Mini Transformer max new tokens" value={String(configState.maxNewTokens)} onChange={(event) => updateConfig({ maxNewTokens: Number(event.currentTarget.value) })}>{[1, 2, 3, 4, 5].map((value) => <option value={value} key={value}>{value}</option>)}</select></label>
-          <label><span>{t("실행 전 예측", "Prediction before running")}</span><select ref={predictionRef} aria-label={t("Mini Transformer challenge 예측", "Mini Transformer challenge prediction")} value={prediction} onChange={(event) => { setPrediction(event.currentTarget.value as MiniTransformerPrediction); invalidateRun(); }}><option value="">{t("예측 선택", "Choose a prediction")}</option>{challengeCopy[challengeId].predictions.map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select></label>
+          <p className="challenge-control-summary">{t("end-to-end 경로 전체 대신 현재 challenge의 한 경계만 설정합니다. 나머지는 canonical 실행으로 고정됩니다.", "Configure one boundary for the current challenge instead of the whole end-to-end path. Everything else stays canonical.")}</p>
+          {challengeId === "tokenize" ? <DirectChoice compact label={t("Mini Transformer BOS 추가", "Mini Transformer add BOS")} value={configState.addBos ? 1 : 0} options={[{ value: 0, label: t("prompt만", "prompt only") }, { value: 1, label: "BOS + prompt" }]} onChange={(value) => updateConfig({ addBos: value === 1 })} /> : null}
+          {challengeId === "embed-position" ? <label><span>{t("position scale · canonical 1", "Position scale · canonical 1")}</span><input aria-label={t("Mini Transformer position scale", "Mini Transformer position scale")} type="number" inputMode="decimal" min="0" max="2" step="0.25" value={positionScaleInput} onChange={(event) => { setPositionScaleInput(event.currentTarget.value); invalidateRun(); }} /></label> : null}
+          {challengeId === "causal-block" ? <DirectChoice compact label={t("Mini Transformer causal mask", "Mini Transformer causal mask")} value={configState.causal ? 1 : 0} options={[{ value: 0, label: t("미래 포함", "future visible") }, { value: 1, label: "causal prefix" }]} onChange={(value) => updateConfig({ causal: value === 1 })} /> : null}
+          {challengeId === "vocab-projection" ? <DirectChoice compact label={t("Mini Transformer probability axis", "Mini Transformer probability axis")} value={configState.probabilityAxis} options={[{ value: "sequence", label: t("token sequence축", "token sequence") }, { value: "vocabulary", label: t("row별 vocabulary축", "vocabulary within each row") }]} onChange={(value) => updateConfig({ probabilityAxis: value as MiniTransformerConfig["probabilityAxis"] })} /> : null}
+          {challengeId === "autoregressive-decode" ? <DirectChoice compact label={t("Mini Transformer prefix 재실행", "Mini Transformer prefix recomputation")} value={configState.recomputePrefix ? 1 : 0} options={[{ value: 0, label: t("첫 hidden 재사용", "reuse first hidden") }, { value: 1, label: t("append 후 전체 재실행", "rerun full prefix after append") }]} onChange={(value) => updateConfig({ recomputePrefix: value === 1 })} /> : null}
+          <details className="challenge-advanced-settings">
+            <summary>{t("고급 생성 설정", "Advanced generation settings")}</summary>
+            <div>
+              <DirectChoice compact label={t("Mini Transformer EOS 정지", "Mini Transformer EOS stopping")} value={configState.stopAtEos ? 1 : 0} options={[{ value: 0, label: t("한도에서만", "limit only") }, { value: 1, label: "EOS + maxNewTokens" }]} onChange={(value) => updateConfig({ stopAtEos: value === 1 })} />
+              <DirectChoice compact label="Mini Transformer max new tokens" value={configState.maxNewTokens} options={[1, 2, 3, 4, 5].map((value) => ({ value, label: String(value) }))} onChange={(value) => updateConfig({ maxNewTokens: value })} />
+            </div>
+          </details>
+          <DirectChoice className="direct-choice-prediction" groupRef={predictionRef} label={t("실행 전 예측", "Prediction before running")} ariaLabel={t("Mini Transformer challenge 예측", "Mini Transformer challenge prediction")} value={prediction} options={challengeCopy[challengeId].predictions.map(([value, label]) => ({ value, label }))} onChange={(value) => { setPrediction(value as MiniTransformerPrediction); invalidateRun(); }} />
           <div className="mini-transformer-run-actions">
             <button type="button" className="button button-primary" disabled={!prediction} aria-label={t("Mini Transformer 실행", "Run the Mini Transformer")} onClick={runChallenge}>{t("예측 고정 · 전체 경로 실행", "Lock prediction · run full path")}</button>
             <button type="button" className="button button-secondary" aria-label={t("현재 Mini Transformer challenge 초기화", "Reset the current Mini Transformer challenge")} onClick={resetCurrent}>{t("현재 설정 초기화", "Reset current setup")}</button>

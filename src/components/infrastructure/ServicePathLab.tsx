@@ -3,15 +3,15 @@ import {
   cloneServicePathDraft,
   evaluateServicePath,
   servicePathPresets,
-  type AffinityFailurePolicy,
-  type BalancingAlgorithm,
-  type MembershipPolicy,
-  type ResolverPolicy,
   type ServicePathDraft,
   type ServicePathFailureReason,
   type ServicePathMode,
 } from "../../features/infrastructure/service-discovery";
 import { useLocale } from "../../features/localization/localization";
+import {
+  InfrastructureChoiceRail,
+  InfrastructureWorkspace,
+} from "./InfrastructureInteractionPrimitives";
 import { ServicePathView } from "./ServicePathView";
 
 type Prediction = "" | "cache-then-authority" | "authority-both" | "cache-both" | "stable-then-remap" | "round-robin" | "failed-retained";
@@ -53,16 +53,32 @@ export function ServicePathLab({
 
   useEffect(() => setInteractiveReady(true), []);
 
-  function publishCompletion(next: Completion) {
-    setCompleted(next);
-    onCompletionChange(next);
+  useEffect(() => {
+    onCompletionChange(completed);
+  }, [completed, onCompletionChange]);
+
+  function setModeCompletion(mode: ServicePathMode, complete: boolean) {
+    const key = modeCompletionKey(mode);
+    setCompleted((current) => current[key] === complete
+      ? current
+      : { ...current, [key]: complete });
   }
 
   function invalidate(nextFeedback: LocalizedMessage, mode = draft.mode) {
     setEvaluation(null);
     setPrediction("");
-    publishCompletion({ ...completed, [modeCompletionKey(mode)]: false });
+    setModeCompletion(mode, false);
     setFeedback(nextFeedback);
+  }
+
+  function changePrediction(value: Exclude<Prediction, "">) {
+    setPrediction(value);
+    setEvaluation(null);
+    setModeCompletion(draft.mode, false);
+    setFeedback(message(
+      "예측이 바뀌었습니다. 현재 service path를 다시 실행하세요.",
+      "Prediction changed. Re-run the current service path.",
+    ));
   }
 
   function applyScaffold(mode: ServicePathMode) {
@@ -100,8 +116,7 @@ export function ServicePathLab({
       setEvaluation(result);
       const expectedPrediction = draft.mode === "dns-lifecycle" ? "cache-then-authority" : "stable-then-remap";
       const passed = result.passed && prediction === expectedPrediction;
-      const next = { ...completed, [modeCompletionKey(draft.mode)]: passed };
-      publishCompletion(next);
+      setModeCompletion(draft.mode, passed);
       if (passed) {
         setFeedback(draft.mode === "dns-lifecycle"
           ? message("DNS 통과 — t=159에는 fresh cache, t=160에는 새 authority answer를 사용하고 기존 VIP는 TTL 동안 유지됩니다.", "DNS passed — t=159 uses fresh cache, t=160 uses the new authority answer, and the old VIP remains through the TTL window.")
@@ -114,7 +129,7 @@ export function ServicePathLab({
       }
     } catch {
       setEvaluation(null);
-      publishCompletion({ ...completed, [modeCompletionKey(draft.mode)]: false });
+      setModeCompletion(draft.mode, false);
       setFeedback(message("브라우저 service-path model을 실행하지 못했습니다. 현재 mode를 초기화하세요.", "The browser service-path model failed. Reset the current mode."));
     }
   }
@@ -141,22 +156,47 @@ export function ServicePathLab({
         <button type="button" className="button button-ghost" onClick={() => applyScaffold(draft.mode)}>{t("현재 mode 초기화", "Reset current mode")}</button>
       </div>
 
-      <div className="service-control-grid">
-        {draft.mode === "dns-lifecycle" ? <>
-          <fieldset><legend>{t("resolver cache policy", "Resolver cache policy")}</legend><label><span>{t("TTL 처리", "TTL handling")}</span><select aria-label={t("resolver TTL policy", "Resolver TTL policy")} value={draft.resolverPolicy} onChange={(event) => setField("resolverPolicy", event.target.value as ResolverPolicy)}><option value="cache-forever">{t("cache를 계속 사용", "reuse cache forever")}</option><option value="refresh-early">{t("authority 변경 즉시 refresh", "refresh immediately")}</option><option value="honor-ttl">{t("만료 전 cache · 만료부터 refresh", "cache before expiry · refresh at expiry")}</option></select></label><p>cached_at=100 · TTL=60 · expiry=160</p></fieldset>
-          <fieldset><legend>{t("VIP handoff window", "VIP handoff window")}</legend><label><span>{t("기존 VIP 종료 시각", "Old VIP retirement")}</span><select aria-label={t("기존 VIP 종료 시각", "Old VIP retirement time")} value={draft.oldVipRetirementSeconds} onChange={(event) => setField("oldVipRetirementSeconds", Number(event.target.value))}><option value="150">t=150</option><option value="160">t=160</option><option value="220">t=220</option></select></label><label className="service-check-control"><input type="checkbox" checked={draft.vipListenerUp} onChange={(event) => setField("vipListenerUp", event.target.checked)} />10.40.0.20:8080 LISTEN</label></fieldset>
-          <fieldset><legend>{t("고정 관찰 경계", "Fixed observation boundaries")}</legend><p><code>t=159</code> {t("만료 1초 전", "one second before expiry")}</p><p><code>t=160</code> {t("정확한 만료 경계", "exact expiry boundary")}</p><p>{t("두 시각에서 사용할 answer와 VIP availability를 함께 판정합니다.", "The model judges the answer and VIP availability at both times.")}</p></fieldset>
-        </> : <>
-          <fieldset><legend>{t("backend candidate set", "Backend candidate set")}</legend><label><span>{t("membership policy", "Membership policy")}</span><select aria-label={t("backend membership policy", "Backend membership policy")} value={draft.membershipPolicy} onChange={(event) => setField("membershipPolicy", event.target.value as MembershipPolicy)}><option value="all-registered">{t("registered 전체", "all registered")}</option><option value="healthy-only">{t("healthy · non-draining만", "healthy and non-draining only")}</option></select></label><p>app-a UP · app-b DOWN · app-c UP</p></fieldset>
-          <fieldset><legend>{t("connection selection", "Connection selection")}</legend><label><span>{t("L4 algorithm", "Layer 4 algorithm")}</span><select aria-label={t("L4 balancing algorithm", "Layer 4 balancing algorithm")} value={draft.algorithm} onChange={(event) => setField("algorithm", event.target.value as BalancingAlgorithm)}><option value="round-robin">round-robin</option><option value="source-affinity">source affinity</option></select></label><label><span>{t("target 실패 뒤", "After target failure")}</span><select aria-label={t("affinity failure policy", "Affinity failure policy")} value={draft.affinityFailurePolicy} onChange={(event) => setField("affinityFailurePolicy", event.target.value as AffinityFailurePolicy)}><option value="keep-ineligible">{t("기존 target 유지", "keep the old target")}</option><option value="remap-ineligible">{t("healthy set에서 재매핑", "remap against healthy set")}</option></select></label></fieldset>
-          <fieldset><legend>{t("entry point", "Entry point")}</legend><label className="service-check-control"><input type="checkbox" checked={draft.vipListenerUp} onChange={(event) => setField("vipListenerUp", event.target.checked)} />10.40.0.20:8080 LISTEN</label><p>{t("동일 client-a로 두 connection을 만든 뒤 첫 target을 DOWN으로 바꾸고 한 번 더 연결합니다.", "The model opens two client-a connections, marks the first target DOWN, then opens one more.")}</p></fieldset>
-        </>}
-      </div>
-
-      <ServicePathView preview={preview} evaluation={evaluation} />
-      <div className="service-command-evidence"><span>{t("현재 control-plane evidence", "Current control-plane evidence")}</span><pre>{evidence}</pre></div>
+      <InfrastructureWorkspace
+        label={t("service path 직접 조작 workspace", "Direct service-path workspace")}
+        stage={(
+          <ServicePathView
+            preview={preview}
+            evaluation={evaluation}
+            draft={draft}
+            onResolverPolicyChange={(value) => setField("resolverPolicy", value)}
+            onOldVipRetirementChange={(value) => setField("oldVipRetirementSeconds", value)}
+            onVipListenerChange={(value) => setField("vipListenerUp", value)}
+            onMembershipPolicyChange={(value) => setField("membershipPolicy", value)}
+            onAlgorithmChange={(value) => setField("algorithm", value)}
+            onAffinityFailurePolicyChange={(value) => setField("affinityFailurePolicy", value)}
+          />
+        )}
+        inspector={(
+          <div className="service-command-evidence">
+            <span>{t("현재 control-plane evidence", "Current control-plane evidence")}</span>
+            <p>{draft.mode === "dns-lifecycle"
+              ? t("timeline과 VIP 상태를 직접 바꾸면 이 증거가 즉시 갱신됩니다.", "The evidence updates as you directly change the timeline and VIP state.")
+              : t("backend pool과 affinity 동작을 직접 바꾸면 이 증거가 즉시 갱신됩니다.", "The evidence updates as you directly change the backend pool and affinity behavior.")}</p>
+            <pre>{evidence}</pre>
+          </div>
+        )}
+      />
       <div className="service-run-row">
-        <label><span>{t("실행 전 결과 예측", "Predict the result before execution")}</span><select aria-label={t("service path 실행 결과 예측", "Predict service path execution result")} value={prediction} onChange={(event) => { setPrediction(event.target.value as Prediction); setEvaluation(null); }}><option value="">—</option>{draft.mode === "dns-lifecycle" ? <><option value="cache-then-authority">t=159 cache → t=160 authority</option><option value="authority-both">t=159 · 160 authority</option><option value="cache-both">t=159 · 160 cache</option></> : <><option value="stable-then-remap">{t("같은 target 유지 → 실패 뒤 healthy target 재매핑", "same target → remap to a healthy target after failure")}</option><option value="round-robin">{t("매 connection마다 순환", "rotate every connection")}</option><option value="failed-retained">{t("실패한 sticky target 유지", "retain the failed sticky target")}</option></>}</select></label>
+        <InfrastructureChoiceRail<Exclude<Prediction, "">>
+          controlId="service-path-prediction"
+          label={t("실행 전 결과 예측", "Predict the result before execution")}
+          value={prediction}
+          options={draft.mode === "dns-lifecycle" ? [
+            { value: "cache-then-authority", label: "t=159 cache → t=160 authority" },
+            { value: "authority-both", label: "t=159 · 160 authority" },
+            { value: "cache-both", label: "t=159 · 160 cache" },
+          ] : [
+            { value: "stable-then-remap", label: t("같은 target → healthy target 재매핑", "same target → remap to a healthy target") },
+            { value: "round-robin", label: t("매 connection마다 순환", "rotate every connection") },
+            { value: "failed-retained", label: t("실패한 sticky target 유지", "retain the failed sticky target") },
+          ]}
+          onChange={changePrediction}
+        />
         <button type="button" className="button button-primary" onClick={runServicePath}>{t("DNS·connection path 실행", "Run DNS and connection path")}</button>
       </div>
       <div className={`service-feedback${evaluation?.passed && ((draft.mode === "dns-lifecycle" && prediction === "cache-then-authority") || (draft.mode === "health-affinity" && prediction === "stable-then-remap")) ? " is-success" : evaluation ? " is-error" : ""}`} role="status" aria-live="polite">{feedback[locale]}</div>

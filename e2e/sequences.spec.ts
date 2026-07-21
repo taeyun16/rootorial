@@ -1,10 +1,21 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/sequences";
 const publicPath = "/curricula/transformer-from-zero/chapters/sequences";
 
 type TestPage = Parameters<typeof signInTestUser>[0];
+
+function choiceGroup(scope: Locator, label: string) {
+  return scope.getByRole("group", { name: label });
+}
+
+async function choose(scope: Locator, label: string, value: string) {
+  const option = choiceGroup(scope, label).locator(`[data-choice-value="${value}"]`);
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
 
 async function signInAsAdmin(page: TestPage) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
@@ -56,36 +67,36 @@ test("completes memory evidence, four repairs, and concepts in the Korean draft 
   const lab = page.locator(".sequences-memory-lab");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
 
-  const prediction = lab.getByLabel("final state 예측");
+  const prediction = choiceGroup(lab, "final state 예측");
   const run = lab.getByRole("button", { name: "sequence recurrence 실행" });
   const gain = lab.getByLabel("RNN recurrent gain");
 
   await gain.fill("0");
-  await prediction.selectOption("faded");
+  await choose(lab, "final state 예측", "faded");
   await run.click();
   await expect(lab.locator(".sequences-runtime-fallback")).toContainText("로컬 sequence runtime 실패");
   const safeReset = lab.getByRole("button", { name: "안전하게 초기화" });
   await safeReset.click();
-  await expect(prediction).toBeFocused();
+  await expect(prediction.getByRole("button").first()).toBeFocused();
   await expect(gain).toHaveValue("0.5");
   await expect(lab.locator(".sequences-runtime-fallback")).toHaveCount(0);
 
   await gain.fill("0.35");
-  await prediction.selectOption("retained");
+  await choose(lab, "final state 예측", "retained");
   await run.click();
   await expect(run).toBeFocused();
   await expect(lab.locator(".sequences-live-feedback")).toContainText("예측 수정 필요");
   await expect(lab.locator(".sequences-evidence .is-complete")).toHaveCount(0);
 
   await lab.getByRole("button", { name: "현재 실행 다시 예측" }).click();
-  await prediction.selectOption("faded");
+  await choose(lab, "final state 예측", "faded");
   await run.click();
   await expect(lab.locator(".sequences-live-feedback")).toContainText("연습 기록");
   await expect(lab.locator(".sequences-evidence .is-complete")).toHaveCount(0);
 
   await lab.getByRole("button", { name: "현재 실행 다시 예측" }).click();
   await gain.fill("0.5");
-  await prediction.selectOption("faded");
+  await choose(lab, "final state 예측", "faded");
   await run.click();
   await expect(lab.locator(".sequences-live-feedback")).toContainText("예측 확인");
   await expect(lab.locator(".sequences-evidence .is-complete")).toHaveCount(1);
@@ -105,24 +116,24 @@ test("completes memory evidence, four repairs, and concepts in the Korean draft 
   await expect(resetLab).toBeFocused();
   await expect(lab.locator(".sequences-evidence .is-complete")).toHaveCount(0);
   await gain.fill("0.4");
-  await prediction.selectOption("faded");
+  await choose(lab, "final state 예측", "faded");
   await run.click();
   await lab.locator(".sequences-timestep-picker button").first().click();
   await lab.locator(".sequences-timestep-picker button").last().click();
   await expect(lab.locator(".sequences-evidence .is-complete")).toHaveCount(2);
 
   await lab.getByRole("radio", { name: "LSTM" }).check();
-  await prediction.selectOption("faded");
+  await choose(lab, "final state 예측", "faded");
   await run.click();
   await expect(lab.locator(".sequences-live-feedback")).toContainText("예측 수정 필요");
   await expect(lab.locator(".sequences-evidence .is-complete")).toHaveCount(2);
   await lab.getByRole("button", { name: "현재 실행 다시 예측" }).click();
-  await prediction.selectOption("retained");
+  await choose(lab, "final state 예측", "retained");
   await run.click();
   await expect(lab.locator(".sequences-live-feedback")).toContainText("연습 기록");
   await expect(lab.locator(".sequences-evidence .is-complete")).toHaveCount(2);
   await lab.getByRole("button", { name: "짧은 간격" }).click();
-  await prediction.selectOption("retained");
+  await choose(lab, "final state 예측", "retained");
   await run.click();
   await expect(lab.locator(".sequences-live-feedback")).toContainText("예측 확인");
   await expect(lab.locator(".sequences-evidence .is-complete")).toHaveCount(3);
@@ -134,7 +145,7 @@ test("completes memory evidence, four repairs, and concepts in the Korean draft 
   const reversedPreset = lab.getByRole("button", { name: "순서 뒤집기" });
   await reversedPreset.click();
   await expect(reversedPreset).toHaveAttribute("aria-pressed", "true");
-  await prediction.selectOption("reversed");
+  await choose(lab, "final state 예측", "reversed");
   await run.click();
   await expect(lab.locator(".sequences-live-feedback")).toContainText("예측 확인");
   await expect(lab.locator(".sequences-evidence .is-complete")).toHaveCount(4);
@@ -142,7 +153,7 @@ test("completes memory evidence, four repairs, and concepts in the Korean draft 
   const incidents = page.locator(".sequences-debug-card");
   await expect(incidents).toHaveCount(4);
   const orderIncident = incidents.nth(0);
-  await orderIncident.getByRole("combobox", { name: "1번 sequence 사건 repair" }).selectOption("mean-pooling");
+  await choose(orderIncident, "1번 sequence 사건 repair", "mean-pooling");
   await orderIncident.getByRole("button", { name: "repair 적용·계약 실행" }).click();
   await expect(orderIncident).toHaveClass(/is-incorrect/);
   await expect(orderIncident.locator(".sequences-debug-feedback")).toContainText("평균은 교환법칙");
@@ -155,7 +166,7 @@ test("completes memory evidence, four repairs, and concepts in the Korean draft 
   ] as const;
   for (let index = 0; index < repairs.length; index += 1) {
     const incident = incidents.nth(index);
-    await incident.getByRole("combobox", { name: `${index + 1}번 sequence 사건 repair` }).selectOption(repairs[index]);
+    await choose(incident, `${index + 1}번 sequence 사건 repair`, repairs[index]);
     const applyRepair = incident.getByRole("button", { name: "repair 적용·계약 실행" });
     await applyRepair.click();
     await expect(applyRepair).toBeFocused();
@@ -224,11 +235,11 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
 
   const lab = page.locator(".sequences-memory-lab");
-  const prediction = lab.getByLabel("Final-state prediction");
+  const prediction = choiceGroup(lab, "Final-state prediction");
   const run = lab.getByRole("button", { name: "Run sequence recurrence" });
   await lab.getByRole("radio", { name: "LSTM" }).check();
   await lab.getByRole("button", { name: "Short gap" }).click();
-  await prediction.selectOption("retained");
+  await choose(lab, "Final-state prediction", "retained");
   await run.click();
   await expect(lab.locator(".sequences-evidence .is-complete")).toHaveCount(0);
   await lab.getByRole("button", { name: "Reset lab" }).click();
@@ -240,7 +251,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(reversedPreset).toHaveAttribute("aria-pressed", "true");
   expect(await reversedPreset.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
 
-  await prediction.selectOption("reversed");
+  await choose(lab, "Final-state prediction", "reversed");
   await run.focus();
   await run.press("Enter");
   await expect(run).toBeFocused();
@@ -280,7 +291,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
 
   const firstIncident = page.locator(".sequences-debug-card").first();
-  await firstIncident.getByRole("combobox", { name: "Repair for sequence incident 1" }).selectOption("mean-pooling");
+  await choose(firstIncident, "Repair for sequence incident 1", "mean-pooling");
   const applyRepair = firstIncident.getByRole("button", { name: "Apply repair and run contract" });
   await applyRepair.focus();
   await applyRepair.press("Enter");
@@ -290,7 +301,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const resetDebugger = page.getByRole("button", { name: "Reset debugger" });
   await resetDebugger.focus();
   await resetDebugger.press("Enter");
-  await expect(firstIncident.getByRole("combobox", { name: "Repair for sequence incident 1" })).toHaveValue("");
+  await expect(choiceGroup(firstIncident, "Repair for sequence incident 1").locator('[aria-pressed="true"]')).toHaveCount(0);
 
   expect(heavyRuntimeRequests).toEqual([]);
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
