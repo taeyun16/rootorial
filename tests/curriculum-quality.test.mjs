@@ -111,6 +111,10 @@ test("keeps Transformer repair code focused and full editors optional by default
     new URL("../src/components/interactive/DirectChoice.tsx", import.meta.url),
     "utf8",
   );
+  const directChoiceGroup = readFileSync(
+    new URL("../src/components/interactive/DirectChoiceGroup.tsx", import.meta.url),
+    "utf8",
+  );
 
   assert.match(notebookCell, /defaultExpanded = false/);
   assert.match(notebookCell, /supportCode\?: string/);
@@ -119,8 +123,10 @@ test("keeps Transformer repair code focused and full editors optional by default
   assert.match(notebookCell, /notebook-cell-guided-repair/);
   assert.match(notebookCell, /전체 코드 보기/);
   assert.doesNotMatch(directChoice, /<select/);
-  assert.match(directChoice, /data-choice-value/);
-  assert.match(directChoice, /aria-pressed/);
+  assert.match(directChoice, /<DirectChoiceGroup/);
+  assert.doesNotMatch(directChoiceGroup, /<select/);
+  assert.match(directChoiceGroup, /data-choice-value/);
+  assert.match(directChoiceGroup, /aria-pressed/);
 });
 
 test("renders a reviewable Markdown report with score and draft state", () => {

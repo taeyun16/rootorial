@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from "react";
+import { DirectChoiceGroup } from "../interactive/DirectChoiceGroup";
 
 export type InfrastructureChoiceOption<Value extends string | number> = {
   value: Value;
@@ -23,35 +24,16 @@ export function InfrastructureChoiceRail<Value extends string | number>({
   controlId: string;
   compact?: boolean;
 }) {
-  const labelId = useId();
-
   return (
-    <div
-      className={`infrastructure-choice-rail${compact ? " is-compact" : ""}`}
-      data-control-id={controlId}
-    >
-      <span className="infrastructure-choice-label" id={labelId}>{label}</span>
-      <div role="group" aria-labelledby={labelId}>
-        {options.map((option) => {
-          const selected = value === option.value;
-          return (
-            <button
-              type="button"
-              key={String(option.value)}
-              className="infrastructure-choice-card"
-              aria-pressed={selected}
-              data-choice-value={String(option.value)}
-              disabled={option.disabled}
-              onClick={() => onChange(option.value)}
-            >
-              {option.eyebrow ? <small>{option.eyebrow}</small> : null}
-              <strong>{option.label}</strong>
-              {option.detail ? <span>{option.detail}</span> : null}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+    <DirectChoiceGroup
+      variant="infrastructure"
+      label={label}
+      value={value}
+      options={options}
+      onChange={onChange}
+      controlId={controlId}
+      compact={compact}
+    />
   );
 }
 

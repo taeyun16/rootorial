@@ -1,4 +1,5 @@
 import type { RefObject } from "react";
+import { DirectChoiceGroup } from "./DirectChoiceGroup";
 
 export type DirectChoiceOption<Value extends string | number> = {
   value: Value;
@@ -30,30 +31,21 @@ export function DirectChoice<Value extends string | number>({
   className,
 }: DirectChoiceProps<Value>) {
   return (
-    <fieldset
-      className={["direct-choice", compact ? "is-compact" : "", className]
-        .filter(Boolean)
-        .join(" ")}
+    <DirectChoiceGroup
+      variant="fieldset"
+      label={label}
+      ariaLabel={ariaLabel}
+      value={value}
+      options={options.map((option) => ({
+        value: option.value,
+        label: option.label,
+        detail: option.description,
+      }))}
+      onChange={onChange}
+      groupRef={groupRef}
+      compact={compact}
       disabled={disabled}
-    >
-      <legend>{label}</legend>
-      <div ref={groupRef} role="group" aria-label={ariaLabel ?? label}>
-        {options.map((option) => {
-          const selected = value === option.value;
-          return (
-            <button
-              type="button"
-              aria-pressed={selected}
-              data-choice-value={String(option.value)}
-              onClick={() => onChange(option.value)}
-              key={String(option.value)}
-            >
-              <strong>{option.label}</strong>
-              {option.description ? <span>{option.description}</span> : null}
-            </button>
-          );
-        })}
-      </div>
-    </fieldset>
+      className={className}
+    />
   );
 }
