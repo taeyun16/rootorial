@@ -236,8 +236,8 @@ export function LinuxBootChapter({ learnerCount = 0 }: { learnerCount?: number }
               slug="boot-to-shell"
               canComplete={canComplete}
               lockedMessage={t(
-                "부팅 계약 실습, 장애 진단 네 사건과 이해 확인 네 문제를 모두 마치면 완료할 수 있습니다.",
-                "Finish the boot contract lab, all four failure incidents, and all four concept questions to complete the chapter.",
+                "부팅 계약 실습, 장애 진단 네 사건과 이해 확인 다섯 문제를 모두 마치면 완료할 수 있습니다.",
+                "Finish the boot contract lab, all four failure incidents, and all five concept questions to complete the chapter.",
               )}
             />
           </section>

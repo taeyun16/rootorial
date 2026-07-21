@@ -406,3 +406,166 @@ export const transformerContentQualityReview = {
   scale: "0-5 per editorial dimension; Python score is derived from executable cells",
   contracts: transformerContentQualityContracts,
 } as const;
+
+export type PlatformChapterQualityContract = {
+  chapterId: string;
+  number: number;
+  title: string;
+  sourceFile: string;
+  e2eFile: string;
+  expectedConceptQuestions: number;
+  expectedDefaultPublication: "published" | "draft";
+  activityKinds: readonly ChapterActivityKind[];
+  learningExperience: LearningExperienceContract;
+};
+
+const platformContract = (
+  chapterId: string,
+  number: number,
+  title: string,
+  sourceFile: string,
+  e2eFile: string,
+  activityKinds: readonly ChapterActivityKind[],
+  estimatedMinimumSuccessfulActions: number,
+  maxAllowedInteractionBudget = 18,
+  expectedDefaultPublication: "published" | "draft" = "draft",
+): PlatformChapterQualityContract => ({
+  chapterId,
+  number,
+  title,
+  sourceFile,
+  e2eFile,
+  expectedConceptQuestions: 5,
+  expectedDefaultPublication,
+  activityKinds,
+  learningExperience: {
+    terminologySupportCount: 5,
+    visibleClarificationAccess: true,
+    requiredCheckpointGroups: 3,
+    estimatedMinimumSuccessfulActions,
+    maxAllowedInteractionBudget,
+  },
+});
+
+/**
+ * Shared platform contracts for every implemented non-Transformer chapter.
+ *
+ * These contracts deliberately describe the learner's core path rather than
+ * every optional control. The quality report cross-checks them against the
+ * renderer, question registry, publication boundary, shared chapter compass,
+ * and native-control policy.
+ */
+export const platformContentQualityContracts = {
+  "linux-systems/shell-and-filesystem": platformContract(
+    "linux-systems/shell-and-filesystem", 1, "셸에서 첫 파일까지",
+    "src/components/linux/LinuxShellChapter.tsx", "e2e/linux-curriculum.spec.ts",
+    ["build", "debug", "transfer"], 12, 16, "published",
+  ),
+  "linux-systems/boot-to-shell": platformContract(
+    "linux-systems/boot-to-shell", 2, "전원이 켜지고 셸이 뜨기까지",
+    "src/components/linux/LinuxBootChapter.tsx", "e2e/linux-boot.spec.ts",
+    ["predict", "debug", "transfer"], 16,
+  ),
+  "linux-systems/processes-and-signals": platformContract(
+    "linux-systems/processes-and-signals", 3, "프로세스와 시그널",
+    "src/components/linux/LinuxProcessesChapter.tsx", "e2e/linux-processes.spec.ts",
+    ["experiment", "debug", "transfer"], 17,
+  ),
+  "linux-systems/users-and-permissions": platformContract(
+    "linux-systems/users-and-permissions", 4, "사용자와 권한",
+    "src/components/linux/LinuxPermissionsChapter.tsx", "e2e/linux-permissions.spec.ts",
+    ["predict", "debug", "transfer"], 17,
+  ),
+  "linux-systems/memory-and-virtual-addresses": platformContract(
+    "linux-systems/memory-and-virtual-addresses", 5, "메모리와 가상 주소",
+    "src/components/linux/LinuxMemoryChapter.tsx", "e2e/linux-memory.spec.ts",
+    ["experiment", "debug", "transfer"], 17,
+  ),
+  "linux-systems/storage-and-filesystems": platformContract(
+    "linux-systems/storage-and-filesystems", 6, "저장장치와 파일시스템",
+    "src/components/linux/LinuxStorageChapter.tsx", "e2e/linux-storage.spec.ts",
+    ["experiment", "debug", "transfer"], 17,
+  ),
+  "linux-systems/networking-from-a-packet": platformContract(
+    "linux-systems/networking-from-a-packet", 7, "패킷 하나로 보는 Linux 네트워킹",
+    "src/components/linux/LinuxNetworkingChapter.tsx", "e2e/linux-networking.spec.ts",
+    ["predict", "experiment", "debug"], 17,
+  ),
+  "linux-systems/assemble-a-tiny-linux": platformContract(
+    "linux-systems/assemble-a-tiny-linux", 8, "작은 Linux 시스템 조립하기",
+    "src/components/linux/LinuxTinySystemChapter.tsx", "e2e/linux-assembly.spec.ts",
+    ["build", "debug", "transfer"], 18,
+  ),
+
+  "linux-networking/interfaces-addresses-and-loopback": platformContract(
+    "linux-networking/interfaces-addresses-and-loopback", 1, "인터페이스, 주소와 loopback",
+    "src/components/linux-networking/InterfacesAddressesLoopbackChapter.tsx", "e2e/linux-networking-interfaces.spec.ts",
+    ["build", "experiment", "debug"], 17,
+  ),
+  "linux-networking/subnets-neighbors-and-gateways": platformContract(
+    "linux-networking/subnets-neighbors-and-gateways", 2, "서브넷, 이웃과 게이트웨이",
+    "src/components/linux-networking/SubnetsNeighborsGatewaysChapter.tsx", "e2e/linux-networking.spec.ts",
+    ["predict", "experiment", "debug"], 17,
+  ),
+  "linux-networking/routes-and-packet-paths": platformContract(
+    "linux-networking/routes-and-packet-paths", 3, "경로와 패킷 전달",
+    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking.spec.ts",
+    ["predict", "experiment", "debug"], 17,
+  ),
+  "linux-networking/sockets-ports-and-tcp": platformContract(
+    "linux-networking/sockets-ports-and-tcp", 4, "소켓, 포트와 TCP",
+    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking.spec.ts",
+    ["predict", "build", "debug"], 17,
+  ),
+  "linux-networking/dns-and-service-reachability": platformContract(
+    "linux-networking/dns-and-service-reachability", 5, "DNS와 서비스 도달성",
+    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking.spec.ts",
+    ["predict", "experiment", "transfer"], 17,
+  ),
+  "linux-networking/diagnose-a-linux-network": platformContract(
+    "linux-networking/diagnose-a-linux-network", 6, "Linux 네트워크 진단",
+    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking.spec.ts",
+    ["predict", "debug", "transfer"], 17,
+  ),
+
+  "infrastructure-design/network-namespaces-and-boundaries": platformContract(
+    "infrastructure-design/network-namespaces-and-boundaries", 1, "네트워크 namespace와 경계",
+    "src/components/infrastructure/NetworkNamespacesChapter.tsx", "e2e/infrastructure-network-namespaces.spec.ts",
+    ["build", "experiment", "debug"], 17,
+  ),
+  "infrastructure-design/veth-bridges-and-routing": platformContract(
+    "infrastructure-design/veth-bridges-and-routing", 2, "veth, bridge와 routing",
+    "src/components/infrastructure/VethRoutingChapter.tsx", "e2e/infrastructure-veth-routing.spec.ts",
+    ["build", "experiment", "debug"], 18,
+  ),
+  "infrastructure-design/egress-nat-and-conntrack": platformContract(
+    "infrastructure-design/egress-nat-and-conntrack", 3, "Egress NAT와 conntrack",
+    "src/components/infrastructure/EgressNatChapter.tsx", "e2e/infrastructure-egress-nat.spec.ts",
+    ["predict", "experiment", "debug"], 18,
+  ),
+  "infrastructure-design/network-policy-and-firewalls": platformContract(
+    "infrastructure-design/network-policy-and-firewalls", 4, "네트워크 정책과 방화벽",
+    "src/components/infrastructure/NetworkPolicyChapter.tsx", "e2e/infrastructure-network-policy.spec.ts",
+    ["predict", "build", "debug"], 18,
+  ),
+  "infrastructure-design/service-discovery-and-load-balancing": platformContract(
+    "infrastructure-design/service-discovery-and-load-balancing", 5, "서비스 디스커버리와 로드밸런싱",
+    "src/components/infrastructure/ServiceDiscoveryChapter.tsx", "e2e/infrastructure-service-discovery.spec.ts",
+    ["predict", "experiment", "debug"], 18,
+  ),
+  "infrastructure-design/availability-and-failure-domains": platformContract(
+    "infrastructure-design/availability-and-failure-domains", 6, "가용성과 장애 도메인",
+    "src/components/infrastructure/AvailabilityFailureDomainsChapter.tsx", "e2e/infrastructure-availability-failure-domains.spec.ts",
+    ["predict", "experiment", "transfer"], 18,
+  ),
+  "infrastructure-design/network-observability-and-capacity": platformContract(
+    "infrastructure-design/network-observability-and-capacity", 7, "네트워크 관측성과 용량",
+    "src/components/infrastructure/NetworkObservabilityCapacityChapter.tsx", "e2e/infrastructure-network-observability-capacity.spec.ts",
+    ["predict", "experiment", "debug"], 18,
+  ),
+  "infrastructure-design/assemble-a-namespace-platform": platformContract(
+    "infrastructure-design/assemble-a-namespace-platform", 8, "Namespace 플랫폼 조립하기",
+    "src/components/infrastructure/NamespacePlatformChapter.tsx", "e2e/infrastructure-namespace-platform.spec.ts",
+    ["build", "debug", "transfer"], 18,
+  ),
+} as const satisfies Record<string, PlatformChapterQualityContract>;

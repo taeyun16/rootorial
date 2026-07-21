@@ -280,7 +280,7 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
   assert.match(koreanPlatform.description, /client·edge·app·data.*failure evidence/);
   assert.match(englishPlatform.description, /client, edge, app, and data.*failure evidence/);
   const curriculum = getCurriculum("infrastructure-design");
-  assert.equal(curriculum?.status, "in-progress");
+  assert.equal(curriculum?.status, "available");
   assert.deepEqual(curriculum?.title, {
     ko: "Linux 네트워크 인프라 설계를 바닥부터",
     en: "Linux Network Infrastructure Design from the Ground Up",
@@ -297,6 +297,10 @@ test("builds the infrastructure ladder from network namespaces to a platform cap
   assert.match(
     curriculum?.recommendedPrerequisite?.reason.en ?? "",
     /interfaces.*addresses.*routes.*sockets/i,
+  );
+  assert.equal(
+    curriculum?.recommendedContinuation?.curriculumSlug,
+    "system-architecture",
   );
 });
 
@@ -419,6 +423,10 @@ test("replaces the design-pattern placeholder with a bilingual system architectu
     ko: "시스템 아키텍처를 바닥부터",
     en: "System Architecture from the Ground Up",
   });
+  assert.equal(
+    curriculum?.recommendedPrerequisite?.curriculumSlug,
+    "infrastructure-design",
+  );
   assert.equal(getCurriculum("design-patterns"), undefined);
   assert.equal(
     curricula.some(({ slug }) => slug === "design-patterns"),

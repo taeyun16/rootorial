@@ -476,6 +476,22 @@ export const conceptQuestionHistory = {
       answers: ["protected-file", "missing-file", "invalid-echo"],
     },
   },
+  "linux-systems/shell-and-filesystem/path-after-cd": {
+    1: {
+      version: 1,
+      label: "cd 이후 상대 경로",
+      correctAnswer: "new-working-directory",
+      answers: ["new-working-directory", "previous-directory", "filesystem-root"],
+    },
+  },
+  "linux-systems/shell-and-filesystem/error-evidence-scope": {
+    1: {
+      version: 1,
+      label: "권한 오류의 증거 범위",
+      correctAnswer: "operation-denied-at-path",
+      answers: ["operation-denied-at-path", "file-is-corrupt", "command-never-ran"],
+    },
+  },
   "linux-systems/boot-to-shell/firmware-handoff": {
     1: {
       version: 1,
@@ -506,6 +522,14 @@ export const conceptQuestionHistory = {
       label: "PID 1 프로그램",
       correctAnswer: "init",
       answers: ["init", "firmware", "kernel"],
+    },
+  },
+  "linux-systems/boot-to-shell/first-failed-boundary": {
+    1: {
+      version: 1,
+      label: "rootfs 이후 첫 실패 경계",
+      correctAnswer: "init-exec",
+      answers: ["init-exec", "firmware-handoff", "kernel-decompression"],
     },
   },
   "linux-systems/processes-and-signals/program-vs-process": {
@@ -1342,6 +1366,14 @@ export const conceptQuestionRegistry = {
     ...conceptQuestionHistory["linux-systems/shell-and-filesystem/permission-error"][1],
     status: "active",
   },
+  "linux-systems/shell-and-filesystem/path-after-cd": {
+    ...conceptQuestionHistory["linux-systems/shell-and-filesystem/path-after-cd"][1],
+    status: "active",
+  },
+  "linux-systems/shell-and-filesystem/error-evidence-scope": {
+    ...conceptQuestionHistory["linux-systems/shell-and-filesystem/error-evidence-scope"][1],
+    status: "active",
+  },
   "linux-systems/boot-to-shell/firmware-handoff": {
     ...conceptQuestionHistory["linux-systems/boot-to-shell/firmware-handoff"][1],
     status: "active",
@@ -1356,6 +1388,10 @@ export const conceptQuestionRegistry = {
   },
   "linux-systems/boot-to-shell/pid-one": {
     ...conceptQuestionHistory["linux-systems/boot-to-shell/pid-one"][1],
+    status: "active",
+  },
+  "linux-systems/boot-to-shell/first-failed-boundary": {
+    ...conceptQuestionHistory["linux-systems/boot-to-shell/first-failed-boundary"][1],
     status: "active",
   },
   "linux-systems/processes-and-signals/program-vs-process": {
@@ -1776,6 +1812,8 @@ const linuxShellQuestions = {
   "absolute-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/absolute-path"],
   "relative-path": conceptQuestionRegistry["linux-systems/shell-and-filesystem/relative-path"],
   "permission-error": conceptQuestionRegistry["linux-systems/shell-and-filesystem/permission-error"],
+  "path-after-cd": conceptQuestionRegistry["linux-systems/shell-and-filesystem/path-after-cd"],
+  "error-evidence-scope": conceptQuestionRegistry["linux-systems/shell-and-filesystem/error-evidence-scope"],
 } as const;
 
 const linuxBootQuestions = {
@@ -1783,6 +1821,7 @@ const linuxBootQuestions = {
   "kernel-userspace-boundary": conceptQuestionRegistry["linux-systems/boot-to-shell/kernel-userspace-boundary"],
   "shell-origin": conceptQuestionRegistry["linux-systems/boot-to-shell/shell-origin"],
   "pid-one": conceptQuestionRegistry["linux-systems/boot-to-shell/pid-one"],
+  "first-failed-boundary": conceptQuestionRegistry["linux-systems/boot-to-shell/first-failed-boundary"],
 } as const;
 
 export const linuxProcessQuestions = {

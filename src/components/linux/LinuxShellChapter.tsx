@@ -49,8 +49,8 @@ export function LinuxShellChapter({ learnerCount = 0 }: { learnerCount?: number 
 
   const lockedMessage = !labComplete && !conceptsMastered
     ? t(
-        "필수 실습 다섯 과제와 이해 확인 세 문제를 모두 마치면 완료할 수 있습니다.",
-        "Finish all five required lab tasks and all three concept-check questions to complete the chapter.",
+        "필수 실습 다섯 과제와 이해 확인 다섯 문제를 모두 마치면 완료할 수 있습니다.",
+        "Finish all five required lab tasks and all five concept-check questions to complete the chapter.",
       )
     : !labComplete
       ? t(
@@ -58,8 +58,8 @@ export function LinuxShellChapter({ learnerCount = 0 }: { learnerCount?: number 
           "You passed the concept check. Finish the five required lab tasks.",
         )
       : t(
-          "필수 실습을 통과했습니다. 이해 확인 세 문제를 맞혀 주세요.",
-          "You passed the required lab. Answer all three concept-check questions correctly.",
+          "필수 실습을 통과했습니다. 이해 확인 다섯 문제를 맞혀 주세요.",
+          "You passed the required lab. Answer all five concept-check questions correctly.",
         );
 
   return (

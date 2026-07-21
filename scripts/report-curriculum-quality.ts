@@ -3,9 +3,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import ts from "typescript";
 import {
+  platformContentQualityContracts,
   transformerChapterSlugs,
   transformerContentQualityContracts,
   type EditorialReview,
+  type PlatformChapterQualityContract,
   type TransformerChapterSlug,
 } from "../src/features/chapters/content-quality.ts";
 import { chapterRegistry } from "../src/features/chapters/chapter-registry.ts";
@@ -29,7 +31,9 @@ type SourceMetrics = {
 };
 
 export type ChapterQualityResult = {
-  slug: TransformerChapterSlug;
+  chapterId: string;
+  curriculumSlug: string;
+  slug: string;
   number: number;
   title: string;
   sections: number;
@@ -48,7 +52,7 @@ export type ChapterQualityResult = {
   maxAllowedInteractionBudget: number;
   learningExperienceScore: number;
   editorialScore: number;
-  editorialMaximum: 45;
+  editorialMaximum: number;
   nativeSelectDefinitions: number;
   maxPythonCellLines: number;
   issues: string[];
@@ -233,6 +237,126 @@ function publicationKind(value: string | undefined): "published" | "draft" | "ot
   return "other";
 }
 
+function emptyPlatformResult(
+  contract: PlatformChapterQualityContract,
+  issues: string[],
+): ChapterQualityResult {
+  const [curriculumSlug, slug] = contract.chapterId.split("/");
+  return {
+    chapterId: contract.chapterId,
+    curriculumSlug,
+    slug,
+    number: contract.number,
+    title: contract.title,
+    sections: 0,
+    paragraphs: 0,
+    activities: contract.activityKinds.length,
+    activityKinds: new Set(contract.activityKinds).size,
+    gradedTasks: 0,
+    pythonCells: 0,
+    conceptQuestions: 0,
+    completionGate: false,
+    defaultPublication: "other",
+    terminologySupportCount: contract.learningExperience.terminologySupportCount,
+    visibleClarificationAccess: false,
+    requiredCheckpointGroups: contract.learningExperience.requiredCheckpointGroups,
+    estimatedMinimumSuccessfulActions: contract.learningExperience.estimatedMinimumSuccessfulActions,
+    maxAllowedInteractionBudget: contract.learningExperience.maxAllowedInteractionBudget,
+    learningExperienceScore: 0,
+    editorialScore: 0,
+    editorialMaximum: 5,
+    nativeSelectDefinitions: 0,
+    maxPythonCellLines: 0,
+    issues,
+    targetGaps: [],
+  };
+}
+
+function analyzePlatformChapter(
+  repoRoot: string,
+  contract: PlatformChapterQualityContract,
+  resources: ReturnType<typeof publicationResources>,
+  compassReady: boolean,
+): ChapterQualityResult {
+  const sourcePath = path.join(repoRoot, contract.sourceFile);
+  const e2ePath = path.join(repoRoot, contract.e2eFile);
+  if (!fs.existsSync(sourcePath)) {
+    return emptyPlatformResult(contract, [`missing source file: ${contract.sourceFile}`]);
+  }
+
+  const [curriculumSlug, slug] = contract.chapterId.split("/");
+  const metrics = analyzeSource(contract.sourceFile, fs.readFileSync(sourcePath, "utf8"));
+  const registration = chapterRegistry[contract.chapterId as keyof typeof chapterRegistry];
+  const conceptQuestions = registration ? Object.keys(registration.questions).length : 0;
+  const publication = resources.find((resource) =>
+    resource.curriculumSlug === curriculumSlug && resource.chapterSlug === slug,
+  );
+  const defaultPublication = publicationKind(publication?.defaultPublicationStatus);
+  const e2eText = fs.existsSync(e2ePath) ? fs.readFileSync(e2ePath, "utf8") : "";
+  const experience = contract.learningExperience;
+  const issues: string[] = [];
+  const targetGaps: string[] = [];
+
+  if (!metrics.hasConceptCheck) issues.push("no concept-check component rendered");
+  if (!metrics.hasCompletionGate) issues.push("no CompleteChapter gate rendered");
+  if (metrics.nativeSelectDefinitions > 0) issues.push("native select rendered in chapter source");
+  if (!compassReady) issues.push("shared chapter compass does not expose five focus terms and clarification feedback");
+  if (conceptQuestions !== contract.expectedConceptQuestions) {
+    issues.push(`concept question contract drift: expected ${contract.expectedConceptQuestions}, found ${conceptQuestions}`);
+  }
+  if (!e2eText) issues.push(`missing E2E file: ${contract.e2eFile}`);
+  else if (!e2eText.includes("lang=en")) issues.push("E2E does not exercise the English chapter");
+  if (contract.expectedDefaultPublication !== defaultPublication) {
+    issues.push(`default publication drift: expected ${contract.expectedDefaultPublication}, found ${defaultPublication}`);
+  }
+  if (new Set(contract.activityKinds).size < 3) targetGaps.push("fewer than 3 activity types");
+  if (experience.requiredCheckpointGroups > learningExperienceTargets.requiredCheckpointGroups) {
+    targetGaps.push(`required checkpoint groups ${experience.requiredCheckpointGroups}/${learningExperienceTargets.requiredCheckpointGroups} max`);
+  }
+  if (experience.estimatedMinimumSuccessfulActions > experience.maxAllowedInteractionBudget) {
+    targetGaps.push(`minimum successful actions ${experience.estimatedMinimumSuccessfulActions}/${experience.maxAllowedInteractionBudget} budget`);
+  }
+  if (experience.maxAllowedInteractionBudget > learningExperienceTargets.maxAllowedInteractionBudget) {
+    targetGaps.push(`interaction budget ${experience.maxAllowedInteractionBudget}/${learningExperienceTargets.maxAllowedInteractionBudget} max`);
+  }
+
+  const experienceScore = learningExperienceScore(
+    experience.terminologySupportCount,
+    compassReady && experience.visibleClarificationAccess,
+    experience.requiredCheckpointGroups,
+    experience.estimatedMinimumSuccessfulActions,
+    experience.maxAllowedInteractionBudget,
+  );
+  return {
+    chapterId: contract.chapterId,
+    curriculumSlug,
+    slug,
+    number: contract.number,
+    title: contract.title,
+    sections: metrics.sectionIds.length,
+    paragraphs: metrics.paragraphs,
+    activities: contract.activityKinds.length,
+    activityKinds: new Set(contract.activityKinds).size,
+    gradedTasks: Math.max(0, experience.estimatedMinimumSuccessfulActions - conceptQuestions),
+    pythonCells: 0,
+    conceptQuestions,
+    completionGate: metrics.hasCompletionGate,
+    defaultPublication,
+    terminologySupportCount: experience.terminologySupportCount,
+    visibleClarificationAccess: compassReady && experience.visibleClarificationAccess,
+    requiredCheckpointGroups: experience.requiredCheckpointGroups,
+    estimatedMinimumSuccessfulActions: experience.estimatedMinimumSuccessfulActions,
+    maxAllowedInteractionBudget: experience.maxAllowedInteractionBudget,
+    learningExperienceScore: experienceScore,
+    editorialScore: experienceScore,
+    editorialMaximum: 5,
+    nativeSelectDefinitions: metrics.nativeSelectDefinitions,
+    maxPythonCellLines: 0,
+    issues,
+    targetGaps,
+  };
+}
+
 export function analyzeCurriculumQuality(
   repoRoot = defaultRepoRoot,
 ): CurriculumQualityReport {
@@ -247,6 +371,17 @@ export function analyzeCurriculumQuality(
     : "";
   const guideOffersClarification = learningGuideSource.includes("requestContentFeedback")
     && /<button\b/.test(learningGuideSource);
+  const compassSourcePath = path.join(repoRoot, "src/components/CurriculumChapterCompass.tsx");
+  const chapterPagesSourcePath = path.join(repoRoot, "src/features/chapters/chapter-pages.tsx");
+  const compassSource = fs.existsSync(compassSourcePath)
+    ? fs.readFileSync(compassSourcePath, "utf8")
+    : "";
+  const chapterPagesSource = fs.existsSync(chapterPagesSourcePath)
+    ? fs.readFileSync(chapterPagesSourcePath, "utf8")
+    : "";
+  const compassReady = compassSource.includes("requestContentFeedback")
+    && compassSource.includes("slice(0, 5)")
+    && chapterPagesSource.includes("<CurriculumChapterCompass");
   const chapters = transformerChapterSlugs.map((slug): ChapterQualityResult => {
     const contract = transformerContentQualityContracts[slug];
     const sourcePath = path.join(repoRoot, contract.sourceFile);
@@ -257,6 +392,8 @@ export function analyzeCurriculumQuality(
 
     if (!fs.existsSync(sourcePath)) {
       return {
+        chapterId: `transformer-from-zero/${slug}`,
+        curriculumSlug: "transformer-from-zero",
         slug,
         number: contract.number,
         title: contract.title,
@@ -457,6 +594,8 @@ export function analyzeCurriculumQuality(
     }
 
     return {
+      chapterId: `transformer-from-zero/${slug}`,
+      curriculumSlug: "transformer-from-zero",
       slug,
       number: contract.number,
       title: contract.title,
@@ -488,13 +627,17 @@ export function analyzeCurriculumQuality(
     };
   });
 
+  const platformChapters = Object.values(platformContentQualityContracts).map((contract) =>
+    analyzePlatformChapter(repoRoot, contract, resources, compassReady));
+  const allChapters = [...chapters, ...platformChapters];
+
   return {
     generatedAt: new Date().toISOString(),
-    chapters,
-    issues: chapters.flatMap((chapter) =>
-      chapter.issues.map((issue) => `${chapter.slug}: ${issue}`)),
-    targetGaps: chapters.flatMap((chapter) =>
-      chapter.targetGaps.map((gap) => `${chapter.slug}: ${gap}`)),
+    chapters: allChapters,
+    issues: allChapters.flatMap((chapter) =>
+      chapter.issues.map((issue) => `${chapter.chapterId}: ${issue}`)),
+    targetGaps: allChapters.flatMap((chapter) =>
+      chapter.targetGaps.map((gap) => `${chapter.chapterId}: ${gap}`)),
   };
 }
 
@@ -503,15 +646,15 @@ export function renderCurriculumQualityMarkdown(report: CurriculumQualityReport)
     const gaps = chapter.targetGaps.length ? chapter.targetGaps.join("; ") : "—";
     const help = chapter.visibleClarificationAccess ? "yes" : "no";
     const actions = `${chapter.estimatedMinimumSuccessfulActions}/${chapter.maxAllowedInteractionBudget}`;
-    return `| ${chapter.number} | ${chapter.title} | ${chapter.sections} | ${chapter.activities} (${chapter.activityKinds}종) | ${chapter.pythonCells} | ${chapter.maxPythonCellLines} | ${chapter.nativeSelectDefinitions} | ${chapter.conceptQuestions} | ${chapter.terminologySupportCount} | ${help} | ${chapter.requiredCheckpointGroups} | ${actions} | ${chapter.editorialScore}/45 | ${chapter.defaultPublication} | ${gaps} |`;
+    return `| ${chapter.chapterId} | ${chapter.title} | ${chapter.sections} | ${chapter.activities} (${chapter.activityKinds}종) | ${chapter.pythonCells} | ${chapter.maxPythonCellLines} | ${chapter.nativeSelectDefinitions} | ${chapter.conceptQuestions} | ${chapter.terminologySupportCount} | ${help} | ${chapter.requiredCheckpointGroups} | ${actions} | ${chapter.editorialScore}/${chapter.editorialMaximum} | ${chapter.defaultPublication} | ${gaps} |`;
   });
   return [
-    "# Transformer curriculum content-quality report",
+    "# Implemented curriculum content-quality report",
     "",
     `Generated: ${report.generatedAt}`,
     "",
-    "| # | Chapter | Sections | Activities | Python | Max code lines | Native selects | Questions | Terms | Help | Required groups | Actions min/max | Quality | Default | Target gaps |",
-    "|---:|---|---:|---:|---:|---:|---:|---:|---:|:---:|---:|---:|---:|---|---|",
+    "| Chapter | Title | Sections | Activities | Python | Max code lines | Native selects | Questions | Terms | Help | Required groups | Actions min/max | Quality | Default | Target gaps |",
+    "|---|---|---:|---:|---:|---:|---:|---:|---:|:---:|---:|---:|---:|---|---|",
     ...rows,
     "",
     `Structural contract issues: ${report.issues.length}`,

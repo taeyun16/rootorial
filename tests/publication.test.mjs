@@ -465,7 +465,7 @@ test("keeps completed infrastructure chapters unpublished by default", () => {
   const observability = catalog.resources[infrastructureObservabilityKey];
   const platform = catalog.resources[infrastructurePlatformKey];
 
-  assert.equal(infrastructure.developmentStatus, "in-progress");
+  assert.equal(infrastructure.developmentStatus, "complete");
   assert.equal(infrastructure.contentReady, true);
   assert.equal(infrastructure.source, "default");
   assert.equal(infrastructure.publicationStatus, "draft");

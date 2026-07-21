@@ -1152,7 +1152,7 @@ export const curricula: Curriculum[] = [
       ko: "인터페이스와 주소에서 시작해 경로·소켓·TCP·DNS를 연결하고 Linux 서비스 흐름을 증거로 진단합니다.",
       en: "Start with interfaces and addresses, connect routes, sockets, TCP, and DNS, then diagnose a Linux service path from evidence.",
     },
-    eyebrow: { ko: "완성 커리큘럼", en: "COMPLETE CURRICULUM" },
+    eyebrow: { ko: "완성된 초안 · 공개 검수 중", en: "COMPLETE DRAFT · PUBLICATION REVIEW" },
     level: "beginner",
     status: "available",
     accent: "green",
@@ -1187,9 +1187,9 @@ export const curricula: Curriculum[] = [
       ko: "Linux network namespace에서 격리·routing·정책·가용성을 직접 조립하고 증거로 설계를 검증합니다.",
       en: "Assemble isolation, routing, policy, and availability in Linux network namespaces, then verify the design with evidence.",
     },
-    eyebrow: { ko: "새 커리큘럼", en: "NEW CURRICULUM" },
+    eyebrow: { ko: "완성된 초안 · 공개 검수 중", en: "COMPLETE DRAFT · PUBLICATION REVIEW" },
     level: "intermediate",
-    status: "in-progress",
+    status: "available",
     accent: "blue",
     chapters: {
       ko: scopeChapters(INFRASTRUCTURE_CURRICULUM_SLUG, infrastructureChaptersKo),
@@ -1200,6 +1200,13 @@ export const curricula: Curriculum[] = [
       reason: {
         ko: "interface·주소·route·socket의 기본 packet path를 먼저 익히면 namespace 격리와 연결 경계를 더 쉽게 설계할 수 있습니다.",
         en: "Learn interfaces, addresses, routes, sockets, and the basic packet path first so namespace isolation and connectivity boundaries have a clear foundation.",
+      },
+    },
+    recommendedContinuation: {
+      curriculumSlug: SYSTEM_ARCHITECTURE_CURRICULUM_SLUG,
+      reason: {
+        ko: "namespace 기반 인프라에서 검증한 격리·정책·가용성 판단을 component, data ownership, 확장성과 신뢰성을 다루는 시스템 설계로 확장합니다.",
+        en: "Extend the isolation, policy, and availability decisions verified in namespace infrastructure into system design across components, data ownership, scaling, and reliability.",
       },
     },
   },
@@ -1219,6 +1226,13 @@ export const curricula: Curriculum[] = [
     chapters: {
       ko: scopeChapters(SYSTEM_ARCHITECTURE_CURRICULUM_SLUG, systemArchitectureChaptersKo),
       en: scopeChapters(SYSTEM_ARCHITECTURE_CURRICULUM_SLUG, systemArchitectureChaptersEn),
+    },
+    recommendedPrerequisite: {
+      curriculumSlug: INFRASTRUCTURE_CURRICULUM_SLUG,
+      reason: {
+        ko: "격리, 네트워크 경로, 정책, 가용성과 관측성을 실제 인프라 경계에서 먼저 검증하면 시스템 수준 trade-off를 구체적인 증거와 연결할 수 있습니다.",
+        en: "Verify isolation, network paths, policy, availability, and observability at infrastructure boundaries first so system-level trade-offs remain tied to concrete evidence.",
+      },
     },
   },
 ];

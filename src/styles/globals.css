@@ -24902,3 +24902,135 @@ textarea:focus-visible {
     font-size: 16px;
   }
 }
+.curriculum-chapter-compass {
+  width: min(1180px, calc(100% - 48px));
+  margin: 28px auto 0;
+  padding: 28px 0;
+  border-block: 1px solid var(--line-strong);
+  color: var(--ink);
+}
+
+.curriculum-chapter-compass > header,
+.curriculum-chapter-compass-body,
+.curriculum-chapter-compass-terms {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+  gap: 32px;
+  align-items: end;
+}
+
+.curriculum-chapter-compass > header p,
+.curriculum-chapter-compass-evidence > span,
+.curriculum-chapter-compass-terms > div > span {
+  margin: 0 0 6px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+}
+
+.curriculum-chapter-compass > header h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: clamp(25px, 3vw, 38px);
+}
+
+.curriculum-chapter-compass > header > span {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.curriculum-chapter-compass-body {
+  margin-top: 24px;
+  align-items: stretch;
+}
+
+.curriculum-chapter-compass-body ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.curriculum-chapter-compass-body li {
+  display: grid;
+  gap: 8px;
+  padding: 14px 18px 14px 0;
+  border-top: 1px solid var(--line);
+}
+
+.curriculum-chapter-compass-body li span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.curriculum-chapter-compass-body li strong {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.curriculum-chapter-compass-evidence {
+  padding-left: 24px;
+  border-left: 3px solid var(--forest);
+}
+
+.curriculum-chapter-compass-evidence p {
+  margin: 0;
+  font-weight: 750;
+  line-height: 1.55;
+}
+
+.curriculum-chapter-compass-terms {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  align-items: center;
+}
+
+.curriculum-chapter-compass-terms ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.curriculum-chapter-compass-terms li {
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.curriculum-chapter-compass-terms .button {
+  justify-self: end;
+}
+
+@media (max-width: 760px) {
+  .curriculum-chapter-compass {
+    width: min(100% - 28px, 1180px);
+    margin-top: 18px;
+  }
+
+  .curriculum-chapter-compass > header,
+  .curriculum-chapter-compass-body,
+  .curriculum-chapter-compass-terms {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .curriculum-chapter-compass-body ol {
+    grid-template-columns: 1fr;
+  }
+
+  .curriculum-chapter-compass-evidence {
+    padding: 14px 0 0;
+    border-top: 3px solid var(--forest);
+    border-left: 0;
+  }
+
+  .curriculum-chapter-compass-terms .button {
+    width: 100%;
+    justify-self: stretch;
+  }
+}

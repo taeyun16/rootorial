@@ -5,23 +5,34 @@ import {
   analyzeCurriculumQuality,
   renderCurriculumQualityMarkdown,
 } from "../scripts/report-curriculum-quality.ts";
-import { transformerContentQualityContracts } from "../src/features/chapters/content-quality.ts";
+import {
+  platformContentQualityContracts,
+  transformerContentQualityContracts,
+} from "../src/features/chapters/content-quality.ts";
 
-test("tracks every Transformer chapter without structural contract drift", () => {
+test("tracks every implemented chapter without structural contract drift", () => {
   const report = analyzeCurriculumQuality();
+  const transformerChapters = report.chapters.filter(
+    ({ curriculumSlug }) => curriculumSlug === "transformer-from-zero",
+  );
 
-  assert.equal(report.chapters.length, 10);
+  assert.equal(report.chapters.length, 32);
+  assert.equal(Object.keys(platformContentQualityContracts).length, 22);
   assert.deepEqual(
-    report.chapters.map(({ number }) => number),
+    transformerChapters.map(({ number }) => number),
     [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
   );
   assert.deepEqual(report.issues, []);
+  assert.deepEqual(report.targetGaps, []);
 });
 
 test("closes the executable-Python gap across every Transformer chapter", () => {
   const report = analyzeCurriculumQuality();
+  const transformerChapters = report.chapters.filter(
+    ({ curriculumSlug }) => curriculumSlug === "transformer-from-zero",
+  );
   const pythonCells = Object.fromEntries(
-    report.chapters.map(({ slug, pythonCells: count }) => [slug, count]),
+    transformerChapters.map(({ slug, pythonCells: count }) => [slug, count]),
   );
 
   assert.equal(pythonCells.vectors, 2);
@@ -42,22 +53,25 @@ test("closes the executable-Python gap across every Transformer chapter", () => 
 
 test("keeps the core learning path visible, supported, and within its interaction budget", () => {
   const report = analyzeCurriculumQuality();
+  const transformerChapters = report.chapters.filter(
+    ({ curriculumSlug }) => curriculumSlug === "transformer-from-zero",
+  );
 
   assert.deepEqual(
-    report.chapters.map(({ terminologySupportCount }) => terminologySupportCount),
+    transformerChapters.map(({ terminologySupportCount }) => terminologySupportCount),
     [5, 5, 6, 5, 5, 5, 5, 5, 5, 5],
   );
   assert.ok(report.chapters.every(({ visibleClarificationAccess }) => visibleClarificationAccess));
   assert.deepEqual(
-    report.chapters.map(({ requiredCheckpointGroups }) => requiredCheckpointGroups),
+    transformerChapters.map(({ requiredCheckpointGroups }) => requiredCheckpointGroups),
     [3, 2, 3, 2, 2, 2, 2, 2, 2, 2],
   );
   assert.deepEqual(
-    report.chapters.map(({ estimatedMinimumSuccessfulActions }) => estimatedMinimumSuccessfulActions),
+    transformerChapters.map(({ estimatedMinimumSuccessfulActions }) => estimatedMinimumSuccessfulActions),
     [17, 13, 16, 13, 13, 13, 13, 15, 15, 15],
   );
   assert.deepEqual(
-    report.chapters.map(({ maxAllowedInteractionBudget }) => maxAllowedInteractionBudget),
+    transformerChapters.map(({ maxAllowedInteractionBudget }) => maxAllowedInteractionBudget),
     [18, 16, 18, 16, 16, 16, 16, 16, 16, 16],
   );
   assert.ok(report.chapters.every(({ learningExperienceScore }) => learningExperienceScore === 5));

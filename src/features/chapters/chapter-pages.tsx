@@ -5,6 +5,7 @@ import {
   ChapterNavigationProvider,
   ChapterSequenceNavigation,
 } from "../../components/ChapterSequenceNavigation";
+import { CurriculumChapterCompass } from "../../components/CurriculumChapterCompass";
 import type { ChapterNavigationAccess } from "./chapter-navigation";
 import {
   isRegisteredChapterId,
@@ -37,6 +38,10 @@ function chapterPage(load: ChapterModuleLoader): ComponentType<ChapterPageProps>
         {continuousPath ? (
           <ChapterNavigationProvider access={navigation}>
             <div className="continuous-chapter-frame">
+              <CurriculumChapterCompass
+                curriculumSlug={curriculumSlug}
+                chapterSlug={chapterSlug}
+              />
               <Chapter learnerCount={learnerCount} />
               <ChapterSequenceNavigation
                 curriculumSlug={curriculumSlug}

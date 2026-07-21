@@ -9,7 +9,8 @@ type QuestionId =
   | "firmware-handoff"
   | "kernel-userspace-boundary"
   | "shell-origin"
-  | "pid-one";
+  | "pid-one"
+  | "first-failed-boundary";
 
 export function LinuxBootConceptCheck({
   onMasteryChange,
@@ -113,6 +114,28 @@ export function LinuxBootConceptCheck({
         "Firmware and the kernel are not userspace processes. PID 1 is init, launched by the kernel.",
       ),
     },
+    {
+      id: "first-failed-boundary",
+      index: "05",
+      prompt: isKo
+        ? <><code>VFS: Mounted root</code> 뒤에 <code>Failed to execute /sbin/init</code>가 보입니다. 처음 실패한 경계는 어디일까요?</>
+        : <><code>VFS: Mounted root</code> is followed by <code>Failed to execute /sbin/init</code>. Which boundary failed first?</>,
+      options: [
+        { value: "init-exec", label: t("마운트된 rootfs에서 init 실행", "Executing init from the mounted rootfs") },
+        { value: "firmware-handoff", label: t("펌웨어에서 커널 인계", "Firmware-to-kernel handoff") },
+        { value: "kernel-decompression", label: t("커널 이미지 압축 해제", "Kernel image decompression") },
+      ],
+      correctAnswer: "init-exec",
+      answerLabel: t("정답: rootfs → init 실행 경계", "Answer: the rootfs-to-init execution boundary"),
+      correctFeedback: t(
+        "맞았습니다. rootfs 마운트 성공은 앞 경계를 통과했다는 증거이고, 다음 init 실행이 첫 실패입니다.",
+        "Right. A mounted rootfs proves the earlier boundary passed; executing init is the first failure.",
+      ),
+      incorrectFeedback: t(
+        "마지막 성공 표식부터 읽으세요. 커널과 rootfs는 이미 준비됐으므로 그 다음 init 실행을 확인해야 합니다.",
+        "Start at the last successful marker. The kernel and rootfs are ready, so inspect the next init execution boundary.",
+      ),
+    },
   ];
 
   return (
@@ -127,8 +150,8 @@ export function LinuxBootConceptCheck({
           "Treat the prompt as evidence and explain the boundaries before it",
         ),
         description: t(
-          "네 문제를 모두 맞히고 두 필수 활동을 마치면 챕터 완료 조건이 충족됩니다.",
-          "Answer all four questions and finish both required activities to satisfy the chapter gate.",
+          "다섯 문제를 모두 맞히고 두 필수 활동을 마치면 챕터 완료 조건이 충족됩니다.",
+          "Answer all five questions and finish both required activities to satisfy the chapter gate.",
         ),
         correct: t("경계를 정확히 읽었습니다", "Boundary read correctly"),
         incorrect: t("마지막 성공 표식을 확인하세요", "Check the last good marker"),
@@ -142,8 +165,8 @@ export function LinuxBootConceptCheck({
           "One or more boundaries are still mixed up. Find the last successful actor in each log.",
         ),
         idle: t(
-          "네 답을 고른 뒤 부팅 흐름을 확인하세요.",
-          "Choose all four answers, then check the boot flow.",
+          "다섯 답을 고른 뒤 부팅 흐름을 확인하세요.",
+          "Choose all five answers, then check the boot flow.",
         ),
       }}
     />
