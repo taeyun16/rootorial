@@ -108,7 +108,7 @@ export function AttentionPipelineExplorer({
   const preset = attentionPresets[presetId];
   const baseInput = useMemo(() => inputForAttentionPresets([presetId]), [presetId]);
   const slotLabels = attentionMemorySlots.map((slot) => isKo ? slot.labelKo : slot.labelEn);
-  const query = queryValues.map(Number);
+  const query = queryValues.map((value) => value.trim() === "" ? Number.NaN : Number(value));
   const exactPresetQuery = closeEnough(query, preset.query);
 
   useEffect(() => setInteractiveReady(true), []);

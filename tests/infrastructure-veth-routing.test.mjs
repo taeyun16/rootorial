@@ -52,6 +52,28 @@ test("keeps misplaced peer ownership and blocked route state visible in the visu
   assert.equal(noReturn.returnPath[0].status, "blocked");
 });
 
+test("derives each connected route from the interface's current address prefix", () => {
+  const bridgeScaffold = evaluateVethTopology(vethTopologyPresets["bridge-scaffold"]);
+  assert.deepEqual(
+    bridgeScaffold.machine.routes
+      .filter(({ role }) => role === "connected")
+      .map(({ ownerNamespace, destination }) => [ownerNamespace, destination]),
+    [
+      ["client", "10.20.0.0/24"],
+      ["app", "10.30.0.0/24"],
+    ],
+  );
+
+  const wideAppPrefix = evaluateVethTopology({
+    ...vethTopologyPresets["router-working"],
+    appAddress: "10.20.1.2/16",
+  });
+  assert.equal(
+    wideAppPrefix.machine.routes.find(({ id }) => id === "app-connected")?.destination,
+    "10.20.0.0/16",
+  );
+});
+
 test("builds two symmetric veth pairs with one owner per endpoint", () => {
   const bridge = evaluateVethTopology(vethTopologyPresets["bridge-working"]);
   assert.equal(bridge.passed, true);

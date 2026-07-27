@@ -97,7 +97,7 @@ export function NetworkPolicyConceptCheck({
       ),
       options: [
         { value: "reply-is-new-to-opposite-port", label: t("reply를 반대 방향의 새로운 연결로 취급", "treat the reply as a new reverse connection") },
-        { value: "ct-established-allows-mapped-reply", label: "ct state established,related accept" },
+        { value: "ct-established-allows-mapped-reply", label: "ct state established accept" },
         { value: "allow-all-ephemeral-ports", label: t("모든 ephemeral port를 무조건 allow", "unconditionally allow every ephemeral port") },
       ],
       correctAnswer: infrastructureNetworkPolicyQuestions["stateful-reply-rule"].correctAnswer,

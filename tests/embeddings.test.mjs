@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -177,4 +178,21 @@ test("requires lookup evidence and concepts while keeping debugger remediation o
     lookupLabComplete: true,
     conceptsMastered: false,
   }), false);
+});
+
+test("presents one required embedding activity with localized preview navigation", async () => {
+  const chapterSource = await readFile(
+    new URL("../src/components/embeddings/EmbeddingsChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  const conceptSource = await readFile(
+    new URL("../src/components/embeddings/EmbeddingsConceptCheck.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(conceptSource, /the required lookup-and-gradient lab to unlock/);
+  assert.doesNotMatch(conceptSource, /both required activities|both activity states/);
+  assert.match(chapterSource, /t\("선택", "Optional"\)/);
+  assert.match(chapterSource, /chapters\/training\$\{isKo/);
+  assert.match(chapterSource, /chapters\/sequences\$\{isKo/);
 });

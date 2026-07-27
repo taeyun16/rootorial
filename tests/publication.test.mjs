@@ -15,6 +15,47 @@ import {
   loadPublicationCatalog,
   loadPublicPlatformCatalog,
 } from "../src/features/publication/publication.server.ts";
+import {
+  buildLocalContentPreviewCatalog,
+  isLocalContentPreviewAllowed,
+} from "../src/features/publication/local-content-preview.ts";
+
+test("limits local draft preview to an explicit development loopback gate", () => {
+  for (const host of ["localhost", "localhost:3000", "127.0.0.1:3000", "[::1]:3000"]) {
+    assert.equal(isLocalContentPreviewAllowed({ development: true, enabledValue: "1", host }), true);
+  }
+
+  for (const input of [
+    { development: false, enabledValue: "1", host: "localhost:3000" },
+    { development: true, enabledValue: "0", host: "localhost:3000" },
+    { development: true, enabledValue: undefined, host: "localhost:3000" },
+    { development: true, enabledValue: "1", host: "rootorial.com" },
+    { development: true, enabledValue: "1", host: "192.168.1.20:3000" },
+  ]) {
+    assert.equal(isLocalContentPreviewAllowed(input), false);
+  }
+});
+
+test("builds one local audit index without linking planned chapters", () => {
+  const catalog = buildLocalContentPreviewCatalog(resolvePublicationCatalog([]));
+  assert.equal(catalog.curricula.length, 5);
+  assert.equal(catalog.implementedChapters, 32);
+  assert.equal(catalog.plannedChapters, 8);
+
+  const systemArchitecture = catalog.curricula.find(
+    (curriculum) => curriculum.slug === "system-architecture",
+  );
+  assert.equal(systemArchitecture?.previewReady, true);
+  assert.equal(systemArchitecture?.chapters.length, 8);
+  assert.equal(systemArchitecture?.chapters.every((chapter) => !chapter.previewReady), true);
+  assert.equal(
+    catalog.curricula
+      .filter((curriculum) => curriculum.slug !== "system-architecture")
+      .flatMap((curriculum) => curriculum.chapters)
+      .every((chapter) => chapter.previewReady),
+    true,
+  );
+});
 
 const transformerKey = curriculumPublicationKey("transformer-from-zero");
 const vectorsKey = chapterPublicationKey("transformer-from-zero", "vectors");

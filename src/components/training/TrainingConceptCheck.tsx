@@ -145,13 +145,13 @@ export function TrainingConceptCheck({
         kicker: "READ THE TRAINING LOOP",
         title: t("logits에서 checkpoint까지 한 훈련 루프로 연결하세요", "Connect logits through checkpoints as one training loop"),
         description: t(
-          "다섯 문제와 두 필수 활동을 모두 마쳐야 챕터 완료 조건이 열립니다.",
-          "Finish all five questions and both required activities to unlock the chapter gate.",
+          "다섯 문제와 필수 mini-batch lab을 마치면 챕터 완료 조건이 열립니다.",
+          "Finish all five questions and the required mini-batch lab to unlock the chapter gate.",
         ),
         correct: t("훈련 계약을 정확히 읽었습니다", "Training contract read correctly"),
         incorrect: t("shape·state·평가 경계를 다시 추적하세요", "Retrace shape, state, and evaluation boundaries"),
         checkAnswers: t("훈련 루프 확인하기", "Check the training loop"),
-        completed: t("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", "Concept check complete — now confirm both activity states."),
+        completed: t("이해 확인 완료 — 필수 mini-batch lab 상태를 확인하세요.", "Concept check complete — now confirm the required mini-batch lab."),
         retry: t("epoch·softmax·loss·validation·dropout 중 일부 경계가 아직 섞여 있습니다.", "Some boundaries among epochs, softmax, loss, validation, and dropout are still mixed."),
         idle: t("다섯 답을 고른 뒤 훈련 루프를 확인하세요.", "Choose all five answers, then check the training loop."),
       }}

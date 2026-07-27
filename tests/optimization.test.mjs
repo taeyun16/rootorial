@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   optimizationGradientRepairCode,
@@ -200,4 +201,29 @@ test("requires the core lab and concept check while keeping debugger remediation
     };
     assert.equal(canCompleteOptimizationChapter(state), false);
   }
+});
+
+test("states the optimization completion gate without presenting the debugger as required", () => {
+  const conceptCheckSource = readFileSync(
+    new URL("../src/components/optimization/OptimizationConceptCheck.tsx", import.meta.url),
+    "utf8",
+  );
+  const chapterSource = readFileSync(
+    new URL("../src/components/optimization/OptimizationChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  const vectorsSource = readFileSync(
+    new URL("../src/components/VectorsChapter.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(
+    conceptCheckSource,
+    /Finish all five questions and the required learning-rate repair lab/,
+  );
+  assert.doesNotMatch(conceptCheckSource, /both required activities/);
+  assert.match(chapterSource, /t\("선택", "Optional"\)/);
+  assert.match(chapterSource, /chapters\/vectors\$\{isKo/);
+  assert.match(chapterSource, /chapters\/neural-networks\$\{isKo/);
+  assert.match(vectorsSource, /chapters\/optimization\$\{isKo/);
 });

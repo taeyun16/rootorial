@@ -68,7 +68,7 @@ export function AvailabilityFailureDomainView({
             value={draft.recoverySeconds}
             data-control-id="recovery-seconds"
             aria-label={t("zone failover recovery seconds", "Zone failover recovery seconds")}
-            onChange={(event) => onRecoverySecondsChange(Number(event.currentTarget.value) as RecoveryTime)}
+            onInput={(event) => onRecoverySecondsChange(Number(event.currentTarget.value) as RecoveryTime)}
           />
           <output>{draft.recoverySeconds}s · {draft.recoverySeconds === 20 ? t("40 request loss", "40 request loss") : t("budget 초과", "over budget")}</output>
         </label>

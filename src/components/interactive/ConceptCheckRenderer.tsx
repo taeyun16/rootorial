@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useState, type FormEvent, type KeyboardEvent, type ReactNode } from "react";
 
 export type ConceptQuestionSpec<QuestionId extends string> = {
   id: QuestionId;
@@ -50,12 +50,28 @@ export function ConceptCheckRenderer<QuestionId extends string>({
     }
   }
 
+  function chooseAnswerWithKeyboard(
+    event: KeyboardEvent<HTMLButtonElement>,
+    questionId: QuestionId,
+    answer: string,
+  ) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    chooseAnswer(questionId, answer);
+  }
+
   function checkAnswers(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const passed = questions.every((question) => answers[question.id] === question.correctAnswer);
     setSubmitted(true);
     onMasteryChange(passed);
     onSubmitAttempt?.(answers as Record<QuestionId, string>);
+  }
+
+  function checkAnswersWithKeyboard(event: KeyboardEvent<HTMLButtonElement>) {
+    if (event.key !== "Enter" && event.key !== " ") return;
+    event.preventDefault();
+    event.currentTarget.form?.requestSubmit();
   }
 
   return (
@@ -87,6 +103,7 @@ export function ConceptCheckRenderer<QuestionId extends string>({
                   className="concept-option"
                   aria-pressed={answers[question.id] === option.value}
                   onClick={() => chooseAnswer(question.id, option.value)}
+                  onKeyDown={(event) => chooseAnswerWithKeyboard(event, question.id, option.value)}
                   key={option.value}
                 >
                   <span aria-hidden="true">{answers[question.id] === option.value ? "✓" : String.fromCharCode(65 + optionIndex)}</span>
@@ -112,7 +129,12 @@ export function ConceptCheckRenderer<QuestionId extends string>({
       })}
 
       <div className="concept-check-actions">
-        <button type="submit" className="button button-primary concept-check-submit" disabled={!allAnswered}>
+        <button
+          type="submit"
+          className="button button-primary concept-check-submit"
+          disabled={!allAnswered}
+          onKeyDown={checkAnswersWithKeyboard}
+        >
           {copy.checkAnswers}
         </button>
         <div className="concept-check-summary" role="status" aria-live="polite">

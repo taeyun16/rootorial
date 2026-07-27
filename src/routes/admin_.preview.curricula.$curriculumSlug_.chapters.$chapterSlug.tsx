@@ -7,6 +7,7 @@ import {
 import { getChapterPage } from "../features/chapters/chapter-pages";
 import { buildChapterNavigationAccess } from "../features/chapters/chapter-navigation";
 import { getAdminPublicationPreview } from "../features/publication/publication.functions";
+import { useLocale } from "../features/localization/localization";
 
 export const Route = createFileRoute(
   "/admin_/preview/curricula/$curriculumSlug_/chapters/$chapterSlug",
@@ -48,7 +49,8 @@ export const Route = createFileRoute(
 
 function ChapterPreviewRoute() {
   const { curriculumSlug, chapterSlug } = Route.useParams();
-  const { catalog, curriculum } = Route.useLoaderData();
+  const { accessMode, catalog, curriculum } = Route.useLoaderData();
+  const { locale } = useLocale();
   const ChapterPage = getChapterPage(curriculumSlug, chapterSlug);
   if (!ChapterPage) throw notFound();
   const chapterKo = curriculum.chapters.ko.find(
@@ -72,8 +74,9 @@ function ChapterPreviewRoute() {
     <PublicationPreviewProvider>
       <PageMetadataSync metadata={metadata} />
       <PublicationPreviewBanner
-        title={`${String(chapterKo.number).padStart(2, "0")}. ${chapterKo.title}`}
+        title={`${String(chapterKo.number).padStart(2, "0")}. ${locale === "ko" ? chapterKo.title : chapterEn.title}`}
         publicHref={`/curricula/${curriculumSlug}/chapters/${chapterSlug}`}
+        localDevelopment={accessMode === "local-development"}
       />
       <ChapterPage
         curriculumSlug={curriculumSlug}

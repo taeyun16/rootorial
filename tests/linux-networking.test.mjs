@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   ETHERNET_HEADER_BYTES,
@@ -768,4 +769,12 @@ test("requires the packet lab, incident repair, and concept checks together", ()
       [missing]: false,
     }), false);
   }
+});
+
+test("keeps the networking prerequisite handoff at a 44px touch target", async () => {
+  const styles = await readFile(new URL("../src/styles/globals.css", import.meta.url), "utf8");
+  assert.match(
+    styles,
+    /\.network-prerequisite a \{[\s\S]*?display: inline-flex;[\s\S]*?min-height: 44px;/,
+  );
 });

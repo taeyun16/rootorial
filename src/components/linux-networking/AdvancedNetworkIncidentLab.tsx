@@ -21,5 +21,12 @@ export function AdvancedNetworkIncidentLab({ config, onCompletionChange }: { con
       </article>;
     })}
     <p className="advanced-incident-progress" role="status">{complete ? locale === "ko" ? "모든 사건을 최소 변경으로 복구했습니다." : "Every incident is repaired with a minimal change." : `${Object.keys(repairs).filter((id) => evaluateAdvancedIncident(config.slug, id, repairs[id])).length} / ${config.incidents.length} ${locale === "ko" ? "사건 복구" : "incidents repaired"}`}</p>
+    <button
+      className="advanced-incident-reset"
+      type="button"
+      onClick={() => setRepairs({})}
+    >
+      {locale === "ko" ? "장애 복구 초기화" : "Reset incident repairs"}
+    </button>
   </div>;
 }

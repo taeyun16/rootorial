@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -47,6 +48,23 @@ import {
 } from "../src/features/mini-transformer/mini-transformer-model.ts";
 
 const TOLERANCE = 1e-10;
+
+test("presents three required Mini Transformer challenges with localized optional remediation", async () => {
+  const [conceptSource, chapterSource, notebookSource, styles] = await Promise.all([
+    readFile(new URL("../src/components/mini-transformer/MiniTransformerConceptCheck.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../src/components/mini-transformer/MiniTransformerChapter.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../src/components/NotebookCell.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../src/styles/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(conceptSource, /three core workbench challenges/);
+  assert.match(conceptSource, /all three core challenge states/);
+  assert.doesNotMatch(conceptSource, /both required activities|both activity states/);
+  assert.match(chapterSource, /t\("선택", "Optional"\)/);
+  assert.match(notebookSource, /repairLineIndentation/);
+  assert.match(notebookSource, /nextLine\.trimStart\(\)/);
+  assert.match(styles, /\.mini-transformer-prerequisite a \{[\s\S]*?min-height: 44px;/);
+});
 
 test("ships independent English-only NumPy bridges for shifted loss and generation repair", () => {
   const lmHeadExecutionCode = `${miniTransformerLmHeadUpdateSupportCode}\n${miniTransformerLmHeadUpdateCode}`;

@@ -199,7 +199,7 @@ export function NetworkPolicyLab({
           chain: <div className="network-policy-chain-controls">
             <InfrastructureStateSwitch
               controlId="policy-stateful-rule"
-              label="ct state established,related accept"
+              label="ct state established accept"
               detail={t("reply traffic용 stateful rule", "Stateful rule for reply traffic")}
               checked={draft.statefulRule}
               onChange={(value) => setField("statefulRule", value)}

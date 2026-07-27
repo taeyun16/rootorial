@@ -46,7 +46,7 @@ export function NetworkPolicyView({
   }[reason]);
 
   const ruleLabel = (ruleId: NetworkPolicyRuleId) => ({
-    "allow-established-related": "ct state established,related accept",
+    "allow-established-related": "ct state established accept",
     "allow-required-new": visual.mode === "forward"
       ? t("client → app:8080 NEW accept", "client → app:8080 NEW accept")
       : t("admin → router:22 NEW accept", "admin → router:22 NEW accept"),

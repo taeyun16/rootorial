@@ -44,6 +44,17 @@ test("implemented curricula do not render native select controls", () => {
   assert.deepEqual(nestedInteractiveLabels, []);
 });
 
+test("shared concept checks submit on Enter and Space in the in-app browser", () => {
+  const source = fs.readFileSync(
+    path.join(repoRoot, "src/components/interactive/ConceptCheckRenderer.tsx"),
+    "utf8",
+  );
+
+  assert.match(source, /event\.key !== "Enter" && event\.key !== " "/);
+  assert.match(source, /event\.currentTarget\.form\?\.requestSubmit\(\)/);
+  assert.match(source, /onKeyDown=\{checkAnswersWithKeyboard\}/);
+});
+
 test("advanced Linux Networking contracts use a complete typed visualization registry", () => {
   const registrySource = fs.readFileSync(
     path.join(repoRoot, "src/features/chapters/visualization-registry.tsx"),
@@ -59,6 +70,10 @@ test("advanced Linux Networking contracts use a complete typed visualization reg
     assert.equal(chapterExperienceContracts[id].status, "implemented");
     assert.equal(chapterExperienceContracts[id].visualizationKey, visualizationKey);
   }
+  assert.equal(
+    chapterExperienceContracts["linux-networking/dns-and-service-reachability"].interaction,
+    "predict-and-repair",
+  );
   for (const visualizationKey of [
     "route-prefix-bars",
     "tcp-boundary-sequence",

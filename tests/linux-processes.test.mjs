@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   applyProcessIncidentAction,
@@ -188,4 +189,12 @@ test("requires causal lifecycle evidence and every chapter gate", () => {
       [missing]: false,
     }), false);
   }
+});
+
+test("keeps every per-incident retry control at a 44px touch target", async () => {
+  const styles = await readFile(new URL("../src/styles/globals.css", import.meta.url), "utf8");
+  assert.match(
+    styles,
+    /\.process-incident-card > \.text-link \{[\s\S]*?min-height: 44px;[\s\S]*?display: inline-flex;/,
+  );
 });

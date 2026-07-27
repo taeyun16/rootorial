@@ -145,13 +145,13 @@ export function SequencesConceptCheck({
         kicker: "TRACE THE SEQUENCE CONTRACT",
         title: t("순서·gradient·gate·causal prefix를 연결하세요", "Connect order, gradients, gates, and causal prefixes"),
         description: t(
-          "다섯 문제와 두 필수 활동을 모두 마쳐야 챕터 완료 조건이 열립니다.",
-          "Finish all five questions and both required activities to unlock the chapter gate.",
+          "다섯 문제와 필수 sequence memory lab을 마치면 챕터 완료 조건이 열립니다.",
+          "Finish all five questions and the required sequence-memory lab to unlock the chapter gate.",
         ),
         correct: t("시퀀스 계약을 정확히 추적했습니다", "Sequence contract traced correctly"),
         incorrect: t("hidden·gradient·cell·causal 경계를 다시 추적하세요", "Retrace hidden-state, gradient, cell, and causal boundaries"),
         checkAnswers: t("시퀀스 계약 확인하기", "Check the sequence contract"),
-        completed: t("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", "Concept check complete — now confirm both activity states."),
+        completed: t("이해 확인 완료 — 필수 sequence memory lab의 완료 상태를 확인하세요.", "Concept check complete — now confirm the required sequence-memory lab."),
         retry: t("순서·gradient·gate·causal prefix 중 일부가 아직 섞여 있습니다.", "Some boundaries among order, gradients, gates, and causal prefixes are still mixed."),
         idle: t("다섯 답을 고른 뒤 시퀀스 계약을 확인하세요.", "Choose all five answers, then check the sequence contract."),
       }}

@@ -20,6 +20,7 @@ import { MathFormula } from "./MathFormula";
 import { AuthControls } from "./AuthControls";
 import { PublicLearningProof } from "./PublicLearningProof";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { usePublicationPreview } from "./PublicationPreview";
 import { useLocale } from "../features/localization/localization";
 import { chaptersEn, chaptersKo } from "../data/curriculum";
 import {
@@ -93,11 +94,14 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
   const [axisPracticeComplete, setAxisPracticeComplete] = useState(false);
   const [shapePracticeComplete, setShapePracticeComplete] = useState(false);
   const { locale } = useLocale();
+  const preview = usePublicationPreview();
   const isKo = locale === "ko";
   const chapter = (isKo ? chaptersKo : chaptersEn).find(({ slug }) => slug === "vectors")!;
   const t = (ko: string, en: string) => isKo ? ko : en;
   const tocItems = isKo ? tocItemsKo : tocItemsEn;
   const [topbarHidden, setTopbarHidden] = useChapterTopbarVisibility();
+  const curriculumPreviewHref = `/admin/preview/curricula/transformer-from-zero${isKo ? "" : "?lang=en"}`;
+  const nextPreviewHref = `/admin/preview/curricula/transformer-from-zero/chapters/optimization${isKo ? "" : "?lang=en"}`;
   const remainingRequirements = [
     !axisPracticeComplete ? t("Axis Builder 세 연산", "Axis Builder: three operations") : null,
     !shapePracticeComplete ? t("Shape Detective 세 미션", "Shape Detective: three missions") : null,
@@ -406,12 +410,20 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
           </section>
 
           <nav className="chapter-bottom-nav" aria-label={isKo ? "챕터 이동" : "Chapter navigation"}>
-            <Link to="/curricula/$curriculumSlug" params={{ curriculumSlug: "transformer-from-zero" }}>
-              ← {isKo ? "커리큘럼" : "Curriculum"}
-            </Link>
-            <span>
-              {isKo ? "다음: 학습과 최적화" : "Next: Learning and Optimization"} <small>{isKo ? "준비 중" : "Coming soon"}</small>
-            </span>
+            {preview ? (
+              <a href={curriculumPreviewHref}>← {isKo ? "커리큘럼" : "Curriculum"}</a>
+            ) : (
+              <Link to="/curricula/$curriculumSlug" params={{ curriculumSlug: "transformer-from-zero" }}>
+                ← {isKo ? "커리큘럼" : "Curriculum"}
+              </Link>
+            )}
+            {preview ? (
+              <a href={nextPreviewHref}>{isKo ? "다음: 학습과 최적화" : "Next: Learning and Optimization"} →</a>
+            ) : (
+              <span>
+                {isKo ? "다음: 학습과 최적화" : "Next: Learning and Optimization"} <small>{isKo ? "준비 중" : "Coming soon"}</small>
+              </span>
+            )}
           </nav>
         </article>
       </div>

@@ -38,6 +38,10 @@ test("classifies transit and router-local packets into distinct hooks", () => {
 test("accepts only the required new transit flow and its established reply", () => {
   const evaluation = evaluateNetworkPolicy(networkPolicyPresets["forward-working"]);
   assert.equal(evaluation.passed, true);
+  assert.equal(
+    evaluation.machine.chain.rules.find(({ id }) => id === "allow-established-related")?.description,
+    "ct state established accept",
+  );
   assert.deepEqual(
     evaluation.packetResults.map(({ packet, verdict, matchedRuleId }) => [packet.id, verdict, matchedRuleId]),
     [

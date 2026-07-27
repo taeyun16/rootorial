@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   NETWORK_VIEW_ETH0_ADDRESS,
@@ -254,4 +255,14 @@ test("keeps chapter completion conjunctive", () => {
     };
     assert.equal(canCompleteInterfacesAddressesLoopbackChapter(state), false);
   }
+});
+
+test("returns reset focus to the prediction that replaces the command list", async () => {
+  const source = await readFile(
+    new URL("../src/components/linux-networking/LinuxNetworkViewFigure.tsx", import.meta.url),
+    "utf8",
+  );
+  assert.match(source, /const predictionGroupRef = useRef<HTMLDivElement>\(null\);/);
+  assert.match(source, /requestAnimationFrame\(\(\) => \{[\s\S]*?predictionGroupRef\.current[\s\S]*?querySelector<HTMLButtonElement>\("button"\)[\s\S]*?\.focus\(\);/);
+  assert.match(source, /groupRef=\{predictionGroupRef\}/);
 });

@@ -94,6 +94,51 @@ function databaseWithRows(rows) {
   };
 }
 
+function assertNoNonPublicMetadata(contents, catalog) {
+  for (const curriculum of curricula) {
+    const curriculumKey = curriculumPublicationKey(curriculum.slug);
+    const curriculumIsPublic =
+      isPublicationAccessible(catalog, curriculumKey) &&
+      isPublicationListed(catalog, curriculumKey);
+
+    if (!curriculumIsPublic) {
+      assert.ok(
+        !contents.includes(curriculum.title.en),
+        `exposed non-public curriculum title: ${curriculum.slug}`,
+      );
+      assert.ok(
+        !contents.includes(curriculum.title.ko),
+        `exposed non-public localized title: ${curriculum.slug}`,
+      );
+      assert.ok(
+        !contents.includes(curriculum.summary.en),
+        `exposed non-public curriculum summary: ${curriculum.slug}`,
+      );
+    }
+
+    for (const chapter of curriculum.chapters.en) {
+      const chapterKey = chapterPublicationKey(curriculum.slug, chapter.slug);
+      const chapterIsPublic =
+        curriculumIsPublic &&
+        isPublicationAccessible(catalog, chapterKey) &&
+        isPublicationListed(catalog, chapterKey);
+
+      if (!chapterIsPublic) {
+        assert.ok(
+          !contents.includes(`${chapter.description} Core concepts:`),
+          `exposed non-public chapter description: ${curriculum.slug}/${chapter.slug}`,
+        );
+        assert.ok(
+          !contents.includes(
+            `Chapter ${chapter.number}: ${chapter.title} (${chapter.concepts.join(", ")})`,
+          ),
+          `exposed non-public chapter concepts: ${curriculum.slug}/${chapter.slug}`,
+        );
+      }
+    }
+  }
+}
+
 async function loadWorker() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
   workerUrl.searchParams.set("llms-test", `${process.pid}-${Date.now()}`);
@@ -130,38 +175,8 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.ok(!contents.includes(linuxStorageUrl));
   assert.ok(!contents.includes(linuxNetworkingUrl));
   assert.ok(!contents.includes(linuxTinySystemUrl));
-  assert.match(
-    contents,
-    /Transformers from the Ground Up — Chapter 6: Sequential Data \(hidden state · recurrence, temporal gradient, LSTM · causal prefix\)/,
-  );
-  assert.match(
-    contents,
-    /Transformers from the Ground Up — Chapter 7: Attention \(Query · Key roles, key-axis Softmax, Value · context\)/,
-  );
-  assert.match(
-    contents,
-    /Transformers from the Ground Up — Chapter 8: Self-Attention \(Q\/K\/V projections · token rows, scaled scores · causal mask, multi-head split · concatenate\)/,
-  );
-  assert.match(
-    contents,
-    /Transformers from the Ground Up — Chapter 9: The Transformer Block \(position · block input, pre-LayerNorm · residual, position-wise FFN · handoff\)/,
-  );
-  assert.match(
-    contents,
-    /Transformers from the Ground Up — Chapter 10: Mini Transformer \(shifted targets · causal prefixes, final norm · vocabulary logits, loss · autoregressive decoding\)/,
-  );
-  assert.match(
-    contents,
-    /Linux Systems from the Ground Up — Chapter 6: Storage and Filesystems \(mount · inode, hard link · unlink, fsync · durability\)/,
-  );
-  assert.match(
-    contents,
-    /Linux Systems from the Ground Up — Chapter 7: From Packets to Sockets \(socket fd · endpoint, CIDR route · next hop, TCP ACK · recv\)/,
-  );
-  assert.match(
-    contents,
-    /Linux Systems from the Ground Up — Chapter 8: Assemble a Tiny Linux System \(artifact · rootfs, PID 1 · service, readiness · evidence\)/,
-  );
+  assert.doesNotMatch(contents, /## Roadmap/);
+  assertNoNonPublicMetadata(contents, defaultCatalog);
 
   for (const curriculum of curricula) {
     const curriculumKey = curriculumPublicationKey(curriculum.slug);
@@ -193,7 +208,7 @@ test("keeps the committed llms.txt byte-identical to publication defaults", asyn
   assert.ok(!contents.endsWith("\n\n"));
 });
 
-test("keeps non-public resources out of current content links", () => {
+test("keeps non-public resource links and metadata out of LLM output", () => {
   const hiddenVectors = publicationOverride({
     resourceKey: vectorsKey,
     resourceKind: "chapter",
@@ -207,6 +222,10 @@ test("keeps non-public resources out of current content links", () => {
   );
   assert.ok(hiddenVectorsText.includes(transformerUrl));
   assert.ok(!hiddenVectorsText.includes(vectorsUrl));
+  assertNoNonPublicMetadata(
+    hiddenVectorsText,
+    resolvePublicationCatalog([hiddenVectors], 100),
+  );
 
   const draftTransformer = publicationOverride({
     resourceKey: transformerKey,
@@ -218,10 +237,14 @@ test("keeps non-public resources out of current content links", () => {
   const draftText = renderLlmsText(
     resolvePublicationCatalog([draftTransformer], 100),
   );
-  assert.match(draftText, /## Roadmap/);
-  assert.match(draftText, /Transformers from the Ground Up/);
+  assert.doesNotMatch(draftText, /## Roadmap/);
+  assert.doesNotMatch(draftText, /Transformers from the Ground Up/);
   assert.ok(!draftText.includes(transformerUrl));
   assert.ok(!draftText.includes(vectorsUrl));
+  assertNoNonPublicMetadata(
+    draftText,
+    resolvePublicationCatalog([draftTransformer], 100),
+  );
 
   const unlistedTransformer = {
     ...draftTransformer,
@@ -234,6 +257,10 @@ test("keeps non-public resources out of current content links", () => {
   );
   assert.ok(!unlistedText.includes(transformerUrl));
   assert.ok(!unlistedText.includes(vectorsUrl));
+  assertNoNonPublicMetadata(
+    unlistedText,
+    resolvePublicationCatalog([unlistedTransformer], 100),
+  );
 });
 
 test("serves llms.txt from the live publication catalog", async () => {

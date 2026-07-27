@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   calculateCapacity,
@@ -13,6 +14,15 @@ import {
   observabilityIncidentIds,
 } from "../src/features/infrastructure/network-observability-capacity.ts";
 import { buildNetworkObservabilityVisualState } from "../src/features/infrastructure/network-observability-capacity-visual.ts";
+
+test("names the capacity target as thirty percent headroom", () => {
+  const source = readFileSync(
+    new URL("../src/components/infrastructure/NetworkObservabilityCapacityLab.tsx", import.meta.url),
+    "utf8",
+  );
+  assert.match(source, /misses the 30% headroom contract/);
+  assert.doesNotMatch(source, /70% headroom contract/);
+});
 
 test("aligns four namespace-scoped receipts to one flow and window", () => {
   const result = evaluateObservationEvidence(observationEvidencePresets.aligned);

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   selfAttentionForwardTraceCode,
@@ -56,6 +57,26 @@ test("ships independent NumPy bridges for the full forward trace and mask-order 
   assert.doesNotMatch(selfAttentionMaskRepairCode, /[가-힣]/);
   assert.doesNotMatch(selfAttentionForwardTraceSupportCode, /[가-힣]/);
   assert.doesNotMatch(selfAttentionMaskRepairSupportCode, /[가-힣]/);
+});
+
+test("presents three required Self-Attention challenges with localized optional remediation", async () => {
+  const chapterSource = await readFile(
+    new URL("../src/components/self-attention/SelfAttentionChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  const conceptSource = await readFile(
+    new URL("../src/components/self-attention/SelfAttentionConceptCheck.tsx", import.meta.url),
+    "utf8",
+  );
+  const styles = await readFile(
+    new URL("../src/styles/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(conceptSource, /the three core workbench challenges to unlock/);
+  assert.doesNotMatch(conceptSource, /both required activities|both activity states/);
+  assert.match(chapterSource, /t\("선택", "Optional"\)/);
+  assert.match(styles, /\.self-attention-prerequisite a \{[\s\S]*?min-height: 44px;/);
 });
 
 function approximatelyEqual(actual, expected, tolerance = EPSILON) {

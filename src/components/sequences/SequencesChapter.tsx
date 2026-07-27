@@ -320,7 +320,7 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
             <SequencesConceptCheck onMasteryChange={setConceptsMastered} />
             <div className="sequences-completion-checklist" aria-label={t("챕터 완료 조건", "Chapter completion requirements")}>
               <span className={memoryLabComplete ? "is-complete" : undefined}>{memoryLabComplete ? "✓" : "○"} {t("필수 sequence memory lab", "Required sequence memory lab")}</span>
-              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("시퀀스 계약 복구 4개", "Four sequence-contract repairs")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : t("선택", "Optional")} {t("시퀀스 계약 복구 4개", "Four sequence-contract repairs")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter

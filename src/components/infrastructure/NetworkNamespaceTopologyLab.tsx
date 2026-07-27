@@ -123,7 +123,7 @@ export function NetworkNamespaceTopologyLab({
     invalidate(localizedMessage("초기화했습니다. host에 겹친 workload를 다시 분리하세요.", "Reset. Separate the workloads collapsed on the host again."));
   }
 
-  function moveSelectedObject(namespaceId: NetworkNamespaceId) {
+  function placeSelectedObject(namespaceId: NetworkNamespaceId) {
     if (!selectedObjectId) return;
     setNamespaceField(objectPlacementFields[selectedObjectId], namespaceId);
   }
@@ -185,6 +185,8 @@ export function NetworkNamespaceTopologyLab({
   const selectedNamespaceLabel = selectedNamespaceId
     ? namespaceLabel(selectedNamespaceId)
     : "";
+  const selectedObjectIsListener = selectedObjectId === "app-listener"
+    || selectedObjectId === "data-listener";
   const predictionOptions = [
     {
       value: "both-local-only",
@@ -282,16 +284,24 @@ export function NetworkNamespaceTopologyLab({
                     `${objectLabels[selectedObjectId]} selected · currently in ${selectedNamespaceLabel}`,
                   )
                   : t(
-                    "process, listener, health probe 중 하나를 선택하면 이동 destination이 열립니다.",
-                    "Select a process, listener, or health probe to reveal its destinations.",
+                    "process, listener, health probe 중 하나를 선택하면 배치할 network view가 열립니다.",
+                    "Select a process, listener, or health probe to reveal its placement views.",
                   )}
               </p>
               {selectedObjectId ? (
                 <InfrastructureChoiceRail<NetworkNamespaceId>
-                  label={t("이 object를 이동할 network view", "Move this object to a network view")}
+                  label={selectedObjectIsListener
+                    ? t(
+                      "이 listener를 만들거나 다시 만들 network view",
+                      "Create or recreate this listener in a network view",
+                    )
+                    : t(
+                      "이 object를 배치할 network view",
+                      "Place this object in a network view",
+                    )}
                   value={selectedNamespaceId}
                   options={destinationOptions}
-                  onChange={moveSelectedObject}
+                  onChange={placeSelectedObject}
                   controlId="namespace-object-destination"
                   compact
                 />

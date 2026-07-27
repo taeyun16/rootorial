@@ -64,8 +64,12 @@ export function LinuxStoragePathLab({
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [interactiveReady, setInteractiveReady] = useState(false);
   const [engineError, setEngineError] = useState("");
+  const labComplete = canMasterStorageLab(machine, evidence);
 
   useEffect(() => setInteractiveReady(true), []);
+  useEffect(() => {
+    onCompletionChange(labComplete);
+  }, [labComplete, onCompletionChange]);
   useEffect(() => {
     setFeedback(null);
     setEngineError("");
@@ -363,7 +367,7 @@ export function LinuxStoragePathLab({
         <div className="storage-evidence" role="status" aria-live="polite">
           {evidenceRows.map(([complete, label]) => <span key={label} className={complete ? "is-complete" : undefined}>{complete ? "✓" : "○"} {label}</span>)}
         </div>
-        {canMasterStorageLab(machine, evidence) ? <p className="storage-lab-mastered" role="status">{t("필수 실습 완료 — path, hard link 수명과 dirty·synced crash를 인과 순서로 증명했습니다.", "Required lab complete — you proved path resolution, hard-link lifetime, and dirty versus synced crashes in causal order.")}</p> : null}
+        {labComplete ? <p className="storage-lab-mastered" role="status">{t("필수 실습 완료 — path, hard link 수명과 dirty·synced crash를 인과 순서로 증명했습니다.", "Required lab complete — you proved path resolution, hard-link lifetime, and dirty versus synced crashes in causal order.")}</p> : null}
         <noscript><p>{t("JavaScript 없이도 위의 초기 namespace 설명을 읽을 수 있습니다. 상호작용을 켜면 상태 전이를 직접 검증할 수 있습니다.", "The initial namespace explanation remains readable without JavaScript. Enable interaction to verify the transitions directly.")}</p></noscript>
       </div>
     </InteractiveLab>

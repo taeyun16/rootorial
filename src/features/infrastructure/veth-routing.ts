@@ -209,6 +209,22 @@ function overlaps(left: ParsedCidr | null, right: ParsedCidr | null) {
   return Boolean(left && right && left.network <= right.broadcast && right.network <= left.broadcast);
 }
 
+function formatIpv4(address: number) {
+  return [
+    address >>> 24,
+    (address >>> 16) & 0xff,
+    (address >>> 8) & 0xff,
+    address & 0xff,
+  ].join(".");
+}
+
+function connectedPrefix(address: string) {
+  const parsed = parseCidr(address);
+  return parsed
+    ? `${formatIpv4(parsed.network)}/${parsed.prefix}`
+    : "invalid";
+}
+
 function peerOwner(target: VethPeerTarget): VethTopologyNamespaceId {
   return target === "router" ? "router" : "host";
 }
@@ -241,8 +257,8 @@ function createMachine(draft: VethTopologyDraft): VethTopologyMachine {
     { id: "app-peer", name: bridgeMode ? "veth-app-host" : "veth-app-rtr", ownerNamespace: peerOwner(draft.appPeerTarget), peerId: "app-eth0", pairId: "app-veth", up: draft.appLinkUp, address: draft.appPeerTarget === "router" ? draft.routerAppAddress : null, bridgeId: draft.appPeerTarget === "bridge" ? "br0" : null },
   ];
   const routes: VethTopologyRoute[] = [
-    { id: "client-connected", ownerNamespace: "client", destination: draft.mode === "bridge" ? "10.20.0.0/24" : "10.20.0.0/24", gateway: null, device: "eth0", role: "connected", state: "ready" },
-    { id: "app-connected", ownerNamespace: "app", destination: draft.mode === "bridge" ? "10.20.0.0/24" : "10.30.0.0/24", gateway: null, device: "eth0", role: "connected", state: "ready" },
+    { id: "client-connected", ownerNamespace: "client", destination: connectedPrefix(draft.clientAddress), gateway: null, device: "eth0", role: "connected", state: "ready" },
+    { id: "app-connected", ownerNamespace: "app", destination: connectedPrefix(draft.appAddress), gateway: null, device: "eth0", role: "connected", state: "ready" },
   ];
   const forwardRoute = route("client-forward", draft.clientForwardRoute);
   const returnRoute = route("app-return", draft.appReturnRoute);

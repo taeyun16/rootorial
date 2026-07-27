@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   canCompleteNetworkNamespacesChapter,
@@ -236,4 +237,41 @@ test("requires topology, incident, and concept mastery together", () => {
     incidentsComplete: false,
     conceptsMastered: true,
   }), false);
+});
+
+test("describes topology editing as placement and listener recreation, not socket migration", async () => {
+  const topologySource = await readFile(
+    new URL(
+      "../src/components/infrastructure/NetworkNamespaceTopologyLab.tsx",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const boundarySource = await readFile(
+    new URL(
+      "../src/components/infrastructure/NetworkNamespaceBoundaryView.tsx",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+
+  assert.match(
+    topologySource,
+    /Create or recreate this listener in a network view/,
+  );
+  assert.match(topologySource, /Place this object in a network view/);
+  assert.match(boundarySource, /Select placement/);
+  assert.doesNotMatch(topologySource, /Move this object to a network view/);
+  assert.doesNotMatch(boundarySource, /Select to move/);
+});
+
+test("keeps the prerequisite handoff at a 44-pixel touch target", async () => {
+  const styles = await readFile(
+    new URL("../src/styles/globals.css", import.meta.url),
+    "utf8",
+  );
+  assert.match(
+    styles,
+    /\.namespace-prerequisite a \{[\s\S]*?display: inline-flex;[\s\S]*?min-height: 44px;/,
+  );
 });

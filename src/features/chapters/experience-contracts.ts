@@ -68,7 +68,7 @@ export const chapterExperienceContracts = Object.freeze({
   "linux-networking/subnets-neighbors-and-gateways": { interaction: "predict-and-repair", primaryVisual: "packet-path", linkedEvidence: "prefix · next hop · neighbor · frame", status: "implemented" },
   "linux-networking/routes-and-packet-paths": { interaction: "trace-and-diagnose", primaryVisual: "packet-path", linkedEvidence: "prefix bars · selected route · TTL", status: "implemented", visualizationKey: "route-prefix-bars" },
   "linux-networking/sockets-ports-and-tcp": { interaction: "build-and-observe", primaryVisual: "causal-timeline", linkedEvidence: "process/kernel sequence · queue · recv", status: "implemented", visualizationKey: "tcp-boundary-sequence" },
-  "linux-networking/dns-and-service-reachability": { interaction: "compare-and-tune", primaryVisual: "causal-timeline", linkedEvidence: "TTL timeline · route · TCP · response", status: "implemented", visualizationKey: "dns-ttl-timeline" },
+  "linux-networking/dns-and-service-reachability": { interaction: "predict-and-repair", primaryVisual: "causal-timeline", linkedEvidence: "TTL timeline · route · TCP · response", status: "implemented", visualizationKey: "dns-ttl-timeline" },
   "linux-networking/diagnose-a-linux-network": { interaction: "trace-and-diagnose", primaryVisual: "evidence-ladder", linkedEvidence: "observation point · first failed boundary · repair proof", status: "implemented", visualizationKey: "diagnostic-evidence-ladder" },
 
   "infrastructure-design/network-namespaces-and-boundaries": { interaction: "build-and-observe", primaryVisual: "boundary-map", linkedEvidence: "namespace ownership · localhost · socket", status: "implemented" },

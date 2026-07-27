@@ -265,7 +265,7 @@ const inputPackets: readonly NetworkPolicyPacket[] = [
 
 function createRules(draft: NetworkPolicyDraft): NetworkPolicyRule[] {
   const descriptions: Record<NetworkPolicyRuleId, string> = {
-    "allow-established-related": "ct state established,related accept",
+    "allow-established-related": "ct state established accept",
     "allow-required-new": draft.mode === "forward"
       ? "ip saddr 10.20.0.2 ip daddr 10.30.0.2 tcp dport 8080 ct state new accept"
       : "ip saddr 198.51.100.25 ip daddr 198.51.100.10 tcp dport 22 ct state new accept",

@@ -279,7 +279,7 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
             <div className="mini-transformer-completion-checklist" role="status" aria-live="polite">
               <strong>{t("완료 조건", "COMPLETION GATE")}</strong>
               <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("핵심 challenge 3개", "Three core challenges")}</span>
-              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("별도 debugger 4사건", "Four separate debugger incidents")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : t("선택", "Optional")} {t("별도 debugger 4사건", "Four separate debugger incidents")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter curriculumSlug={TRANSFORMER_CURRICULUM_SLUG} slug="mini-transformer" canComplete={canComplete} lockedMessage={t("핵심 challenge 세 개와 다섯 개념 확인을 완료하세요. 나머지 challenge와 debugger는 선택입니다.", "Complete the three core challenges and all five concept checks. The remaining challenges and debugger are optional.")} />

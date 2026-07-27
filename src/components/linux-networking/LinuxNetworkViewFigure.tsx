@@ -287,6 +287,7 @@ export function LinuxNetworkViewFigure({
     () => new Set([networkViewPhaseIds[0]]),
   );
   const [prediction, setPrediction] = useState("");
+  const predictionGroupRef = useRef<HTMLDivElement>(null);
   const commandListRef = useRef<HTMLOListElement>(null);
   const commandHelpId = useId();
   const phaseId = networkViewPhaseIds[activeIndex];
@@ -358,9 +359,11 @@ export function LinuxNetworkViewFigure({
     setActiveIndex(0);
     setVisited(new Set([networkViewPhaseIds[0]]));
     setPrediction("");
-    commandListRef.current
-      ?.querySelector<HTMLButtonElement>("button[data-command-trigger]")
-      ?.focus();
+    requestAnimationFrame(() => {
+      predictionGroupRef.current
+        ?.querySelector<HTMLButtonElement>("button")
+        ?.focus();
+    });
   }
 
   const interfaceRows = [
@@ -412,6 +415,7 @@ export function LinuxNetworkViewFigure({
           ]}
           onChange={setPrediction}
           controlId="network-view-delivery-prediction"
+          groupRef={predictionGroupRef}
         />
         <p role="status">{prediction === ""
           ? locale === "ko" ? "전달 경계를 예측하면 상태 변경 명령이 열립니다." : "Predict the delivery boundary to unlock state-changing commands."

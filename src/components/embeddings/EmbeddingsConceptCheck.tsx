@@ -145,13 +145,13 @@ export function EmbeddingsConceptCheck({
         kicker: "READ THE EMBEDDING CONTRACT",
         title: t("token ID에서 순서를 잃는 pooling까지 연결하세요", "Connect token IDs through order-losing pooling"),
         description: t(
-          "다섯 문제와 두 필수 활동을 모두 마쳐야 챕터 완료 조건이 열립니다.",
-          "Finish all five questions and both required activities to unlock the chapter gate.",
+          "다섯 문제와 필수 lookup·gradient lab을 마치면 챕터 완료 조건이 열립니다.",
+          "Finish all five questions and the required lookup-and-gradient lab to unlock the chapter gate.",
         ),
         correct: t("임베딩 계약을 정확히 읽었습니다", "Embedding contract read correctly"),
         incorrect: t("token·row·geometry·pooling 경계를 다시 추적하세요", "Retrace token, row, geometry, and pooling boundaries"),
         checkAnswers: t("임베딩 계약 확인하기", "Check the embedding contract"),
-        completed: t("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", "Concept check complete — now confirm both activity states."),
+        completed: t("이해 확인 완료 — 필수 lookup·gradient lab의 완료 상태를 확인하세요.", "Concept check complete — now confirm the required lookup-and-gradient lab."),
         retry: t("tokenizer·lookup·gradient·cosine·pooling 중 일부가 아직 섞여 있습니다.", "Some boundaries among tokenizer, lookup, gradient, cosine, and pooling are still mixed."),
         idle: t("다섯 답을 고른 뒤 임베딩 계약을 확인하세요.", "Choose all five answers, then check the embedding contract."),
       }}

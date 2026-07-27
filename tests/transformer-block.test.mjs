@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -75,6 +76,26 @@ test("ships self-contained NumPy bridges for the block ledger and second residua
   assert.doesNotMatch(transformerBlockStageLedgerCode, /[가-힣]/);
   assert.doesNotMatch(transformerBlockStageLedgerSupportCode, /[가-힣]/);
   assert.doesNotMatch(transformerBlockResidualRepairCode, /[가-힣]/);
+});
+
+test("presents three required Transformer Block challenges with localized optional remediation", async () => {
+  const chapterSource = await readFile(
+    new URL("../src/components/transformer-block/TransformerBlockChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  const conceptSource = await readFile(
+    new URL("../src/components/transformer-block/TransformerBlockConceptCheck.tsx", import.meta.url),
+    "utf8",
+  );
+  const styles = await readFile(
+    new URL("../src/styles/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(conceptSource, /the three core workbench challenges to unlock/);
+  assert.doesNotMatch(conceptSource, /both required activities|both activity states/);
+  assert.match(chapterSource, /t\("선택", "Optional"\)/);
+  assert.match(styles, /\.transformer-block-prerequisite a \{[\s\S]*?min-height: 44px;/);
 });
 
 function validEvidence(challengeIds = transformerBlockChallengeIds) {

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   canCompleteTinyLinuxChapter,
@@ -440,4 +441,12 @@ test("requires the assembly lab, incident debugger, and concepts together", () =
   for (const missing of Object.keys(complete)) {
     assert.equal(canCompleteTinyLinuxChapter({ ...complete, [missing]: false }), false);
   }
+});
+
+test("keeps the prerequisite and optional v86 links at 44px touch targets", async () => {
+  const styles = await readFile(new URL("../src/styles/globals.css", import.meta.url), "utf8");
+  assert.match(
+    styles,
+    /\.tiny-system-prerequisite a,\s*\n\.tiny-system-v86-embed a \{[\s\S]*?display: inline-flex;[\s\S]*?min-height: 44px;/,
+  );
 });

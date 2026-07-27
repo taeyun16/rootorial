@@ -1,5 +1,6 @@
 import {
   useId,
+  type KeyboardEvent,
   type ReactNode,
   type RefObject,
 } from "react";
@@ -34,6 +35,15 @@ export type DirectChoiceGroupProps<Value extends ChoiceValue> = {
   groupRef?: RefObject<HTMLDivElement | null>;
   variant?: DirectChoiceVariant;
 };
+
+function activateButtonFromKeyboard(
+  event: KeyboardEvent<HTMLButtonElement>,
+  activate: () => void,
+) {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  activate();
+}
 
 export function DirectChoiceGroup<Value extends ChoiceValue>({
   label,
@@ -73,6 +83,10 @@ export function DirectChoiceGroup<Value extends ChoiceValue>({
       disabled={disabled || option.disabled}
       data-choice-value={String(option.value)}
       onClick={() => onChange(option.value)}
+      onKeyDown={(event) => activateButtonFromKeyboard(
+        event,
+        () => onChange(option.value),
+      )}
       key={String(option.value)}
     >
       {option.eyebrow != null ? <small>{option.eyebrow}</small> : null}

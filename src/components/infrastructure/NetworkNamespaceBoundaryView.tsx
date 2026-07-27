@@ -202,14 +202,14 @@ export function NetworkNamespaceBoundaryView({
                                 type="button"
                                 aria-pressed={selected}
                                 aria-label={t(
-                                  `${objectLabel(object)} 선택 · 현재 ${namespaceLabel(object.ownerNamespace)}`,
-                                  `Select ${objectLabel(object)} · currently in ${namespaceLabel(object.ownerNamespace)}`,
+                                  `${objectLabel(object)} 배치 선택 · 현재 ${namespaceLabel(object.ownerNamespace)}`,
+                                  `Select placement for ${objectLabel(object)} · currently in ${namespaceLabel(object.ownerNamespace)}`,
                                 )}
                                 onClick={() => onSelectObject(editableObjectId)}
                               >
                                 <small>{kindLabel(object)}</small>
                                 <strong>{objectLabel(object)}</strong>
-                                <span>{t("이동할 object 선택", "Select to move")}</span>
+                                <span>{t("배치 선택", "Select placement")}</span>
                               </button>
                             ) : (
                               <div>
@@ -242,14 +242,14 @@ export function NetworkNamespaceBoundaryView({
                                 type="button"
                                 aria-pressed={selected}
                                 aria-label={t(
-                                  `${objectLabel(object)} 선택 · 현재 ${namespaceLabel(object.ownerNamespace)}`,
-                                  `Select ${objectLabel(object)} · currently in ${namespaceLabel(object.ownerNamespace)}`,
+                                  `${objectLabel(object)} 배치 선택 · 현재 ${namespaceLabel(object.ownerNamespace)}`,
+                                  `Select placement for ${objectLabel(object)} · currently in ${namespaceLabel(object.ownerNamespace)}`,
                                 )}
                                 onClick={() => onSelectObject(editableObjectId)}
                               >
                                 <small>{kindLabel(object)}</small>
                                 <strong>{objectLabel(object)}</strong>
-                                <span>{t("이동할 object 선택", "Select to move")}</span>
+                                <span>{t("배치 선택", "Select placement")}</span>
                               </button>
                             ) : (
                               <div>

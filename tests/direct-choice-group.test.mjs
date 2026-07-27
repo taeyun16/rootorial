@@ -127,3 +127,24 @@ test("keeps DirectChoice and InfrastructureChoiceRail as compatibility wrappers"
   assert.doesNotMatch(directChoice, /<button/);
   assert.match(infrastructurePrimitives, /variant="infrastructure"/);
 });
+
+test("keeps direct choices, concept options, and language switching explicitly keyboard-activatable", async () => {
+  const directChoiceGroup = await readFile(
+    new URL("../src/components/interactive/DirectChoiceGroup.tsx", import.meta.url),
+    "utf8",
+  );
+  const languageSwitcher = await readFile(
+    new URL("../src/components/LanguageSwitcher.tsx", import.meta.url),
+    "utf8",
+  );
+  const conceptCheckRenderer = await readFile(
+    new URL("../src/components/interactive/ConceptCheckRenderer.tsx", import.meta.url),
+    "utf8",
+  );
+
+  for (const source of [directChoiceGroup, conceptCheckRenderer, languageSwitcher]) {
+    assert.match(source, /event\.key !== "Enter" && event\.key !== " "/);
+    assert.match(source, /event\.preventDefault\(\)/);
+    assert.match(source, /onKeyDown=/);
+  }
+});

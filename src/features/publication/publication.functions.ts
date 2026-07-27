@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { setResponseHeader } from "@tanstack/react-start/server";
+import { getRequestHost, setResponseHeader } from "@tanstack/react-start/server";
 import { env } from "cloudflare:workers";
 import { getCurriculum } from "../../data/curriculum";
 import { currentAdmin, privateResponse } from "../admin/admin-auth.server";
@@ -8,9 +8,14 @@ import {
   chapterPublicationKey,
   curriculumPublicationKey,
   isPublicationAccessible,
+  resolvePublicationCatalog,
   validateResetPublicationInput,
   validateUpdatePublicationInput,
 } from "./publication";
+import {
+  buildLocalContentPreviewCatalog,
+  isLocalContentPreviewAllowed,
+} from "./local-content-preview";
 import {
   loadPublicationCatalog,
   loadPublicCurriculumPage,
@@ -21,10 +26,24 @@ import {
 
 type PublicationBindings = {
   DB?: D1Database;
+  ROOTORIAL_LOCAL_CONTENT_PREVIEW?: string;
 };
 
 function bindings() {
   return env as unknown as PublicationBindings;
+}
+
+function localContentPreviewEnabled() {
+  const modeEnabled = import.meta.env.MODE === "content-preview";
+  return isLocalContentPreviewAllowed({
+    development: import.meta.env.DEV,
+    enabledValue:
+      modeEnabled
+        ? "1"
+        : bindings().ROOTORIAL_LOCAL_CONTENT_PREVIEW ??
+          process.env.ROOTORIAL_LOCAL_CONTENT_PREVIEW,
+    host: getRequestHost(),
+  });
 }
 
 function publicDynamicResponse() {
@@ -63,6 +82,17 @@ export const getPublicPublicationCatalog = createServerFn({ method: "GET" })
   .handler(async () => {
     publicDynamicResponse();
     return loadPublicPlatformCatalog(bindings().DB);
+  });
+
+export const getLocalContentPreviewCatalog = createServerFn({ method: "GET" })
+  .handler(async () => {
+    privateResponse();
+    setResponseHeader("X-Robots-Tag", "noindex, nofollow");
+    if (!localContentPreviewEnabled()) return null;
+    const catalog =
+      (await loadPublicationCatalog(bindings().DB)) ??
+      resolvePublicationCatalog([]);
+    return buildLocalContentPreviewCatalog(catalog);
   });
 
 export const getPublicCurriculumPublication = createServerFn({ method: "GET" })
@@ -168,10 +198,15 @@ export const getAdminPublicationPreview = createServerFn({ method: "GET" })
   .handler(async ({ data }) => {
     privateResponse();
     setResponseHeader("X-Robots-Tag", "noindex, nofollow");
-    const viewer = await currentAdmin();
-    if (!viewer.userId || !viewer.isAdmin) return null;
+    const localDevelopment = localContentPreviewEnabled();
+    if (!localDevelopment) {
+      const viewer = await currentAdmin();
+      if (!viewer.userId || !viewer.isAdmin) return null;
+    }
     if (!data.curriculumSlug || data.chapterSlug === undefined) return null;
-    const catalog = await loadPublicationCatalog(bindings().DB);
+    const catalog =
+      (await loadPublicationCatalog(bindings().DB)) ??
+      (localDevelopment ? resolvePublicationCatalog([]) : null);
     if (!catalog) return null;
     const resourceKey = data.chapterSlug
       ? chapterPublicationKey(data.curriculumSlug, data.chapterSlug)
@@ -187,7 +222,12 @@ export const getAdminPublicationPreview = createServerFn({ method: "GET" })
     ) {
       return null;
     }
-    return { catalog, curriculum, resource };
+    return {
+      catalog,
+      curriculum,
+      resource,
+      accessMode: localDevelopment ? "local-development" as const : "admin" as const,
+    };
   });
 
 export const updateContentPublication = createServerFn({ method: "POST" })

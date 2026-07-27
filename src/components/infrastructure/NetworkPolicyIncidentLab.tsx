@@ -103,7 +103,7 @@ export function NetworkPolicyIncidentLab({
     "open-router-input-service": t("router INPUT에도 app:8080을 allow", "also allow app:8080 in router INPUT"),
     "move-specific-allow-before-deny": t("specific allow를 terminal deny 앞으로 이동", "move the specific allow before the terminal deny"),
     "change-base-policy-accept": t("chain policy를 accept로 변경", "change the chain policy to accept"),
-    "add-established-related-rule": "ct state established,related accept",
+    "add-established-related-rule": "ct state established accept",
     "allow-all-ephemeral-ports": t("모든 ephemeral destination port allow", "allow every ephemeral destination port"),
     "set-base-policy-drop": t("base chain policy를 drop으로 변경", "set the base-chain policy to drop"),
     "deny-only-ssh": t("SSH port 하나만 추가 deny", "add a deny for SSH only"),

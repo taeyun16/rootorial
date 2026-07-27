@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   advanceTrainingStep,
@@ -265,4 +266,26 @@ test("requires the batch lab and concepts while keeping debugger remediation opt
     debuggerComplete: false,
     conceptsMastered: false,
   }), false);
+});
+
+test("presents one required training activity with localized preview navigation", async () => {
+  const chapterSource = await readFile(
+    new URL("../src/components/training/TrainingChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  const conceptSource = await readFile(
+    new URL("../src/components/training/TrainingConceptCheck.tsx", import.meta.url),
+    "utf8",
+  );
+  const styles = await readFile(
+    new URL("../src/styles/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(conceptSource, /the required mini-batch lab to unlock/);
+  assert.doesNotMatch(conceptSource, /both required activities|both activity states/);
+  assert.match(chapterSource, /t\("선택", "Optional"\)/);
+  assert.match(chapterSource, /chapters\/neural-networks\$\{isKo/);
+  assert.match(chapterSource, /chapters\/embeddings\$\{isKo/);
+  assert.match(styles, /\.training-prerequisite a,[\s\S]*?min-height: 44px;/);
 });

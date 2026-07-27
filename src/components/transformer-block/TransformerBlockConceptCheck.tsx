@@ -190,13 +190,13 @@ export function TransformerBlockConceptCheck({
         kicker: "TRACE THE PRE-NORM BLOCK",
         title: t("position에서 residual FFN handoff까지 추적하세요", "Trace position through the residual FFN handoff"),
         description: t(
-          "다섯 문제와 두 필수 활동을 모두 마쳐야 챕터 완료 조건이 열립니다.",
-          "Finish all five questions and both required activities to unlock the chapter gate.",
+          "다섯 문제와 workbench의 핵심 challenge 세 개를 모두 마쳐야 챕터 완료 조건이 열립니다.",
+          "Finish all five questions and the three core workbench challenges to unlock the chapter gate.",
         ),
         correct: t("Transformer block 계약을 정확히 추적했습니다", "Transformer block contract traced correctly"),
         incorrect: t("position·pre-norm·residual·FFN 경계를 다시 추적하세요", "Retrace the position, pre-norm, residual, and FFN boundaries"),
         checkAnswers: t("Transformer block 계약 확인하기", "Check the Transformer block contract"),
-        completed: t("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", "Concept check complete — now confirm both activity states."),
+        completed: t("이해 확인 완료 — 핵심 challenge 세 개의 완료 상태를 확인하세요.", "Concept check complete — now confirm all three core challenge states."),
         retry: t("LayerNorm 축, residual 기준 또는 FFN token 경계가 아직 섞여 있습니다.", "The LayerNorm axis, residual base, or FFN token boundary is still mixed."),
         idle: t("다섯 답을 고른 뒤 Transformer block 계약을 확인하세요.", "Choose all five answers, then check the Transformer block contract."),
       }}

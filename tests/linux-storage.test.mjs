@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   STORAGE_BLOCK_SIZE,
@@ -456,4 +457,24 @@ test("requires the path lab, all incidents, and concepts for chapter completion"
   for (const missing of Object.keys(complete)) {
     assert.equal(canCompleteStorageChapter({ ...complete, [missing]: false }), false);
   }
+});
+
+test("derives path-lab completion into the parent chapter gate", async () => {
+  const source = await readFile(
+    new URL("../src/components/linux/LinuxStoragePathLab.tsx", import.meta.url),
+    "utf8",
+  );
+  assert.match(source, /const labComplete = canMasterStorageLab\(machine, evidence\);/);
+  assert.match(
+    source,
+    /useEffect\(\(\) => \{\s*onCompletionChange\(labComplete\);\s*\}, \[labComplete, onCompletionChange\]\);/,
+  );
+});
+
+test("keeps the storage prerequisite handoff at a 44px touch target", async () => {
+  const styles = await readFile(new URL("../src/styles/globals.css", import.meta.url), "utf8");
+  assert.match(
+    styles,
+    /\.storage-prerequisite a \{[\s\S]*?display: inline-flex;[\s\S]*?min-height: 44px;/,
+  );
 });

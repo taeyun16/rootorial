@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   canCompleteServiceDiscoveryChapter,
@@ -46,6 +47,15 @@ test("expires cached data exactly at cachedAt plus TTL", () => {
   assert.equal(result.reason, "expired-cache-reused");
   assert.equal(result.dns.atExpiry.cacheFresh, false);
   assert.equal(result.dns.atExpiry.source, "cache");
+});
+
+test("scopes the deterministic TTL exercise separately from RFC 8767 serve-stale", () => {
+  const chapter = readFileSync(
+    new URL("../src/components/infrastructure/ServiceDiscoveryChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  assert.match(chapter, /authority reachable · serve-stale off/);
+  assert.match(chapter, /RFC 8767 permits limited reuse of expired data/);
 });
 
 test("requires the old VIP to remain available through the cache lifetime", () => {

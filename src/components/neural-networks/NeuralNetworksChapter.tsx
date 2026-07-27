@@ -77,6 +77,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
     conceptsMastered,
   });
   const previousPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/optimization${isKo ? "" : "?lang=en"}`;
+  const nextPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/training${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell neural-networks-chapter-shell">
@@ -374,7 +375,9 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
             {preview
               ? <a href={previousPreviewHref}>← {t("이전: 학습과 최적화", "Previous: Learning and Optimization")}</a>
               : <span>← {t("이전: 학습과 최적화", "Previous: Learning and Optimization")}</span>}
-            <span>{t("다음: 딥러닝 학습 구조", "Next: Deep Learning Training")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview
+              ? <a href={nextPreviewHref}>{t("다음: 딥러닝 학습 구조", "Next: Deep Learning Training")} →</a>
+              : <span>{t("다음: 딥러닝 학습 구조", "Next: Deep Learning Training")} <small>{t("준비 중", "Coming soon")}</small></span>}
           </nav>
         </article>
       </div>

@@ -229,7 +229,7 @@ export function LinuxBootChapter({ learnerCount = 0 }: { learnerCount?: number }
             <div className="boot-completion-checklist" role="status" aria-live="polite">
               <span className={bootLabComplete ? "is-complete" : undefined}>{bootLabComplete ? "✓" : "○"} {t("부팅 계약 실습", "Boot contract lab")}</span>
               <span className={diagnosticsComplete ? "is-complete" : undefined}>{diagnosticsComplete ? "✓" : "○"} {t("장애 진단 4개", "Four failure diagnoses")}</span>
-              <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 4문제", "Four concept questions")}</span>
+              <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
               curriculumSlug={LINUX_CURRICULUM_SLUG}

@@ -186,11 +186,16 @@ export function NotebookCell({
   const repairLineIndex = repairMarkerIndex >= 0 && repairMarkerIndex + 1 < codeLines.length
     ? repairMarkerIndex + 1
     : -1;
+  const initialCodeLines = initialCode.split("\n");
+  const initialRepairMarkerIndex = initialCodeLines.findIndex((line) => line.includes("REPAIR:"));
+  const repairLineIndentation = initialRepairMarkerIndex >= 0
+    ? initialCodeLines[initialRepairMarkerIndex + 1]?.match(/^\s*/)?.[0] ?? ""
+    : "";
 
   function updateRepairLine(nextLine: string) {
     if (repairLineIndex < 0) return;
     const nextCodeLines = [...codeLines];
-    nextCodeLines[repairLineIndex] = nextLine;
+    nextCodeLines[repairLineIndex] = `${repairLineIndentation}${nextLine.trimStart()}`;
     setCode(nextCodeLines.join("\n"));
   }
 

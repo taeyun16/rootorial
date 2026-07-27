@@ -7,6 +7,7 @@ import {
 } from "../components/PublicationPreview";
 import { chapterPublicationKey } from "../features/publication/publication";
 import { getAdminPublicationPreview } from "../features/publication/publication.functions";
+import { useLocale } from "../features/localization/localization";
 
 export const Route = createFileRoute(
   "/admin_/preview/curricula/$curriculumSlug",
@@ -29,6 +30,7 @@ export const Route = createFileRoute(
         publication: preview.resource,
         chapters,
       },
+      accessMode: preview.accessMode,
     };
   },
   head: ({ loaderData }) => ({
@@ -49,7 +51,8 @@ export const Route = createFileRoute(
 });
 
 function CurriculumPreviewRoute() {
-  const { item } = Route.useLoaderData();
+  const { item, accessMode } = Route.useLoaderData();
+  const { locale } = useLocale();
   const metadata = {
     ko: {
       title: `[미리보기] ${item.curriculum.title.ko} · Rootorial`,
@@ -70,8 +73,9 @@ function CurriculumPreviewRoute() {
     <PublicationPreviewProvider>
       <PageMetadataSync metadata={metadata} />
       <PublicationPreviewBanner
-        title={item.curriculum.title.ko}
+        title={item.curriculum.title[locale]}
         publicHref={`/curricula/${item.curriculum.slug}`}
+        localDevelopment={accessMode === "local-development"}
       />
       <CurriculumHome item={item} reach={reach} preview />
     </PublicationPreviewProvider>

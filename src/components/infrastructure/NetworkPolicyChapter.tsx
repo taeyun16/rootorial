@@ -157,7 +157,7 @@ export function NetworkPolicyChapter({ learnerCount = 0 }: { learnerCount?: numb
             )}</p>
             <pre className="network-observation-command" aria-label={t("최소 허용 FORWARD chain 예시", "Least-allow FORWARD chain example")}>{`chain forward {
   type filter hook forward priority filter; policy drop;
-  ct state established,related accept
+  ct state established accept
   ip saddr 10.20.0.2 ip daddr 10.30.0.2 tcp dport 8080 ct state new accept
   counter drop
 }`}</pre>
@@ -171,7 +171,7 @@ export function NetworkPolicyChapter({ learnerCount = 0 }: { learnerCount?: numb
               "Statements without a verdict, such as counters or logs, may continue evaluation, while accept and drop are terminal verdicts for the current chain. This chapter uses one filter base chain per hook—leaving chain priority and jump graphs out of scope—to focus on stateful allow, specific NEW allow, then terminal drop.",
             )}</p>
             <div className="network-invariant-table" role="table" aria-label={t("ordered policy invariant", "Ordered policy invariants")}>
-              <div role="row"><strong role="cell">01 · STATE</strong><span role="cell">ct state established,related accept</span></div>
+              <div role="row"><strong role="cell">01 · STATE</strong><span role="cell">ct state established accept</span></div>
               <div role="row"><strong role="cell">02 · NEW</strong><span role="cell">exact source → exact service accept</span></div>
               <div role="row"><strong role="cell">03 · FALLBACK</strong><span role="cell">counter drop · base policy drop</span></div>
             </div>

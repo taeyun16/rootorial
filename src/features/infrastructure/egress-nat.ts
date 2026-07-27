@@ -44,7 +44,7 @@ export type NatTupleLedger = {
 };
 
 export type NatConntrackEntry = {
-  state: "ESTABLISHED";
+  state: "NEW" | "ESTABLISHED";
   original: string;
   reply: string;
 };
@@ -171,7 +171,11 @@ export function evaluateNatFlow(draft: NatFlowDraft): NatFlowEvaluation {
     "listener-missing",
   ].includes(reason);
   const conntrack = draft.conntrackEnabled && forwardReachedExternal
-    ? { state: "ESTABLISHED" as const, original: tuples.original, reply: tuples.reply }
+    ? {
+        state: reason === "connected" ? "ESTABLISHED" as const : "NEW" as const,
+        original: tuples.original,
+        reply: tuples.reply,
+      }
     : null;
   return {
     passed: reason === "connected",

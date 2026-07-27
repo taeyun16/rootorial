@@ -144,11 +144,11 @@ export function MiniTransformerConceptCheck({
       copy={{
         kicker: "ASSEMBLE THE COMPLETE NEXT-TOKEN PATH",
         title: t("token ID에서 loss와 생성 loop까지 연결하세요", "Connect token IDs through loss and the generation loop"),
-        description: t("다섯 문제와 두 필수 활동을 모두 마쳐야 마지막 챕터 완료 조건이 열립니다.", "Finish all five questions and both required activities to unlock the final chapter gate."),
+        description: t("다섯 문제와 핵심 workbench challenge 세 개를 모두 마쳐야 마지막 챕터 완료 조건이 열립니다.", "Finish all five questions and the three core workbench challenges to unlock the final chapter gate."),
         correct: t("Mini Transformer 경계를 정확히 연결했습니다", "Mini Transformer boundaries connected correctly"),
         incorrect: t("shift·LM head·loss·decode 경계를 다시 추적하세요", "Retrace the shift, LM head, loss, and decoding boundaries"),
         checkAnswers: t("Mini Transformer 계약 확인하기", "Check the Mini Transformer contract"),
-        completed: t("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", "Concept check complete — now confirm both activity states."),
+        completed: t("이해 확인 완료 — 핵심 challenge 세 개의 완료 상태를 확인하세요.", "Concept check complete — now confirm all three core challenge states."),
         retry: t("입력/target shift, vocabulary축 또는 generation loop가 아직 섞여 있습니다.", "The input/target shift, vocabulary axis, or generation loop is still mixed."),
         idle: t("다섯 답을 고른 뒤 전체 모델 경계를 확인하세요.", "Choose all five answers, then check the complete model boundary."),
       }}

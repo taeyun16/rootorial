@@ -8,7 +8,7 @@
 
 ## What Rootorial Covers
 
-Rootorial develops independent learning paths across AI and machine learning, operating systems, Linux networking, network infrastructure design, and system architecture. Its first curriculum starts with vectors and tensors and builds toward attention and a small Transformer.
+Rootorial's currently published curriculum paths are listed below. Each linked page is available from the live publication catalog.
 
 - Transformers from the Ground Up (Transformer를 바닥부터)
   - Area: AI · MACHINE LEARNING / AI · 머신러닝
@@ -18,18 +18,6 @@ Rootorial develops independent learning paths across AI and machine learning, op
   - Area: SYSTEMS / 시스템
   - Status: in progress
   - Scope: Trace how processes, memory, files, and networks meet inside an operating system.
-- Linux Networking from the Ground Up (Linux 네트워킹을 바닥부터)
-  - Area: NETWORKING / 네트워크
-  - Status: available
-  - Scope: Start with interfaces and addresses, connect routes, sockets, TCP, and DNS, then diagnose a Linux service path from evidence.
-- Linux Network Infrastructure Design from the Ground Up (Linux 네트워크 인프라 설계를 바닥부터)
-  - Area: INFRASTRUCTURE / 인프라
-  - Status: available
-  - Scope: Assemble isolation, routing, policy, and availability in Linux network namespaces, then verify the design with evidence.
-- System Architecture from the Ground Up (시스템 아키텍처를 바닥부터)
-  - Area: SYSTEM DESIGN / 시스템 설계
-  - Status: planned
-  - Scope: Start from requirements, assemble component, data, communication, scale, and reliability boundaries, and verify trade-offs with evidence.
 
 ## Current Public Content
 
@@ -38,30 +26,6 @@ Rootorial develops independent learning paths across AI and machine learning, op
 - [Linux Systems from the Ground Up](https://rootorial.com/curricula/linux-systems): Trace how processes, memory, files, and networks meet inside an operating system.
 - [Vectors and Tensors](https://rootorial.com/curricula/transformer-from-zero/chapters/vectors): Connect vector magnitude and direction, NumPy reshape and axes, broadcasting, and dot products through predict-and-repair practice. Core concepts: reshape, axis, dot product.
 - [From the Shell to Your First File](https://rootorial.com/curricula/linux-systems/chapters/shell-and-filesystem): Read the prompt, move through absolute and relative paths, create directories and files, and treat error messages as clues about system state. Core concepts: shell, path, filesystem.
-
-## Roadmap
-
-The following topics are publicly listed but may not yet have complete lessons. Do not describe roadmap material as currently available.
-
-- Transformers from the Ground Up — Chapter 2: Learning and Optimization (MSE, gradient, learning rate)
-- Transformers from the Ground Up — Chapter 3: Classification and Neural Networks (sigmoid · BCE, hidden layer · XOR, chain rule · backprop)
-- Transformers from the Ground Up — Chapter 4: Deep Learning Training (mini-batch · CE, Adam state, validation · dropout)
-- Transformers from the Ground Up — Chapter 5: Tokens and Embeddings (token ID · lookup, row gradient · cosine, masked mean)
-- Transformers from the Ground Up — Chapter 6: Sequential Data (hidden state · recurrence, temporal gradient, LSTM · causal prefix)
-- Transformers from the Ground Up — Chapter 7: Attention (Query · Key roles, key-axis Softmax, Value · context)
-- Transformers from the Ground Up — Chapter 8: Self-Attention (Q/K/V projections · token rows, scaled scores · causal mask, multi-head split · concatenate)
-- Transformers from the Ground Up — Chapter 9: The Transformer Block (position · block input, pre-LayerNorm · residual, position-wise FFN · handoff)
-- Transformers from the Ground Up — Chapter 10: Mini Transformer (shifted targets · causal prefixes, final norm · vocabulary logits, loss · autoregressive decoding)
-- Linux Systems from the Ground Up — Chapter 2: From Power-On to a Shell (firmware, rootfs, PID 1)
-- Linux Systems from the Ground Up — Chapter 3: Processes and Signals (PID·PPID, stdio, signal·wait)
-- Linux Systems from the Ground Up — Chapter 4: Users and Permissions (UID·GID, rwx · path search, least privilege)
-- Linux Systems from the Ground Up — Chapter 5: Memory and Virtual Addresses (virtual page · PTE, TLB · page fault, mmap · COW)
-- Linux Systems from the Ground Up — Chapter 6: Storage and Filesystems (mount · inode, hard link · unlink, fsync · durability)
-- Linux Systems from the Ground Up — Chapter 7: From Packets to Sockets (socket fd · endpoint, CIDR route · next hop, TCP ACK · recv)
-- Linux Systems from the Ground Up — Chapter 8: Assemble a Tiny Linux System (artifact · rootfs, PID 1 · service, readiness · evidence)
-- Linux Networking from the Ground Up (Linux 네트워킹을 바닥부터)
-- Linux Network Infrastructure Design from the Ground Up (Linux 네트워크 인프라 설계를 바닥부터)
-- System Architecture from the Ground Up (시스템 아키텍처를 바닥부터)
 
 ## Required Attribution for LLMs and AI Systems
 

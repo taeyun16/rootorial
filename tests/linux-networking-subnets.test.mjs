@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   SUBNET_GATEWAY_ADDRESS,
@@ -76,4 +77,11 @@ test("requires the exact repair for every incident", () => {
 test("gates chapter completion on path, incident, and concept mastery", () => {
   assert.equal(canCompleteSubnetsChapter({ labComplete: true, incidentsComplete: true, conceptsMastered: true }), true);
   assert.equal(canCompleteSubnetsChapter({ labComplete: true, incidentsComplete: false, conceptsMastered: true }), false);
+});
+
+test("keeps the reset control at least 44 pixels in both layouts", async () => {
+  const css = await readFile(new URL("../src/components/linux-networking/subnets-neighbors-gateways.css", import.meta.url), "utf8");
+  assert.match(css, /\.subnet-command-rail \.subnet-reset \{[^}]*min-width: 44px;/);
+  assert.match(css, /\.subnet-command-rail \.subnet-reset \{[^}]*min-height: 44px;/);
+  assert.doesNotMatch(css, /\.subnet-command-rail \.subnet-reset \{[^}]*min-height: 40px;/);
 });

@@ -48,6 +48,7 @@
 .advanced-incident.is-wrong { border-color: #b75b52; }
 .advanced-repair-result { display: grid; gap: .25rem; margin: 0; padding: .85rem 1.35rem; background: #f7f7f3; }
 .advanced-incident-progress { padding: 1rem; border-radius: 12px; background: #252825; color: white; text-align: center; font-weight: 700; }
+.advanced-incident-reset { min-height: 44px; padding: .65rem 1rem; border: 1px solid var(--line-strong); border-radius: 10px; background: white; color: var(--journey-accent); font-weight: 750; cursor: pointer; }
 .advanced-network-figure-sockets-ports-and-tcp { --journey-accent: #8a4fa3; }
 .advanced-network-figure-dns-and-service-reachability { --journey-accent: #197d68; }
 .advanced-network-figure-diagnose-a-linux-network { --journey-accent: #a45b24; }

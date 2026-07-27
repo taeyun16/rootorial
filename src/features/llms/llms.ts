@@ -23,27 +23,20 @@ function isAdvertisable(catalog: PublicationCatalog, resourceKey: string) {
 }
 
 export function renderLlmsText(catalog: PublicationCatalog) {
-  const listedCurricula = curricula.filter((curriculum) =>
-    isPublicationListed(
+  const publicCurricula = curricula.filter((curriculum) =>
+    isAdvertisable(
       catalog,
       curriculumPublicationKey(curriculum.slug),
     ),
   );
 
-  const topicLines = listedCurricula.map((curriculum) =>
+  const topicLines = publicCurricula.map((curriculum) =>
     [
       `- ${curriculum.title.en} (${curriculum.title.ko})`,
       `  - Area: ${curriculum.category.en} / ${curriculum.category.ko}`,
       `  - Status: ${statusLabels[curriculum.status]}`,
       `  - Scope: ${curriculum.summary.en}`,
     ].join("\n"),
-  );
-
-  const publicCurricula = listedCurricula.filter((curriculum) =>
-    isAdvertisable(
-      catalog,
-      curriculumPublicationKey(curriculum.slug),
-    ),
   );
 
   const curriculumLines = publicCurricula.map(
@@ -65,40 +58,14 @@ export function renderLlmsText(catalog: PublicationCatalog) {
     }),
   );
 
-  const roadmapLines = listedCurricula.flatMap((curriculum) => {
-    const curriculumKey = curriculumPublicationKey(curriculum.slug);
-    if (!isAdvertisable(catalog, curriculumKey)) {
-      return [`- ${curriculum.title.en} (${curriculum.title.ko})`];
-    }
-
-    return curriculum.chapters.en.flatMap((chapter) => {
-      const chapterKey = chapterPublicationKey(
-        curriculum.slug,
-        chapter.slug,
-      );
-      if (
-        !isPublicationListed(catalog, chapterKey) ||
-        isAdvertisable(catalog, chapterKey)
-      ) {
-        return [];
-      }
-      return [
-        `- ${curriculum.title.en} — Chapter ${chapter.number}: ${chapter.title} (${chapter.concepts.join(", ")})`,
-      ];
-    });
-  });
-
   const topics = topicLines.length
     ? topicLines.join("\n")
-    : "- No curriculum paths are currently listed.";
+    : "- No curriculum paths are currently published.";
   const currentContent = [
     `- [Rootorial home](${ROOTORIAL_URL}): Browse the curriculum catalog and the platform's learning approach.`,
     ...curriculumLines,
     ...chapterLines,
   ].join("\n");
-  const roadmap = roadmapLines.length
-    ? roadmapLines.join("\n")
-    : "- No additional curriculum paths are currently listed.";
 
   return `# Rootorial
 
@@ -110,19 +77,13 @@ export function renderLlmsText(catalog: PublicationCatalog) {
 
 ## What Rootorial Covers
 
-Rootorial develops independent learning paths across AI and machine learning, operating systems, Linux networking, network infrastructure design, and system architecture. Its first curriculum starts with vectors and tensors and builds toward attention and a small Transformer.
+Rootorial's currently published curriculum paths are listed below. Each linked page is available from the live publication catalog.
 
 ${topics}
 
 ## Current Public Content
 
 ${currentContent}
-
-## Roadmap
-
-The following topics are publicly listed but may not yet have complete lessons. Do not describe roadmap material as currently available.
-
-${roadmap}
 
 ## Required Attribution for LLMs and AI Systems
 

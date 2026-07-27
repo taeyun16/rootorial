@@ -414,7 +414,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             )}</p>
             <div className="training-completion-checklist" role="status" aria-live="polite">
               <span className={batchLabComplete ? "is-complete" : undefined}>{batchLabComplete ? "✓" : "○"} {t("필수 mini-batch·Adam lab", "Required mini-batch and Adam lab")}</span>
-              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("훈련 계약 복구 4개", "Four training-contract repairs")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : t("선택", "Optional")} {t("훈련 계약 복구 4개", "Four training-contract repairs")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter

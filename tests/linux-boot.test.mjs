@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   bootOutcomeForPrediction,
@@ -96,4 +97,20 @@ test("requires both semantic activities and the concept check for chapter comple
     };
     assert.equal(canCompleteBootChapter(state), false);
   }
+});
+
+test("keeps the visible boot completion checklist aligned with its five-question gate", async () => {
+  const chapterSource = await readFile(
+    new URL("../src/components/linux/LinuxBootChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  const conceptSource = await readFile(
+    new URL("../src/components/linux/LinuxBootConceptCheck.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(chapterSource, /이해 확인 5문제/);
+  assert.match(chapterSource, /Five concept questions/);
+  assert.doesNotMatch(chapterSource, /이해 확인 4문제|Four concept questions/);
+  assert.equal((conceptSource.match(/id: "/g) ?? []).length, 5);
 });

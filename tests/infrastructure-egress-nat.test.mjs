@@ -57,6 +57,22 @@ test("does not treat one-way delivery as a stateful return path", () => {
   }
 });
 
+test("keeps conntrack NEW until traffic is observed in the reply direction", () => {
+  for (const draft of [
+    { ...natFlowPresets["snat-working"], externalReturnRoute: false },
+    { ...natFlowPresets["snat-working"], returnRouter: "different-router" },
+  ]) {
+    const result = evaluateNatFlow(draft);
+    assert.equal(result.passed, false);
+    assert.equal(result.conntrack?.state, "NEW");
+  }
+
+  assert.equal(
+    evaluateNatFlow({ ...natFlowPresets["snat-working"] }).conntrack?.state,
+    "ESTABLISHED",
+  );
+});
+
 test("uses masquerade instead of a stale hard-coded SNAT address for dynamic egress", () => {
   const stale = evaluateNatFlow({
     ...natFlowPresets["snat-working"],

@@ -1,9 +1,19 @@
+import type { KeyboardEvent } from "react";
 import { useLocale, type Locale } from "../features/localization/localization";
 
 const options: { locale: Locale; shortLabel: string; label: string }[] = [
   { locale: "ko", shortLabel: "한국어", label: "한국어로 보기" },
   { locale: "en", shortLabel: "EN", label: "View in English" },
 ];
+
+function activateButtonFromKeyboard(
+  event: KeyboardEvent<HTMLButtonElement>,
+  activate: () => void,
+) {
+  if (event.key !== "Enter" && event.key !== " ") return;
+  event.preventDefault();
+  activate();
+}
 
 export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const { locale, setLocale } = useLocale();
@@ -17,6 +27,10 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
           key={option.locale}
           lang={option.locale}
           onClick={() => setLocale(option.locale)}
+          onKeyDown={(event) => activateButtonFromKeyboard(
+            event,
+            () => setLocale(option.locale),
+          )}
           title={option.label}
           type="button"
         >

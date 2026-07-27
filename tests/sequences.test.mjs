@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -318,4 +319,27 @@ test("requires the memory lab and concepts while keeping debugger remediation op
   for (const missing of ["memoryLabComplete", "conceptsMastered"]) {
     assert.equal(canCompleteSequencesChapter({ ...complete, [missing]: false }), false);
   }
+});
+
+test("presents one required sequence activity with localized preview navigation", async () => {
+  const chapterSource = await readFile(
+    new URL("../src/components/sequences/SequencesChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  const conceptSource = await readFile(
+    new URL("../src/components/sequences/SequencesConceptCheck.tsx", import.meta.url),
+    "utf8",
+  );
+  const styles = await readFile(
+    new URL("../src/styles/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(conceptSource, /the required sequence-memory lab to unlock/);
+  assert.doesNotMatch(conceptSource, /both required activities|both activity states/);
+  assert.match(chapterSource, /t\("선택", "Optional"\)/);
+  assert.match(chapterSource, /chapters\/embeddings\$\{isKo/);
+  assert.match(chapterSource, /chapters\/attention\$\{isKo/);
+  assert.match(styles, /\.chapter-bottom-nav a \{[\s\S]*?min-height: 44px;/);
+  assert.match(styles, /\.sequences-prerequisite a,[\s\S]*?min-height: 44px;/);
 });

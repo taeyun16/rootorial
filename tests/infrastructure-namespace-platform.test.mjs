@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   createNamespacePlatformEvidenceBundle,
@@ -18,6 +19,15 @@ import {
   namespacePlatformScenarioIds,
 } from "../src/features/infrastructure/namespace-platform.ts";
 import { buildNamespacePlatformVisualState } from "../src/features/infrastructure/namespace-platform-visual.ts";
+
+test("scopes FNV evidence fingerprints as non-cryptographic checksums", () => {
+  const source = readFileSync(
+    new URL("../src/components/infrastructure/NamespacePlatformChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  assert.match(source, /FNV-1a fingerprint is a non-cryptographic checksum/);
+  assert.match(source, /not a signature, origin authentication, or security boundary/);
+});
 
 test("re-executes canonical evaluators from all seven prerequisite chapters", () => {
   const receipts = createNamespacePlatformEvidenceBundle();

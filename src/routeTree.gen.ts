@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as ExperimentsLinuxRouteImport } from './routes/experiments.linux'
 import { Route as CurriculaCurriculumSlugRouteImport } from './routes/curricula.$curriculumSlug'
 import { Route as ChaptersVectorsRouteImport } from './routes/chapters.vectors'
+import { Route as AdminPreviewCurriculaIndexRouteImport } from './routes/admin_.preview.curricula.index'
 import { Route as CurriculaCurriculumSlugChaptersChapterSlugRouteImport } from './routes/curricula.$curriculumSlug_.chapters.$chapterSlug'
 import { Route as AdminPreviewCurriculaCurriculumSlugRouteImport } from './routes/admin_.preview.curricula.$curriculumSlug'
 import { Route as AdminPreviewCurriculaCurriculumSlugChaptersChapterSlugRouteImport } from './routes/admin_.preview.curricula.$curriculumSlug_.chapters.$chapterSlug'
@@ -43,6 +44,12 @@ const ChaptersVectorsRoute = ChaptersVectorsRouteImport.update({
   path: '/chapters/vectors',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminPreviewCurriculaIndexRoute =
+  AdminPreviewCurriculaIndexRouteImport.update({
+    id: '/admin_/preview/curricula/',
+    path: '/admin/preview/curricula/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CurriculaCurriculumSlugChaptersChapterSlugRoute =
   CurriculaCurriculumSlugChaptersChapterSlugRouteImport.update({
     id: '/curricula/$curriculumSlug_/chapters/$chapterSlug',
@@ -70,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/experiments/linux': typeof ExperimentsLinuxRoute
   '/admin/preview/curricula/$curriculumSlug': typeof AdminPreviewCurriculaCurriculumSlugRoute
   '/curricula/$curriculumSlug/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
+  '/admin/preview/curricula/': typeof AdminPreviewCurriculaIndexRoute
   '/admin/preview/curricula/$curriculumSlug/chapters/$chapterSlug': typeof AdminPreviewCurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 export interface FileRoutesByTo {
@@ -80,6 +88,7 @@ export interface FileRoutesByTo {
   '/experiments/linux': typeof ExperimentsLinuxRoute
   '/admin/preview/curricula/$curriculumSlug': typeof AdminPreviewCurriculaCurriculumSlugRoute
   '/curricula/$curriculumSlug/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
+  '/admin/preview/curricula': typeof AdminPreviewCurriculaIndexRoute
   '/admin/preview/curricula/$curriculumSlug/chapters/$chapterSlug': typeof AdminPreviewCurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 export interface FileRoutesById {
@@ -91,6 +100,7 @@ export interface FileRoutesById {
   '/experiments/linux': typeof ExperimentsLinuxRoute
   '/admin_/preview/curricula/$curriculumSlug': typeof AdminPreviewCurriculaCurriculumSlugRoute
   '/curricula/$curriculumSlug_/chapters/$chapterSlug': typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
+  '/admin_/preview/curricula/': typeof AdminPreviewCurriculaIndexRoute
   '/admin_/preview/curricula/$curriculumSlug_/chapters/$chapterSlug': typeof AdminPreviewCurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 export interface FileRouteTypes {
@@ -103,6 +113,7 @@ export interface FileRouteTypes {
     | '/experiments/linux'
     | '/admin/preview/curricula/$curriculumSlug'
     | '/curricula/$curriculumSlug/chapters/$chapterSlug'
+    | '/admin/preview/curricula/'
     | '/admin/preview/curricula/$curriculumSlug/chapters/$chapterSlug'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -113,6 +124,7 @@ export interface FileRouteTypes {
     | '/experiments/linux'
     | '/admin/preview/curricula/$curriculumSlug'
     | '/curricula/$curriculumSlug/chapters/$chapterSlug'
+    | '/admin/preview/curricula'
     | '/admin/preview/curricula/$curriculumSlug/chapters/$chapterSlug'
   id:
     | '__root__'
@@ -123,6 +135,7 @@ export interface FileRouteTypes {
     | '/experiments/linux'
     | '/admin_/preview/curricula/$curriculumSlug'
     | '/curricula/$curriculumSlug_/chapters/$chapterSlug'
+    | '/admin_/preview/curricula/'
     | '/admin_/preview/curricula/$curriculumSlug_/chapters/$chapterSlug'
   fileRoutesById: FileRoutesById
 }
@@ -134,6 +147,7 @@ export interface RootRouteChildren {
   ExperimentsLinuxRoute: typeof ExperimentsLinuxRoute
   AdminPreviewCurriculaCurriculumSlugRoute: typeof AdminPreviewCurriculaCurriculumSlugRoute
   CurriculaCurriculumSlugChaptersChapterSlugRoute: typeof CurriculaCurriculumSlugChaptersChapterSlugRoute
+  AdminPreviewCurriculaIndexRoute: typeof AdminPreviewCurriculaIndexRoute
   AdminPreviewCurriculaCurriculumSlugChaptersChapterSlugRoute: typeof AdminPreviewCurriculaCurriculumSlugChaptersChapterSlugRoute
 }
 
@@ -174,6 +188,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChaptersVectorsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin_/preview/curricula/': {
+      id: '/admin_/preview/curricula/'
+      path: '/admin/preview/curricula'
+      fullPath: '/admin/preview/curricula/'
+      preLoaderRoute: typeof AdminPreviewCurriculaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/curricula/$curriculumSlug_/chapters/$chapterSlug': {
       id: '/curricula/$curriculumSlug_/chapters/$chapterSlug'
       path: '/curricula/$curriculumSlug/chapters/$chapterSlug'
@@ -208,6 +229,7 @@ const rootRouteChildren: RootRouteChildren = {
     AdminPreviewCurriculaCurriculumSlugRoute,
   CurriculaCurriculumSlugChaptersChapterSlugRoute:
     CurriculaCurriculumSlugChaptersChapterSlugRoute,
+  AdminPreviewCurriculaIndexRoute: AdminPreviewCurriculaIndexRoute,
   AdminPreviewCurriculaCurriculumSlugChaptersChapterSlugRoute:
     AdminPreviewCurriculaCurriculumSlugChaptersChapterSlugRoute,
 }

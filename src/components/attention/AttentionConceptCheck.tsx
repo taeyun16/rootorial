@@ -181,13 +181,13 @@ export function AttentionConceptCheck({
         kicker: "TRACE THE ATTENTION CONTRACT",
         title: t("query·key·value의 경계를 끝까지 추적하세요", "Trace query, key, and value boundaries end to end"),
         description: t(
-          "다섯 문제와 두 필수 활동을 모두 마쳐야 챕터 완료 조건이 열립니다.",
-          "Finish all five questions and both required activities to unlock the chapter gate.",
+          "다섯 문제와 필수 Attention routing lab을 마치면 챕터 완료 조건이 열립니다.",
+          "Finish all five questions and the required Attention routing lab to unlock the chapter gate.",
         ),
         correct: t("Attention 계약을 정확히 추적했습니다", "Attention contract traced correctly"),
         incorrect: t("score·softmax·value 경계를 다시 추적하세요", "Retrace score, softmax, and value boundaries"),
         checkAnswers: t("Attention 계약 확인하기", "Check the Attention contract"),
-        completed: t("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", "Concept check complete — now confirm both activity states."),
+        completed: t("이해 확인 완료 — 필수 Attention routing lab의 완료 상태를 확인하세요.", "Concept check complete — now confirm the required Attention routing lab."),
         retry: t("Q/K/V 역할, shape 또는 장 경계가 아직 섞여 있습니다.", "Some Q/K/V roles, shapes, or chapter boundaries are still mixed."),
         idle: t("다섯 답을 고른 뒤 Attention 계약을 확인하세요.", "Choose all five answers, then check the Attention contract."),
       }}

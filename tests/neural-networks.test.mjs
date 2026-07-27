@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   binaryCrossEntropy,
@@ -234,4 +235,23 @@ test("requires XOR, hidden backprop, and concepts while keeping debugger optiona
     debuggerComplete: false,
     conceptsMastered: false,
   }), false);
+});
+
+test("keeps neural-network draft navigation inside the local preview", async () => {
+  const chapterSource = await readFile(
+    new URL("../src/components/neural-networks/NeuralNetworksChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  const styles = await readFile(
+    new URL("../src/styles/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(chapterSource, /chapters\/optimization\$\{isKo/);
+  assert.match(chapterSource, /chapters\/training\$\{isKo/);
+  assert.match(chapterSource, /preview\s*\? <a href=\{nextPreviewHref\}/);
+  assert.match(
+    styles,
+    /\.neural-prerequisite a,[\s\S]*?min-height: 44px;/,
+  );
 });

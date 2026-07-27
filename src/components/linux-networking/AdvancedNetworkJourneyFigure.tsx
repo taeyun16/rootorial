@@ -55,6 +55,7 @@ export function AdvancedNetworkJourneyFigure({ config, onMasteryChange }: { conf
   } as const;
   const predictionSpec = predictionCopy[config.slug];
   const predictionCorrect = prediction === predictionSpec.correct;
+  const executedCount = predictionCorrect ? visited.size : 0;
   const mastered = hasMasteredSequentialEvidence({
     predictionCorrect,
     visitedCount: visited.size,
@@ -86,7 +87,7 @@ export function AdvancedNetworkJourneyFigure({ config, onMasteryChange }: { conf
       title={config.figure.title[locale]}
       description={config.figure.description[locale]}
       figureAttributes={{ "data-phase": phase.id, "data-mastered": mastered, "data-chapter": config.slug }}
-      footer={<span>{mastered ? locale === "ko" ? "모든 증거 상태를 실행했습니다." : "Every evidence state has been executed." : `${visited.size} / ${phases.length} ${locale === "ko" ? "상태 실행" : "states executed"}`}</span>}
+      footer={<span>{mastered ? locale === "ko" ? "모든 증거 상태를 실행했습니다." : "Every evidence state has been executed." : `${executedCount} / ${phases.length} ${locale === "ko" ? "상태 실행" : "states executed"}`}</span>}
     >
       <div className="network-figure-prediction">
         <DirectChoiceGroup

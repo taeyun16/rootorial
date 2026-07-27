@@ -190,13 +190,13 @@ export function SelfAttentionConceptCheck({
         kicker: "TRACE THE SELF-ATTENTION CONTRACT",
         title: t("token row에서 causal multi-head 출력까지 추적하세요", "Trace token rows through causal multi-head output"),
         description: t(
-          "다섯 문제와 두 필수 활동을 모두 마쳐야 챕터 완료 조건이 열립니다.",
-          "Finish all five questions and both required activities to unlock the chapter gate.",
+          "다섯 문제와 workbench의 핵심 challenge 세 개를 모두 마쳐야 챕터 완료 조건이 열립니다.",
+          "Finish all five questions and the three core workbench challenges to unlock the chapter gate.",
         ),
         correct: t("Self-Attention 계약을 정확히 추적했습니다", "Self-attention contract traced correctly"),
         incorrect: t("projection·scaling·mask·head 경계를 다시 추적하세요", "Retrace the projection, scaling, mask, and head boundaries"),
         checkAnswers: t("Self-Attention 계약 확인하기", "Check the self-attention contract"),
-        completed: t("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", "Concept check complete — now confirm both activity states."),
+        completed: t("이해 확인 완료 — 핵심 challenge 세 개의 완료 상태를 확인하세요.", "Concept check complete — now confirm all three core challenge states."),
         retry: t("Q/K/V 정보원, causal visibility 또는 head shape가 아직 섞여 있습니다.", "Some Q/K/V sources, causal visibility, or head shapes are still mixed."),
         idle: t("다섯 답을 고른 뒤 Self-Attention 계약을 확인하세요.", "Choose all five answers, then check the self-attention contract."),
       }}

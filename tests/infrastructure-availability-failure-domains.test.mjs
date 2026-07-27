@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   availabilityIncidentFixtures,
@@ -8,6 +9,19 @@ import {
   evaluateAvailabilityIncident,
 } from "../src/features/infrastructure/availability-failure-domains.ts";
 import { buildAvailabilityVisualState } from "../src/features/infrastructure/availability-failure-domains-visual.ts";
+
+test("updates the recovery model from continuous range input", () => {
+  const source = readFileSync(
+    new URL("../src/components/infrastructure/AvailabilityFailureDomainView.tsx", import.meta.url),
+    "utf8",
+  );
+  const styles = readFileSync(
+    new URL("../src/components/infrastructure/availability-failure-domains.css", import.meta.url),
+    "utf8",
+  );
+  assert.match(source, /onInput=\{\(event\) => onRecoverySecondsChange/);
+  assert.match(styles, /\.availability-recovery-control input \{[^}]*min-height: 44px/);
+});
 
 test("serves 9,960 of 10,000 requests after a correlated zone failure in the working design", () => {
   for (const preset of ["domain-placement-working", "dependency-recovery-working"]) {

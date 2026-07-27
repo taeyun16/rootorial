@@ -387,7 +387,7 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
             )}</p>
             <div className="embeddings-completion-checklist" role="status" aria-live="polite">
               <span className={lookupLabComplete ? "is-complete" : undefined}>{lookupLabComplete ? "✓" : "○"} {t("필수 lookup·gradient lab", "Required lookup and gradient lab")}</span>
-              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("embedding 계약 복구 4개", "Four embedding-contract repairs")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : t("선택", "Optional")} {t("embedding 계약 복구 4개", "Four embedding-contract repairs")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter

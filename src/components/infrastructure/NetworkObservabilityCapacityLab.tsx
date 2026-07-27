@@ -212,8 +212,8 @@ export function NetworkObservabilityCapacityLab({
         ));
       } else {
         setFeedback(message(
-          "병목 예측은 맞지만 plan 뒤에도 한 resource가 70% headroom contract를 넘습니다.",
-          "The bottleneck prediction is correct, but one resource still exceeds the 70% headroom contract after the plan.",
+          "병목 예측은 맞지만 plan 뒤에도 한 resource가 30% headroom contract를 충족하지 못합니다.",
+          "The bottleneck prediction is correct, but one resource still misses the 30% headroom contract after the plan.",
           "error",
         ));
       }

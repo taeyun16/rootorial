@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   attentionThreeQueryCode,
@@ -387,4 +388,29 @@ test("requires lab and concept mastery while keeping debugger remediation option
     }
   }
   assert.equal(canCompleteAttentionChapter({ labComplete: true, conceptsMastered: true }), true);
+});
+
+test("presents one required Attention activity and rejects an empty query component", async () => {
+  const chapterSource = await readFile(
+    new URL("../src/components/attention/AttentionChapter.tsx", import.meta.url),
+    "utf8",
+  );
+  const conceptSource = await readFile(
+    new URL("../src/components/attention/AttentionConceptCheck.tsx", import.meta.url),
+    "utf8",
+  );
+  const explorerSource = await readFile(
+    new URL("../src/components/AttentionPipelineExplorer.tsx", import.meta.url),
+    "utf8",
+  );
+  const styles = await readFile(
+    new URL("../src/styles/globals.css", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(conceptSource, /the required Attention routing lab to unlock/);
+  assert.doesNotMatch(conceptSource, /both required activities|both activity states/);
+  assert.match(chapterSource, /t\("선택", "Optional"\)/);
+  assert.match(explorerSource, /value\.trim\(\) === "" \? Number\.NaN : Number\(value\)/);
+  assert.match(styles, /\.attention-prerequisite a,[\s\S]*?min-height: 44px;/);
 });

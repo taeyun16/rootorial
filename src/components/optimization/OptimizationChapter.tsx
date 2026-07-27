@@ -20,6 +20,7 @@ import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
 import { NotebookCell } from "../NotebookCell";
+import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { PythonCode } from "../PythonCode";
 import { RootorialMark } from "../RootorialMark";
@@ -51,6 +52,7 @@ const tocItems = {
 
 export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: number }) {
   const { locale } = useLocale();
+  const preview = usePublicationPreview();
   const isKo = locale === "ko";
   const t = (ko: string, en: string) => isKo ? ko : en;
   const chapters = isKo ? chaptersKo : chaptersEn;
@@ -63,6 +65,8 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
     debuggerComplete,
     conceptsMastered,
   });
+  const previousPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/vectors${isKo ? "" : "?lang=en"}`;
+  const nextPreviewHref = `/admin/preview/curricula/${TRANSFORMER_CURRICULUM_SLUG}/chapters/neural-networks${isKo ? "" : "?lang=en"}`;
 
   return (
     <main className="chapter-shell optimization-chapter-shell">
@@ -133,13 +137,17 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
               <div>
                 <strong>{t("선행 개념", "Prerequisites")}</strong>
                 <p>{t("벡터의 방향, 행·열 shape, stack과 내적만 사용합니다. 미적분 과목을 먼저 들을 필요는 없습니다. 미분은 파라미터를 조금 흔들었을 때 loss가 얼마나 변하는지로 시작합니다.", "Use only vector direction, row/column shape, stacking, and dot products. No prior calculus course is required; differentiation begins as how much loss changes after a tiny parameter perturbation.")}</p>
-                <Link
-                  to="/curricula/$curriculumSlug/chapters/$chapterSlug"
-                  params={{ curriculumSlug: TRANSFORMER_CURRICULUM_SLUG, chapterSlug: "vectors" }}
-                  search={isKo ? {} : { lang: "en" }}
-                >
-                  {t("이전 챕터 다시 보기", "Review the previous chapter")} →
-                </Link>
+                {preview ? (
+                  <a href={previousPreviewHref}>{t("이전 드래프트 챕터 다시 보기", "Review the previous draft chapter")} →</a>
+                ) : (
+                  <Link
+                    to="/curricula/$curriculumSlug/chapters/$chapterSlug"
+                    params={{ curriculumSlug: TRANSFORMER_CURRICULUM_SLUG, chapterSlug: "vectors" }}
+                    search={isKo ? {} : { lang: "en" }}
+                  >
+                    {t("이전 챕터 다시 보기", "Review the previous chapter")} →
+                  </Link>
+                )}
               </div>
             </div>
             <div className="optimization-array-flow">
@@ -294,7 +302,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
             <p>{t("나쁜 학습률을 관찰해 안정적인 값으로 복구하고 gradient의 shape와 부호를 설명하면 핵심 목표에 도달합니다. 더 연습하고 싶을 때만 optimizer 사건을 이어서 해결하세요.", "You reach the core goal when you can repair a bad learning rate and explain gradient shape and sign. Continue with the optimizer incidents only when you want more practice.")}</p>
             <div className="optimization-completion-checklist" role="status" aria-live="polite">
               <span className={descentLabComplete ? "is-complete" : undefined}>{descentLabComplete ? "✓" : "○"} {t("학습률 복구 실습", "Learning-rate repair lab")}</span>
-              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : "선택"} {t("업데이트 디버깅 4개", "Four update incidents")}</span>
+              <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : t("선택", "Optional")} {t("업데이트 디버깅 4개", "Four update incidents")}</span>
               <span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("이해 확인 5문제", "Five concept questions")}</span>
             </div>
             <CompleteChapter
@@ -309,14 +317,22 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
           </section>
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
-            <Link
-              to="/curricula/$curriculumSlug/chapters/$chapterSlug"
-              params={{ curriculumSlug: TRANSFORMER_CURRICULUM_SLUG, chapterSlug: "vectors" }}
-              search={isKo ? {} : { lang: "en" }}
-            >
-              ← {t("이전: 벡터와 텐서", "Previous: Vectors and Tensors")}
-            </Link>
-            <span>{t("다음: 분류와 신경망", "Next: Classification and Neural Networks")} <small>{t("준비 중", "Coming soon")}</small></span>
+            {preview ? (
+              <a href={previousPreviewHref}>← {t("이전: 벡터와 텐서", "Previous: Vectors and Tensors")}</a>
+            ) : (
+              <Link
+                to="/curricula/$curriculumSlug/chapters/$chapterSlug"
+                params={{ curriculumSlug: TRANSFORMER_CURRICULUM_SLUG, chapterSlug: "vectors" }}
+                search={isKo ? {} : { lang: "en" }}
+              >
+                ← {t("이전: 벡터와 텐서", "Previous: Vectors and Tensors")}
+              </Link>
+            )}
+            {preview ? (
+              <a href={nextPreviewHref}>{t("다음: 분류와 신경망", "Next: Classification and Neural Networks")} →</a>
+            ) : (
+              <span>{t("다음: 분류와 신경망", "Next: Classification and Neural Networks")} <small>{t("준비 중", "Coming soon")}</small></span>
+            )}
           </nav>
         </article>
       </div>

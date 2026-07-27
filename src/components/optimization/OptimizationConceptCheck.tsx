@@ -143,11 +143,11 @@ export function OptimizationConceptCheck({
       copy={{
         kicker: "READ THE UPDATE",
         title: t("손실·gradient·학습률을 하나의 학습 루프로 연결하세요", "Connect loss, gradient, and learning rate into one learning loop"),
-        description: t("다섯 문제와 두 필수 활동을 모두 마치면 챕터 완료 조건이 열립니다.", "Finish all five questions and both required activities to unlock the chapter gate."),
+        description: t("다섯 문제와 필수 학습률 복구 실습을 마치면 챕터 완료 조건이 열립니다.", "Finish all five questions and the required learning-rate repair lab to unlock the chapter gate."),
         correct: t("학습 흐름을 정확히 읽었습니다", "Training flow read correctly"),
         incorrect: t("업데이트 근거를 다시 확인하세요", "Recheck the update evidence"),
         checkAnswers: t("최적화 흐름 확인하기", "Check the optimization loop"),
-        completed: t("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", "Concept check complete — now confirm both activity states."),
+        completed: t("이해 확인 완료 — 이제 필수 학습률 복구 실습의 상태를 확인하세요.", "Concept check complete — now confirm the required learning-rate repair lab."),
         retry: t("아직 섞인 역할이 있습니다. loss는 값, gradient는 방향, η는 보폭입니다.", "Some roles are still mixed up: loss is a value, the gradient gives direction, and η sets step size."),
         idle: t("다섯 답을 고른 뒤 학습 루프를 확인하세요.", "Choose all five answers, then check the learning loop."),
       }}

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   applyChmodExpression,
@@ -212,4 +213,12 @@ test("requires the access lab, all incidents, and concepts for chapter completio
   for (const missing of Object.keys(complete)) {
     assert.equal(canCompletePermissionsChapter({ ...complete, [missing]: false }), false);
   }
+});
+
+test("keeps the prerequisite handoff at a 44px touch target", async () => {
+  const styles = await readFile(new URL("../src/styles/globals.css", import.meta.url), "utf8");
+  assert.match(
+    styles,
+    /\.permission-prerequisite a \{[\s\S]*?min-height: 44px;[\s\S]*?display: inline-flex;/,
+  );
 });
