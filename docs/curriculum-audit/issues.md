@@ -6,6 +6,29 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-057 — Tiny Linux capstone E2E still targeted retired selects and radio inputs
+
+Resolved 2026-08-01. The `assemble-a-tiny-linux` capstone already exposes its
+assembly configuration, failure prediction, incident repair, and concept
+alternatives as visible `aria-pressed` buttons, but its browser spec still used
+combobox selections and five native radio inputs. The stale path could not
+reproduce the live three-repair assembly, five-probe evidence, incident, or
+completion contracts.
+
+The spec now scopes every finite alternative to its named button group, retains
+the keyboard assertions on native buttons, records a wrong init incident and a
+wrong concept answer before repairing both, and completes the current capstone.
+Both viewports collect unexpected console errors and explicitly assert zero
+native selects; the mobile contract checks every visible enabled lesson button,
+link, disclosure, and input against 44×44.
+
+The Codex in-app browser reproduced the Korean desktop wrong/correct prediction,
+the ordered `/init` mode, return-route, and group-read repairs, all five probes,
+four incidents, and a concept failure/retry to unlock all three completion
+outputs. The English 390×844 preview repeated the required capstone and exposed
+109 visible lesson targets with zero native selects, horizontal overflow,
+untranslated strings, undersized targets, or console errors.
+
 ### CURR-056 — Linux packet-networking E2E still targeted retired selects and radio inputs
 
 Resolved 2026-08-01. The `networking-from-a-packet` chapter already renders

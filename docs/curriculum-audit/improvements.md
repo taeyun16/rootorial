@@ -1765,3 +1765,18 @@ First slice implemented 2026-08-01:
   390×844 all 90 visible lesson targets passed 44×44, with zero native selects,
   horizontal overflow, untranslated strings, or console errors; lab and
   incident resets returned to deterministic initial states.
+- The next Linux Systems slice aligned `assemble-a-tiny-linux` with its current
+  direct-button UI. Retired combobox/select operations and five native radio
+  interactions were replaced by named button-group actions, a wrong init
+  incident, and a focused concept retry. Both viewports now record console
+  errors and assert zero native selects; mobile checks every visible enabled
+  lesson button, link, disclosure, and input against 44×44. Signal coverage is
+  now console 20/32, 44px 24/32, and native-select-zero 29/32, leaving 24
+  explicit targets.
+- The in-app browser completed the ordered `/init` mode→return route→report
+  group-read repairs, recorded all five readiness probes, solved four incidents,
+  and unlocked all three chapter outputs after a concept retry. The English
+  390×844 replay exposed 109 visible lesson targets with zero native selects,
+  horizontal overflow, untranslated strings, undersized targets, or console
+  errors; required-lab and incident resets returned to deterministic initial
+  states.
