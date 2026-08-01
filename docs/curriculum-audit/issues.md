@@ -2,9 +2,13 @@
 
 ## Open
 
+No open issues in the current slice.
+
+## Resolved
+
 ### CURR-049 — Five Linux Networking chapters point to an unrelated E2E route
 
-Open 2026-08-01. The first registry-derived interaction inventory found that
+Resolved 2026-08-01. The first registry-derived interaction inventory found that
 all 32 implemented chapters have a renderer, experience contract,
 content-quality contract, source file, and declared E2E file, but route
 references exist for only 27/32. The five missing rows are
@@ -18,16 +22,25 @@ Their content-quality contracts currently point to
 manual browser evidence in the matrix, but it means a normal automated run
 cannot reproduce those five chapter routes from the declared contract.
 
-The report records this as a browser-spec coverage target rather than a
-structural failure. A Playwright CLI spot check independently opened the
-English `subnets-neighbors-and-gateways` preview at 390×844 and observed 38
-buttons, four tabs, seven status surfaces, 30 enabled visible targets, zero
-native selects, zero horizontal overflow, zero sub-44px targets, and zero
-console warnings/errors. CURR-049 remains open until a dedicated shared spec or
-route-driven runner covers all five rows without borrowing evidence from the
-unrelated Linux Systems chapter.
+The five contracts now point to
+`e2e/linux-networking-chapter-routes.spec.ts`. Its route table opens every
+declared preview, waits for the lazy chapter boundary, checks the matching
+heading, executes an incorrect prediction followed by an Enter-key correction,
+observes adjacent feedback and the next unlocked step, and separately checks
+all five pages at 390×844 for native selects, horizontal overflow, and
+sub-44px core targets. The registry-derived route signal is now 32/32;
+console and native-select-zero source signals both gain five rows, reducing
+the explicit coverage target total from 61 to 46.
 
-## Resolved
+The Codex in-app browser reproduced the shared route contract against
+`npm run dev:content`: all five English routes loaded at 1280×720, wrong and
+correct prediction feedback appeared immediately, the correct choice accepted
+Enter, and the second executable state unlocked and ran. At 390×844 the five
+pages exposed 28, 30, 30, 30, and 33 enabled core targets respectively, with
+zero native selects, horizontal overflow, sub-44px targets, or console errors.
+`npx playwright test ... --list` discovers both tests, but a repository-run
+execution remains environment-blocked before the spec by the global Clerk
+setup because `CLERK_PUBLISHABLE_KEY` is not present; no secret was synthesized.
 
 ### CURR-048 — First failed practice contracts could be buried below passing evidence
 

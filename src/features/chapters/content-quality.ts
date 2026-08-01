@@ -514,27 +514,27 @@ export const platformContentQualityContracts = {
   ),
   "linux-networking/subnets-neighbors-and-gateways": platformContract(
     "linux-networking/subnets-neighbors-and-gateways", 2, "서브넷, 이웃과 게이트웨이",
-    "src/components/linux-networking/SubnetsNeighborsGatewaysChapter.tsx", "e2e/linux-networking.spec.ts",
+    "src/components/linux-networking/SubnetsNeighborsGatewaysChapter.tsx", "e2e/linux-networking-chapter-routes.spec.ts",
     ["predict", "experiment", "debug"], 17,
   ),
   "linux-networking/routes-and-packet-paths": platformContract(
     "linux-networking/routes-and-packet-paths", 3, "경로와 패킷 전달",
-    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking.spec.ts",
+    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking-chapter-routes.spec.ts",
     ["predict", "experiment", "debug"], 17,
   ),
   "linux-networking/sockets-ports-and-tcp": platformContract(
     "linux-networking/sockets-ports-and-tcp", 4, "소켓, 포트와 TCP",
-    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking.spec.ts",
+    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking-chapter-routes.spec.ts",
     ["predict", "build", "debug"], 17,
   ),
   "linux-networking/dns-and-service-reachability": platformContract(
     "linux-networking/dns-and-service-reachability", 5, "DNS와 서비스 도달성",
-    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking.spec.ts",
+    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking-chapter-routes.spec.ts",
     ["predict", "experiment", "transfer"], 17,
   ),
   "linux-networking/diagnose-a-linux-network": platformContract(
     "linux-networking/diagnose-a-linux-network", 6, "Linux 네트워크 진단",
-    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking.spec.ts",
+    "src/components/linux-networking/AdvancedLinuxNetworkingChapter.tsx", "e2e/linux-networking-chapter-routes.spec.ts",
     ["predict", "debug", "transfer"], 17,
   ),
 

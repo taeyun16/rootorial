@@ -1636,10 +1636,10 @@ First slice implemented 2026-08-01:
   native-select-zero assertion patterns. They do not claim that every control
   was clicked, and primary-source control counts do not expand imported child
   components.
-- The baseline has zero structural issues and 61 explicit browser-spec
+- The baseline had zero structural issues and 61 explicit browser-spec
   coverage targets: route 27/32, desktop 32/32, 390×844 32/32, keyboard 30/32,
   immediate result 32/32, console 7/32, overflow 32/32, 44px 20/32, and native
-  select zero 15/32. This turns undocumented omissions into reviewable rows
+  select zero 15/32. This turned undocumented omissions into reviewable rows
   without weakening the existing manual browser matrix.
 - A Playwright CLI spot check opened English Linux Networking
   `subnets-neighbors-and-gateways` at 390×844. The rendered page exposed 38
@@ -1647,8 +1647,16 @@ First slice implemented 2026-08-01:
   with zero native selects, horizontal overflow, sub-44px targets, console
   warnings, or console errors. The browser check remains separate from the
   static report.
-- The next slice is CURR-049: replace the unrelated shared
-  `e2e/linux-networking.spec.ts` declaration for five advanced Linux
-  Networking chapters with a route-driven spec that actually opens each one,
-  then add console/native-select assertions before attempting exhaustive
-  control activation.
+- CURR-049 is resolved by a dedicated route-driven shared spec for the five
+  Linux Networking chapters that previously borrowed an unrelated Linux
+  Systems E2E file. The current source-signal inventory is route 32/32,
+  desktop 32/32, 390×844 32/32, keyboard 30/32, immediate result 32/32,
+  console 12/32, overflow 32/32, 44px 20/32, and native-select zero 20/32,
+  leaving 46 explicit targets.
+- The Codex in-app browser ran the shared prediction contract at 1280×720 and
+  the layout contract at 390×844 for all five routes. Each route exposed the
+  correct chapter, immediate wrong/correct feedback, Enter activation, and an
+  unlocked second execution step. Mobile target counts were 28/30/30/30/33,
+  with zero console errors, native selects, horizontal overflow, or sub-44px
+  core controls. Playwright discovery passes; execution through the repository
+  runner is blocked before the spec by the missing Clerk publishable key.

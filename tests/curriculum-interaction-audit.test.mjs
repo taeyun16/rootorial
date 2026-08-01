@@ -18,21 +18,17 @@ test("derives one structurally valid interaction-audit row for every implemented
 
 test("keeps browser-spec evidence separate from remaining exhaustive coverage targets", () => {
   const report = analyzeCurriculumInteractionAudit();
-  assert.equal(report.signalCoverage.route, 27);
+  assert.equal(report.signalCoverage.route, 32);
   assert.equal(report.signalCoverage.desktop, 32);
   assert.equal(report.signalCoverage.mobile390x844, 32);
-  assert.equal(report.coverageTargets.length > 0, true);
+  assert.equal(report.signalCoverage.console, 12);
+  assert.equal(report.signalCoverage.nativeSelectZero, 20);
+  assert.equal(report.coverageTargets.length, 46);
   assert.deepEqual(
     report.chapters
       .filter(({ browserSpecSignals }) => !browserSpecSignals.route)
       .map(({ chapterId }) => chapterId),
-    [
-      "linux-networking/diagnose-a-linux-network",
-      "linux-networking/dns-and-service-reachability",
-      "linux-networking/routes-and-packet-paths",
-      "linux-networking/sockets-ports-and-tcp",
-      "linux-networking/subnets-neighbors-and-gateways",
-    ],
+    [],
   );
 
   const markdown = renderCurriculumInteractionAuditMarkdown(report);

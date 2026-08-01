@@ -32,15 +32,17 @@ across three consecutive runs; it is not represented as in-app-browser proof.
 Registry-derived interaction inventory 2026-08-01: all 32 implemented chapters
 join cleanly across renderer, experience, content-quality, source, and declared
 E2E contracts with zero structural issues. Browser-spec signals currently
-cover route 27/32, desktop 32/32, 390×844 32/32, keyboard 30/32, immediate
-result 32/32, console 7/32, overflow 32/32, 44px 20/32, and native-select-zero
-15/32, leaving 61 explicit coverage targets. These are source-pattern
-inventory signals rather than proof that every control was activated. A
-separate Playwright CLI spot check opened English
-`linux-networking/subnets-neighbors-and-gateways` at 390×844 with zero console
-warnings/errors, native selects, horizontal overflow, or enabled targets below
-44px. CURR-049 tracks the five Linux Networking routes whose declared E2E file
-does not actually open them.
+cover route 32/32, desktop 32/32, 390×844 32/32, keyboard 30/32, immediate
+result 32/32, console 12/32, overflow 32/32, 44px 20/32, and native-select-zero
+20/32, leaving 46 explicit coverage targets. These are source-pattern
+inventory signals rather than proof that every control was activated. CURR-049
+adds the missing shared route spec and Codex in-app-browser evidence: all five
+advanced Linux Networking routes opened at 1280×720 and 390×844, exposed
+immediate wrong/correct prediction feedback, accepted Enter, unlocked the next
+execution step, and had zero console errors, native selects, horizontal
+overflow, or enabled core targets below 44px. The repository Playwright runner
+discovers both tests but cannot execute them without the global Clerk
+publishable key.
 
 | Curriculum | Chapter | Source | Audit | In-app browser evidence | Learning output |
 |---|---|---|---|---|---|
