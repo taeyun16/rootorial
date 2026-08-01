@@ -151,3 +151,73 @@ test("keeps the vectors practice usable on a 390px reduced-motion viewport", asy
   await expect(firstMission).not.toHaveClass(/is-correct|is-incorrect/);
   await expect(page.locator(".shape-debug-progress strong")).toHaveText("0 / 3");
 });
+
+test("retries and completes the independent vector practice without hidden choices", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/curricula/transformer-from-zero/chapters/vectors?lang=en");
+
+  const practice = page.getByRole("region", {
+    name: "Can you rebuild the shape rules with new inputs?",
+  });
+  await expect(practice).toBeVisible();
+
+  await practice.getByRole("button", { name: "(3, 4) · ShapeError", exact: true }).click();
+  await practice.getByRole("button", { name: "4", exact: true }).click();
+  await practice.getByRole("button", { name: "Run both reshape fixtures" }).click();
+  await expect(practice.getByText("Inspect the first failed contract, then run the same challenge again."))
+    .toBeVisible();
+  await expect(practice.locator(".practice-check-list article").first()).toHaveClass(/is-failed/);
+  await expect(practice.locator(".practice-first-failure"))
+    .toHaveText("FIX THIS CONTRACT FIRST");
+  await expect(practice.getByText("ShapeError", { exact: true })).toBeVisible();
+
+  await practice.getByRole("button", { name: "(3, 4) · (3, 6)", exact: true }).click();
+  await practice.getByRole("button", { name: "-1", exact: true }).click();
+  await practice.getByRole("button", { name: "Run both reshape fixtures" }).click();
+  await expect(practice.getByText("✓ reshape(3, ?)", { exact: true })).toBeVisible();
+
+  await practice.getByRole("button", {
+    name: "Next incomplete challenge Broadcast boundary",
+  }).click();
+  await expect(practice.getByRole("button", {
+    name: "02 · Multi-boundary Broadcast boundary",
+  })).toHaveAttribute("aria-pressed", "true");
+  await expect(practice.getByRole("button", { name: "ShapeError", exact: true }))
+    .toBeFocused();
+  await practice.getByRole("button", { name: "ShapeError", exact: true }).click();
+  await practice.getByRole("button", { name: "Feature axis", exact: true }).click();
+  await practice.getByRole("button", { name: "(1, 4, 1)", exact: true }).click();
+  await practice.getByRole("button", { name: "Run and inspect the first failed boundary" }).click();
+  await expect(practice.getByText("✓ Broadcast boundary", { exact: true })).toBeVisible();
+
+  const transfer = practice.getByRole("button", {
+    name: "03 · Transfer QKᵀ shape",
+  });
+  await practice.getByRole("button", {
+    name: "Next incomplete challenge QKᵀ shape",
+  }).press("Enter");
+  await expect(transfer).toHaveAttribute("aria-pressed", "true");
+  await practice.getByRole("button", { name: "Queries × keys", exact: true }).press(" ");
+  await practice.getByRole("button", { name: "Q @ K.T", exact: true }).click();
+  await practice.getByRole("button", { name: "Run both Attention fixtures" }).click();
+  await expect(practice.getByText("✓ QKᵀ shape", { exact: true })).toBeVisible();
+
+  await expect(practice.getByText("3 / 3", { exact: true })).toBeVisible();
+  await expect(
+    practice.locator(".practice-deck-footer-actions .button-primary"),
+  ).toHaveCount(0);
+  expect(await page.locator("select").count()).toBe(0);
+  expect(await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth,
+  )).toBeLessThanOrEqual(1);
+  const undersized = await practice.locator("button:enabled").evaluateAll((buttons) =>
+    buttons.filter((button) => {
+      const rect = button.getBoundingClientRect();
+      return rect.width < 44 || rect.height < 44;
+    }).map((button) => button.textContent?.trim() ?? "")
+  );
+  expect(undersized).toEqual([]);
+
+  await practice.getByRole("button", { name: "Reset all three challenges" }).click();
+  await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+});

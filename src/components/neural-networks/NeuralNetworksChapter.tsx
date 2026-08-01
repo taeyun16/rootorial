@@ -27,6 +27,7 @@ import { RootorialMark } from "../RootorialMark";
 import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { NeuralNetworkBackpropLab } from "./NeuralNetworkBackpropLab";
 import { NeuralNetworkDebuggerLab } from "./NeuralNetworkDebuggerLab";
+import { NeuralNetworksPracticeDeck } from "./NeuralNetworksPracticeDeck";
 import { NeuralNetworksConceptCheck } from "./NeuralNetworksConceptCheck";
 import { NeuralNetworkXorLab } from "./NeuralNetworkXorLab";
 
@@ -40,6 +41,7 @@ const tocItems = {
     { id: "backprop-lab", label: "필수 hidden backprop" },
     { id: "numpy-bridge", label: "NumPy로 다시 만들기" },
     { id: "debug", label: "선택 · 네트워크 수술" },
+    { id: "practice", label: "선택 · 독립 연습" },
     { id: "transfer", label: "batch·class로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -52,6 +54,7 @@ const tocItems = {
     { id: "backprop-lab", label: "Required hidden backprop" },
     { id: "numpy-bridge", label: "Rebuild it in NumPy" },
     { id: "debug", label: "Optional · Network surgery" },
+    { id: "practice", label: "Optional · Independent practice" },
     { id: "transfer", label: "Transfer to batches and classes" },
     { id: "check", label: "Concept check" },
   ],
@@ -325,8 +328,21 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
             <NeuralNetworkDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
 
+          <section className="article-section" id="practice">
+            <div className="margin-label">09 — OPTIONAL PRACTICE · REPRODUCE / DIAGNOSE / TRANSFER</div>
+            <h2>{t(
+              "필수 lab과 다른 입력으로 forward와 backward를 다시 만드세요",
+              "Rebuild forward and backward behavior on inputs outside the required labs",
+            )}</h2>
+            <p>{t(
+              "두 scalar neuron의 BCE signal, hidden gradient의 finite-difference 검증, XOR output을 XNOR로 바꾸는 전이를 각각 독립적으로 증명합니다.",
+              "Independently prove a BCE signal on two scalar neurons, verify a hidden gradient with finite differences, and transfer an XOR output to XNOR.",
+            )}</p>
+            <NeuralNetworksPracticeDeck />
+          </section>
+
           <section className="article-section" id="transfer">
-            <div className="margin-label">09 — TRANSFER</div>
+            <div className="margin-label">10 — TRANSFER</div>
             <h2>{t("다음 장에서는 행을 mini-batch로, output을 class logits로 넓힙니다", "Next, rows become mini-batches and outputs expand to class logits")}</h2>
             <p>{t("전이 과제: X[8,2]와 hidden width 3으로 3-class classifier를 조립해 보세요. W¹[2,3] 뒤 H[8,3], W²[3,3] 뒤 logits[8,3]이 됩니다. forward 뼈대와 δ²→δ¹→parameter gradient의 reverse path는 유지되고, 다음 장에서 full batch를 mini-batch로 나누고 sigmoid/BCE를 Softmax·Cross Entropy와 Adam으로 확장합니다.", "Transfer task: assemble a three-class classifier from X[8,2] with hidden width 3. W¹[2,3] yields H[8,3], and W²[3,3] yields logits[8,3]. The forward skeleton and reverse path δ²→δ¹→parameter gradients remain; the next chapter splits full data into mini-batches and extends sigmoid/BCE to Softmax, cross entropy, and Adam.")}</p>
             <div className="neural-transfer-map">
@@ -346,7 +362,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">10 — CHECK</div>
+            <div className="margin-label">11 — CHECK</div>
             <NeuralNetworksConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 

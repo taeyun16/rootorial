@@ -289,3 +289,96 @@ test("keeps the English draft keyboard-usable at 390px with fallback and no heav
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
 });
+
+test("retries and completes the independent Embeddings practice on fresh tokens", async ({ page }) => {
+  await signInAsAdmin(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const response = await page.goto(`${previewPath}?lang=en`);
+  expect(response?.status()).toBe(200);
+
+  const practice = page.getByRole("region", {
+    name: "Can you rebuild lookup and gradient boundaries on fresh tokens?",
+  });
+  await expect(practice).toBeVisible();
+
+  await choose(
+    practice,
+    "Predict the lookup output shape",
+    "vocabulary-by-dimension",
+  );
+  await choose(practice, "learnerLookup", "first-row-for-all");
+  await practice.getByRole("button", {
+    name: "Run both lookup fixtures",
+  }).click();
+  await expect(practice.getByText(
+    "Inspect the first failed contract, then run the same challenge again.",
+  )).toBeVisible();
+
+  await choose(
+    practice,
+    "Predict the lookup output shape",
+    "positions-by-dimension",
+  );
+  await choose(practice, "learnerLookup", "direct-row");
+  await practice.getByRole("button", {
+    name: "Run both lookup fixtures",
+  }).click();
+  await expect(practice.getByText("✓ E[ids]", { exact: true })).toBeVisible();
+
+  const scatterChallenge = practice.getByRole("button", {
+    name: "02 · Multi-boundary scatter-add",
+    exact: true,
+  });
+  await scatterChallenge.press("Enter");
+  await expect(scatterChallenge).toHaveAttribute("aria-pressed", "true");
+  await choose(
+    practice,
+    "Predict the net gradient of both repeated rows",
+    "partial-then-zero",
+  );
+  await choose(practice, "learnerScatterAdd", "sum-occurrences");
+  await practice.getByRole("button", {
+    name: "Run both scatter-add contracts",
+  }).click();
+  await expect(practice.getByText("✓ scatter-add", { exact: true })).toBeVisible();
+
+  const unknownChallenge = practice.getByRole("button", {
+    name: "03 · Transfer [UNK] collision",
+    exact: true,
+  });
+  await unknownChallenge.press(" ");
+  await expect(unknownChallenge).toHaveAttribute("aria-pressed", "true");
+  await choose(
+    practice,
+    "Predict rows for distinct unseen words",
+    "shared-unknown-row",
+  );
+  await choose(practice, "learnerUnknownPath", "keep-unknown-id");
+  await practice.getByRole("button", {
+    name: "Run both unseen-word transfers",
+  }).click();
+  await expect(practice.getByText("✓ [UNK] collision", { exact: true })).toBeVisible();
+  await expect(practice.getByText("3 / 3", { exact: true })).toBeVisible();
+
+  await expect(page.getByRole("button", {
+    name: "Completion is disabled in preview",
+  })).toBeDisabled();
+  expect(await page.locator("select").count()).toBe(0);
+  expect(await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth,
+  )).toBeLessThanOrEqual(1);
+  const undersized = await practice.locator("button:enabled").evaluateAll(
+    (buttons) => buttons
+      .filter((button) => {
+        const rect = button.getBoundingClientRect();
+        return rect.width < 44 || rect.height < 44;
+      })
+      .map((button) => button.textContent?.trim() ?? ""),
+  );
+  expect(undersized).toEqual([]);
+
+  await practice.getByRole("button", {
+    name: "Reset all three challenges",
+  }).click();
+  await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+});

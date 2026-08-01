@@ -2,9 +2,301 @@
 
 ## Open
 
-No open issue currently blocks the implemented-chapter audit.
+### CURR-049 — Five Linux Networking chapters point to an unrelated E2E route
+
+Open 2026-08-01. The first registry-derived interaction inventory found that
+all 32 implemented chapters have a renderer, experience contract,
+content-quality contract, source file, and declared E2E file, but route
+references exist for only 27/32. The five missing rows are
+`subnets-neighbors-and-gateways`, `routes-and-packet-paths`,
+`sockets-ports-and-tcp`, `dns-and-service-reachability`, and
+`diagnose-a-linux-network` in the `linux-networking` curriculum.
+
+Their content-quality contracts currently point to
+`e2e/linux-networking.spec.ts`, but that file opens only
+`linux-systems/networking-from-a-packet`. This does not invalidate the prior
+manual browser evidence in the matrix, but it means a normal automated run
+cannot reproduce those five chapter routes from the declared contract.
+
+The report records this as a browser-spec coverage target rather than a
+structural failure. A Playwright CLI spot check independently opened the
+English `subnets-neighbors-and-gateways` preview at 390×844 and observed 38
+buttons, four tabs, seven status surfaces, 30 enabled visible targets, zero
+native selects, zero horizontal overflow, zero sub-44px targets, and zero
+console warnings/errors. CURR-049 remains open until a dedicated shared spec or
+route-driven runner covers all five rows without borrowing evidence from the
+unrelated Linux Systems chapter.
 
 ## Resolved
+
+### CURR-048 — First failed practice contracts could be buried below passing evidence
+
+Resolved 2026-07-31. The ten Transformer practice wrappers consistently
+provide three challenges, three checks per challenge, adjacent expected/actual
+evidence, and the same actionable retry message. However, the shared result
+surface rendered checks only in evaluation order. When a prediction and first
+fixture passed but a fresh fixture failed, mobile learners had to read past
+passing cards before reaching the “first failed contract” named by the result
+header.
+
+The shared result surface now promotes the original first failed check to the
+front, labels it `먼저 고칠 계약` / `FIX THIS CONTRACT FIRST`, and preserves
+every other check in relative order. It adds no new control. A shared contract
+test covers ordering, all ten bilingual wrappers, exactly 90 explanations,
+KO/EN length bounds, and the existing retry instruction. The full 548-test
+suite, TypeScript/build, curriculum quality check, and E2E discovery pass.
+
+Chrome revalidation covered the exact late-failure and retry path that had
+remained blocked by the Codex in-app-browser transport. At 1280×720, English
+Vectors passed its prediction and visible fixture while the second fixture
+failed. The original prediction contract moved to the first result card with
+`data-first-failed="true"` and `FIX THIS CONTRACT FIRST`; changing
+`learnerColumns` from `4` to `-1` produced three passing checks and progress
+`1 / 3`. At 390×844, Korean Mini Transformer kept the causal prediction
+correct while the wrong `short[t] ↔ long[-1]` read failed both fixtures. The
+first failed fixture moved above the passing prediction with
+`먼저 고칠 계약`; changing to `short[t] ↔ long[t]` produced three passing
+checks and progress `1 / 3`. Both flows had zero console warnings/errors,
+native selects, document/practice overflow, or enabled practice targets below
+44px.
+
+This Chrome evidence verifies the product behavior but is intentionally not
+represented as in-app-browser evidence. The earlier three in-app-browser
+attachment failures remain an external audit-transport limitation rather than
+an open curriculum defect.
+
+### CURR-047 — Independent practice had no adjacent path to the next incomplete challenge
+
+Resolved 2026-07-31. A cross-chapter audit confirmed that all ten Transformer
+chapters expose one reproduce, diagnose, and transfer challenge with direct
+choices, adjacent expected/actual results, current/all reset, and no
+completion-gate coupling. However, after passing a challenge, every shared
+PracticeDeck footer exposed only `Reset all three challenges`. On the English
+Vectors desktop reproduction, the challenge navigation was already 108px
+above the viewport after reading the result, so continuing required scrolling
+back to controls whose state was no longer adjacent.
+
+The shared PracticeDeck now exposes one direct `Next incomplete challenge`
+button only after the active challenge passes. It selects the next incomplete
+challenge in chapter order, wraps to an earlier incomplete challenge when
+needed, disappears at 3/3, accepts explicit Enter and Space activation, and
+moves focus to the first enabled learner-owned choice. All ten wrappers supply
+the same Korean/English copy, while a shared source contract checks their three
+result surfaces and three current-reset controls.
+
+In the English 1280×720 in-app-browser flow, Vectors advanced from reshape to
+broadcast by click and from broadcast to QKᵀ by Enter while the original
+navigation remained off-screen. Focus landed on `Broadcast succeeds` and then
+`Queries × keys`; score remained 1/3 and 2/3 respectively. In the Korean
+390×844 Mini Transformer flow, Space advanced from causal-prefix consistency
+to the row-read boundary and focused `training=모든 row ·
+generation=마지막 row`. A mobile grid fix expanded both footer actions from
+167px to the full 308px content width. Both viewports ended with zero console
+warnings/errors, native selects, page/practice overflow, or enabled practice
+targets below 44px.
+
+### CURR-046 — Mini Transformer scale-transfer contracts remained prose-only
+
+Resolved 2026-07-30. The required lab already executed one fixed
+tokenizer→block→LM-head→loss/decode path, but the final transfer prompt did not
+independently test causal-prefix invariance, training-versus-generation row
+selection, or KV-cache equivalence. A session-only three-level PracticeDeck now
+uses two fresh deterministic fixtures per level, direct prediction and
+learner-owned policy controls, adjacent expected/actual evidence,
+failure/retry, current/all reset, and no completion-gate coupling.
+
+In the English 1280×720 flow, deliberately reusing the full sequence's last
+logit row produced visible prefix errors of `2.731864` and `1.808742`; choosing
+matching prefix rows reduced both errors to zero. Teacher-forced loss matched
+every shifted row with zero error while the autoregressive controller selected
+next tokens 2 and 1 from the final rows. Appending both cached keys and values
+matched full causal attention with zero context error, including final contexts
+`[0.454352, 0.391821]` and `[0.322331, 0.536958]`. The learner completed 3/3,
+used Enter and Space navigation, reset all state to 0/3 with focus restored,
+and left the required completion preview disabled.
+
+In the Korean 390×844 flow, the row-boundary fixtures again produced zero loss
+error and next tokens 2 and 1; current reset returned the challenge to 0/3,
+disabled execution, and restored focus. That run also reproduced an existing
+debugger-heading overflow: a 377px heading inside a 342px content box expanded
+the article to 385px. A chapter-scoped wrapping rule reduced the heading to
+342px and the article to 358px. Both viewports finished with no console
+warnings/errors, native selects, practice overflow, or enabled visible practice
+targets below 44px.
+
+### CURR-045 — Transformer Block transfer remained a prose-only stack boundary
+
+Resolved 2026-07-30. The required lab assembled position, two pre-norm
+branches, two residuals, and a row-wise FFN on one guided fixture, but its
+transfer prompt left the second block as prose. A session-only three-level
+practice deck now requires two fresh residual ledgers, distinguishes
+LayerNorm's common-feature-shift invariance from residual identity transport,
+and executes two fixed microblocks while adding absolute position exactly once.
+In the actual in-app browser, an English desktop attempt that reused x₀ for the
+second skip visibly failed with maximum errors 0.350000 and 0.450000; the
+corrected policy reduced both to zero. Common shifts of +2 and -1.5 preserved
+the normalized branch while shifting the full output by the same amount, and
+two sequence-length handoffs reached zero error for 3/3 evidence. Enter and
+Space navigated challenges, all-state reset returned to 0/3 with execution
+disabled and focus restored, and completion preview stayed disabled. The
+Korean 390×844 flow completed the shift contract and current reset. That pass
+also found an existing long residual formula expanding its section to 417px;
+chapter-scoped containment on the actual KaTeX display restored the document
+to 390px and the article/section to 358px while retaining intentional 342px
+formula scrolling. Both sizes ended with no console warning/error, native
+select, practice overflow, or enabled visible practice target below 44px.
+
+### CURR-044 — Self-Attention transfer task described row permutation but did not execute it independently
+
+Resolved 2026-07-30. The required lab already executed projection, scaling,
+causal/padding masking, and multi-head merge, but its transfer prompt left
+non-causal row-permutation equivariance as prose. A session-only three-level
+practice deck now distinguishes applying P to X once before shared Q/K/V from
+permuting only K or V, diagnoses accidental row-index or causal-prefix leakage
+with duplicate rows, and relabels both causal mask axes with
+`X'=P·X`, `M'=P·M·Pᵀ`. In the actual in-app browser, an English desktop attempt
+that predicted unchanged output order and permuted keys only visibly failed:
+the two fixtures reported maximum row errors 0.225610 and 0.158358. A corrected
+retry produced zero error for both, duplicate rows produced identical contexts
+`[0.483783,0.563666]` and `[0.288303,0.304134]`, and the jointly relabeled
+causal fixtures reached 3/3 with zero error. Enter and Space navigated
+challenges, all-state reset returned to 0/3 with execution disabled and focus
+restored, and completion preview stayed disabled. The Korean 390×844 flow
+completed the duplicate-row contract and current reset. That pass also found
+129px of internal overflow in the existing long Korean repair-console H2;
+chapter-scoped mobile wrapping reduced its 479px scroll width to the 342px
+container. Both sizes ended with no console warning/error, native select,
+relevant horizontal overflow, or enabled practice button below 44px.
+
+### CURR-043 — Attention completion did not test fresh routing invariants independently
+
+Resolved 2026-07-30. The required routing lab guided learners through fixed
+query presets, value contributions, and a value-only counterfactual, while its
+debugger repaired four named incidents. It did not independently require the
+whole `qKᵀ → softmax → αV` boundary on changed Q/K/V, preserve K/V row identity
+across two unseen permutations, or carry stable softmax through extreme common
+score offsets. A session-only three-level practice deck now adds those contracts
+without changing the required routing-lab-plus-concepts completion gate. In the
+actual in-app browser, an English desktop attempt that predicted key-space
+context and executed `weights @ K` visibly failed with two-dimensional contexts
+`[0.532823,-0.138858]` and `[-0.102718,0.641820]` before a corrected retry
+produced the expected three-dimensional value mixtures. The learner then
+preserved red/harbor top labels and contexts across two paired row permutations
+and kept weights plus contexts invariant under `+1000` and `−800` score offsets
+for 3/3 evidence. Enter and Space navigated challenges, all-state reset returned
+to 0/3 with execution disabled and focus restored, and completion preview stayed
+disabled. The Korean 390×844 flow completed row-pairing and current reset. That
+pass also found 25px of internal overflow in an existing long Korean H2;
+chapter-scoped mobile wrapping reduced the heading from 367px to its 342px
+container. Both sizes ended with no console warning/error, native select,
+horizontal overflow, or enabled practice button below 44px.
+
+### CURR-042 — Sequences completion did not test independent temporal-state transfer
+
+Resolved 2026-07-30. The required memory lab guided learners through fixed
+short-gap, long-gap, and reversed RNN/LSTM presets, but did not independently
+require a shared recurrence on changed inputs, a temporal gradient check across
+two path lengths, or a carry/write/reveal transfer on fresh gate values. A
+session-only three-level practice deck now adds those contracts without changing
+the required memory-lab-plus-concepts completion gate. In the actual in-app
+browser, an English desktop attempt that predicted one final state and omitted
+the recurrent input visibly failed on both traces before a corrected retry
+reached 3/3. The analytic early-input gradients then matched central finite
+differences at 0.171296 and 0.183619, while the transfer preserved `c=0.75`
+behind `h=0` and produced `c=-0.2`, `h=-0.138163` on a second gate fixture.
+Enter and Space navigated challenges, all-state reset returned to 0/3, and
+completion preview stayed disabled. The Korean 390×844 flow completed the
+gradient diagnosis and reset to a disabled run button with focus restored.
+That pass also found 27px of existing heading/KaTeX MathML overflow; chapter-
+scoped mobile wrapping and formula containment reduced the page to 390px. Both
+sizes ended with no console warning/error, native select, horizontal overflow,
+or enabled practice button below 44px.
+
+### CURR-041 — Embeddings completion did not test independent lookup and gradient transfer
+
+Resolved 2026-07-30. The required lookup-and-gradient lab established direct
+row lookup and repeated-row accumulation on one guided fixture, but it did not
+ask the learner to reconstruct the output shape on changed token IDs, distinguish
+partial from complete cancellation across fresh repeated rows, or transfer the
+same address contract to unseen words sharing `[UNK]`. A session-only independent
+practice deck now adds those three bounded problems without changing the chapter
+completion gate. Fixed fixtures, learner-owned direct choices, adjacent
+expected/actual/explanation evidence, retry, and deterministic reset stay in one
+workspace. The actual in-app browser exposed an incorrect `V × D`/first-row
+attempt before an English desktop retry reached 3/3; Enter and Space navigated
+the challenges, completion preview stayed disabled, and all-state reset returned
+to 0/3. The Korean 390×844 flow proved both partial and full scatter-add
+cancellation, reset to a disabled run button, and restored focus. That pass also
+found pre-existing mobile overflow from an unbreakable heading and accessible
+KaTeX MathML; chapter-scoped sizing, wrapping, and containment reduced the page
+from 566px to the 390px viewport. Both sizes ended with no console warning/error,
+native select, horizontal overflow, or enabled practice button below 44px.
+
+### CURR-040 — Training completion did not test gradient and optimizer-state transfer
+
+Resolved 2026-07-30. The required mini-batch lab and concept check established
+the guided logits → mean CE → backward → Adam loop, but they did not require the
+learner to reconstruct the fused output gradient on changed class rows, diagnose
+the reduction boundary on a duplicated batch, or carry Adam state into a fresh
+batch. A session-only independent practice deck now adds those three bounded
+problems without changing the chapter completion gate. Fixed support code,
+learner-owned choices, expected/actual/explanation evidence, retry, and
+deterministic reset remain in one visible workspace. In the actual in-app
+browser, an English desktop failure exposed a non-zero class-gradient sum before
+a corrected retry reached 3/3; Enter and Space moved between challenges, the
+completion-preview button stayed disabled, and the all-state reset returned to
+0/3. The Korean 390×844 flow proved mean-gradient invariance on B=2→4 and B=3→6,
+then reset to a disabled run button with focus restored. Both sizes had no
+console warning/error, native select, horizontal overflow, or enabled practice
+button below 44px.
+
+### CURR-039 — Neural Networks completion did not test independent gradient transfer
+
+Resolved 2026-07-30. The required XOR and hidden-backprop labs correctly guided
+one fixed network through forward and backward passes, but they did not require
+the learner to reproduce the output signal on changed scalar inputs, diagnose a
+missing hidden-chain factor against an independent numerical probe, or reuse an
+XOR representation for XNOR. A session-only independent practice deck now adds
+those three bounded problems without changing the chapter completion gate.
+Expected, actual, and explanatory evidence stays beside each direct choice, and
+failed attempts can be retried or deterministically reset. In the actual in-app
+browser, the English desktop flow exposed two increasing losses for the reversed
+signal before a successful retry and reached 3/3; the Korean 390×844 flow matched
+analytic and numeric gradients on both fixtures, reset to a disabled run button,
+and restored focus. Both sizes had no console warning/error, native select,
+horizontal overflow, or enabled practice button below 44px.
+
+### CURR-038 — Vectors completion did not test shape transfer on fresh fixtures
+
+Resolved 2026-07-30. The chapter thoroughly guided reshape, broadcasting, and
+dot-product rules, but its completion evidence did not ask the learner to
+reconstruct one shape expression across changed inputs or carry the surviving
+axes into an Attention score matrix. A session-only independent practice deck
+now adds three bounded problems: infer one reshape dimension across 12- and
+18-value fixtures, identify the first incompatible broadcast axis and repair
+only that dimension, and transfer `Q @ K.T` to two query/key shapes. Expected
+and actual results remain beside the controls, failed checks can be retried, and
+the existing chapter completion gate is unchanged. The shared challenge
+navigation also gained explicit Enter/Space activation after the browser
+reproduced focus without selection. The actual in-app browser passed the full
+English 3/3 flow and a Korean mobile transfer, restored focus after reset, and
+found no console error, native select, horizontal overflow, or enabled practice
+button below 44px at 1280×720 or 390×844.
+
+### CURR-037 — Optimization completion did not test independent transfer
+
+Resolved 2026-07-30. The chapter's required lab and concept check established
+the guided loss → gradient → update loop, but no separate activity asked the
+learner to reconstruct the update with fresh fixtures, distinguish a correct
+sign from an overshooting step, and transfer the same rule to a new curvature.
+A reusable three-level practice deck now keeps support code fixed, exposes only
+the learner-owned boundary, runs visible plus second fixtures, reports the first
+failed contract beside the controls, and stores its evidence only for the
+browser session so the existing completion gate does not change. The actual
+in-app browser reproduced an incorrect attempt and successful retry, passed all
+three problems, reset the session, activated a choice by keyboard, restored
+focus after reset, and found no console error, native select, horizontal
+overflow, or enabled mobile target below 44px.
 
 ### CURR-036 — Platform fingerprint copy could imply cryptographic authenticity
 

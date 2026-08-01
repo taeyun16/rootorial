@@ -97,9 +97,9 @@ test("keeps the core learning path visible, supported, and within its interactio
       defaultPublication: neuralNetworks?.defaultPublication,
     },
     {
-      activities: 6,
-      activityKinds: 5,
-      gradedTasks: 13,
+      activities: 7,
+      activityKinds: 6,
+      gradedTasks: 16,
       conceptQuestions: 5,
       defaultPublication: "draft",
     },

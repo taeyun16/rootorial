@@ -1136,6 +1136,484 @@ Research basis:
   origin authentication therefore remains a signature/provenance concern, not
   a property of this fingerprint.
 
+### IMP-037 — Independent practice deck and Optimization pilot
+
+- Added a reusable practice contract with three levels: reproduce one boundary,
+  diagnose a multi-boundary failure, and transfer the rule to fresh fixtures.
+  Each result exposes expected, actual, and explanatory evidence immediately
+  beside the learner controls.
+- Piloted the contract in Optimization with three independent problems:
+  complete both learner-owned update operators, diagnose correct-sign
+  overshoot and choose a stable repair, then select one learning rate that
+  lands on target for two new fixtures with shared curvature.
+- Kept fixed support code, learner-owned controls, retry/reset state, and
+  session-only mastery visually distinct. The deck is optional and does not
+  mutate the existing chapter-completion contract.
+- In the in-app browser, reproduced a three-contract failure and retry, passed
+  all three problems, reset all evidence, switched KO/EN, activated a mobile
+  prediction by keyboard, and confirmed reset focus recovery. At 1280×720 and
+  390×844 there were no console errors, native selects, horizontal overflow,
+  or enabled practice buttons below 44px.
+
+Research basis:
+
+- [TensorTonic's problem model](https://www.tensortonic.com/) emphasizes
+  implementing an algorithm, running it against real test cases, and seeing
+  exactly where it breaks. Its
+  [Optimization study plan](https://www.tensortonic.com/study-plans/math-optimization)
+  separates foundations, gradient-descent basics, adaptive methods, scheduling,
+  regularization, and advanced optimization into explicit problem sets rather
+  than hiding them in one long lesson.
+- Rootorial adopts the independently executable problem and explicit test
+  evidence, but not the full editor, account, streak, leaderboard, or cloud
+  execution model. The first pilot stays deterministic, local, dependency-free,
+  and small enough to reuse across existing chapters without changing their
+  completion gates.
+
+### IMP-038 — Vectors independent shape-practice pilot
+
+- Reused the practice contract in Vectors as one continuous workspace rather
+  than a grid of disconnected cards or a hidden selector. Three direct challenge
+  buttons expose reproduce, diagnose, and transfer states and keep every result
+  next to the learner's choice.
+- Added fresh deterministic fixtures for `reshape(3, -1)`, right-to-left
+  broadcasting diagnosis, and Attention score shape. The learner first predicts
+  the output, chooses the smallest editable expression, runs both visible and
+  second fixtures, and receives expected/actual/explanation evidence for each
+  contract.
+- Kept support code read-only, evidence session-only, resets deterministic, and
+  the existing completion gate unchanged. Explicit Enter/Space handling now
+  covers the shared challenge navigation as well as the direct answer buttons.
+- In the in-app browser, an incorrect reshape attempt exposed only the second
+  fixture failure before a successful retry; broadcasting and Attention then
+  passed for 3/3 independent evidence. Korean mobile transfer, all-state reset,
+  keyboard navigation, and focus recovery also passed. At 1280×720 and 390×844
+  there were no console errors, native selects, horizontal overflow, or enabled
+  practice buttons below 44px.
+
+Research basis:
+
+- [TensorTonic's Linear Algebra study plan](https://www.tensortonic.com/study-plans/math-linear-algebra)
+  moves from vector and matrix operations into machine-learning applications,
+  including scaled dot-product Attention. Rootorial mirrors that transfer while
+  keeping scaling and masking in the later Attention chapters.
+- [TensorTonic's NumPy study plan](https://www.tensortonic.com/study-plans/numpy-basics)
+  treats reshaping and broadcasting as executable problem sets. Rootorial uses
+  the same problem-sized practice idea but keeps execution deterministic and
+  local, with no account, cloud editor, leaderboard, or streak dependency.
+
+### IMP-039 — Neural Networks independent gradient-practice pilot
+
+- Reused the shared practice workspace after the required XOR/backprop labs,
+  keeping the challenge navigation and results visible rather than hiding
+  state in a selector or adding another disconnected card grid.
+- Added three fresh deterministic contracts: reproduce `δ²=p−y` across two
+  scalar neurons and observe both losses after one update, diagnose the complete
+  `W² × H(1−H)` hidden path against a central finite difference, and transfer
+  fixed XOR logits to XNOR by negating only the output logit.
+- Kept all network parameters and fixture support code fixed while exposing only
+  predictions and the learner-owned signal/path/transform. Evidence is
+  session-only, each problem has retry/current-reset/all-reset behavior, and the
+  existing two-lab-plus-concepts completion gate is unchanged.
+- In the in-app browser, a reversed output signal visibly raised both losses
+  before the corrected retry lowered them. The English desktop flow completed
+  all three challenges; the Korean mobile flow completed the gradient challenge
+  and restored focus after reset. At 1280×720 and 390×844 there were no console
+  warnings/errors, native selects, horizontal overflow, or enabled practice
+  buttons below 44px.
+
+Research basis:
+
+- [Rumelhart, Hinton, and Williams (1986)](https://www.nature.com/articles/323533a0)
+  motivates propagating output error backward to learn internal
+  representations. The new practice turns that existing chapter claim into a
+  reproducible hidden-gradient contract rather than adding a second guided XOR
+  walkthrough.
+- [SciPy's numerical-derivative documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.differentiate.derivative.html)
+  supports the central finite-difference comparison used as an implementation-
+  independent diagnostic. Adaptive step control remains outside this first
+  scalar gradient check because the goal is locating a missing chain-rule edge.
+
+### IMP-040 — Training independent gradient-and-state practice pilot
+
+- Reused the shared practice workspace after the optional training debugger so
+  the learner can reconstruct one full update boundary without a selector,
+  separate card grid, or hidden state. Direct challenge buttons keep controls
+  and results visible together.
+- Added three fresh deterministic contracts: reproduce
+  `∂CE/∂logits = p − oneHot(y)` on two class rows and observe lower loss,
+  diagnose why duplicating every sample leaves a mean parameter gradient
+  unchanged, and transfer a fresh batch gradient through persistent Adam
+  `m`, `v`, and `t` state.
+- Kept logits, batch tensors, optimizer states, and learning rates fixed while
+  exposing only predictions and the learner-owned gradient, reduction, or state
+  policy. Evidence is session-only; each challenge supports retry/current reset,
+  and the all-state reset leaves the existing mini-batch-plus-concepts
+  completion gate untouched.
+- In the in-app browser, a deliberate `p`-only gradient exposed class sums of
+  1.0000 before the corrected retry lowered both losses. The English desktop
+  flow completed 3/3, including B=2→4 and B=3→6 invariance plus Adam t=4 and
+  t=6 transfers; the Korean mobile flow completed and reset the mean-reduction
+  challenge with focus recovery. At 1280×720 and 390×844 there were no console
+  warnings/errors, native selects, horizontal overflow, or enabled practice
+  buttons below 44px.
+
+Research basis:
+
+- [PyTorch CrossEntropyLoss](https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html)
+  specifies unnormalized class logits and mean reduction. The new class-row and
+  duplicated-batch problems make those two existing chapter contracts
+  independently executable instead of adding another guided training loop.
+- [Kingma and Ba, Adam (2014)](https://arxiv.org/abs/1412.6980) defines persistent
+  first- and second-moment estimates over stochastic gradients. The new transfer
+  problem therefore refreshes the ordinary batch gradient while preserving
+  `m`, `v`, and the continued step number; optimizer variants and a larger
+  framework runtime remain outside this deterministic practice slice.
+
+### IMP-041 — Embeddings independent lookup-and-gradient practice pilot
+
+- Reused the shared practice workspace after the optional Embeddings debugger,
+  keeping all three challenges directly visible without a select, dropdown, or
+  second card system.
+- Added three fresh deterministic contracts: reproduce `rows[t] = E[ids[t]]`
+  across two sequence lengths, diagnose one repeated row whose occurrence
+  gradients partially cancel and another whose gradients fully cancel, and
+  transfer whole-word tokenization to two unseen-word fixtures with shared
+  `[UNK]` row 1.
+- Kept the embedding table, IDs, occurrence gradients, vocabulary, and tokenizer
+  contract fixed while exposing only predictions and the learner-owned lookup,
+  scatter-add, or unknown-token path. Evidence is session-only; each challenge
+  supports retry/current reset, and all-state reset leaves the existing required
+  lab and concept completion gate untouched.
+- In the in-app browser, a deliberate `V × D` plus first-row-for-all attempt
+  exposed the wrong shape and repeated first row before the corrected English
+  desktop flow reached 3/3. The Korean mobile flow proved row 7's partial
+  cancellation `[0.200, 0.100]` and row 4's full cancellation `[0.000, 0.000]`,
+  then restored focus after reset. A chapter-scoped mobile repair also removed
+  existing heading/MathML overflow from 566px to 390px. At 1280×720 and
+  390×844 there were no console warnings/errors, native selects, horizontal
+  overflow, or enabled practice buttons below 44px.
+
+Research basis:
+
+- [PyTorch `Embedding`](https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.sparse.Embedding.html)
+  defines a fixed lookup table whose index inputs return the corresponding
+  embedding rows. The first challenge independently reproduces that address
+  contract across changed IDs and sequence lengths; padding, sparse optimizer
+  support, and frequency scaling stay in the guided chapter or later work.
+- [NumPy `ufunc.at`](https://numpy.org/doc/stable/reference/generated/numpy.ufunc.at.html)
+  documents unbuffered repeated-index accumulation and contrasts it with
+  buffered advanced-index updates that can apply a repeated index only once.
+  The second challenge therefore makes occurrence-wise scatter-add and
+  cancellation observable rather than adding more gradient prose.
+- The `[UNK]=1` transfer is intentionally a deterministic chapter-local
+  tokenizer contract, not a claim that all production tokenizers share one
+  unknown-token policy. Byte-level fallbacks and model-specific vocabulary
+  behavior remain out of this bounded lookup exercise.
+
+### IMP-042 — Sequences independent temporal-state practice pilot
+
+- Reused the shared single-workspace PracticeDeck after the optional sequence
+  debugger, with direct challenge buttons and adjacent results rather than a
+  selector, dropdown, or separate card grid.
+- Added three fresh deterministic contracts: reproduce
+  `h[t]=tanh(x[t]+r·h[t−1])` on T=3 and T=4 sequences, diagnose the complete
+  `x0→hT` chain against central finite differences on paths with three and four
+  recurrent edges, and transfer `c=f·old+i·g`, `h=o·tanh(c)` across carry-only
+  and mixed-gate fixtures.
+- Kept inputs, order, recurrent gains, epsilon, cell/candidate values, and gate
+  values fixed while exposing only predictions and the learner-owned recurrence,
+  temporal path, or cell/reveal rule. Retry, current reset, and all-state reset
+  remain session-only and do not affect chapter completion.
+- The in-app browser exposed wrong input-only traces before the corrected English
+  desktop flow reached 3/3. The Korean mobile flow matched both analytic and
+  numerical gradients and restored focus after reset. A chapter-scoped mobile
+  repair also removed heading/MathML overflow from 417px to 390px. At 1280×720
+  and 390×844 there were no console warnings/errors, native selects, horizontal
+  overflow, or enabled practice buttons below 44px.
+
+Research basis:
+
+- [PyTorch `RNN`](https://docs.pytorch.org/docs/main/generated/torch.nn.RNN.html)
+  specifies a hidden update from current input and previous hidden state and
+  returns one output feature per timestep plus a final hidden state. The first
+  challenge makes that shared-state contract executable across changed lengths;
+  stacked and bidirectional variants remain outside this scalar boundary.
+- [Elman, Finding Structure in Time (1990)](https://jeffelman.ucsd.edu/research/publications/)
+  is the historical source for learning temporal structure with recurrent
+  context. The chapter keeps that stateful order sensitivity but avoids claiming
+  that a fixed-width hidden state is a lossless history.
+- [Hochreiter and Schmidhuber, Long Short-Term Memory (1997)](https://direct.mit.edu/neco/article/9/8/1735/6109/Long-Short-Term-Memory)
+  identifies decaying error backflow as the long-range learning problem that
+  motivated LSTM. The new practice separates cell carry from hidden reveal on
+  deterministic gates; peepholes, projections, and modern framework variants
+  remain out of scope.
+
+### IMP-043 — Attention independent routing-invariant practice pilot
+
+- Reused the shared single-workspace PracticeDeck after the optional Attention
+  debugger, with three direct challenge buttons and adjacent expected/actual
+  evidence rather than a select, dropdown, or second card system.
+- Added three fresh deterministic contracts: reproduce unscaled
+  `qKᵀ → stable softmax → αV` on two Q/K/V memories, diagnose whether K, V, and
+  semantic labels move together across two different row permutations, and
+  transfer the same weights and contexts through common score offsets `+1000`
+  and `−800`.
+- Kept Q, K, V, row order, permutations, and score differences fixed while
+  exposing only output predictions and the learner-owned normalize/read,
+  row-reorder, or softmax policy. Retry, current reset, and all-state reset are
+  session-only and leave the existing required lab and concept gate untouched.
+- The in-app browser exposed two key-space contexts from a deliberate
+  `weights @ K` error before the corrected English desktop flow reached 3/3.
+  The Korean mobile flow preserved both top labels and contexts across paired
+  permutations, then restored focus after reset. A chapter-scoped mobile repair
+  also removed 25px of internal overflow from a long Korean H2. At 1280×720 and
+  390×844 there were no console warnings/errors, native selects, horizontal
+  overflow, or enabled practice buttons below 44px.
+
+Research basis:
+
+- [Bahdanau, Cho, and Bengio (2014)](https://arxiv.org/abs/1409.0473)
+  introduced a soft search over source annotations to avoid a single
+  fixed-length encoder bottleneck. The practice keeps the normalized weighted
+  source read, but does not import the paper's additive alignment network into
+  this chapter's deliberately unscaled dot-product boundary.
+- [Luong, Pham, and Manning (2015)](https://aclanthology.org/D15-1166/)
+  studies global and local attention and includes multiplicative score
+  functions. The fresh routing fixtures use the chapter's global dot-product
+  family; local windows and translation-system claims remain outside scope.
+- [PyTorch `Softmax`](https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.activation.Softmax.html)
+  defines normalization along an explicit dimension so each slice sums to one.
+  The practice therefore keeps one coefficient per source key and rejects
+  score-sum normalization that creates negative routing coefficients.
+- [Blanchard, Higham, and Higham (2019)](https://arxiv.org/abs/1909.03469)
+  analyzes overflow and underflow in softmax and reports that shifted formulas
+  are typically more accurate. The transfer challenge turns that numerical
+  boundary into observable `+1000` overflow and `−800` underflow failures;
+  scaled dot-product attention, masking, and multiple heads remain for the next
+  chapter.
+
+### IMP-044 — Self-Attention row-semantics independent practice pilot
+
+- Reused the shared single-workspace PracticeDeck after the optional
+  Self-Attention debugger, with direct challenge buttons and adjacent
+  expected/actual evidence rather than a selector, dropdown, or second card
+  system.
+- Added three fresh deterministic contracts: reproduce non-causal token-row
+  permutation equivariance by applying P to X once before shared Q/K/V
+  projections and checking `Y' = P·Y`; diagnose accidental position leakage by
+  verifying that identical token rows receive identical contexts when full
+  visibility and no positional signal distinguish them; and transfer the
+  contract across causal visibility by contrasting token-only reordering with
+  joint `X'=P·X`, `M'=P·M·Pᵀ` relabeling.
+- Kept projections, tokens, permutations, duplicate rows, and visibility
+  fixtures fixed while exposing only predictions and the learner-owned
+  permutation, boundary, or relabel policy. Retry, current reset, and all-state
+  reset remain session-only and do not affect the required
+  projection/mask/multi-head completion gate.
+- The actual English 1280×720 flow showed a deliberate keys-only failure with
+  maximum row errors 0.225610 and 0.158358, then zero-error correction, identical
+  duplicate-row contexts, zero-error causal relabeling, 3/3 evidence,
+  Enter/Space navigation, reset/focus recovery, and an unchanged disabled
+  completion preview. The Korean 390×844 flow passed and reset the duplicate-row
+  contract. A pre-existing repair-console H2 produced 129px internal overflow;
+  chapter-scoped mobile wrapping reduced its 479px scroll width to the 342px
+  container. Both sizes ended with no console warning/error, native select,
+  relevant overflow, or enabled practice button below 44px.
+
+Research basis:
+
+- [Vaswani et al., Attention Is All You Need (2017)](https://arxiv.org/abs/1706.03762)
+  removes recurrence and convolution and therefore supplies positional
+  information separately. The duplicate-row exercise makes the absence of that
+  signal observable without implementing positional encoding early.
+- [Lee et al., Set Transformer (2018)](https://arxiv.org/abs/1810.00825)
+  uses attention for set-structured, order-independent interactions. The first
+  exercise turns the corresponding row-permutation behavior into an executable
+  contract.
+- [Yun et al., Are Transformers universal approximators of sequence-to-sequence functions? (2019)](https://arxiv.org/abs/1912.10077)
+  separates the permutation-equivariant restriction from the role of
+  positional encoding, motivating the position-leak diagnosis and the explicit
+  boundary to the next chapter.
+- [PyTorch `MultiheadAttention`](https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention)
+  specifies `attn_mask` as a query-by-key `[L,S]` relation and key padding as a
+  separate mask. The causal transfer exercise therefore relabels both mask axes
+  rather than attaching visibility to token values.
+- Set Transformer pooling/inducing points, learned or relative positional
+  encodings, optimized kernels, and framework-specific boolean-mask polarity
+  remain outside this bounded exercise. Positional representation and residual
+  assembly stay in the Transformer-block chapter.
+
+### IMP-045 — Transformer Block state-and-stack independent practice pilot
+
+- Reused the shared single-workspace PracticeDeck after the optional
+  Transformer Block debugger, with direct challenge buttons and adjacent
+  expected/actual evidence rather than a selector, dropdown, or new card
+  system.
+- Added three fresh deterministic contracts: reproduce `x₁=x₀+A`,
+  `y=x₁+F` across two changed residual ledgers; diagnose the combination of
+  `LN(x+c·1)=LN(x)` and residual identity transport by requiring an unchanged
+  branch plus an output shifted by c; and transfer two distinct fixed
+  pre-norm microblocks by adding E+P once and handing y₁ to block₂.
+- Kept branch outputs, common shifts, E/P, and both blocks' parameters fixed
+  while exposing only predictions and learner-owned residual, normalization,
+  or handoff policies. Retry, current reset, and all-state reset remain
+  session-only and do not affect the required block-lab-plus-concepts
+  completion gate.
+- In the English 1280×720 in-app-browser flow, reusing x₀ for the second skip
+  produced visible maximum errors 0.350000 and 0.450000 before the corrected
+  retry reduced both to zero. The +2 and -1.5 shift probes kept branch drift at
+  zero while transporting the shift through the residual output, and both
+  two-block fixtures reached zero error for 3/3 evidence. Enter/Space,
+  current/all reset, disabled completion preview, focus restoration, and
+  native-select absence passed.
+- In the Korean 390×844 flow, the shift contract and current reset passed with
+  zero practice overflow and no enabled visible practice target below 44px.
+  The pass also exposed an existing 417px residual-formula section; scoping
+  containment and horizontal scrolling to the actual KaTeX display restored
+  the document to 390px and the article/section to 358px. Neither viewport
+  produced a console warning/error.
+
+Research basis:
+
+- [Ba, Kiros, and Hinton, Layer Normalization (2016)](https://arxiv.org/abs/1607.06450)
+  computes normalization statistics within one training case rather than
+  across a mini-batch. The shift probe narrows that idea to one token row and
+  makes the branch-versus-identity-path distinction executable.
+- [He et al., Deep Residual Learning for Image Recognition (2015)](https://arxiv.org/abs/1512.03385)
+  reformulates layers as residual functions relative to their inputs. The
+  fresh ledgers therefore require each branch to update its matching current
+  state rather than replace or restart it.
+- [Xiong et al., On Layer Normalization in the Transformer Architecture (2020)](https://proceedings.mlr.press/v119/xiong20b.html)
+  explicitly distinguishes Post-LN from putting LayerNorm inside the residual
+  blocks as Pre-LN. The practice grades only the chapter's declared pre-norm
+  variant and does not claim universal superiority.
+- [PyTorch `TransformerEncoderLayer`](https://docs.pytorch.org/docs/stable/generated/torch.nn.TransformerEncoderLayer.html)
+  exposes `norm_first=True` as normalization before attention and feedforward
+  operations. Framework fast paths, dropout, learned training behavior, and
+  alternative normalization layouts remain outside this bounded exercise.
+
+### IMP-046 — Mini Transformer causal-readout-and-cache independent practice pilot
+
+- Reused the shared single-workspace PracticeDeck after the optional Mini
+  Transformer debugger, with direct challenge buttons and adjacent
+  expected/actual evidence rather than a selector, dropdown, or new card
+  system.
+- Added three fresh deterministic contracts: append a suffix and compare every
+  matching causal-prefix logit row from the real tiny model; diagnose that
+  teacher-forced cross entropy reads every shifted row while generation reads
+  only the final row; and transfer fixed causal attention to incremental
+  decoding by accumulating both past keys and values.
+- Kept token IDs, model parameters, logits, shifted targets, Q/K/V, and scaled
+  attention fixed while exposing only predictions and learner-owned prefix-row,
+  training/generation-row, or cache-retention policies. Retry, current reset,
+  and all-state reset remain session-only and do not affect the required
+  core-lab-plus-concepts completion gate.
+- English 1280×720 in-app-browser evidence covered deliberate causal-prefix
+  failures (`2.731864` and `1.808742`) followed by zero-error recovery, zero
+  training-loss-row error with generated tokens 2 and 1, and zero cached/full
+  context error with final contexts `[0.454352, 0.391821]` and
+  `[0.322331, 0.536958]`. The complete 3/3 flow, Enter/Space navigation,
+  retry, all reset, focus recovery, and unchanged disabled completion preview
+  passed without console warnings/errors.
+- Korean 390×844 in-app-browser evidence repeated the row-boundary contract and
+  current reset/focus path. It also exposed and repaired an existing debugger
+  H2 overflow from 377px to its 342px content width. The final page had zero
+  horizontal overflow, native selects, practice overflow, or enabled visible
+  practice targets below 44px.
+
+Research basis:
+
+- [Vaswani et al., Attention Is All You Need (2017)](https://arxiv.org/abs/1706.03762)
+  masks subsequent decoder positions and offsets outputs by one. The prefix
+  exercise turns the resulting future-suffix independence into a direct
+  logit-row comparison.
+- [Radford et al., Improving Language Understanding by Generative Pre-Training
+  (2018)](https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf)
+  models conditional next-token likelihood over prior context. The row
+  diagnosis separates its parallel training objective from the single next
+  read made by an autoregressive controller.
+- [Hugging Face Transformers caching documentation](https://huggingface.co/docs/transformers/v4.57.0/en/cache_explanation)
+  describes reusing past key/value states during inference and preserving
+  cache positions. The transfer exercise therefore requires paired K/V
+  accumulation and compares contexts rather than claiming only a speedup.
+- [PyTorch scaled dot-product attention](https://docs.pytorch.org/docs/main/generated/torch.nn.functional.scaled_dot_product_attention.html)
+  defines causal masking, scaling, Softmax, and the final value mixture. The
+  cache fixtures reuse that semantic order without depending on a fused kernel.
+- Cache memory benchmarks, latency claims, training-time caching, sampling
+  quality, tied embeddings, quantization, and production cache layouts remain
+  outside this bounded semantic-equivalence exercise.
+
+### IMP-047 — Shared next-incomplete progression contract
+
+- Audited all ten Transformer PracticeDeck wrappers. Each chapter already has
+  exactly three optional challenge levels, three adjacent result surfaces,
+  three current-reset controls, direct choices, session-only evidence, and no
+  native select or completion-gate coupling.
+- Reproduced the remaining common friction after a passing Vectors result:
+  the challenge navigation sat 108px above the desktop viewport and the footer
+  exposed only global reset. This made the learner leave the evidence boundary
+  and search for the next problem.
+- Added a shared post-pass action that names and opens the next incomplete
+  challenge, wraps around completed challenges, stays absent before a pass and
+  after 3/3, accepts Enter/Space, and restores focus to the first enabled
+  learner control. The ten chapter wrappers use identical Korean/English
+  labels.
+- English 1280×720 in-app-browser evidence advanced Vectors challenge 1→2 by
+  click and 2→3 by Enter, focusing `Broadcast succeeds` and then
+  `Queries × keys`. Korean 390×844 evidence advanced Mini Transformer 1→2 by
+  Space and focused the correct row-boundary prediction. A mobile grid repair
+  expanded both footer buttons from 167px to the full 308px content width.
+  Both viewports had zero console warnings/errors, native selects,
+  page/practice overflow, or enabled practice targets below 44px.
+- [WAI-ARIA Authoring Practices button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/)
+  specifies Enter and Space activation. [WCAG 2.2 Focus Order
+  guidance](https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html)
+  requires focus sequences to preserve meaning and operability, which supports
+  moving focus into the newly selected learner workspace. [WCAG 2.2 Target
+  Size](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)
+  sets a 24px minimum and recommends larger targets; Rootorial retains its
+  stricter 44px product contract.
+
+### IMP-048 — Shared first-failed-contract result ordering
+
+- Audited all 30 Transformer practice challenges and their 90 localized check
+  explanations. Every challenge has three adjacent expected/actual checks and
+  every wrapper already uses the same retry instruction. The longest checked
+  explanation is 93 Korean characters or 161 English characters, within the
+  new source-contract bounds of 100 and 170.
+- Found one shared scan-order gap: when earlier contracts passed and a later
+  fresh fixture failed, the result header told the learner to inspect the first
+  failed contract while the mobile list still showed passing evidence first.
+- Added a pure ordering helper that promotes only the original first failed
+  contract, preserves all other evidence in relative order, and returns the
+  original array when the first check fails or every check passes. The shared
+  result surface marks that promoted check with one bilingual text label and a
+  restrained failure tint; it adds no interaction chrome.
+- Added a shared unit/source contract and a Vectors browser-flow assertion.
+  The full 548/548 unit/SSR suite, production build, curriculum-quality report
+  for 32 chapters with zero targets, E2E discovery, and `git diff --check`
+  pass.
+- Revalidated the late-failure path in Chrome because the user explicitly
+  requested Chrome control after the Codex in-app-browser webview failed to
+  attach across three consecutive runs. English Vectors at 1280×720 promoted
+  the original failed prediction above one passing and one failed fixture,
+  exposed `FIX THIS CONTRACT FIRST`, and passed all three checks after changing
+  `4` to `-1`. Korean Mini Transformer at 390×844 promoted the first failed
+  fixture above the passing prediction, exposed `먼저 고칠 계약`, and passed
+  all three checks after changing `short[t] ↔ long[-1]` to
+  `short[t] ↔ long[t]`. Both flows ended at `1 / 3` with zero console
+  warnings/errors, native selects, horizontal overflow, or enabled practice
+  targets below 44px. This is Chrome evidence, not in-app-browser evidence.
+- [WCAG 2.2 Error Identification](https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html)
+  requires the erroneous item and problem to be identified in text.
+  [WCAG 2.2 Error Suggestion](https://www.w3.org/WAI/WCAG22/Understanding/error-suggestion.html)
+  supports providing a known correction path. Rootorial therefore puts the
+  first repair boundary first while retaining the specific explanation and
+  same-challenge retry instruction beside it. Alert dialogs and focus moves
+  were not adopted because this result is persistent, adjacent, and does not
+  need to interrupt the learner's task.
+
 ## Candidates
 
 ### IMP-003 — Shared exhaustive-interaction harness
@@ -1143,3 +1621,34 @@ Research basis:
 Derive each implemented chapter route and declared interaction contract from the
 registry, then record button/input/toggle coverage, immediate-result evidence,
 native controls, console errors, mobile overflow, and final learning output.
+
+First slice implemented 2026-08-01:
+
+- Added `report:curriculum-interactions` and
+  `check:curriculum-interactions`. The report derives 32 implemented routes
+  from the chapter registry, joins their quality and experience contracts,
+  preserves the declared interaction family, primary visual, activity kinds,
+  and final linked learning output, and fails closed on missing contracts,
+  source/E2E files, or native selects in the primary chapter source.
+- Browser-spec signals are deliberately reported separately from real runtime
+  evidence. They state only whether the declared E2E file contains route,
+  desktop, 390×844, keyboard, immediate-result, console, overflow, 44px, and
+  native-select-zero assertion patterns. They do not claim that every control
+  was clicked, and primary-source control counts do not expand imported child
+  components.
+- The baseline has zero structural issues and 61 explicit browser-spec
+  coverage targets: route 27/32, desktop 32/32, 390×844 32/32, keyboard 30/32,
+  immediate result 32/32, console 7/32, overflow 32/32, 44px 20/32, and native
+  select zero 15/32. This turns undocumented omissions into reviewable rows
+  without weakening the existing manual browser matrix.
+- A Playwright CLI spot check opened English Linux Networking
+  `subnets-neighbors-and-gateways` at 390×844. The rendered page exposed 38
+  buttons, four tabs, seven status surfaces, and 30 enabled visible targets,
+  with zero native selects, horizontal overflow, sub-44px targets, console
+  warnings, or console errors. The browser check remains separate from the
+  static report.
+- The next slice is CURR-049: replace the unrelated shared
+  `e2e/linux-networking.spec.ts` declaration for five advanced Linux
+  Networking chapters with a route-driven spec that actually opens each one,
+  then add console/native-select assertions before attempting exhaustive
+  control activation.

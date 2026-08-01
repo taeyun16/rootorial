@@ -46,7 +46,7 @@ function watchHeavyRuntimeRequests(page: TestPage) {
 
 async function selfAttentionOverflow(page: TestPage) {
   return page.locator(
-    ".self-attention-boundary-grid, .self-attention-shape-ladder, .self-attention-worked-trace, .self-attention-formula-stack, .self-attention-mask-table-wrap, .self-attention-workbench, .self-attention-preset-row, .self-attention-control-panel, .self-attention-run-actions, .self-attention-workbench .step-explorer, .self-attention-stage-panel, .self-attention-matrix-stack, .self-attention-matrix-stack .array-diagram, .self-attention-matrix-stack .array-diagram-scroll, .self-attention-masked-grid-wrap, .self-attention-evidence, .self-attention-python-bridge, .self-attention-python-bridge .notebook-cell, .self-attention-debugger-lab, .self-attention-debug-grid, .self-attention-debug-card, .self-attention-debug-actions, .self-attention-debug-feedback, .self-attention-transfer-task, .self-attention-completion-checklist, .self-attention-chapter-shell .math-formula-display",
+    ".self-attention-boundary-grid, .self-attention-shape-ladder, .self-attention-worked-trace, .self-attention-formula-stack, .self-attention-mask-table-wrap, .self-attention-workbench, .self-attention-preset-row, .self-attention-control-panel, .self-attention-run-actions, .self-attention-workbench .step-explorer, .self-attention-stage-panel, .self-attention-matrix-stack, .self-attention-matrix-stack .array-diagram, .self-attention-matrix-stack .array-diagram-scroll, .self-attention-masked-grid-wrap, .self-attention-evidence, .self-attention-python-bridge, .self-attention-python-bridge .notebook-cell, .self-attention-debugger-lab, .self-attention-debug-grid, .self-attention-debug-card, .self-attention-debug-actions, .self-attention-debug-feedback, .self-attention-practice-deck, .self-attention-practice-deck .practice-workspace, .self-attention-transfer-task, .self-attention-completion-checklist, .self-attention-chapter-shell .math-formula-display",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({
@@ -391,4 +391,104 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+});
+
+test("retries and completes the independent Self-Attention practice on fresh fixtures", async ({ page }) => {
+  test.setTimeout(120_000);
+
+  await signInAsAdmin(page);
+  const response = await page.goto(`${previewPath}?lang=en`);
+  expect(response?.status()).toBe(200);
+
+  const practice = page.locator(".self-attention-practice-deck");
+  await expect(practice.getByRole("heading", {
+    name: "Can you preserve Self-Attention row semantics outside the guided lab?",
+  })).toBeVisible();
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("0 / 3");
+  const completionButton = page.getByRole("button", {
+    name: "Completion is disabled in preview",
+  });
+  await expect(completionButton).toHaveAttribute(
+    "data-completion-ready",
+    "false",
+  );
+
+  await choose(
+    practice,
+    "Predict token-row permutation output",
+    "outputs-stay-in-original-order",
+  );
+  await choose(practice, "learnerPermute", "permute-keys-only");
+  await practice.getByRole("button", {
+    name: "Run both row-permutation fixtures",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-failed/);
+  await expect(practice.locator(".practice-result")).toContainText(
+    "max|Y'−P·Y|=",
+  );
+
+  await choose(
+    practice,
+    "Predict token-row permutation output",
+    "outputs-follow-token-permutation",
+  );
+  await choose(
+    practice,
+    "learnerPermute",
+    "permute-input-before-qkv",
+  );
+  await practice.getByRole("button", {
+    name: "Run both row-permutation fixtures",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+
+  const navigation = practice.locator(".practice-deck-navigation button");
+  await navigation.nth(1).focus();
+  await navigation.nth(1).press("Enter");
+  await choose(
+    practice,
+    "Predict contexts for identical token rows",
+    "duplicate-rows-produce-duplicate-contexts",
+  );
+  await choose(practice, "learnerBoundary", "no-position-signal");
+  await practice.getByRole("button", {
+    name: "Run both duplicate-row contracts",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+
+  await navigation.nth(2).focus();
+  await navigation.nth(2).press("Space");
+  await choose(
+    practice,
+    "Predict the causal permutation boundary",
+    "token-only-changes-joint-relabel-restores",
+  );
+  await choose(
+    practice,
+    "learnerRelabel",
+    "permute-input-and-visibility",
+  );
+  await practice.getByRole("button", {
+    name: "Run both causal relabel fixtures",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("3 / 3");
+  await expect(practice.locator(".practice-deck-evidence")).toContainText(
+    "You produced row-permutation, position-free duplicate, and causal-visibility transfer evidence.",
+  );
+  await expect(completionButton).toHaveAttribute(
+    "data-completion-ready",
+    "false",
+  );
+
+  await practice.getByRole("button", {
+    name: "Reset all three challenges",
+  }).click();
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("0 / 3");
+  await expect(choiceOption(
+    practice,
+    "Predict token-row permutation output",
+    "outputs-follow-token-permutation",
+  )).toBeFocused();
+  expect(await selfAttentionOverflow(page)).toEqual([]);
 });

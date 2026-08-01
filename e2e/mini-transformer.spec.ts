@@ -42,7 +42,7 @@ function watchHeavyRuntimeRequests(page: TestPage) {
 
 async function miniTransformerOverflow(page: TestPage) {
   return page.locator(
-    ".mini-transformer-chapter-shell, .mini-transformer-boundary-grid, .mini-transformer-formula-stack, .mini-transformer-flow, .mini-transformer-shift-example, .mini-transformer-decode-steps, .mini-transformer-workbench, .mini-transformer-preset-row, .mini-transformer-control-panel, .mini-transformer-run-actions, .mini-transformer-workbench .step-explorer, .mini-transformer-stage-panel, .mini-transformer-matrix-stack, .mini-transformer-matrix-stack .array-diagram, .mini-transformer-matrix-stack .array-diagram-scroll, .mini-transformer-stat-grid, .mini-transformer-generation-trace, .mini-transformer-evidence, .mini-transformer-python-bridge, .mini-transformer-python-bridge .notebook-cell, .mini-transformer-debugger-lab, .mini-transformer-debug-progress, .mini-transformer-debug-grid, .mini-transformer-debug-card, .mini-transformer-debug-actions, .mini-transformer-debug-feedback, .mini-transformer-transfer-task, .mini-transformer-completion-checklist, .mini-transformer-chapter-shell .math-formula-display",
+    ".mini-transformer-chapter-shell, .mini-transformer-boundary-grid, .mini-transformer-formula-stack, .mini-transformer-flow, .mini-transformer-shift-example, .mini-transformer-decode-steps, .mini-transformer-workbench, .mini-transformer-preset-row, .mini-transformer-control-panel, .mini-transformer-run-actions, .mini-transformer-workbench .step-explorer, .mini-transformer-stage-panel, .mini-transformer-matrix-stack, .mini-transformer-matrix-stack .array-diagram, .mini-transformer-matrix-stack .array-diagram-scroll, .mini-transformer-stat-grid, .mini-transformer-generation-trace, .mini-transformer-evidence, .mini-transformer-python-bridge, .mini-transformer-python-bridge .notebook-cell, .mini-transformer-debugger-lab, .mini-transformer-debug-progress, .mini-transformer-debug-grid, .mini-transformer-debug-card, .mini-transformer-debug-actions, .mini-transformer-debug-feedback, .mini-transformer-practice-deck, .mini-transformer-practice-deck .practice-workspace, .mini-transformer-practice-deck .practice-support-code, .mini-transformer-practice-deck .practice-learner-controls, .mini-transformer-practice-deck .practice-result, .mini-transformer-transfer-task, .mini-transformer-completion-checklist, .mini-transformer-chapter-shell .math-formula-display",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({
@@ -242,6 +242,105 @@ test("completes five model challenges, four repairs, and concepts in the Korean 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+});
+
+test("retries and completes independent Mini Transformer practice on fresh fixtures", async ({ page }) => {
+  test.setTimeout(120_000);
+
+  await signInAsAdmin(page);
+  const response = await page.goto(`${previewPath}?lang=en`);
+  expect(response?.status()).toBe(200);
+
+  const practice = page.locator(".mini-transformer-practice-deck");
+  await expect(practice.getByRole("heading", {
+    name: "Can you preserve Mini Transformer state flow outside the guided lab?",
+  })).toBeVisible();
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("0 / 3");
+  const completionButton = page.getByRole("button", {
+    name: "Completion is disabled in preview",
+  });
+  await expect(completionButton).toHaveAttribute(
+    "data-completion-ready",
+    "false",
+  );
+
+  await choose(
+    practice,
+    "Predict the causal suffix result",
+    "suffix-rewrites-every-row",
+  );
+  await choose(practice, "learnerPrefixRead", "reuse-full-last-row");
+  await practice.getByRole("button", {
+    name: "Run both causal-prefix fixtures",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-failed/);
+  await expect(practice.locator(".practice-result")).toContainText(
+    "max prefix-logit error=",
+  );
+
+  await choose(
+    practice,
+    "Predict the causal suffix result",
+    "suffix-cannot-change-prefix-rows",
+  );
+  await choose(
+    practice,
+    "learnerPrefixRead",
+    "compare-matching-prefix-rows",
+  );
+  await practice.getByRole("button", {
+    name: "Run both causal-prefix fixtures",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+
+  const navigation = practice.locator(".practice-deck-navigation button");
+  await navigation.nth(1).focus();
+  await navigation.nth(1).press("Enter");
+  await choose(
+    practice,
+    "Predict the training and generation row boundary",
+    "train-all-rows-generate-last-row",
+  );
+  await choose(
+    practice,
+    "learnerRowBoundary",
+    "separate-training-and-generation",
+  );
+  await practice.getByRole("button", {
+    name: "Run both row-read fixtures",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+
+  await navigation.nth(2).focus();
+  await navigation.nth(2).press("Space");
+  await choose(
+    practice,
+    "Predict KV-cache semantics",
+    "cache-kv-preserves-context",
+  );
+  await choose(practice, "learnerKvCache", "append-keys-and-values");
+  await practice.getByRole("button", {
+    name: "Run both KV-cache fixtures",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("3 / 3");
+  await expect(practice.locator(".practice-deck-evidence")).toContainText(
+    "You produced causal-prefix, row-readout, and KV-cache-equivalence evidence.",
+  );
+  await expect(completionButton).toHaveAttribute(
+    "data-completion-ready",
+    "false",
+  );
+
+  await practice.getByRole("button", {
+    name: "Reset all three challenges",
+  }).click();
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("0 / 3");
+  await expect(
+    choiceGroup(practice, "Predict the causal suffix result")
+      .locator('[data-choice-value="suffix-cannot-change-prefix-rows"]'),
+  ).toBeFocused();
+  expect(await miniTransformerOverflow(page)).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with reduced motion and no overflow", async ({ page }) => {

@@ -26,6 +26,7 @@ import { RootorialMark } from "../RootorialMark";
 import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { AttentionConceptCheck } from "./AttentionConceptCheck";
 import { AttentionDebuggerLab } from "./AttentionDebuggerLab";
+import { AttentionPracticeDeck } from "./AttentionPracticeDeck";
 
 const tocItems = {
   ko: [
@@ -36,6 +37,7 @@ const tocItems = {
     { id: "causal-ledger", label: "Q·K·V 변화 원장" },
     { id: "numpy-bridge", label: "NumPy routing bridge" },
     { id: "debug", label: "선택 · routing 계약 디버깅" },
+    { id: "practice", label: "선택 · 독립 Attention 연습" },
     { id: "transfer", label: "Self-Attention으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -47,6 +49,7 @@ const tocItems = {
     { id: "causal-ledger", label: "Q/K/V causal ledger" },
     { id: "numpy-bridge", label: "NumPy routing bridge" },
     { id: "debug", label: "Optional · Debug routing contracts" },
+    { id: "practice", label: "Optional · Independent Attention practice" },
     { id: "transfer", label: "Transfer to Self-Attention" },
     { id: "check", label: "Concept check" },
   ],
@@ -337,8 +340,13 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
             <AttentionDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
 
+          <section className="article-section" id="practice">
+            <div className="margin-label">08 — OPTIONAL PRACTICE · INDEPENDENT PERFORMANCE</div>
+            <AttentionPracticeDeck />
+          </section>
+
           <section className="article-section" id="transfer">
-            <div className="margin-label">08 — TRANSFER TO SELF-ATTENTION</div>
+            <div className="margin-label">09 — TRANSFER TO SELF-ATTENTION</div>
             <h2>{t("query 하나를 이해한 뒤에만 모든 token query를 쌓습니다", "Stack all-token queries only after understanding one query")}</h2>
             <p>{t(
               "이번 장은 decoder query 하나가 encoder source K/V를 읽는 cross-attention으로 경계를 고정했습니다. 다음 장에서는 같은 sequence의 모든 token이 query를 만들고, 그 sequence에서 learned Q/K/V projection을 구성합니다. 차원에 따른 score scaling, autoregressive decoder의 causal mask, 여러 head를 나누고 합치는 계약도 다음 장에서 실행합니다. 이 장의 완료 경로에는 어느 것도 필요하지 않습니다.",
@@ -357,7 +365,7 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">09 — CONCEPT CHECK</div>
+            <div className="margin-label">10 — CONCEPT CHECK</div>
             <AttentionConceptCheck onMasteryChange={setConceptsMastered} />
             <div className="attention-completion-checklist" role="status" aria-live="polite">
               <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("필수 Attention routing lab", "Required Attention routing lab")}</span>

@@ -16,6 +16,16 @@ import {
   meanSquaredError,
   simulateGradientDescent,
 } from "../src/features/optimization/gradient-descent.ts";
+import {
+  applyLearnerVectorStep,
+  closeEnough,
+  diagnoseFixture,
+  reproduceTransferFixture,
+  reproduceVisibleFixture,
+  runScalarQuadraticStep,
+  transferSecondFixture,
+  transferVisibleFixture,
+} from "../src/features/optimization/optimization-practice.ts";
 
 const closeTo = (actual, expected, tolerance = 1e-10) => {
   assert.ok(
@@ -64,6 +74,72 @@ test("takes the useful preset's first descent step exactly", () => {
   closeTo(next.bias, -0.2);
   closeTo(next.slope, 0.2);
   closeTo(meanSquaredError(next), 3.6);
+});
+
+test("grades learner-owned update lines against visible and transfer fixtures", () => {
+  assert.deepEqual(
+    applyLearnerVectorStep(
+      reproduceVisibleFixture,
+      "subtract",
+      "subtract",
+    ),
+    [-2, 1.5],
+  );
+  assert.deepEqual(
+    applyLearnerVectorStep(
+      reproduceTransferFixture,
+      "subtract",
+      "subtract",
+    ),
+    [3.2, -1.8],
+  );
+  assert.deepEqual(
+    applyLearnerVectorStep(
+      reproduceVisibleFixture,
+      "add",
+      "subtract",
+    ),
+    [-1, 1.5],
+  );
+});
+
+test("exposes the overshoot result and the stable repair from the actual quadratic", () => {
+  const broken = runScalarQuadraticStep(diagnoseFixture);
+  assert.deepEqual(broken, {
+    gradient: 8,
+    nextWeight: -1.7999999999999998,
+    initialLoss: 8,
+    nextLoss: 15.679999999999998,
+  });
+
+  const repaired = runScalarQuadraticStep({
+    ...diagnoseFixture,
+    learningRate: 0.2,
+  });
+  assert.ok(closeEnough(repaired.nextWeight, 1.4));
+  assert.ok(closeEnough(repaired.nextLoss, 0.32));
+  assert.ok(repaired.nextLoss < repaired.initialLoss);
+});
+
+test("transfers one curvature-aware rate across different starts and targets", () => {
+  const visible = runScalarQuadraticStep({
+    ...transferVisibleFixture,
+    learningRate: 0.1,
+  });
+  const second = runScalarQuadraticStep({
+    ...transferSecondFixture,
+    learningRate: 0.1,
+  });
+  assert.ok(closeEnough(visible.nextWeight, transferVisibleFixture.target));
+  assert.ok(closeEnough(second.nextWeight, transferSecondFixture.target));
+  assert.ok(closeEnough(visible.nextLoss, 0));
+  assert.ok(closeEnough(second.nextLoss, 0));
+
+  const overshoot = runScalarQuadraticStep({
+    ...transferVisibleFixture,
+    learningRate: 0.25,
+  });
+  assert.ok(overshoot.nextLoss > overshoot.initialLoss);
 });
 
 test("distinguishes slow, stable, and divergent learning rates", () => {
@@ -212,6 +288,10 @@ test("states the optimization completion gate without presenting the debugger as
     new URL("../src/components/optimization/OptimizationChapter.tsx", import.meta.url),
     "utf8",
   );
+  const practiceSource = readFileSync(
+    new URL("../src/components/optimization/OptimizationPracticeDeck.tsx", import.meta.url),
+    "utf8",
+  );
   const vectorsSource = readFileSync(
     new URL("../src/components/VectorsChapter.tsx", import.meta.url),
     "utf8",
@@ -223,6 +303,8 @@ test("states the optimization completion gate without presenting the debugger as
   );
   assert.doesNotMatch(conceptCheckSource, /both required activities/);
   assert.match(chapterSource, /t\("선택", "Optional"\)/);
+  assert.match(chapterSource, /<OptimizationPracticeDeck \/>/);
+  assert.match(practiceSource, /완료 진도와는 분리됩니다/);
   assert.match(chapterSource, /chapters\/vectors\$\{isKo/);
   assert.match(chapterSource, /chapters\/neural-networks\$\{isKo/);
   assert.match(vectorsSource, /chapters\/optimization\$\{isKo/);

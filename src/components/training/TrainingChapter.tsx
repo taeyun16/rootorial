@@ -34,6 +34,7 @@ import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { TrainingBatchLab } from "./TrainingBatchLab";
 import { TrainingConceptCheck } from "./TrainingConceptCheck";
 import { TrainingLoopDebugger } from "./TrainingLoopDebugger";
+import { TrainingPracticeDeck } from "./TrainingPracticeDeck";
 
 const tocItems = {
   ko: [
@@ -44,6 +45,7 @@ const tocItems = {
     { id: "numpy-bridge", label: "NumPy 훈련 bridge" },
     { id: "generalization", label: "검증과 Dropout" },
     { id: "debug", label: "선택 · 훈련 loop 디버깅" },
+    { id: "practice", label: "선택 · 독립 훈련 연습" },
     { id: "transfer", label: "Embedding으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -55,6 +57,7 @@ const tocItems = {
     { id: "numpy-bridge", label: "NumPy training bridge" },
     { id: "generalization", label: "Validation and dropout" },
     { id: "debug", label: "Optional · Training-loop debugging" },
+    { id: "practice", label: "Optional · Independent training practice" },
     { id: "transfer", label: "Transfer to embeddings" },
     { id: "check", label: "Concept check" },
   ],
@@ -361,8 +364,23 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             <TrainingLoopDebugger onCompletionChange={setDebuggerComplete} />
           </section>
 
+          <section className="article-section" id="practice">
+            <div className="margin-label">
+              08 — OPTIONAL PRACTICE · REPRODUCE / DIAGNOSE / TRANSFER
+            </div>
+            <h2>{t(
+              "새 batch에서도 gradient와 optimizer state를 다시 조립합니다",
+              "Rebuild gradients and optimizer state on fresh batches",
+            )}</h2>
+            <p>{t(
+              "Softmax·CE output gradient를 한 행에서 재현하고, batch 복제에 대한 mean-gradient 불변식을 진단한 뒤, fresh gradient와 persistent Adam state의 수명 계약을 새 숫자에 전이합니다.",
+              "Reproduce a one-row Softmax-plus-CE output gradient, diagnose mean-gradient invariance under batch duplication, then transfer fresh-gradient and persistent-Adam-state lifetimes to new numbers.",
+            )}</p>
+            <TrainingPracticeDeck />
+          </section>
+
           <section className="article-section" id="transfer">
-            <div className="margin-label">08 — TRANSFER</div>
+            <div className="margin-label">09 — TRANSFER</div>
             <h2>{t("다음 장의 embedding table도 같은 gradient loop로 학습됩니다", "The next chapter's embedding table learns through the same gradient loop")}</h2>
             <p>{t(
               "Embedding lookup은 token ID가 가리킨 table row를 꺼냅니다. forward에서 참조한 row에만 data-gradient 기여가 생기고, 같은 token이 여러 번 등장하면 그 row에 기여들이 더해집니다. 기여끼리 상쇄될 수는 있지만, 등장하지 않은 row는 그 batch의 data gradient가 0입니다.",
@@ -401,7 +419,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">09 — CHECK</div>
+            <div className="margin-label">10 — CHECK</div>
             <TrainingConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 

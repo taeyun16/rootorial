@@ -32,6 +32,7 @@ import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { EmbeddingDebuggerLab } from "./EmbeddingDebuggerLab";
 import { EmbeddingLookupLab } from "./EmbeddingLookupLab";
 import { EmbeddingsConceptCheck } from "./EmbeddingsConceptCheck";
+import { EmbeddingsPracticeDeck } from "./EmbeddingsPracticeDeck";
 
 const tocItems = {
   ko: [
@@ -43,6 +44,7 @@ const tocItems = {
     { id: "pooling", label: "masked mean" },
     { id: "numpy-bridge", label: "NumPy로 다시 증명" },
     { id: "debug", label: "선택 · 계약 디버깅" },
+    { id: "practice", label: "선택 · 독립 연습" },
     { id: "transfer", label: "순서로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -55,6 +57,7 @@ const tocItems = {
     { id: "pooling", label: "Masked mean" },
     { id: "numpy-bridge", label: "Recheck in NumPy" },
     { id: "debug", label: "Optional · Contract debugging" },
+    { id: "practice", label: "Optional · Independent practice" },
     { id: "transfer", label: "Transfer to order" },
     { id: "check", label: "Concept check" },
   ],
@@ -349,8 +352,21 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
             <EmbeddingDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
 
+          <section className="article-section" id="practice">
+            <div className="margin-label">09 — OPTIONAL PRACTICE · REPRODUCE / DIAGNOSE / TRANSFER</div>
+            <h2>{t(
+              "새 token fixture에서 lookup·scatter-add·[UNK] 경계를 다시 조립합니다",
+              "Rebuild lookup, scatter-add, and [UNK] boundaries on fresh token fixtures",
+            )}</h2>
+            <p>{t(
+              "새 ID의 direct lookup을 재현하고, occurrence별 gradient가 부분 또는 완전 상쇄되는 반복 row를 진단한 뒤, 처음 보는 단어가 공용 [UNK] row로 이동하는 계약을 전이합니다.",
+              "Reproduce direct lookup for new IDs, diagnose repeated rows whose occurrence gradients partially or fully cancel, then transfer the contract to unseen words that map to a shared [UNK] row.",
+            )}</p>
+            <EmbeddingsPracticeDeck />
+          </section>
+
           <section className="article-section" id="transfer">
-            <div className="margin-label">09 — TRANSFER TO SEQUENCES</div>
+            <div className="margin-label">10 — TRANSFER TO SEQUENCES</div>
             <h2>{t("lookup은 순서를 남기지만 plain mean은 순서를 지웁니다", "Lookup retains order, but a plain mean erases it")}</h2>
             <p>{t(
               "[dog,runs,cat]과 [cat,runs,dog]는 lookup row 배열이 다릅니다. 그러나 같은 row multiset을 더해 평균하면 교환법칙 때문에 결과가 정확히 같습니다.",
@@ -374,7 +390,7 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">10 — CHECK</div>
+            <div className="margin-label">11 — CHECK</div>
             <EmbeddingsConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 

@@ -25,6 +25,7 @@ import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { TransformerBlockConceptCheck } from "./TransformerBlockConceptCheck";
 import { TransformerBlockDebuggerLab } from "./TransformerBlockDebuggerLab";
 import { TransformerBlockLab } from "./TransformerBlockLab";
+import { TransformerBlockPracticeDeck } from "./TransformerBlockPracticeDeck";
 
 const tocItems = {
   ko: [
@@ -37,6 +38,7 @@ const tocItems = {
     { id: "transformer-block-lab", label: "핵심 3 challenge lab" },
     { id: "numpy-bridge", label: "NumPy 블록 원장" },
     { id: "debug", label: "선택 · 블록 계약 디버깅" },
+    { id: "practice", label: "선택 · 독립 수행" },
     { id: "transfer", label: "Mini Transformer로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -50,6 +52,7 @@ const tocItems = {
     { id: "transformer-block-lab", label: "Three-core-challenge lab" },
     { id: "numpy-bridge", label: "NumPy block ledger" },
     { id: "debug", label: "Optional · Debug block contracts" },
+    { id: "practice", label: "Optional · Independent practice" },
     { id: "transfer", label: "Transfer to the Mini Transformer" },
     { id: "check", label: "Concept check" },
   ],
@@ -263,8 +266,13 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
             <TransformerBlockDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
 
+          <div id="practice">
+            <div className="margin-label">10 — OPTIONAL PRACTICE · INDEPENDENT PERFORMANCE</div>
+            <TransformerBlockPracticeDeck />
+          </div>
+
           <section className="article-section" id="transfer">
-            <div className="margin-label">10 — TRANSFER TO A MINI TRANSFORMER</div>
+            <div className="margin-label">11 — TRANSFER TO A MINI TRANSFORMER</div>
             <h2>{t("한 block의 [T,d_model] state를 logits 경계로 넘기고 stack 확장을 설계합니다", "Hand one block's [T,d_model] state to the logits boundary and design stack scaling")}</h2>
             <div className="transformer-block-transfer-task"><strong>{t("전이 과제", "TRANSFER TASK")}</strong><p>{t(
               "두 번째 block을 쌓는다고 가정하세요. position P를 다시 더하지 않고 첫 block의 y를 다음 x로 넘긴 뒤, 어떤 두 LN→sublayer→ADD가 반복되는지 쓰세요. 마지막 token의 next-token logits를 만들려면 block 밖에서 어떤 final norm과 vocabulary projection이 더 필요한지도 구분하세요.",
@@ -273,7 +281,7 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
           </section>
 
           <section className="article-section" id="check">
-            <div className="margin-label">11 — CONCEPT CHECK</div>
+            <div className="margin-label">12 — CONCEPT CHECK</div>
             <TransformerBlockConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 

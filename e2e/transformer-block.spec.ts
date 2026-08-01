@@ -42,7 +42,7 @@ function watchHeavyRuntimeRequests(page: TestPage) {
 
 async function transformerBlockOverflow(page: TestPage) {
   return page.locator(
-    ".transformer-block-boundary-grid, .transformer-block-formula-stack, .transformer-block-flow, .transformer-block-prerequisite, .transformer-block-workbench, .transformer-block-preset-row, .transformer-block-control-panel, .transformer-block-run-actions, .transformer-block-workbench .step-explorer, .transformer-block-stage-panel, .transformer-block-matrix-stack, .transformer-block-matrix-stack .array-diagram, .transformer-block-matrix-stack .array-diagram-scroll, .transformer-block-stat-grid, .transformer-block-handoff-note, .transformer-block-evidence, .transformer-block-python-bridge, .transformer-block-python-bridge .notebook-cell, .transformer-block-debugger-lab, .transformer-block-debug-progress, .transformer-block-debug-grid, .transformer-block-debug-card, .transformer-block-debug-actions, .transformer-block-debug-feedback, .transformer-block-transfer-task, .transformer-block-completion-checklist, .transformer-block-chapter-shell .math-formula-display",
+    ".transformer-block-boundary-grid, .transformer-block-formula-stack, .transformer-block-flow, .transformer-block-prerequisite, .transformer-block-workbench, .transformer-block-preset-row, .transformer-block-control-panel, .transformer-block-run-actions, .transformer-block-workbench .step-explorer, .transformer-block-stage-panel, .transformer-block-matrix-stack, .transformer-block-matrix-stack .array-diagram, .transformer-block-matrix-stack .array-diagram-scroll, .transformer-block-stat-grid, .transformer-block-handoff-note, .transformer-block-evidence, .transformer-block-python-bridge, .transformer-block-python-bridge .notebook-cell, .transformer-block-debugger-lab, .transformer-block-debug-progress, .transformer-block-debug-grid, .transformer-block-debug-card, .transformer-block-debug-actions, .transformer-block-debug-feedback, .transformer-block-practice-deck, .transformer-block-practice-deck .practice-workspace, .transformer-block-transfer-task, .transformer-block-completion-checklist, .transformer-block-chapter-shell .math-formula-display",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({
@@ -393,4 +393,99 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+});
+
+test("retries and completes independent Transformer Block practice on fresh fixtures", async ({ page }) => {
+  test.setTimeout(120_000);
+
+  await signInAsAdmin(page);
+  const response = await page.goto(`${previewPath}?lang=en`);
+  expect(response?.status()).toBe(200);
+
+  const practice = page.locator(".transformer-block-practice-deck");
+  await expect(practice.getByRole("heading", {
+    name: "Can you preserve Transformer Block state outside the guided lab?",
+  })).toBeVisible();
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("0 / 3");
+  const completionButton = page.getByRole("button", {
+    name: "Completion is disabled in preview",
+  });
+  await expect(completionButton).toHaveAttribute(
+    "data-completion-ready",
+    "false",
+  );
+
+  await choose(
+    practice,
+    "Predict the two-residual state flow",
+    "second-branch-reuses-x0",
+  );
+  await choose(
+    practice,
+    "learnerResiduals",
+    "reuse-x0-second-skip",
+  );
+  await practice.getByRole("button", {
+    name: "Run both fresh residual ledgers",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-failed/);
+  await expect(practice.locator(".practice-result")).toContainText(
+    "max error=",
+  );
+
+  await choose(
+    practice,
+    "Predict the two-residual state flow",
+    "both-branches-update-shared-stream",
+  );
+  await choose(practice, "learnerResiduals", "two-residual-updates");
+  await practice.getByRole("button", {
+    name: "Run both fresh residual ledgers",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+
+  const navigation = practice.locator(".practice-deck-navigation button");
+  await navigation.nth(1).focus();
+  await navigation.nth(1).press("Enter");
+  await choose(
+    practice,
+    "Predict a common feature shift",
+    "branch-stays-output-shifts",
+  );
+  await choose(practice, "learnerNormBoundary", "prenorm-plus-skip");
+  await practice.getByRole("button", {
+    name: "Run both pre-norm shift contracts",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+
+  await navigation.nth(2).focus();
+  await navigation.nth(2).press("Space");
+  await choose(
+    practice,
+    "Predict the two-block position and state boundary",
+    "position-once-then-handoff-y",
+  );
+  await choose(practice, "learnerHandoff", "position-once-handoff-y");
+  await practice.getByRole("button", {
+    name: "Run both two-block handoffs",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("3 / 3");
+  await expect(practice.locator(".practice-deck-evidence")).toContainText(
+    "You produced residual-ledger, pre-norm-shift, and two-block-handoff evidence.",
+  );
+  await expect(completionButton).toHaveAttribute(
+    "data-completion-ready",
+    "false",
+  );
+
+  await practice.getByRole("button", {
+    name: "Reset all three challenges",
+  }).click();
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("0 / 3");
+  await expect(
+    choiceGroup(practice, "Predict the two-residual state flow")
+      .locator('[data-choice-value="both-branches-update-shared-stream"]'),
+  ).toBeFocused();
+  expect(await transformerBlockOverflow(page)).toEqual([]);
 });
