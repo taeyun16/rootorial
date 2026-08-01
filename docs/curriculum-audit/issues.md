@@ -6,6 +6,25 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-063 — Network policy E2E targeted retired concept radios
+
+Resolved 2026-08-01. The network-policy chapter already rendered its five
+concept questions as direct buttons, but its browser spec still checked five
+removed native radio inputs and did not execute the 44×44 contract over every
+visible enabled lesson control.
+
+The concept helper now follows the five current localized button groups and
+preserves a wrong-hook submission before recovery. English mobile measures
+every visible enabled lesson button, link, disclosure, input, and textarea.
+
+The in-app browser exercised both policy modes; every hook, default, state,
+allow-scope, rule-order, and prediction alternative; failed and repaired probe
+runs; all eight incident choices; resets; all 15 concept options; ten anchors;
+and both locale paths. Korean desktop reached all four completion outputs.
+Completed English 390×844 exposed 46 enabled controls with zero undersized
+targets, native selects, untranslated strings, component/page overflow, or
+console errors. No new presentation or content defect was reproduced.
+
 ### CURR-062 — Observability E2E missed direct concepts and container-width clipping
 
 Resolved 2026-08-01. The observability chapter already exposed its five concept

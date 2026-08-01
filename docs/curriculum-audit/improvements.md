@@ -1842,3 +1842,14 @@ First slice implemented 2026-08-01:
   evidence choices, three capacity scenarios, incident distractors/repairs,
   resets, 15 concept options, anchors, and locale switching; mobile retained
   zero undersized targets, selects, untranslated strings, overflow, or errors.
+- The next Infrastructure slice refreshed `network-policy-and-firewalls`:
+  retired concept-radio selectors now follow the five visible direct-button
+  groups and retain a wrong-hook retry. English mobile now measures every
+  visible enabled lesson button, link, disclosure, input, and textarea against
+  44×44. Signal coverage is now 44px 30/32, leaving 15 explicit targets.
+- The in-app browser re-exercised both policy modes, every policy-field and
+  prediction alternative, failed/repaired probe suites, all incident choices,
+  resets, all 15 concept options, ten anchors, and both languages. Completed
+  390×844 remained free of undersized controls, native selects, untranslated
+  strings, component/page overflow, and console errors, so no UI or content
+  mutation beyond the executable audit alignment was warranted.

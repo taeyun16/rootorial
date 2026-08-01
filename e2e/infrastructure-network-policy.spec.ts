@@ -129,16 +129,29 @@ async function repairIncidents(page: TestPage, locale: "ko" | "en") {
   }
 }
 
-async function answerConcepts(page: TestPage, locale: "ko" | "en") {
-  const answers = [
-    'input[name="filter-hook-scope"][value="transit-packet-uses-forward-hook"]',
-    'input[name="default-deny-contract"][value="explicit-allow-else-drop"]',
-    'input[name="terminal-verdict-order"][value="first-matching-terminal-verdict-controls-chain"]',
-    'input[name="stateful-reply-rule"][value="ct-established-allows-mapped-reply"]',
-    'input[name="firewall-vs-reachability"][value="firewall-does-not-repair-route-or-nat"]',
-  ];
-  for (const selector of answers) await page.locator(selector).check();
-  await page.getByRole("button", { name: locale === "ko" ? "정책 판정 확인" : "Check policy decisions" }).click();
+async function answerConcepts(page: TestPage, locale: "ko" | "en", retryFirst = false) {
+  const questions = page.locator(".concept-question");
+  const answers = locale === "ko"
+    ? ["transit packet이므로 FORWARD", "필요한 flow만 명시적으로 allow하고 나머지는 drop", "먼저 match한 terminal drop에서 chain 평가 종료", "ct state established accept", "아무것도 수리되지 않음 — route·forwarding·NAT는 별도 invariant"]
+    : ["FORWARD, because the packet is in transit", "explicitly allow required flows and drop everything else", "the first matching terminal drop ends chain evaluation", "ct state established accept", "nothing—routes, forwarding, and NAT are separate invariants"];
+  for (let index = 0; index < answers.length; index += 1) {
+    await questions.nth(index).getByRole("button", { name: answers[index], exact: true }).click();
+  }
+  const submit = page.getByRole("button", { name: locale === "ko" ? "정책 판정 확인" : "Check policy decisions" });
+  if (retryFirst) {
+    await questions.nth(0).getByRole("button", {
+      name: locale === "ko" ? "router-local packet처럼 INPUT" : "INPUT, like router-local traffic",
+      exact: true,
+    }).click();
+    await submit.click();
+    await expect(questions.nth(0)).toContainText(
+      locale === "ko"
+        ? "router 자체가 목적지일 때만 INPUT입니다"
+        : "INPUT applies only when the router itself is the destination",
+    );
+    await questions.nth(0).getByRole("button", { name: answers[0], exact: true }).click();
+  }
+  await submit.click();
 }
 
 function policyOverflow(page: TestPage) {
@@ -198,7 +211,7 @@ test("completes FORWARD, INPUT, incidents, and concepts in the Korean draft prev
   await expect(visual).toHaveAttribute("data-grade-state", "passed");
 
   await repairIncidents(page, "ko");
-  await answerConcepts(page, "ko");
+  await answerConcepts(page, "ko", true);
   await expect(page.getByText("이해 확인 완료 — 두 policy mode와 사건 완료 상태를 확인하세요.", { exact: true })).toBeVisible();
   await expect(page.locator(".network-completion-checklist .is-complete")).toHaveCount(4);
   await expect(completion).toHaveAttribute("data-completion-ready", "true");
@@ -279,6 +292,24 @@ test("keeps the English draft keyboard-usable at 390px without overflow or untra
   await answerConcepts(page, "en");
   await expect(page.getByText("Concept check complete — now confirm both policy modes and the incidents.", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Completion is disabled in preview" })).toHaveAttribute("data-completion-ready", "false");
+  const undersizedTargets = await page
+    .locator('.lesson-article button:not([disabled]), .lesson-article a[href], .lesson-article summary, .lesson-article input:not([disabled]), .lesson-article textarea:not([disabled])')
+    .evaluateAll((elements) => elements
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return style.visibility !== "hidden"
+          && style.display !== "none"
+          && rect.width > 0
+          && rect.height > 0
+          && (rect.width < 44 || rect.height < 44);
+      })
+      .map((element) => ({
+        label: element.textContent?.trim() || element.getAttribute("aria-label"),
+        width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height,
+      })));
+  expect(undersizedTargets).toEqual([]);
   expect(await policyOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
