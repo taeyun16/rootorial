@@ -1780,3 +1780,14 @@ First slice implemented 2026-08-01:
   horizontal overflow, untranslated strings, undersized targets, or console
   errors; required-lab and incident resets returned to deterministic initial
   states.
+- The first Infrastructure inventory slice added the missing exhaustive 44×44
+  assertion to `assemble-a-namespace-platform`. It checks every visible enabled
+  lesson button, link, disclosure, input, and textarea instead of a hand-picked
+  representative set. The stale five-radio concept helper was also aligned with
+  the current direct-button questions and now preserves a focused failure/retry.
+  Signal coverage is now 44px 25/32, leaving 23 explicit targets.
+- The in-app browser completed all seven evidence evaluators, four platform
+  scenarios, four incidents, five concepts, and seven completion outputs on
+  Korean desktop and English 390×844. Mobile exposed 76 visible enabled lesson
+  targets with zero sub-44px targets, native selects, untranslated strings,
+  horizontal overflow, or console errors.

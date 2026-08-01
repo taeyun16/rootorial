@@ -6,6 +6,26 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-058 — Namespace-platform capstone lacked an executable mobile target-size contract
+
+Resolved 2026-08-01. The `assemble-a-namespace-platform` matrix already carried
+manual 390×844 evidence, but its browser spec checked overflow and representative
+keyboard flows without asserting the 44×44 product contract across the current
+enabled lesson controls. Its concept helper also still targeted retired native
+radio inputs even though the live capstone exposes visible `aria-pressed`
+buttons.
+
+The English mobile flow now measures every visible enabled lesson button, link,
+disclosure, input, and textarea and fails if either dimension is below 44px.
+Concept choices are scoped to the five current question groups, and the Korean
+desktop path records one evidence-reexecution error before repairing it.
+
+The Codex in-app browser completed evidence 7/7, all four scenarios, all four
+incidents, a concept failure/retry, and all seven completion outputs on Korean
+desktop. The English 390×844 replay completed the same required capstone and
+measured 76 visible enabled lesson targets with zero undersized targets, native
+selects, untranslated strings, horizontal overflow, or console errors.
+
 ### CURR-057 — Tiny Linux capstone E2E still targeted retired selects and radio inputs
 
 Resolved 2026-08-01. The `assemble-a-tiny-linux` capstone already exposes its

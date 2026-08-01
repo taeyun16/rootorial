@@ -136,18 +136,30 @@ async function repairIncidents(page: TestPage, locale: "ko" | "en") {
   }
 }
 
-async function answerConcepts(page: TestPage, locale: "ko" | "en") {
-  const answers = [
-    'input[name="evidence-reexecution"][value="rerun-current-evaluators"]',
-    'input[name="public-ingress-boundary"][value="edge-443-only"]',
-    'input[name="private-egress-state"][value="edge-nat-conntrack-return"]',
-    'input[name="zone-failure-survival"][value="independent-zone-b-path"]',
-    'input[name="capacity-headroom-contract"][value="all-resource-ratios-at-most-0-7"]',
-  ];
-  for (const selector of answers) await page.locator(selector).check();
-  await page.getByRole("button", {
+async function answerConcepts(page: TestPage, locale: "ko" | "en", retryFirst = false) {
+  const questions = page.locator(".concept-question");
+  const answers = locale === "ko"
+    ? [/현재 canonical evaluator를 재실행/, /edge public tcp\/443 only/, /edge NAT와 conntrack reverse/, /독립 zone B path/, /모든 resource가 70% 이하/]
+    : [/Re-run the current canonical evaluator/, /edge public tcp\/443 only/, /Use edge NAT and conntrack/, /independent Zone B path/, /Pass because every resource/];
+  for (let index = 0; index < answers.length; index += 1) {
+    await questions.nth(index).getByRole("button", { name: answers[index] }).click();
+  }
+  const submit = page.getByRole("button", {
     name: locale === "ko" ? "platform 설계 판정 확인" : "Check platform design decisions",
-  }).click();
+  });
+  if (retryFirst) {
+    await questions.nth(0).getByRole("button", {
+      name: locale === "ko" ? "저장된 verdict를 그대로 신뢰" : "Trust the stored verdict",
+    }).click();
+    await submit.click();
+    await expect(questions.nth(0)).toContainText(
+      locale === "ko"
+        ? "stale·tampered 결과를 구분하려면"
+        : "Current adapter revisions and evaluator results are required",
+    );
+    await questions.nth(0).getByRole("button", { name: answers[0] }).click();
+  }
+  await submit.click();
 }
 
 function namespacePlatformOverflow(page: TestPage) {
@@ -234,7 +246,7 @@ test("completes the Korean namespace-platform capstone while the public chapter 
   await runAllScenarios(lab, "ko");
 
   await repairIncidents(page, "ko");
-  await answerConcepts(page, "ko");
+  await answerConcepts(page, "ko", true);
   await expect(page.getByText("개념 확인 완료 — studio와 incident 완료 상태를 확인하세요.", { exact: true })).toBeVisible();
   await expect(page.locator(".namespace-platform-completion-checklist .is-complete")).toHaveCount(7);
   await expect(completion).toHaveAttribute("data-completion-ready", "true");
@@ -334,6 +346,24 @@ test("keeps the English capstone keyboard-usable at 390px with reduced motion", 
   await expect(page.getByText("Concept check complete — confirm the studio and incident states.", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Completion is disabled in preview" }))
     .toHaveAttribute("data-completion-ready", "false");
+  const undersizedTargets = await page
+    .locator('.lesson-article button:not([disabled]), .lesson-article a[href], .lesson-article summary, .lesson-article input:not([disabled]), .lesson-article textarea:not([disabled])')
+    .evaluateAll((elements) => elements
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return style.visibility !== "hidden"
+          && style.display !== "none"
+          && rect.width > 0
+          && rect.height > 0
+          && (rect.width < 44 || rect.height < 44);
+      })
+      .map((element) => ({
+        label: element.textContent?.trim() || element.getAttribute("aria-label"),
+        width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height,
+      })));
+  expect(undersizedTargets).toEqual([]);
   expect(await namespacePlatformOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
