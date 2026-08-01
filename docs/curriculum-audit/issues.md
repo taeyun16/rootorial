@@ -6,6 +6,29 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-053 — Linux permissions E2E still targeted retired selects and radio inputs
+
+Resolved 2026-08-01. The `users-and-permissions` chapter already presents
+policy, repair, and concept alternatives as visible `aria-pressed` buttons,
+but its browser spec still used combobox selection and five native radio
+inputs. That stale path could no longer exercise the live access decision,
+least-privilege incident, concept retry, or completion contracts.
+
+The spec now scopes choices to their named button groups, deliberately records
+an incorrect access prediction, a no-op chmod, an overgrant, and one incorrect
+concept answer before completing the current flow. Both viewports collect
+unexpected console errors; the 390×844 contract also asserts zero native
+selects and checks every visible enabled lesson button, link, disclosure, and
+text input against 44×44.
+
+The Codex in-app browser reproduced the Korean 1280×720 policy path through all
+four evidence checks, solved all four incidents after rejecting chmod 777, and
+repaired the concept error to unlock all three completion outputs. The English
+390×844 preview exposed 61 visible enabled lesson targets with zero sub-44px
+targets, native selects, horizontal overflow, untranslated strings, or console
+errors. Its overgrant explanation remained adjacent to the repair and the
+global reset removed it deterministically.
+
 ### CURR-052 — Linux process E2E still targeted retired selects and radio inputs
 
 Resolved 2026-08-01. The `processes-and-signals` chapter already renders every

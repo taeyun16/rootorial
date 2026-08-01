@@ -1711,3 +1711,17 @@ First slice implemented 2026-08-01:
   selects, horizontal overflow, or console errors. Enter injection again did
   not dispatch in the in-app browser, so the existing keyboard assertion is
   kept as source-level evidence pending the Clerk-gated repository runner.
+- The next Linux Systems slice aligned `users-and-permissions` with its current
+  direct-button UI. Retired combobox/select operations and five radio inputs
+  were replaced by named button-group actions, a wrong access prediction, a
+  no-op chmod, an overgrant, all four incident repairs, and a focused concept
+  retry. Desktop and mobile now record console errors; mobile asserts zero
+  native selects and 44×44 for every visible enabled lesson button, link,
+  disclosure, and text input. Signal coverage is now console 16/32, 44px
+  23/32, and native-select-zero 25/32, leaving 33 explicit targets.
+- The in-app browser completed all four policy evidence checks, rejected chmod
+  777, solved the four least-privilege incidents, and unlocked all three chapter
+  outputs after a concept retry. At 390×844 all 61 visible enabled lesson
+  targets passed 44×44, with zero native selects, horizontal overflow,
+  untranslated strings, or console errors; reset removed the adjacent
+  overgrant feedback deterministically.
