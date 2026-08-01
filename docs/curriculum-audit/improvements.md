@@ -1804,3 +1804,16 @@ First slice implemented 2026-08-01:
   the map from 490/486 to 486/486 without clipping it. English 390×844 exposed
   43 enabled targets with zero undersized targets, native selects, untranslated
   strings, overflow, or console errors.
+- The next Infrastructure slice refreshed `egress-nat-and-conntrack`: retired
+  concept-radio selectors now follow the five direct-button groups, both
+  viewports capture console errors, and English mobile checks every enabled
+  visible lesson target against 44×44. Signal coverage is now console 22/32 and
+  44px 27/32, leaving 18 explicit targets.
+- The in-app browser exercised every switch state, NAT option, prediction,
+  incident distractor/repair, concept option, reset, anchor, and language
+  switch. The completed desktop topology revealed up to 130px of clipped child
+  controls because its responsive breakpoint followed the viewport. An
+  inline-size container now stacks the topology according to its actual width;
+  desktop and mobile both report zero component overflow. English 390×844
+  exposed 51 enabled targets with zero undersized targets, native selects,
+  untranslated strings, overflow, or console errors.

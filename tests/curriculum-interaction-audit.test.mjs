@@ -22,10 +22,10 @@ test("keeps browser-spec evidence separate from remaining exhaustive coverage ta
   assert.equal(report.signalCoverage.desktop, 32);
   assert.equal(report.signalCoverage.mobile390x844, 32);
   assert.equal(report.signalCoverage.keyboard, 32);
-  assert.equal(report.signalCoverage.console, 21);
-  assert.equal(report.signalCoverage.targetSize44, 26);
+  assert.equal(report.signalCoverage.console, 22);
+  assert.equal(report.signalCoverage.targetSize44, 27);
   assert.equal(report.signalCoverage.nativeSelectZero, 29);
-  assert.equal(report.coverageTargets.length, 20);
+  assert.equal(report.coverageTargets.length, 18);
   assert.deepEqual(
     report.chapters
       .filter(({ browserSpecSignals }) => !browserSpecSignals.route)

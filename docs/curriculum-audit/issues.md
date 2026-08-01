@@ -6,6 +6,30 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-060 — NAT E2E missed direct concepts and container-width clipping
+
+Resolved 2026-08-01. The NAT browser spec still selected retired concept radio
+inputs and lacked executable console and exhaustive 44×44 contracts. A fresh
+1280×720 completed-state pass also found that the topology kept its five-column
+layout because its breakpoint followed the viewport rather than the much
+narrower visualization container. Nested node controls overflowed by as much as
+130px and were clipped by the lab boundary.
+
+The concept helper now follows the five visible direct-button groups and keeps
+a wrong-route retry. Both viewports collect unexpected console errors, and the
+English mobile flow measures every visible enabled lesson button, link,
+disclosure, input, and textarea. The topology now establishes an inline-size
+container and stacks at the same 900px threshold according to its own available
+width; wide containers retain the horizontal packet path.
+
+The in-app browser exercised every switch state, direct choice, prediction,
+both NAT modes, all incident distractors and repairs, all 15 concept options,
+resets, nine anchors, and the language switch. Korean desktop and English
+390×844 reached 2/2 modes, 4/4 incidents, five concepts, and all four completion
+outputs. Mobile exposed 51 enabled visible lesson targets with zero undersized
+targets, native selects, untranslated strings, horizontal overflow, or console
+errors; the repaired desktop completed state also had zero component overflow.
+
 ### CURR-059 — Availability E2E missed current buttons and a desktop text overflow
 
 Resolved 2026-08-01. The availability chapter's browser spec still selected
