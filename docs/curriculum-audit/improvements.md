@@ -1853,3 +1853,16 @@ First slice implemented 2026-08-01:
   390×844 remained free of undersized controls, native selects, untranslated
   strings, component/page overflow, and console errors, so no UI or content
   mutation beyond the executable audit alignment was warranted.
+- The next Infrastructure slice refreshed
+  `service-discovery-and-load-balancing`: retired concept-radio selectors now
+  follow the five visible direct-button groups and retain a focused wrong-TTL
+  retry. English mobile checks every visible enabled lesson button, link,
+  disclosure, input, and textarea against 44×44. Signal coverage is now 44px
+  31/32, leaving 14 explicit targets.
+- The completed 1280×720 service map reproduced a hidden container mismatch:
+  its four columns required 691px inside a 542px map while the document itself
+  remained 1280/1280. An inline-size container now stacks the map at its actual
+  workspace width. The in-app browser exercised every lab and incident choice,
+  all 15 concept options, resets, anchors, help, locale switching, and the
+  fail-closed public route. English 390×844 exposed 48 enabled targets with zero
+  undersized targets, selects, untranslated strings, overflow, or errors.

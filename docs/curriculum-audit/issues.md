@@ -6,6 +6,28 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-064 — Service discovery map clipped inside the desktop workspace
+
+Resolved 2026-08-01. At a 1280×720 viewport the service-path visualization was
+only 578px wide, but its four-column map retained a 691px layout because the
+responsive rule followed the browser viewport. The outer page hid the excess,
+so the service boundary cards were clipped without producing document-level
+horizontal scrolling. The browser spec also still checked five retired native
+radio inputs and had no exhaustive mobile 44×44 assertion.
+
+The visualization now establishes an inline-size container and stacks the map
+when its own available width is below 820px. The concept helper follows the five
+visible localized button groups, preserves an incorrect TTL-boundary submission
+and recovery, and English mobile measures every visible enabled lesson control.
+
+The in-app browser exercised every DNS, retirement, VIP-listener, membership,
+algorithm, affinity, prediction, incident, and concept alternative; both reset
+paths; ten anchors; help and language controls; and the public 404 boundary.
+The repaired desktop map measured 542/542px and its visualization 578/578px.
+Completed English 390×844 exposed 48 controls with zero undersized targets,
+native selects, untranslated strings, component/page overflow, or console
+errors.
+
 ### CURR-063 — Network policy E2E targeted retired concept radios
 
 Resolved 2026-08-01. The network-policy chapter already rendered its five
