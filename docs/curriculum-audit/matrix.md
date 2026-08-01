@@ -34,7 +34,7 @@ join cleanly across renderer, experience, content-quality, source, and declared
 E2E contracts with zero structural issues. Browser-spec signals currently
 cover route 32/32, desktop 32/32, 390×844 32/32, keyboard 30/32, immediate
 result 32/32, console 12/32, overflow 32/32, 44px 20/32, and native-select-zero
-20/32, leaving 46 explicit coverage targets. These are source-pattern
+21/32, leaving 45 explicit coverage targets. These are source-pattern
 inventory signals rather than proof that every control was activated. CURR-049
 adds the missing shared route spec and Codex in-app-browser evidence: all five
 advanced Linux Networking routes opened at 1280×720 and 390×844, exposed
@@ -42,7 +42,9 @@ immediate wrong/correct prediction feedback, accepted Enter, unlocked the next
 execution step, and had zero console errors, native selects, horizontal
 overflow, or enabled core targets below 44px. The repository Playwright runner
 discovers both tests but cannot execute them without the global Clerk
-publishable key.
+publishable key. The Interfaces chapter now also carries an explicit
+native-select-zero assertion in both its desktop and 390×844 flows, completing
+that signal across all six Linux Networking chapters.
 
 | Curriculum | Chapter | Source | Audit | In-app browser evidence | Learning output |
 |---|---|---|---|---|---|

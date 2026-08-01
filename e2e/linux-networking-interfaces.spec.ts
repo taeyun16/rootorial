@@ -133,6 +133,7 @@ test("completes the executable host view, four repairs, and concepts in the Kore
     name: "인터페이스·주소·루프백",
     exact: true,
   })).toBeVisible();
+  await expect(page.locator("select")).toHaveCount(0);
 
   const figure = page.getByTestId("linux-network-view-figure");
   await expect(page.locator('figure[data-testid="linux-network-view-figure"]')).toHaveCount(1);
@@ -206,6 +207,7 @@ test("keeps the English executable figure keyboard-usable at 390px with reduced 
     name: "Interfaces, Addresses, and Loopback",
     exact: true,
   })).toBeVisible();
+  await expect(page.locator("select")).toHaveCount(0);
 
   const figure = page.getByTestId("linux-network-view-figure");
   await expect(page.locator('figure[data-testid="linux-network-view-figure"]')).toHaveCount(1);

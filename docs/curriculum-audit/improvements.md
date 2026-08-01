@@ -1660,3 +1660,9 @@ First slice implemented 2026-08-01:
   with zero console errors, native selects, horizontal overflow, or sub-44px
   core controls. Playwright discovery passes; execution through the repository
   runner is blocked before the spec by the missing Clerk publishable key.
+- The next bounded inventory slice added an explicit native-select-zero
+  assertion to both Korean desktop and English 390×844 flows in
+  `e2e/linux-networking-interfaces.spec.ts`. This completes that source signal
+  for all six Linux Networking chapters, moves native-select-zero coverage to
+  21/32, and reduces the remaining inventory from 46 to 45 targets without
+  changing the chapter UI or broadening the prior interaction claim.
