@@ -1752,3 +1752,16 @@ First slice implemented 2026-08-01:
   lesson target passed 44×44, with zero native selects, horizontal overflow,
   untranslated strings, or console errors; underlay, lab, and incident resets
   returned to deterministic initial states.
+- The next Linux Systems slice aligned `networking-from-a-packet` with its
+  current direct-button UI. Thirty-nine retired combobox/select operations and
+  ten native radio interactions were replaced by named button-group actions,
+  wrong route/TCP predictions, a wrong incident repair, and a focused concept
+  retry. Both viewports now record console errors and assert zero native
+  selects. Signal coverage is now console 19/32, 44px 24/32, and
+  native-select-zero 28/32, leaving 26 explicit targets.
+- The in-app browser completed the causal hostname→socket→route/ARP/handshake→
+  accept→send→deliver/drop/deliver→RTO→recv journey, solved all four network
+  incidents, and unlocked all three chapter outputs after a concept retry. At
+  390×844 all 90 visible lesson targets passed 44×44, with zero native selects,
+  horizontal overflow, untranslated strings, or console errors; lab and
+  incident resets returned to deterministic initial states.

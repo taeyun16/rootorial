@@ -6,6 +6,28 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-056 — Linux packet-networking E2E still targeted retired selects and radio inputs
+
+Resolved 2026-08-01. The `networking-from-a-packet` chapter already renders
+route, socket, TCP, segment, incident, and concept alternatives as visible
+`aria-pressed` buttons, but its browser spec still used 39 combobox selections
+and ten native radio interactions across the two viewports. The stale path
+could not reproduce the current packet journey or completion contract.
+
+The spec now scopes finite alternatives to their named button groups, preserves
+the keyboard assertions on native buttons, deliberately records wrong route/TCP
+predictions, a wrong incident repair, and a wrong concept answer, and then
+completes each retry. Both viewports collect unexpected console errors and
+explicitly assert zero native selects.
+
+The Codex in-app browser reproduced the Korean desktop journey through
+hostname, socket, route/ARP/handshake, accept, send, deliver/drop/deliver, RTO,
+two layer inspections, and `recv`, then repaired all four incidents and the
+concept error to unlock all three completion outputs. The English 390×844
+preview completed the same required journey and exposed 90 visible lesson
+targets with zero native selects, horizontal overflow, untranslated strings,
+undersized targets, or console errors.
+
 ### CURR-055 — Linux storage E2E still targeted retired selects and radio inputs
 
 Resolved 2026-08-01. The `storage-and-filesystems` chapter already renders the
