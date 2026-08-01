@@ -1725,3 +1725,17 @@ First slice implemented 2026-08-01:
   targets passed 44×44, with zero native selects, horizontal overflow,
   untranslated strings, or console errors; reset removed the adjacent
   overgrant feedback deterministically.
+- The next Linux Systems slice aligned `memory-and-virtual-addresses` with its
+  current direct-button UI. Retired combobox/select operations and five radio
+  inputs were replaced by named button-group actions, a wrong access prediction,
+  a wrong address calculation, four computed incident repairs, and a focused
+  concept retry. Desktop and mobile now record console errors; mobile asserts
+  zero native selects and 44×44 for every visible enabled lesson button, link,
+  disclosure, and text input. Signal coverage is now console 17/32, 44px
+  24/32, and native-select-zero 26/32, leaving 30 explicit targets.
+- The in-app browser completed all five translation, COW, isolation, and demand
+  evidence checks, repaired the four memory incidents, and unlocked all three
+  chapter outputs after a concept retry. At 390×844 all 57 visible enabled
+  lesson targets passed 44×44, with zero native selects, horizontal overflow,
+  untranslated strings, or console errors; both reset paths returned to their
+  deterministic initial states.

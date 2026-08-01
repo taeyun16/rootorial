@@ -6,6 +6,29 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-054 — Linux memory E2E still targeted retired selects and radio inputs
+
+Resolved 2026-08-01. The `memory-and-virtual-addresses` chapter already renders
+process, operation, prediction, TLB, residency, and concept choices as visible
+`aria-pressed` buttons, but its browser spec still used combobox selection and
+five native radio inputs. The stale path could not reproduce the current
+translation, COW, demand paging, debugger, or completion flow.
+
+The spec now scopes each choice to its named button group, deliberately records
+one wrong access prediction, one wrong translation calculation, and one wrong
+concept answer before completing the current flow. Both viewports collect
+unexpected console errors; the 390×844 contract also asserts zero native
+selects and checks every visible enabled lesson button, link, disclosure, and
+text input against 44×44.
+
+The Codex in-app browser reproduced the Korean 1280×720 path through five of
+five translation/COW/demand evidence checks, repaired all four computed memory
+incidents, and recovered the concept error to unlock all three completion
+outputs. The English 390×844 preview exposed 57 visible enabled lesson targets
+with zero sub-44px targets, native selects, horizontal overflow, untranslated
+strings, or console errors; both lab and incident resets returned to their
+deterministic initial states.
+
 ### CURR-053 — Linux permissions E2E still targeted retired selects and radio inputs
 
 Resolved 2026-08-01. The `users-and-permissions` chapter already presents

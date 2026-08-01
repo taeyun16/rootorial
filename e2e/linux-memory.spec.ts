@@ -26,25 +26,33 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function collectConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 async function completeMemoryLab(page: TestPage) {
   const lab = page.locator(".virtual-memory-lab");
-  const prediction = lab.getByRole("combobox", { name: "접근 결과 예측" });
+  const prediction = lab.getByRole("group", { name: "결과 예측" });
   const run = lab.getByRole("button", { name: "CPU 접근 실행·판정" });
 
-  await prediction.selectOption("mapped");
+  await prediction.getByRole("button", { name: "mapped", exact: true }).click();
   await run.click();
   await expect(lab.locator(".memory-live-feedback")).toContainText("예측이 맞았습니다");
   await expect(lab.locator(".memory-evidence .is-complete")).toHaveCount(2);
 
   await lab.getByRole("button", { name: "2. COW 쓰기" }).click();
-  await prediction.selectOption("cow-copy");
+  await prediction.getByRole("button", { name: "COW copy + resume", exact: true }).click();
   await run.click();
   await expect(lab.locator(".memory-live-feedback")).toContainText("자식 전용 프레임");
   await expect(lab.locator(".memory-isolation-proof")).toContainText("격리 증명");
   await expect(lab.locator(".memory-evidence .is-complete")).toHaveCount(4);
 
   await lab.getByRole("button", { name: "3. demand page" }).click();
-  await prediction.selectOption("demand-zero");
+  await prediction.getByRole("button", { name: "demand-zero + resume", exact: true }).click();
   await run.click();
   await expect(lab.locator(".memory-live-feedback")).toContainText("private zero-filled page 할당");
   await expect(lab.locator(".memory-evidence .is-complete")).toHaveCount(5);
@@ -68,8 +76,10 @@ async function completeMemoryIncidents(page: TestPage) {
   await expect(translation).toHaveClass(/is-correct/);
 
   const tlb = incidents.nth(1);
-  await tlb.getByRole("combobox", { name: "TLB 사건 PTE 상태" }).selectOption("present");
-  await tlb.getByRole("combobox", { name: "TLB miss 다음 동작" }).selectOption("page-table-walk");
+  await tlb.getByRole("group", { name: "PTE" })
+    .getByRole("button", { name: "present", exact: true }).click();
+  await tlb.getByRole("group", { name: "다음 동작" })
+    .getByRole("button", { name: "page-table walk + fill" }).click();
   await tlb.getByRole("button", { name: "trace 실행·진단" }).click();
   await expect(tlb).toHaveClass(/is-correct/);
 
@@ -84,7 +94,8 @@ async function completeMemoryIncidents(page: TestPage) {
   const maps = incidents.nth(3);
   await maps.getByRole("spinbutton", { name: "maps 사건 mapped page 수" }).fill("6");
   await maps.getByRole("spinbutton", { name: "maps 사건 resident page 수" }).fill("3");
-  await maps.getByRole("combobox", { name: "maps와 residency 결론" }).selectOption("mapped-not-resident");
+  await maps.getByRole("group", { name: "결론" })
+    .getByRole("button", { name: "mapping과 residency는 별도" }).click();
   await maps.getByRole("button", { name: "수치 감사·진단" }).click();
   await expect(maps).toHaveClass(/is-correct/);
   await expect(page.locator(".memory-debug-progress strong")).toHaveText("4 / 4");
@@ -93,6 +104,7 @@ async function completeMemoryIncidents(page: TestPage) {
 test("completes translation, four incidents, and concepts in the Korean admin draft preview", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = collectConsoleErrors(page);
 
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
@@ -108,22 +120,41 @@ test("completes translation, four incidents, and concepts in the Korean admin dr
 
   const lab = page.locator(".virtual-memory-lab");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
-  await lab.getByRole("combobox", { name: "접근 결과 예측" }).selectOption("protection-fault");
+  await lab.getByRole("group", { name: "결과 예측" })
+    .getByRole("button", { name: "protection fault" }).click();
   await lab.getByRole("button", { name: "CPU 접근 실행·판정" }).click();
   await expect(lab.locator(".memory-live-feedback")).toHaveClass(/is-incorrect/);
   await expect(lab.locator(".memory-live-feedback")).toContainText("실제 결과는 mapped");
   await lab.getByRole("button", { name: "실습 초기화" }).click();
-  await expect(lab.getByRole("combobox", { name: "접근 결과 예측" })).toHaveValue("");
+  await expect(lab.getByRole("group", { name: "결과 예측" })
+    .getByRole("button", { name: "mapped", exact: true })).toHaveAttribute("aria-pressed", "false");
+  await expect(lab.getByRole("group", { name: "결과 예측" })
+    .getByRole("button", { name: "protection fault" })).toHaveAttribute("aria-pressed", "false");
   await expect(lab.locator(".memory-evidence .is-complete")).toHaveCount(0);
   await completeMemoryLab(page);
 
   await completeMemoryIncidents(page);
 
-  await page.locator('input[name="address-translation"][value="vpn-to-frame-offset-unchanged"]').check();
-  await page.locator('input[name="process-isolation"][value="same-va-can-map-different-frames"]').check();
-  await page.locator('input[name="page-fault"][value="tlb-miss-is-not-page-fault"]').check();
-  await page.locator('input[name="region-lifetime"][value="maps-shows-vmas-not-residency"]').check();
-  await page.locator('input[name="copy-on-write"][value="first-write-copies-that-page"]').check();
+  for (const answer of [
+    "가상 주소 전체가 frame 번호로 바뀜",
+    "각 프로세스 PTE를 봐야 하며 서로 다른 frame일 수 있음",
+    "page table walk 후 TLB를 채우고 접근 계속",
+    "각 page가 지금 물리 RAM에 resident인지",
+    "그 page만 복사해 자식 PTE를 새 frame으로 연결",
+  ]) {
+    await page.getByRole("button", { name: answer, exact: true }).click();
+  }
+  await page.getByRole("button", { name: "메모리 판정 확인하기" }).click();
+  await expect(page.locator(".concept-check-summary")).toContainText(
+    "주소 공간, VPN·offset, PTE present·권한, frame 순서로 다시 분리하세요",
+  );
+  await expect(page.locator(".concept-feedback-incorrect")).toContainText(
+    "VA를 page 크기로 나눠 VPN과 offset을 먼저 분리하세요",
+  );
+  await page.getByRole("button", {
+    name: "VPN을 frame으로 바꾸고 page offset은 유지",
+    exact: true,
+  }).click();
   await page.getByRole("button", { name: "메모리 판정 확인하기" }).click();
   await expect(page.getByText("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.")).toBeVisible();
 
@@ -131,6 +162,7 @@ test("completes translation, four incidents, and concepts in the Korean admin dr
   await expect(page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" })).toBeDisabled();
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
@@ -140,6 +172,7 @@ test("completes translation, four incidents, and concepts in the Korean admin dr
 test("keeps the English draft keyboard-usable at 390px without heavy runtime or public access", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = collectConsoleErrors(page);
 
   await signInAsAdmin(page);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -173,6 +206,16 @@ test("keeps the English draft keyboard-usable at 390px without heavy runtime or 
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
+  await expect(page.locator("select")).toHaveCount(0);
+
+  const targetSizes = await page.locator(
+    ".lesson-article button:not([disabled]), .lesson-article a[href], .lesson-article summary, .lesson-article input:not([disabled])",
+  ).evaluateAll((elements) => elements
+    .map((element) => element.getBoundingClientRect())
+    .filter(({ width, height }) => width > 0 && height > 0)
+    .map(({ width, height }) => ({ width, height })));
+  expect(targetSizes.length).toBeGreaterThan(0);
+  expect(targetSizes.every(({ width, height }) => width >= 44 && height >= 44)).toBe(true);
 
   const lab = page.locator(".virtual-memory-lab");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
@@ -180,8 +223,10 @@ test("keeps the English draft keyboard-usable at 390px without heavy runtime or 
   expect(await cowPreset.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
   await cowPreset.focus();
   await cowPreset.press("Enter");
-  await expect(lab.getByRole("combobox", { name: "Memory operation" })).toHaveValue("write");
-  await lab.getByRole("combobox", { name: "Access result prediction" }).selectOption("cow-copy");
+  await expect(lab.getByRole("group", { name: "Operation" })
+    .getByRole("button", { name: "write", exact: true })).toHaveAttribute("aria-pressed", "true");
+  await lab.getByRole("group", { name: "Predict result" })
+    .getByRole("button", { name: "COW copy + resume", exact: true }).click();
   const run = lab.getByRole("button", { name: "Run and evaluate CPU access" });
   await run.focus();
   await run.press("Enter");
@@ -190,7 +235,10 @@ test("keeps the English draft keyboard-usable at 390px without heavy runtime or 
   const reset = lab.getByRole("button", { name: "Reset lab" });
   await reset.focus();
   await reset.press("Enter");
-  await expect(lab.getByRole("combobox", { name: "Access result prediction" })).toHaveValue("");
+  await expect(lab.getByRole("group", { name: "Predict result" })
+    .getByRole("button", { name: "mapped", exact: true })).toHaveAttribute("aria-pressed", "false");
+  await expect(lab.getByRole("group", { name: "Predict result" })
+    .getByRole("button", { name: "COW copy + resume", exact: true })).toHaveAttribute("aria-pressed", "false");
 
   const debuggerLab = page.locator(".memory-debugger-lab");
   const resetIncidents = debuggerLab.getByRole("button", { name: "Reset all incidents" });
@@ -206,6 +254,7 @@ test("keeps the English draft keyboard-usable at 390px without heavy runtime or 
   expect(overflowingMemorySurfaces).toEqual([]);
 
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
