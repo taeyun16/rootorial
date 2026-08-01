@@ -6,6 +6,32 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-052 — Linux process E2E still targeted retired selects and radio inputs
+
+Resolved 2026-08-01. The `processes-and-signals` chapter already renders every
+finite alternative as a visible `aria-pressed` button, but its browser spec
+still used combobox selection for lifecycle and incident actions plus five
+native radio inputs for the concept check. The stale path could not exercise
+the current fork/exec, scheduler, signal, wait, incident, or completion flow.
+
+The spec now scopes choices to their named button groups, deliberately submits
+one wrong fork/exec prediction and one wrong concept answer, observes their
+adjacent explanations, and then completes the current flow. Both viewports
+record unexpected console errors; the 390×844 contract also asserts zero native
+selects and checks every visible enabled lesson button, link, disclosure, and
+text input against 44×44.
+
+The Codex in-app browser reproduced the Korean 1280×720 lifecycle through two
+children, terminal/out.log ticks, STOP→CONT, two TERM→Z transitions, and two
+waitpid collections, reaching all seven evidence checks. It also recovered one
+invalid wait action, solved all four incidents, and repaired a concept error to
+unlock all three completion outputs. The English 390×844 preview exposed 67
+visible enabled lesson targets with zero sub-44px targets, native selects,
+horizontal overflow, or console errors; the wrong incident remained adjacent
+to its explanation and reset to 0/4. The in-app keyboard injector did not
+dispatch Enter, so the existing keyboard assertion remains source-level until
+the Clerk-gated repository runner can execute it.
+
 ### CURR-051 — Linux boot E2E still targeted retired selects and four radio questions
 
 Resolved 2026-08-01. The `boot-to-shell` chapter had already replaced hidden

@@ -1696,3 +1696,18 @@ First slice implemented 2026-08-01:
   native selects, horizontal overflow, or console errors. The in-app keyboard
   injector did not dispatch Enter, so existing keyboard behavior remains
   source-covered until the Clerk-gated repository runner can execute it.
+- The next Linux Systems slice aligned `processes-and-signals` with its current
+  direct-button UI. Retired combobox/select operations and five radio inputs
+  were replaced by named button-group actions, a deliberate fork/exec failure,
+  all four incident chains, and a concept failure→repair. Desktop and mobile
+  now record console errors; mobile asserts zero native selects and 44×44 for
+  every visible enabled lesson button, link, disclosure, and text input. Signal
+  coverage is now console 15/32, 44px 22/32, and native-select-zero 24/32,
+  leaving 36 explicit targets.
+- The in-app browser reached all seven lifecycle evidence checks, separated PID
+  73 terminal output from PID 74 out.log output, solved four state incidents,
+  and unlocked all three completion outputs after a focused concept retry. At
+  390×844 all 67 visible enabled lesson targets passed 44×44, with zero native
+  selects, horizontal overflow, or console errors. Enter injection again did
+  not dispatch in the in-app browser, so the existing keyboard assertion is
+  kept as source-level evidence pending the Clerk-gated repository runner.
