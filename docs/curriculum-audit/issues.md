@@ -6,6 +6,26 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-061 — Namespace E2E targeted retired concept radios and omitted exhaustive target sizing
+
+Resolved 2026-08-01. The namespace chapter already presented its five concept
+questions as visible direct buttons, but its browser spec still checked retired
+native radio inputs. The English mobile path also lacked an executable 44×44
+contract over the complete current lesson control set.
+
+The concept helper now selects the five visible question groups and preserves a
+wrong-answer retry before recovery. The English 390×844 flow measures every
+visible enabled lesson button, link, disclosure, input, and textarea and fails
+if either dimension is below 44px.
+
+The in-app browser exercised all four ownership phases, every placement view,
+both loopback switches, all three predictions, every incident distractor and
+repair, all 15 concept options, individual and global resets, nine anchors, and
+both language directions. Korean desktop reached all three completion outputs;
+English mobile repeated the required path and exposed 53 enabled visible lesson
+targets with zero undersized targets, native selects, untranslated strings,
+page overflow, or console errors.
+
 ### CURR-060 — NAT E2E missed direct concepts and container-width clipping
 
 Resolved 2026-08-01. The NAT browser spec still selected retired concept radio

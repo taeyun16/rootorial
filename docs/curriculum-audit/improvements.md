@@ -1817,3 +1817,15 @@ First slice implemented 2026-08-01:
   desktop and mobile both report zero component overflow. English 390×844
   exposed 51 enabled targets with zero undersized targets, native selects,
   untranslated strings, overflow, or console errors.
+- The next Infrastructure slice refreshed `network-namespaces-and-boundaries`:
+  five retired concept-radio selectors now follow the visible direct-button
+  groups and preserve a focused failure/retry. English mobile now measures every
+  visible enabled lesson button, link, disclosure, input, and textarea against
+  44×44. Signal coverage is now 44px 28/32, leaving 17 explicit targets.
+- The in-app browser exercised all ownership phases, 18 placement transitions,
+  both loopback switches, every prediction, every incident distractor/repair,
+  all 15 concept options, resets, anchors, and both language directions. Korean
+  desktop reached all three completion outputs. English 390×844 exposed 53
+  enabled targets with zero undersized targets, native selects, untranslated
+  strings, page overflow, or console errors; the ownership command strip remains
+  an intentional, keyboard-addressable `overflow-x: auto` sequence.
