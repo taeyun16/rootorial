@@ -1866,3 +1866,15 @@ First slice implemented 2026-08-01:
   all 15 concept options, resets, anchors, help, locale switching, and the
   fail-closed public route. English 390×844 exposed 48 enabled targets with zero
   undersized targets, selects, untranslated strings, overflow, or errors.
+- The next Infrastructure slice refreshed `veth-bridges-and-routing`: retired
+  concept-radio selectors now follow the five visible direct-button groups and
+  retain a focused wrong interface-ownership retry. English mobile checks every
+  visible enabled lesson button, link, disclosure, input, and textarea against
+  44×44. Signal coverage is now 44px 32/32, leaving 13 explicit targets.
+- The in-app browser re-exercised every bridge/router topology alternative,
+  failed and repaired round trips, all incident choices, resets, all 15 concept
+  options, nine anchors, help, locale switching, and the fail-closed public
+  route. Completed desktop and 390×844 each exposed 65 enabled targets with
+  zero undersized targets, selects, untranslated strings, component/page
+  overflow, or visible runtime error state, so no UI or content mutation was
+  warranted.

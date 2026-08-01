@@ -6,6 +6,28 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-065 — Veth routing E2E targeted retired concept radios and omitted exhaustive target sizing
+
+Resolved 2026-08-02. The veth, bridge, and routing chapter already exposed its
+five concept questions as visible direct buttons, but its browser spec still
+checked five removed native radio inputs. The English mobile flow also lacked
+an executable 44×44 contract over every visible enabled lesson control.
+
+The concept helper now follows the five current localized button groups and
+preserves a wrong interface-ownership submission before recovery. English
+mobile measures every visible enabled lesson button, link, disclosure, input,
+and textarea.
+
+The in-app browser exercised every bridge and router placement, address, route,
+forwarding, listener, and prediction alternative; failed and repaired path
+runs; all eight incident choices; deterministic resets; all 15 concept choices;
+nine anchors; help and language controls; and the public 404 boundary. Korean
+desktop reached all four completion outputs. Completed 1280×720 and 390×844
+states each exposed 65 enabled visible lesson targets with zero undersized
+targets, native selects, untranslated strings, component/page overflow, or
+visible runtime error state. No new presentation or content defect was
+reproduced.
+
 ### CURR-064 — Service discovery map clipped inside the desktop workspace
 
 Resolved 2026-08-01. At a 1280×720 viewport the service-path visualization was
