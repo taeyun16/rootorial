@@ -6,6 +6,28 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-055 — Linux storage E2E still targeted retired selects and radio inputs
+
+Resolved 2026-08-01. The `storage-and-filesystems` chapter already renders the
+filesystem, incident, sequence, crash-contract, and concept choices as visible
+`aria-pressed` buttons, but its browser spec still used thirteen combobox
+selections and five native radio inputs. The stale path could not reproduce the
+current path-to-block, durability, incident, or completion flow.
+
+The spec now scopes every finite choice to its named button group, deliberately
+records one wrong block prediction and one wrong concept answer, and then
+completes the current retry flow. Both viewports collect unexpected console
+errors and explicitly assert zero native selects; the mobile contract retains
+representative 44×44 target checks for the prediction controls.
+
+The Codex in-app browser reproduced the Korean desktop path through all five
+path, link-lifetime, and crash-durability evidence checks, repaired all four
+filesystem incidents, and recovered the concept error to unlock all three
+completion outputs. The English 390×844 preview completed the underlay/reset
+and wrong-to-correct trace flow with zero native selects, horizontal overflow,
+untranslated strings, undersized visible enabled lesson targets, or console
+errors.
+
 ### CURR-054 — Linux memory E2E still targeted retired selects and radio inputs
 
 Resolved 2026-08-01. The `memory-and-virtual-addresses` chapter already renders

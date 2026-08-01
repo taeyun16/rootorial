@@ -1739,3 +1739,16 @@ First slice implemented 2026-08-01:
   lesson targets passed 44×44, with zero native selects, horizontal overflow,
   untranslated strings, or console errors; both reset paths returned to their
   deterministic initial states.
+- The next Linux Systems slice aligned `storage-and-filesystems` with its
+  current direct-button UI. Thirteen retired combobox/select operations and
+  five native radio inputs were replaced by named button-group actions, a
+  wrong block prediction, all four incident diagnoses, and a focused concept
+  retry. Desktop and mobile now record console errors and assert zero native
+  selects. Signal coverage is now console 18/32, 44px 24/32, and
+  native-select-zero 27/32, leaving 28 explicit targets.
+- The in-app browser reached all five path, hard-link, dirty-cache, and fsync
+  evidence checks, solved four storage incidents, and unlocked all three
+  chapter outputs after a concept retry. At 390×844 every visible enabled
+  lesson target passed 44×44, with zero native selects, horizontal overflow,
+  untranslated strings, or console errors; underlay, lab, and incident resets
+  returned to deterministic initial states.
