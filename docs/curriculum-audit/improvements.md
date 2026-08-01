@@ -1829,3 +1829,16 @@ First slice implemented 2026-08-01:
   enabled targets with zero undersized targets, native selects, untranslated
   strings, page overflow, or console errors; the ownership command strip remains
   an intentional, keyboard-addressable `overflow-x: auto` sequence.
+- The next Infrastructure slice refreshed `network-observability-and-capacity`:
+  retired concept-radio selectors now follow the five direct-button groups and
+  preserve a focused failure/retry. English mobile checks every visible enabled
+  lesson button, link, disclosure, input, and textarea against 44×44. Signal
+  coverage is now 44px 29/32, leaving 16 explicit targets.
+- The completed desktop packet-path map reproduced four columns inside a 359px
+  visualization container, with long boundary labels spilling up to 60px into
+  adjacent cards before the outer surface clipped them. Inline-size container
+  queries now select two columns for narrow desktop workspaces and one column
+  on mobile, while labels wrap visibly. The in-app browser exercised all
+  evidence choices, three capacity scenarios, incident distractors/repairs,
+  resets, 15 concept options, anchors, and locale switching; mobile retained
+  zero undersized targets, selects, untranslated strings, overflow, or errors.

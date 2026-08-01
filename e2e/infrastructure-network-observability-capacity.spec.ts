@@ -136,18 +136,28 @@ async function repairIncidents(page: TestPage, locale: "ko" | "en") {
   }
 }
 
-async function answerConcepts(page: TestPage, locale: "ko" | "en") {
-  const answers = [
-    'input[name="observation-scope"][value="probe-in-owning-namespace"]',
-    'input[name="counter-window"][value="same-interface-window-delta"]',
-    'input[name="capture-absence"][value="absence-is-scope-and-window-bound"]',
-    'input[name="limiting-resource"][value="highest-ratio-crossing-limit"]',
-    'input[name="queue-role"][value="queue-absorbs-bursts-not-sustained-overload"]',
-  ];
-  for (const selector of answers) await page.locator(selector).check();
-  await page.getByRole("button", {
+async function answerConcepts(page: TestPage, locale: "ko" | "en", retryFirst = false) {
+  const questions = page.locator(".concept-question");
+  const answers = locale === "ko"
+    ? [/app namespace 안에서 `ss`를 실행/, /같은 interface의 window 시작·끝 값을 비교/, /capture point·flow·window에서 관측되지 않음/, /한도를 넘은 가장 높은 demand\/capacity ratio/, /drop 시점을 늦추지만 throughput은 늘리지 않고 delay를 키울 수 있음/]
+    : [/Run `ss` inside the app namespace/, /Compare start and end values for the same interface and window/, /not observed at that capture point for that flow and window/, /highest demand-to-capacity ratio that crosses its limit/, /delays drops but does not add throughput and may increase delay/];
+  for (let index = 0; index < answers.length; index += 1) {
+    await questions.nth(index).getByRole("button", { name: answers[index] }).click();
+  }
+  const submit = page.getByRole("button", {
     name: locale === "ko" ? "관측·용량 판정 확인" : "Check observability and capacity decisions",
-  }).click();
+  });
+  if (retryFirst) {
+    await questions.nth(0).getByRole("button", {
+      name: locale === "ko" ? /host 출력은 모든 namespace의 socket을 합칩니다/ : /Host output combines sockets from every namespace/,
+    }).click();
+    await submit.click();
+    await expect(questions.nth(0)).toContainText(
+      locale === "ko" ? "host socket table은 app socket table이 아닙니다" : "The host socket table is not the app socket table",
+    );
+    await questions.nth(0).getByRole("button", { name: answers[0] }).click();
+  }
+  await submit.click();
 }
 
 function observabilityOverflow(page: TestPage) {
@@ -252,11 +262,12 @@ test("completes evidence, three capacity scenarios, incidents, and concepts in t
   await expect(lab.locator(".network-observability-lab-feedback")).toHaveClass(/is-success/);
 
   await repairIncidents(page, "ko");
-  await answerConcepts(page, "ko");
+  await answerConcepts(page, "ko", true);
   await expect(page.getByText("이해 확인 완료 — lab과 사건 완료 상태를 확인하세요.", { exact: true })).toBeVisible();
   await expect(page.locator(".network-observability-completion-checklist .is-complete")).toHaveCount(6);
   await expect(completion).toHaveAttribute("data-completion-ready", "true");
   await expect(completion).toBeDisabled();
+  expect(await observabilityOverflow(page)).toEqual([]);
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
   expect(consoleErrors).toEqual([]);
@@ -347,6 +358,24 @@ test("keeps the English draft keyboard-usable at 390px without overflow or untra
   await answerConcepts(page, "en");
   await expect(page.getByText("Concept check complete — now confirm the lab and incident states.", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Completion is disabled in preview" })).toHaveAttribute("data-completion-ready", "false");
+  const undersizedTargets = await page
+    .locator('.lesson-article button:not([disabled]), .lesson-article a[href], .lesson-article summary, .lesson-article input:not([disabled]), .lesson-article textarea:not([disabled])')
+    .evaluateAll((elements) => elements
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return style.visibility !== "hidden"
+          && style.display !== "none"
+          && rect.width > 0
+          && rect.height > 0
+          && (rect.width < 44 || rect.height < 44);
+      })
+      .map((element) => ({
+        label: element.textContent?.trim() || element.getAttribute("aria-label"),
+        width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height,
+      })));
+  expect(undersizedTargets).toEqual([]);
   expect(await observabilityOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();

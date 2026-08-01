@@ -6,6 +6,29 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-062 — Observability E2E missed direct concepts and container-width clipping
+
+Resolved 2026-08-01. The observability chapter already exposed its five concept
+questions as direct buttons, but its browser spec still selected retired native
+radio inputs and did not execute the 44×44 contract over all mobile controls.
+A fresh completed-state desktop pass also found the packet-path boundary grid
+holding four columns inside a 359px visualization container. Long labels spilled
+up to 60px into adjacent cards and were clipped by the visualization boundary.
+
+The concept helper now follows the five visible question groups and preserves a
+wrong observation-scope retry. English mobile measures every visible enabled
+lesson button, link, disclosure, input, and textarea. The visualization now
+responds to its own inline size, moving to two columns in narrow desktop
+containers and one column at mobile widths; boundary labels wrap visibly.
+
+The in-app browser exercised all 28 evidence scope and claim alternatives,
+every prediction and plan across the three capacity scenarios, failure and
+recovery in each scenario, all eight incident choices, evidence/scenario/
+incident resets, all 15 concept options, ten anchors, and both locale paths.
+Korean desktop reached six completion outputs. English 390×844 completed the
+required path with zero undersized targets, native selects, untranslated
+strings, component/page overflow, or console errors.
+
 ### CURR-061 — Namespace E2E targeted retired concept radios and omitted exhaustive target sizing
 
 Resolved 2026-08-01. The namespace chapter already presented its five concept
