@@ -6,6 +6,31 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-051 — Linux boot E2E still targeted retired selects and four radio questions
+
+Resolved 2026-08-01. The `boot-to-shell` chapter had already replaced hidden
+select boxes with visible direct-choice buttons and expanded its concept check
+to five questions, but the declared browser spec still used `selectOption()`
+and four native radio inputs. The stale contract could not reproduce the live
+prediction, repair, diagnosis, or completion flow.
+
+The spec now scopes every choice to its named button group, reproduces a wrong
+prediction before the correct recovery, repairs all four incidents, and answers
+all five current concept questions. It also records unexpected console errors
+on desktop and mobile, asserts zero native selects, and checks every visible
+enabled lesson button, link, and disclosure against the 44×44 mobile target
+contract.
+
+The Codex in-app browser reproduced the Korean 1280×720 failure→repair path to
+4/4 boot stages and all four diagnosis repairs, with zero console errors,
+native selects, or horizontal overflow. The English 390×844 preview exposed 70
+enabled visible lesson targets with zero targets below 44×44, native selects,
+overflow, or console errors; its wrong first diagnosis showed adjacent feedback
+and reset to 0/4 with no hidden selection. The current in-app keyboard injector
+again did not dispatch Enter, so that interaction remains source-covered rather
+than newly runtime-proven. Repository E2E execution remains blocked before the
+spec by the missing global Clerk publishable key.
+
 ### CURR-050 — Linux shell E2E still modeled a retired three-question radio gate
 
 Resolved 2026-08-01. The first Linux Systems chapter now uses the shared

@@ -1683,3 +1683,16 @@ First slice implemented 2026-08-01:
   overflow, console errors, and undersized core shell controls. Its keyboard
   injector did not deliver Enter to the text field, so the keyboard assertion
   remains source-level evidence pending repository Playwright execution.
+- The next Linux Systems slice aligned `boot-to-shell` with its current
+  direct-button UI: retired combobox/select calls and four radio answers were
+  replaced by named button-group interactions and all five concept answers.
+  Desktop and mobile flows now record console errors; mobile additionally
+  asserts zero native selects and the 44×44 contract for every visible enabled
+  lesson button, link, and disclosure. Signal coverage is now console 14/32,
+  44px 21/32, and native-select-zero 23/32, leaving 39 explicit targets.
+- The in-app browser reproduced a wrong boot prediction, the correct recovery
+  to 4/4 stages, a wrong diagnosis, all four repairs, and a deterministic reset.
+  At 390×844 all 70 enabled visible lesson targets passed 44×44, with zero
+  native selects, horizontal overflow, or console errors. The in-app keyboard
+  injector did not dispatch Enter, so existing keyboard behavior remains
+  source-covered until the Clerk-gated repository runner can execute it.
