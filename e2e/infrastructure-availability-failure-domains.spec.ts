@@ -6,6 +6,14 @@ const publicPath = "/curricula/infrastructure-design/chapters/availability-and-f
 type TestPage = Parameters<typeof signInTestUser>[0];
 async function signInAsAdmin(page: TestPage) { test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required."); await signInTestUser(page, process.env.E2E_ADMIN_EMAIL!); }
 
+function watchConsoleErrors(page: TestPage) {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  return errors;
+}
+
 async function choose(lab: Locator, controlId: string, value: string) {
   await lab.locator(`[data-control-id="${controlId}"] [data-choice-value="${value}"]`).click();
 }
@@ -40,10 +48,28 @@ async function repairIncidents(page: TestPage) {
   for (let index = 0; index < 4; index += 1) { const card = cards.nth(index); await card.locator(`[data-control-id^="availability-incident-"] [data-choice-value="${repairs[index]}"]`).click(); await card.getByRole("button", { name: /failure trace/ }).click(); await expect(card.locator(".availability-feedback")).toHaveClass(/is-success/); }
 }
 
-async function answerConcepts(page: TestPage, locale: "ko" | "en") {
-  const answers = [["failure-domain-diversity", "replicas-must-span-failure-domains"], ["gateway-diversity", "front-door-remains-correlated"], ["failover-budget", "bound-recovery-and-request-loss"], ["dependency-budget", "optional-dependency-has-degraded-mode"], ["availability-math", "served-over-total-is-99-6"]];
-  for (const [name, value] of answers) await page.locator(`input[name="${name}"][value="${value}"]`).check();
-  await page.getByRole("button", { name: locale === "ko" ? "가용성 판단 확인" : "Check availability decisions" }).click();
+async function answerConcepts(page: TestPage, locale: "ko" | "en", retryFirst = false) {
+  const questions = page.locator(".concept-question");
+  const answers = locale === "ko"
+    ? [/replica가 서로 다른 failure domain/, /front door가 하나의 correlated failure/, /recovery 시간과 request loss/, /optional dependency에 degraded mode/, /served \/ total = 99\.6%/]
+    : [/replicas must span failure domains/, /front door remains one correlated failure/, /explicitly bound recovery time/, /give the optional dependency a degraded mode/, /served \/ total = 99\.6%/];
+  for (let index = 0; index < answers.length; index += 1) {
+    await questions.nth(index).getByRole("button", { name: answers[index] }).click();
+  }
+  const submit = page.getByRole("button", {
+    name: locale === "ko" ? "가용성 판단 확인" : "Check availability decisions",
+  });
+  if (retryFirst) {
+    await questions.nth(0).getByRole("button", {
+      name: locale === "ko" ? /replica 수만큼 독립성이 증가/ : /independence grows with replica count/,
+    }).click();
+    await submit.click();
+    await expect(questions.nth(0)).toContainText(
+      locale === "ko" ? "zone 하나를 제거한 뒤" : "Remove one zone and retrace",
+    );
+    await questions.nth(0).getByRole("button", { name: answers[0] }).click();
+  }
+  await submit.click();
 }
 
 function availabilityOverflow(page: TestPage) {
@@ -61,6 +87,7 @@ async function expectNoAvailabilityOverflow(page: TestPage) {
 
 test("completes the Korean draft availability lab, incidents, and concepts", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
   expect((await page.goto(previewPath))?.status()).toBe(200);
@@ -79,7 +106,7 @@ test("completes the Korean draft availability lab, incidents, and concepts", asy
   await completeMode(lab, "ko", "recovery");
   await expect(lab.locator(".availability-lab-header > strong")).toHaveText("2 / 2");
   await repairIncidents(page);
-  await answerConcepts(page, "ko");
+  await answerConcepts(page, "ko", true);
   await expect(page.locator(".network-completion-checklist .is-complete")).toHaveCount(4);
   await expect(completion).toHaveAttribute("data-completion-ready", "true");
   await expect(completion).toBeDisabled();
@@ -105,11 +132,13 @@ test("completes the Korean draft availability lab, incidents, and concepts", asy
   await expect(completion).toHaveAttribute("data-completion-ready", "false");
 
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
+  expect(consoleErrors).toEqual([]);
   expect((await page.goto(publicPath))?.status()).toBe(404);
 });
 
 test("keeps the English availability draft usable at 390px", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   await signInAsAdmin(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -127,12 +156,34 @@ test("keeps the English availability draft usable at 390px", async ({ page }) =>
   await expect(lab.locator(".availability-lab-header > strong")).toHaveText("2 / 2");
   await expectNoAvailabilityOverflow(page);
 
-  await lab.getByRole("button", { name: "Reset current mode" }).click();
+  const reset = lab.getByRole("button", { name: "Reset current mode" });
+  await reset.focus();
+  await reset.press("Enter");
+  await expect(reset).toBeFocused();
   await expect(visual).toHaveAttribute("data-grade-state", "not-run");
   await expect(lab.locator(".availability-lab-header > strong")).toHaveText("1 / 2");
   await expect(lab.locator('[data-control-id="availability-prediction"] [aria-pressed="true"]')).toHaveCount(0);
   await expectNoAvailabilityOverflow(page);
 
   await answerConcepts(page, "en");
+  const undersizedTargets = await page
+    .locator('.lesson-article button:not([disabled]), .lesson-article a[href], .lesson-article summary, .lesson-article input:not([disabled]), .lesson-article textarea:not([disabled])')
+    .evaluateAll((elements) => elements
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return style.visibility !== "hidden"
+          && style.display !== "none"
+          && rect.width > 0
+          && rect.height > 0
+          && (rect.width < 44 || rect.height < 44);
+      })
+      .map((element) => ({
+        label: element.textContent?.trim() || element.getAttribute("aria-label"),
+        width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height,
+      })));
+  expect(undersizedTargets).toEqual([]);
+  expect(consoleErrors).toEqual([]);
   expect((await page.goto(`${publicPath}?lang=en`))?.status()).toBe(404);
 });

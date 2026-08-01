@@ -1791,3 +1791,16 @@ First slice implemented 2026-08-01:
   Korean desktop and English 390×844. Mobile exposed 76 visible enabled lesson
   targets with zero sub-44px targets, native selects, untranslated strings,
   horizontal overflow, or console errors.
+- The next Infrastructure slice refreshed `availability-and-failure-domains`:
+  five retired concept-radio selectors now follow the visible direct-button
+  groups, reset carries a keyboard focus/Enter contract, both viewports capture
+  console errors, and English mobile checks every enabled visible lesson target
+  against 44×44. Signal coverage is now keyboard 32/32, console 21/32, and 44px
+  26/32, leaving 20 explicit targets.
+- The in-app browser exercised every placement, prediction, 20/90-second
+  recovery budget, incident distractor/repair, concept option, reset, anchor,
+  and language switch. A newly reproduced four-pixel desktop overflow came from
+  the long `recommendations` node identifier; wrapping that identifier reduced
+  the map from 490/486 to 486/486 without clipping it. English 390×844 exposed
+  43 enabled targets with zero undersized targets, native selects, untranslated
+  strings, overflow, or console errors.

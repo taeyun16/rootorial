@@ -6,6 +6,28 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-059 — Availability E2E missed current buttons and a desktop text overflow
+
+Resolved 2026-08-01. The availability chapter's browser spec still selected
+retired concept radio inputs and did not execute the keyboard, console, or
+exhaustive 44×44 contracts recorded by the interaction inventory. A fresh
+1280×720 in-app-browser pass also found `recommendations` extending the Zone C
+card and giving `.availability-map` four pixels of horizontal overflow.
+
+The concept helper now uses the five visible direct-button groups and preserves
+a wrong-answer retry. The English mobile path activates reset with the keyboard,
+measures every visible enabled lesson button, link, disclosure, input, and
+textarea, and both viewports collect unexpected console errors. Allowing the
+long node identifier to wrap removes the desktop overflow without hiding it.
+
+The in-app browser exercised every placement alternative, both predictions,
+both failover extremes, both lab modes, every incident repair and distractor,
+all 15 concept options, resets, nine anchors, and the language switch. Korean
+desktop and English 390×844 reached 2/2 modes, 4/4 incidents, five concepts, and
+all four completion outputs. Mobile exposed 43 enabled visible lesson targets
+with zero undersized targets, native selects, untranslated strings, horizontal
+overflow, or console errors.
+
 ### CURR-058 — Namespace-platform capstone lacked an executable mobile target-size contract
 
 Resolved 2026-08-01. The `assemble-a-namespace-platform` matrix already carried

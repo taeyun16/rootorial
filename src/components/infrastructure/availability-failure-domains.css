@@ -23,6 +23,7 @@
 .availability-zone { min-width: 0; padding: .8rem; border: 1px solid #526174; }
 .availability-zone > h5 { margin-top: 0; font: 800 .74rem ui-monospace, monospace; }
 .availability-zone article { display: grid; gap: .2rem; margin-top: .55rem; padding: .65rem; border-left: 3px solid #79bf96; background: rgba(5, 15, 25, .5); }
+.availability-zone article > strong { min-width: 0; overflow-wrap: anywhere; }
 .availability-zone[data-zone="a"] article small { color: #ff8a80; }
 .availability-zone article > span { color: #9ecfb2; font: 700 .62rem ui-monospace, monospace; }
 .availability-placement-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 1rem 0; padding: 1rem; border: 1px solid #455266; background: rgba(5, 15, 25, .4); }
