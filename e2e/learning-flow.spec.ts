@@ -1,5 +1,13 @@
 import { clerk } from "@clerk/testing/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+function watchConsoleErrors(page: Page) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
 
 test("starts the localized Three.js lesson preview from the landing page", async ({ page }) => {
   await page.goto("/?lang=en");
@@ -24,6 +32,7 @@ test("starts the localized Three.js lesson preview from the landing page", async
 });
 
 test("keeps the English chapter free of untranslated Korean UI", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   await page.goto("/?lang=en");
   await page.getByRole("link", { name: "Transformers from the Ground Up" }).click();
   await page.getByRole("link", { name: "Start chapter one" }).click();
@@ -51,9 +60,11 @@ test("keeps the English chapter free of untranslated Korean UI", async ({ page }
   });
 
   expect(untranslated).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("runs Python and persists anonymous chapter progress", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   await page.goto("/curricula/transformer-from-zero/chapters/vectors");
   await clerk.loaded({ page });
 
@@ -123,9 +134,11 @@ test("runs Python and persists anonymous chapter progress", async ({ page }) => 
   await page.reload();
   await clerk.loaded({ page });
   await expect(page.getByText("챕터 완료", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the vectors practice usable on a 390px reduced-motion viewport", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/curricula/transformer-from-zero/chapters/vectors?lang=en");
@@ -150,9 +163,11 @@ test("keeps the vectors practice usable on a 390px reduced-motion viewport", asy
   await page.getByRole("button", { name: "Reset missions" }).click();
   await expect(firstMission).not.toHaveClass(/is-correct|is-incorrect/);
   await expect(page.locator(".shape-debug-progress strong")).toHaveText("0 / 3");
+  expect(consoleErrors).toEqual([]);
 });
 
 test("retries and completes the independent vector practice without hidden choices", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/curricula/transformer-from-zero/chapters/vectors?lang=en");
 
@@ -220,4 +235,5 @@ test("retries and completes the independent vector practice without hidden choic
 
   await practice.getByRole("button", { name: "Reset all three challenges" }).click();
   await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });

@@ -6,6 +6,23 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-066 — Vectors E2E omitted console monitoring
+
+Resolved 2026-08-02. The Vectors chapter already had separate English,
+Python-runtime, reduced-motion mobile, and independent-practice browser flows,
+but none failed when the browser emitted an unexpected console error. That left
+its otherwise exercised code and retry paths outside the registry-derived
+console contract.
+
+All four chapter flows now collect console errors before navigation and assert
+that none were emitted after their final learner-visible result. The Codex
+in-app browser separately ran both English NumPy cells, repaired the first
+independent reshape contract and completed the practice deck to 3/3. Korean
+390×844 reproduced a wrong Shape Detective prediction, repaired it, and reset
+the mission. Both viewports reported zero console warnings/errors; mobile also
+reported zero native selects and page overflow. No presentation or content
+mutation was warranted.
+
 ### CURR-065 — Veth routing E2E targeted retired concept radios and omitted exhaustive target sizing
 
 Resolved 2026-08-02. The veth, bridge, and routing chapter already exposed its

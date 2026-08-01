@@ -1878,3 +1878,13 @@ First slice implemented 2026-08-01:
   zero undersized targets, selects, untranslated strings, component/page
   overflow, or visible runtime error state, so no UI or content mutation was
   warranted.
+- The next Transformer inventory slice added console-error monitoring to all
+  four Vectors chapter flows: English localization, the two-cell Python and
+  completion journey, reduced-motion mobile retry/reset, and the independent
+  three-challenge practice. Console coverage is now 23/32, leaving 12 explicit
+  browser-spec targets.
+- The in-app browser ran both English NumPy cells, repaired the first reshape
+  contract, and completed independent practice to 3/3. Korean 390×844 reproduced
+  a Shape Detective error, recovered, and reset to 0/3. Both viewports retained
+  zero console warnings/errors; mobile also had zero native selects and page
+  overflow, so no learner-interface mutation was warranted.
