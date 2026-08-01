@@ -1666,3 +1666,20 @@ First slice implemented 2026-08-01:
   for all six Linux Networking chapters, moves native-select-zero coverage to
   21/32, and reduces the remaining inventory from 46 to 45 targets without
   changing the chapter UI or broadening the prior interaction claim.
+- The following bounded slice closed all three source-signal gaps for the
+  earliest Linux Systems chapter, `shell-and-filesystem`. Its existing
+  deterministic shell form is now submitted with Enter for the first required
+  command, the end-to-end flow records unexpected console errors, and the
+  390×844 contract explicitly asserts zero native selects. This moves keyboard
+  coverage to 31/32, console coverage to 13/32, native-select-zero coverage to
+  22/32, and reduces the remaining inventory from 45 to 42 targets without
+  changing the learner interface.
+- That replay also exposed a stale downstream contract: the browser spec still
+  expected the retired three-radio concept check while the live chapter uses
+  five direct-choice buttons. The flow now covers all five current questions,
+  one wrong-answer explanation, a focused repair, unlock, completion, and local
+  persistence. The in-app browser completed that current public flow at
+  1280×720 and measured the English 390×844 preview at zero native selects,
+  overflow, console errors, and undersized core shell controls. Its keyboard
+  injector did not deliver Enter to the text field, so the keyboard assertion
+  remains source-level evidence pending repository Playwright execution.

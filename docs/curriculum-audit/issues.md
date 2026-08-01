@@ -6,6 +6,32 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-050 — Linux shell E2E still modeled a retired three-question radio gate
+
+Resolved 2026-08-01. The first Linux Systems chapter now uses the shared
+five-question direct-button concept check, while its declared browser spec
+still looked for three native radio controls and copy that promised three
+questions. The live chapter therefore could not reach the assertions for
+retry, completion, persistence, or navigation in that automated flow.
+
+The spec now selects all five visible button answers, deliberately submits one
+wrong path rule, observes the adjacent explanation, repairs that answer, and
+then checks the current completion and persistence states. The same flow also
+submits the first shell command with Enter, records unexpected console errors,
+and the 390×844 flow explicitly asserts zero native selects.
+
+The Codex in-app browser reproduced the current Korean public flow at
+1280×720: five deterministic commands reached 5/5, the protected-file command
+showed `Permission denied`, one wrong answer kept completion locked with its
+specific explanation, the corrected answer unlocked completion, and progress
+was saved. The English preview at 390×844 had zero native selects, horizontal
+overflow, console errors, or sub-44px reset/run/file/example controls. The
+in-app browser keyboard injector did not dispatch Enter to this text field, so
+the new Playwright keyboard assertion is recorded as source-level coverage
+until repository execution is available; the full browser path was completed
+by clicking Run. Repository E2E execution remains blocked before the spec by
+the missing global Clerk publishable key.
+
 ### CURR-049 — Five Linux Networking chapters point to an unrelated E2E route
 
 Resolved 2026-08-01. The first registry-derived interaction inventory found that

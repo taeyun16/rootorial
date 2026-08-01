@@ -3,8 +3,12 @@ import { expect, test } from "@playwright/test";
 test("moves from the Linux roadmap through the sample chapter and persists progress", async ({ page }) => {
   test.setTimeout(120_000);
   const bootAssetRequests: string[] = [];
+  const consoleErrors: string[] = [];
   page.on("request", (request) => {
     if (request.url().includes("/api/experiments/linux-assets/")) bootAssetRequests.push(request.url());
+  });
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
   });
 
   await page.goto("/");
@@ -22,20 +26,21 @@ test("moves from the Linux roadmap through the sample chapter and persists progr
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "셸에서 첫 파일까지" })).toBeVisible({ timeout: 30_000 });
   const completeButton = page.getByRole("button", { name: /이 챕터 완료하기/ });
   await expect(completeButton).toBeDisabled();
-  await expect(page.getByText("필수 실습 다섯 과제와 이해 확인 세 문제를 모두 마치면 완료할 수 있습니다.")).toBeVisible();
+  await expect(page.getByText("필수 실습 다섯 과제와 이해 확인 다섯 문제를 모두 마치면 완료할 수 있습니다.")).toBeVisible();
 
   const commandInput = page.getByRole("textbox", { name: "교육용 Linux 명령 입력" });
   const runCommand = page.getByRole("button", { name: "실행", exact: true });
-  const execute = async (command: string) => {
+  const execute = async (command: string, activation: "click" | "keyboard" = "click") => {
     await expect(async () => {
       await commandInput.fill(command);
       await expect(runCommand).toBeEnabled({ timeout: 1_000 });
     }).toPass({ timeout: 30_000 });
-    await runCommand.click();
+    if (activation === "keyboard") await commandInput.press("Enter");
+    else await runCommand.click();
     await expect(commandInput).toHaveValue("");
   };
+  await execute("pwd", "keyboard");
   for (const command of [
-    "pwd",
     "cat /etc/os-release",
     "mkdir -p lab",
     'echo "absolute paths start at /" > lab/notes.txt',
@@ -46,19 +51,21 @@ test("moves from the Linux roadmap through the sample chapter and persists progr
 
   await expect(page.getByRole("status", { name: "5/5 개 과제 완료" })).toBeVisible();
   await expect(page.getByText("echo: /etc/os-release: Permission denied", { exact: true })).toBeVisible();
-  await expect(page.getByText("필수 실습을 통과했습니다. 이해 확인 세 문제를 맞혀 주세요.")).toBeVisible();
+  await expect(page.getByText("필수 실습을 통과했습니다. 이해 확인 다섯 문제를 맞혀 주세요.")).toBeVisible();
 
   await execute("clear");
   await expect(page.getByRole("status", { name: "5/5 개 과제 완료" })).toBeVisible();
 
-  await page.getByRole("radio", { name: ".", exact: true }).check();
-  await page.getByRole("radio", { name: "/home/student/readme.txt", exact: true }).check();
-  await page.getByRole("radio", { name: "student가 root 소유 파일을 쓸 수 없어서", exact: true }).check();
+  await page.getByRole("button", { name: ".", exact: true }).click();
+  await page.getByRole("button", { name: "/home/student/readme.txt", exact: true }).click();
+  await page.getByRole("button", { name: "student가 root 소유 파일을 쓸 수 없어서", exact: true }).click();
+  await page.getByRole("button", { name: "/var/log/app.log", exact: true }).click();
+  await page.getByRole("button", { name: "현재 자격으로 해당 경로의 연산이 거부됨", exact: true }).click();
   await page.getByRole("button", { name: "답 확인하기" }).click();
   await expect(page.getByText("아직 연결되지 않은 규칙이 있습니다. 설명을 읽고 다시 답해 보세요.")).toBeVisible();
   await expect(completeButton).toBeDisabled();
 
-  await page.getByRole("radio", { name: "/", exact: true }).check();
+  await page.getByRole("button", { name: "/", exact: true }).click();
   await page.getByRole("button", { name: "답 확인하기" }).click();
   await expect(page.getByText("이해 확인 완료 — 이제 실습 완료 상태를 확인하세요.")).toBeVisible();
   await expect(completeButton).toBeEnabled();
@@ -75,6 +82,7 @@ test("moves from the Linux roadmap through the sample chapter and persists progr
   await expect(page.getByRole("link", { name: /학습 이어가기/ }))
     .toHaveAttribute("href", "/curricula/linux-systems");
   expect(bootAssetRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("renders the English sample chapter without untranslated lesson UI", async ({ page }) => {
@@ -121,6 +129,7 @@ test("keeps the Linux sample usable on a narrow mobile viewport", async ({ page 
   await page.goto("/curricula/linux-systems/chapters/shell-and-filesystem");
   const commandInput = page.getByRole("textbox", { name: "교육용 Linux 명령 입력" });
   await expect(commandInput).toBeVisible();
+  await expect(page.locator("select")).toHaveCount(0);
   await expect(async () => {
     await commandInput.click();
     await expect(commandInput).toBeFocused({ timeout: 1_000 });
