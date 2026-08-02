@@ -1910,3 +1910,13 @@ First slice implemented 2026-08-01:
   XOR to 4/4; all 95 visible enabled lesson targets met 44×44, with zero page
   overflow, native selects, or console warnings/errors, so no UI or content
   mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring to all
+  three Training chapter flows: Korean completion, English 390×844
+  keyboard/localization, and the independent three-challenge practice. Console
+  coverage is now 26/32, leaving 9 explicit browser-spec targets.
+- The in-app browser reproduced and corrected the required mini-batch direction,
+  repaired the Softmax class axis, traced Adam through the tail batch, and
+  recovered the first independent gradient contract. Korean 390×844 repeated
+  the required failure→correction flow; all 70 visible enabled lesson targets
+  met 44×44, with zero page overflow, native selects, or console warnings/errors,
+  so no UI or content mutation was warranted.

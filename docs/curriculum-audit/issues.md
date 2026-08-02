@@ -6,6 +6,22 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-069 — Training E2E omitted console monitoring
+
+Resolved 2026-08-02. The Training chapter already separated its full Korean
+completion, English mobile keyboard/localization, and independent-practice
+journeys into three browser flows, but none failed when the browser emitted an
+unexpected console error.
+
+All three flows now collect console errors before navigation and assert an
+empty error list after their final learner-visible result. The Codex in-app
+browser separately reproduced and corrected the required mini-batch direction,
+repaired the Softmax class axis, traced one Adam epoch through the tail batch,
+and recovered the first independent gradient contract. Korean 390×844 repeated
+the required prediction failure and correction; all 70 visible enabled lesson
+targets met 44×44, with zero page overflow, native selects, or console
+warnings/errors. No presentation or curriculum-content mutation was warranted.
+
 ### CURR-068 — Neural Networks E2E omitted console monitoring
 
 Resolved 2026-08-02. The Neural Networks chapter already split its full Korean

@@ -40,6 +40,14 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 async function runBatch(
   lab: ReturnType<TestPage["locator"]>,
   prediction: string,
@@ -52,6 +60,7 @@ async function runBatch(
 
 test("completes mini-batch training, four repairs, and concepts in the Korean admin draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -141,10 +150,12 @@ test("completes mini-batch training, four repairs, and concepts in the Korean ad
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with no heavy runtime or public access", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -240,9 +251,11 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("retries and completes the independent Training practice on fresh batches", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   await signInAsAdmin(page);
   await page.setViewportSize({ width: 390, height: 844 });
   const response = await page.goto(`${previewPath}?lang=en`);
@@ -330,4 +343,5 @@ test("retries and completes the independent Training practice on fresh batches",
     name: "Reset all three challenges",
   }).click();
   await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });
