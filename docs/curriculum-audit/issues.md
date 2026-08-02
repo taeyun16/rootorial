@@ -6,6 +6,28 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-075 — Mini Transformer E2E omitted console/native-select contracts and one disclosure missed 44px
+
+Resolved 2026-08-02. The Mini Transformer chapter already separated full
+Korean completion, English 390×844 keyboard/localization, and independent-
+practice journeys into three browser flows, but none failed on unexpected
+console errors or explicitly asserted that the learner surface contained no
+native select. The advanced-generation-settings disclosure also exposed a
+32px-high target at both desktop and mobile widths.
+
+All three flows now collect console errors before navigation and assert an empty
+error list after their final learner-visible result; every flow also asserts
+zero native select. The mobile contract includes the disclosure in its 44×44
+checks, and the chapter stylesheet gives that summary a 48px minimum height and
+visible keyboard focus. The Codex in-app browser corrected the BOS boundary,
+recorded all five end-to-end numeric traces, ran the shifted-loss NumPy ledger,
+repaired generation prefix lengths from 3/3/3/3/3 to 3/4/5/6/7, and recovered
+the first independent causal-prefix contract from errors 2.731864/1.808742 to
+zero. Korean 390×844 repeated the required failure→correction flow. The in-app
+keyboard injector focused but did not activate the native summary with Enter or
+Space, so keyboard activation remains covered by the declared browser spec
+rather than claimed as current in-app proof.
+
 ### CURR-074 — Transformer Block E2E omitted console/native-select contracts and one disclosure missed 44px
 
 Resolved 2026-08-02. The Transformer Block chapter already separated full

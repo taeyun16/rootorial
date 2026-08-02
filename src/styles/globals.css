@@ -8779,15 +8779,22 @@ textarea:focus-visible {
 .mini-transformer-workbench button,
 .mini-transformer-workbench select,
 .mini-transformer-workbench input,
+.mini-transformer-workbench summary,
 .mini-transformer-debugger-lab button,
 .mini-transformer-debugger-lab select {
   min-height: 48px;
   max-inline-size: 100%;
 }
 
+.mini-transformer-workbench summary {
+  display: flex;
+  align-items: center;
+}
+
 .mini-transformer-workbench button:focus-visible,
 .mini-transformer-workbench select:focus-visible,
 .mini-transformer-workbench input:focus-visible,
+.mini-transformer-workbench summary:focus-visible,
 .mini-transformer-debugger-lab button:focus-visible,
 .mini-transformer-debugger-lab select:focus-visible {
   outline: 3px solid #624f9a;

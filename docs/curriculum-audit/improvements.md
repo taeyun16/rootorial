@@ -1979,3 +1979,15 @@ First slice implemented 2026-08-01:
   disclosure; it now has a 48px minimum height and visible focus. Both
   viewports then had zero page overflow, native selects, sub-44px enabled
   targets, or console warnings/errors.
+- The final Transformer inventory slice added console-error monitoring and
+  explicit native-select-zero assertions to all three Mini Transformer flows:
+  Korean completion, English 390×844 keyboard/localization, and independent
+  practice. Console and native-select-zero coverage are now both 32/32, leaving
+  zero explicit browser-spec coverage targets.
+- The in-app browser corrected a wrong BOS prediction, recorded all five
+  end-to-end numeric traces, lowered the NumPy LM-head loss 1.655967→1.552597,
+  repaired prefix lengths 3/3/3/3/3→3/4/5/6/7, and recovered the first
+  independent causal-prefix contract from 2.731864/1.808742 errors to zero.
+  Korean 390×844 repeated failure→correction and exposed the remaining 32px
+  advanced-generation-settings disclosure; it now has a 48px minimum height
+  and visible focus.

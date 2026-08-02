@@ -40,6 +40,14 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 async function miniTransformerOverflow(page: TestPage) {
   return page.locator(
     ".mini-transformer-chapter-shell, .mini-transformer-boundary-grid, .mini-transformer-formula-stack, .mini-transformer-flow, .mini-transformer-shift-example, .mini-transformer-decode-steps, .mini-transformer-workbench, .mini-transformer-preset-row, .mini-transformer-control-panel, .mini-transformer-run-actions, .mini-transformer-workbench .step-explorer, .mini-transformer-stage-panel, .mini-transformer-matrix-stack, .mini-transformer-matrix-stack .array-diagram, .mini-transformer-matrix-stack .array-diagram-scroll, .mini-transformer-stat-grid, .mini-transformer-generation-trace, .mini-transformer-evidence, .mini-transformer-python-bridge, .mini-transformer-python-bridge .notebook-cell, .mini-transformer-debugger-lab, .mini-transformer-debug-progress, .mini-transformer-debug-grid, .mini-transformer-debug-card, .mini-transformer-debug-actions, .mini-transformer-debug-feedback, .mini-transformer-practice-deck, .mini-transformer-practice-deck .practice-workspace, .mini-transformer-practice-deck .practice-support-code, .mini-transformer-practice-deck .practice-learner-controls, .mini-transformer-practice-deck .practice-result, .mini-transformer-transfer-task, .mini-transformer-completion-checklist, .mini-transformer-chapter-shell .math-formula-display",
@@ -95,6 +103,7 @@ async function completeChallenge({
 test("completes five model challenges, four repairs, and concepts in the Korean draft preview", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
@@ -109,6 +118,7 @@ test("completes five model challenges, four repairs, and concepts in the Korean 
   await expect(page.getByText("관리자 미리보기", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "공개 URL 확인" })).toHaveAttribute("href", publicPath);
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "Mini Transformer", exact: true })).toBeVisible();
+  expect(await page.locator(".lesson-article select").count()).toBe(0);
   await expect(page.getByText("필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · COMPLETE MODEL REPAIR CONSOLE", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "shifted loss와 generation controller를 실제 NumPy로 분리해 검증합니다" })).toBeVisible();
@@ -238,6 +248,7 @@ test("completes five model challenges, four repairs, and concepts in the Korean 
   await expect(completionButton).toBeDisabled();
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
@@ -246,12 +257,14 @@ test("completes five model challenges, four repairs, and concepts in the Korean 
 
 test("retries and completes independent Mini Transformer practice on fresh fixtures", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   const response = await page.goto(`${previewPath}?lang=en`);
   expect(response?.status()).toBe(200);
 
   const practice = page.locator(".mini-transformer-practice-deck");
+  expect(await practice.locator("select").count()).toBe(0);
   await expect(practice.getByRole("heading", {
     name: "Can you preserve Mini Transformer state flow outside the guided lab?",
   })).toBeVisible();
@@ -341,11 +354,13 @@ test("retries and completes independent Mini Transformer practice on fresh fixtu
       .locator('[data-choice-value="suffix-cannot-change-prefix-rows"]'),
   ).toBeFocused();
   expect(await miniTransformerOverflow(page)).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with reduced motion and no overflow", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
@@ -359,6 +374,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
     "Connect a deterministic tokenizer, embedding plus position, one pre-LayerNorm decoder block, final normalization, and vocabulary logits, then execute and debug shifted-target loss, one LM-head update, and EOS/max-length autoregressive decoding.",
   );
   await expect(page.getByRole("heading", { name: "Mini Transformer", exact: true })).toBeVisible();
+  expect(await page.locator(".lesson-article select").count()).toBe(0);
   await expect(page.getByRole("heading", { name: "Verify shifted loss and the generation controller separately in real NumPy" })).toBeVisible();
   await expect(page.getByText("Shifted cross entropy and one LM-head update", { exact: true })).toBeVisible();
   await expect(page.getByText("Repair the append, recompute, and stop generation controller", { exact: true })).toBeVisible();
@@ -395,6 +411,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
 
   const lab = page.locator(".mini-transformer-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
+  const advancedSettings = lab.locator(".challenge-advanced-settings summary");
   const prediction = choiceGroup(lab, "Mini Transformer challenge prediction");
   const embedStressPreset = lab.locator('[data-mini-transformer-preset="embed-position"]');
   await activate(embedStressPreset, true);
@@ -452,7 +469,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(embedCell).toBeFocused();
 
   const selectedPrediction = choiceGroup(lab, "Mini Transformer challenge prediction").locator('[aria-pressed="true"]');
-  for (const control of [embedPreset, positionScale, selectedPrediction, run, embedStage, embedCell]) {
+  for (const control of [advancedSettings, embedPreset, positionScale, selectedPrediction, run, embedStage, embedCell]) {
     await expectMinimumTarget(control);
   }
   expect(await miniTransformerOverflow(page)).toEqual([]);
@@ -505,6 +522,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
