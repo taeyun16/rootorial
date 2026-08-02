@@ -40,8 +40,17 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 test("completes memory evidence, four repairs, and concepts in the Korean draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -191,10 +200,12 @@ test("completes memory evidence, four repairs, and concepts in the Korean draft 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with reduced motion and no heavy runtime", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -307,10 +318,12 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("retries and completes the independent Sequences practice on fresh fixtures", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   await signInAsAdmin(page);
   await page.goto(`${previewPath}?lang=en`);
 
@@ -360,4 +373,5 @@ test("retries and completes the independent Sequences practice on fresh fixtures
 
   await practice.getByRole("button", { name: "Reset all three challenges" }).click();
   await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });

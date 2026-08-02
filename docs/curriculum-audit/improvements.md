@@ -1931,3 +1931,15 @@ First slice implemented 2026-08-01:
   link now has a 44px minimum height, while the radio labels retain their 44px
   effective areas. All 82 effective lesson targets passed with zero overflow,
   native selects, or console warnings/errors after repair.
+- The next Transformer inventory slice added console-error monitoring to all
+  three Sequences chapter flows: Korean completion, English 390×844
+  keyboard/localization, and the independent three-challenge practice. Console
+  coverage is now 28/32, leaving 7 explicit browser-spec targets.
+- The in-app browser corrected a wrong long-gap RNN prediction, recorded all
+  four required memory-lab evidence items, ran the order-sensitivity NumPy cell,
+  repaired the omitted recurrent gain so analytic and finite-difference
+  gradients both reached 0.005453, and recovered the first independent shared-
+  recurrence contract. Korean 390×844 repeated the required failure→correction
+  flow; all 69 visible effective lesson targets met 44×44, with zero page
+  overflow, native selects, or console warnings/errors. No UI or content
+  mutation was warranted.

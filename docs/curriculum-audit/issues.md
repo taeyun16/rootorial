@@ -6,6 +6,23 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-071 — Sequences E2E omitted console monitoring
+
+Resolved 2026-08-02. The Sequences chapter already separated full Korean
+completion, English 390×844 keyboard/localization, and independent-practice
+journeys into three browser flows, but none failed when the browser emitted an
+unexpected console error.
+
+All three flows now collect console errors before navigation and assert an
+empty error list after their final learner-visible result. The Codex in-app
+browser separately reproduced a wrong long-gap RNN prediction and corrected it,
+completed all four required memory-lab evidence items, ran the order-sensitivity
+NumPy cell, repaired the missing recurrent gain in the gradient cell, and
+recovered the first independent recurrence contract. Korean 390×844 repeated
+the required failure→correction flow; all 69 visible effective lesson targets
+met 44×44, with zero page overflow, native selects, or console warnings/errors.
+No presentation or curriculum-content mutation was warranted.
+
 ### CURR-070 — Embeddings E2E omitted console monitoring and one mobile link missed 44px
 
 Resolved 2026-08-02. The Embeddings chapter already separated full Korean
