@@ -40,8 +40,17 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 test("completes lookup evidence, four repairs, and concepts in the Korean admin draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -176,10 +185,12 @@ test("completes lookup evidence, four repairs, and concepts in the Korean admin 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with fallback and no heavy runtime", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -218,6 +229,16 @@ test("keeps the English draft keyboard-usable at 390px with fallback and no heav
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
+
+  const undersizedCoreTargets = await page.locator(
+    ".embeddings-prerequisite a, .embeddings-input-grid fieldset label",
+  ).evaluateAll((elements) => elements
+    .filter((element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.width < 44 || rect.height < 44;
+    })
+    .map((element) => element.textContent?.trim() ?? ""));
+  expect(undersizedCoreTargets).toEqual([]);
 
   const lab = page.locator(".embeddings-lookup-lab");
   const repeatedPreset = lab.getByRole("button", { name: "Repeated token" });
@@ -288,9 +309,11 @@ test("keeps the English draft keyboard-usable at 390px with fallback and no heav
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("retries and completes the independent Embeddings practice on fresh tokens", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   await signInAsAdmin(page);
   await page.setViewportSize({ width: 390, height: 844 });
   const response = await page.goto(`${previewPath}?lang=en`);
@@ -381,4 +404,5 @@ test("retries and completes the independent Embeddings practice on fresh tokens"
     name: "Reset all three challenges",
   }).click();
   await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });

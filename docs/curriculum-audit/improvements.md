@@ -1920,3 +1920,14 @@ First slice implemented 2026-08-01:
   the required failure→correction flow; all 70 visible enabled lesson targets
   met 44×44, with zero page overflow, native selects, or console warnings/errors,
   so no UI or content mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring to all
+  three Embeddings chapter flows: Korean completion, English 390×844
+  keyboard/localization, and the independent three-challenge practice. Console
+  coverage is now 27/32, leaving 8 explicit browser-spec targets.
+- The in-app browser reproduced and corrected token-shape and affected-row
+  predictions, completed all four required lookup-gradient checks, repaired
+  repeated-index scatter-add, and recovered the first independent lookup
+  contract. Korean 390×844 exposed a real 20px prerequisite-link target; the
+  link now has a 44px minimum height, while the radio labels retain their 44px
+  effective areas. All 82 effective lesson targets passed with zero overflow,
+  native selects, or console warnings/errors after repair.

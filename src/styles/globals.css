@@ -20661,7 +20661,13 @@ textarea:focus-visible {
     linear-gradient(145deg, #faf8ff 0%, #f5f1fc 54%, #eef8f3 100%);
 }
 
-.embeddings-prerequisite a { color: var(--embedding-ink); font-weight: 800; }
+.embeddings-prerequisite a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  color: var(--embedding-ink);
+  font-weight: 800;
+}
 
 .sequences-prerequisite a,
 .sequences-prerequisite > div > span {

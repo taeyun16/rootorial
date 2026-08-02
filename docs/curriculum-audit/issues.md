@@ -6,6 +6,24 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-070 — Embeddings E2E omitted console monitoring and one mobile link missed 44px
+
+Resolved 2026-08-02. The Embeddings chapter already separated full Korean
+completion, English mobile keyboard/localization, and independent-practice
+journeys into three browser flows, but none failed on unexpected console errors.
+The 390×844 prerequisite link also exposed only a 20px-high target even though
+the tokenizer radio labels already provided 44px effective click areas.
+
+All three flows now collect console errors before navigation and assert an empty
+error list after their final learner-visible result. The mobile contract also
+checks the prerequisite link and tokenizer-mode labels, while the link itself
+uses an inline-flex 44px minimum height. The Codex in-app browser reproduced and
+corrected the token-shape and affected-row predictions, completed all four
+required lookup-gradient evidence checks, repaired repeated-index scatter-add,
+and recovered the first independent lookup contract. Korean 390×844 ended with
+82 effective lesson targets at least 44×44, zero overflow, native selects, or
+console warnings/errors.
+
 ### CURR-069 — Training E2E omitted console monitoring
 
 Resolved 2026-08-02. The Training chapter already separated its full Korean
