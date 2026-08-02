@@ -46,6 +46,15 @@ publishable key. The Interfaces chapter now also carries an explicit
 native-select-zero assertion in both its desktop and 390×844 flows, completing
 that signal across all six Linux Networking chapters.
 
+Content-feedback preview contract, revalidated 2026-08-03: public chapter
+feedback remains available, while the contextual prompts embedded in both
+Linux Shell and Transformer Vectors now open their shared panel inside the
+explicit localhost `content-preview` route. Desktop and 390×844 evidence moved
+focus to the close button, the mobile panel matched the 390px viewport, and
+native selects plus console warnings/errors remained zero. Operational admin
+and production-mode preview routes remain fail-closed; the production boundary
+is unit/build evidence rather than a live production-browser claim.
+
 | Curriculum | Chapter | Source | Audit | In-app browser evidence | Learning output |
 |---|---|---|---|---|---|
 | transformer-from-zero | vectors | available | passed | 2026-08-02: the Codex in-app browser ran both English NumPy cells, repaired the first independent reshape contract, and completed the practice deck to 3/3; Korean 390×844 reproduced a wrong Shape Detective prediction, recovered, and reset to 0/3. Both viewports had zero console warnings/errors; mobile also had zero native selects and page overflow. All four chapter E2E flows now fail on unexpected console errors. Historical 2026-07-22 and 2026-07-30 passes covered all required/optional labs, both locales, completion, navigation, keyboard, reset, overflow, native-select, and 44×44 contracts. 2026-07-31 Chrome additionally revalidated first-failed-contract promotion and recovery. | Shape Detective 3/3, Axis Builder 3/3, concept checks 5/5; learner also ran both Python cells, recovered from NameError, predicted reshape/broadcast failures, and compared aligned, perpendicular, opposite, and zero vectors, then independently inferred reshape across two element counts, repaired the first incompatible broadcast axis, and transferred dot-product shape to two unseen Q/K fixtures |

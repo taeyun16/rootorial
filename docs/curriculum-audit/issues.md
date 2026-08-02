@@ -6,6 +6,25 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-076 — Content-preview chapter feedback controls opened nothing
+
+Resolved 2026-08-03. Chapter-compass feedback prompts rendered inside the
+explicit localhost content-preview routes, but the root layout removed the
+shared `ContentFeedback` surface from every `/admin` path. The visible prompt
+therefore had no panel to open. Feedback visibility now uses one pure route and
+mode contract: public learning routes remain enabled, exact `/admin/preview`
+routes are enabled only in `content-preview` mode, and operational admin plus
+production-mode preview routes remain fail-closed.
+
+The Codex in-app browser opened the contextual panel from an English Linux
+Shell preview at desktop width and an English Transformer Vectors preview at
+390×844. Both moved focus to the close button, exposed no native select or
+console warning/error, and the mobile panel fit exactly within 390px. The
+public English Linux Shell route repeated the same mobile open/focus result;
+the operational `/admin` gate exposed no feedback root. A production build and
+pure visibility tests cover the production-mode boundary; production UI was
+not represented as live-browser evidence.
+
 ### CURR-075 — Mini Transformer E2E omitted console/native-select contracts and one disclosure missed 44px
 
 Resolved 2026-08-02. The Mini Transformer chapter already separated full

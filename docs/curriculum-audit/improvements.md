@@ -1614,6 +1614,26 @@ Research basis:
   were not adopted because this result is persistent, adjacent, and does not
   need to interrupt the learner's task.
 
+### IMP-049 — Preview-only contextual feedback surface
+
+- Reproduced a shared preview gap across both curriculum compass families:
+  contextual feedback prompts were visible on `/admin/preview` chapter pages,
+  but the root layout suppressed their only feedback panel because the path
+  began with `/admin`.
+- Added a pure fail-closed visibility contract. Public learning routes keep the
+  existing surface; exact `/admin/preview` routes gain it only in explicit
+  `content-preview` mode; operational admin and production-mode preview routes
+  do not render it.
+- English desktop Linux Shell preview and English 390×844 Transformer Vectors
+  preview both opened the contextual panel and moved focus to its close button.
+  The mobile panel occupied exactly 390px with zero page overflow, native
+  selects, or console warnings/errors. Public mobile Linux Shell retained the
+  same behavior, while `/admin` retained zero feedback roots.
+- Added route/mode unit coverage for public, preview, nested preview,
+  preview-like, and operational-admin paths. The production build validates
+  compilation of the closed boundary; no production browser session was
+  claimed.
+
 ## Candidates
 
 ### IMP-003 — Shared exhaustive-interaction harness
