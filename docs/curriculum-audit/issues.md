@@ -6,6 +6,22 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-068 — Neural Networks E2E omitted console monitoring
+
+Resolved 2026-08-02. The Neural Networks chapter already split its full Korean
+completion, English mobile keyboard/localization, and independent-practice
+journeys into three browser flows, but none failed when the browser emitted an
+unexpected console error.
+
+All three flows now collect console errors before navigation and assert an
+empty error list after their final learner-visible result. The Codex in-app
+browser separately reproduced and repaired the single-line XOR limit, both
+missing hidden-backprop factors, the missing NumPy activation, and the first
+independent output-signal contract. Korean 390×844 rebuilt XOR to 4/4; all 95
+visible enabled lesson targets met 44×44, with zero page overflow, native
+selects, or console warnings/errors. No presentation or curriculum-content
+mutation was warranted.
+
 ### CURR-067 — Optimization E2E omitted console monitoring
 
 Resolved 2026-08-02. The Optimization chapter already exercised its required

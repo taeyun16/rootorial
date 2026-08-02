@@ -6,6 +6,14 @@ const publicPath = "/curricula/transformer-from-zero/chapters/neural-networks";
 
 type TestPage = Parameters<typeof signInTestUser>[0];
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 function choiceGroup(scope: Locator, label: string) {
   return scope.getByRole("group", { name: label });
 }
@@ -125,6 +133,7 @@ async function completeBackpropLab(
 
 test("completes XOR, hidden backprop, network surgery, and concepts in the Korean admin draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -213,9 +222,11 @@ test("completes XOR, hidden backprop, network surgery, and concepts in the Korea
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with no heavy runtime or public access", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -330,9 +341,11 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("retries and completes the independent neural-network practice without hidden choices", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   await signInAsAdmin(page);
   await page.setViewportSize({ width: 390, height: 844 });
   const response = await page.goto(`${previewPath}?lang=en`);
@@ -410,4 +423,5 @@ test("retries and completes the independent neural-network practice without hidd
     name: "Reset all three challenges",
   }).click();
   await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });

@@ -1898,3 +1898,15 @@ First slice implemented 2026-08-01:
   line. Korean 390×844 repeated the divergent-to-convergent repair with zero
   page overflow, native selects, or console warnings/errors, so no UI or content
   mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring to all
+  three Neural Networks chapter flows: Korean completion, English 390×844
+  keyboard/localization, and the independent three-challenge practice. Console
+  coverage is now 25/32, leaving 10 explicit browser-spec targets.
+- The in-app browser recovered the English single-line XOR prediction to 3/4,
+  assembled OR/NAND hidden features to reach XOR 4/4, restored both hidden
+  backprop factors while reducing BCE 0.329→0.315, and repaired the missing
+  NumPy activation to reach 4/4 at mean BCE 0.022529. It also promoted and
+  repaired the first independent output-signal contract. Korean 390×844 rebuilt
+  XOR to 4/4; all 95 visible enabled lesson targets met 44×44, with zero page
+  overflow, native selects, or console warnings/errors, so no UI or content
+  mutation was warranted.
