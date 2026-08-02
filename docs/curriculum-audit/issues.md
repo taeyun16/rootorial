@@ -6,6 +6,22 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-067 — Optimization E2E omitted console monitoring
+
+Resolved 2026-08-02. The Optimization chapter already exercised its required
+learning-rate repair, debugger, independent practice, keyboard, localization,
+mobile layout, and fail-closed public route in two browser flows, but neither
+flow failed when the browser emitted an unexpected console error.
+
+Both flows now collect console errors before navigation and assert an empty
+error list after their final learner-visible result. The Codex in-app browser
+separately observed an English divergent trace and repaired it to steady
+convergence, ran the NumPy trace, reproduced the intended finite-difference
+gradient failure, and repaired the learner-owned line to pass. Korean 390×844
+repeated the divergent-to-convergent learning-rate repair with zero page
+overflow, native selects, or console warnings/errors. No presentation or
+curriculum-content mutation was warranted.
+
 ### CURR-066 — Vectors E2E omitted console monitoring
 
 Resolved 2026-08-02. The Vectors chapter already had separate English,

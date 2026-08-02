@@ -1888,3 +1888,13 @@ First slice implemented 2026-08-01:
   a Shape Detective error, recovered, and reset to 0/3. Both viewports retained
   zero console warnings/errors; mobile also had zero native selects and page
   overflow, so no learner-interface mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring to both
+  Optimization chapter flows: the complete Korean desktop journey and the
+  English 390×844 keyboard, localization, overflow, and public-route contract.
+  Console coverage is now 24/32, leaving 11 explicit browser-spec targets.
+- The in-app browser observed an English divergent trace, repaired only the
+  learning rate to reach steady convergence, ran the NumPy trace, and recovered
+  the intended finite-difference gradient failure with the learner-owned MSE
+  line. Korean 390×844 repeated the divergent-to-convergent repair with zero
+  page overflow, native selects, or console warnings/errors, so no UI or content
+  mutation was warranted.

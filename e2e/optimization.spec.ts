@@ -3,6 +3,15 @@ import { signInTestUser } from "./helpers";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/optimization";
 const publicPath = "/curricula/transformer-from-zero/chapters/optimization";
+type TestPage = Parameters<typeof signInTestUser>[0];
+
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
 
 function choiceGroup(scope: Locator, label: string) {
   return scope.getByRole("group", { name: label });
@@ -15,13 +24,13 @@ async function choose(scope: Locator, label: string, value: string) {
   return option;
 }
 
-async function signInAsAdmin(page: Parameters<typeof signInTestUser>[0]) {
+async function signInAsAdmin(page: TestPage) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
   await signInTestUser(page, process.env.E2E_ADMIN_EMAIL!);
 }
 
 async function completeLearningRateRepair(
-  page: Parameters<typeof signInTestUser>[0],
+  page: TestPage,
 ) {
   const lab = page.locator(".optimization-descent-lab");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, {
@@ -57,7 +66,7 @@ async function completeLearningRateRepair(
 }
 
 async function completeOptimizationPractice(
-  page: Parameters<typeof signInTestUser>[0],
+  page: TestPage,
 ) {
   const practice = page.locator(".optimization-practice-deck");
   await expect(practice.getByLabel("0 / 3")).toBeVisible();
@@ -94,6 +103,7 @@ async function completeOptimizationPractice(
 
 test("completes both optimization activities in the admin draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const optionalRuntimeRequests: string[] = [];
   page.on("request", (request) => {
     if (
@@ -169,9 +179,11 @@ test("completes both optimization activities in the admin draft preview", async 
   await expect(page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" })).toBeDisabled();
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(optionalRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px and its public URL closed", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   const optionalRuntimeRequests: string[] = [];
   page.on("request", (request) => {
     if (
@@ -294,4 +306,5 @@ test("keeps the English draft keyboard-usable at 390px and its public URL closed
   expect(optionalRuntimeRequests).toEqual([]);
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
+  expect(consoleErrors).toEqual([]);
 });
