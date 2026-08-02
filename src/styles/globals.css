@@ -7494,15 +7494,22 @@ textarea:focus-visible {
 .self-attention-workbench button,
 .self-attention-workbench select,
 .self-attention-workbench input,
+.self-attention-workbench summary,
 .self-attention-debugger-lab button,
 .self-attention-debugger-lab select {
   min-height: 48px;
   max-inline-size: 100%;
 }
 
+.self-attention-workbench summary {
+  display: flex;
+  align-items: center;
+}
+
 .self-attention-workbench button:focus-visible,
 .self-attention-workbench select:focus-visible,
 .self-attention-workbench input:focus-visible,
+.self-attention-workbench summary:focus-visible,
 .self-attention-debugger-lab button:focus-visible,
 .self-attention-debugger-lab select:focus-visible,
 .self-attention-masked-grid button:focus-visible {

@@ -44,6 +44,14 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 async function selfAttentionOverflow(page: TestPage) {
   return page.locator(
     ".self-attention-boundary-grid, .self-attention-shape-ladder, .self-attention-worked-trace, .self-attention-formula-stack, .self-attention-mask-table-wrap, .self-attention-workbench, .self-attention-preset-row, .self-attention-control-panel, .self-attention-run-actions, .self-attention-workbench .step-explorer, .self-attention-stage-panel, .self-attention-matrix-stack, .self-attention-matrix-stack .array-diagram, .self-attention-matrix-stack .array-diagram-scroll, .self-attention-masked-grid-wrap, .self-attention-evidence, .self-attention-python-bridge, .self-attention-python-bridge .notebook-cell, .self-attention-debugger-lab, .self-attention-debug-grid, .self-attention-debug-card, .self-attention-debug-actions, .self-attention-debug-feedback, .self-attention-practice-deck, .self-attention-practice-deck .practice-workspace, .self-attention-transfer-task, .self-attention-completion-checklist, .self-attention-chapter-shell .math-formula-display",
@@ -58,6 +66,7 @@ async function selfAttentionOverflow(page: TestPage) {
 test("completes five traces, four repairs, and concepts in the Korean draft preview", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
@@ -72,6 +81,7 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   await expect(page.getByText("관리자 미리보기", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "공개 URL 확인" })).toHaveAttribute("href", publicPath);
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "Self-Attention", exact: true })).toBeVisible();
+  expect(await page.locator(".lesson-article select").count()).toBe(0);
   await expect(page.getByText("필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · CAUSAL MULTI-HEAD REPAIR CONSOLE", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "sat query 한 행을 score에서 concat까지 끝까지 추적합니다" })).toBeVisible();
@@ -204,6 +214,7 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   await expect(completionButton).toBeDisabled();
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
@@ -213,6 +224,7 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
 test("keeps the English draft keyboard-usable at 390px with reduced motion and no overflow", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
@@ -226,6 +238,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
     "Project Q, K, and V separately from the same input, compute scaled dot products for every token row, then execute causal-masking and multi-head split/merge contracts while debugging information leaks and shape defects.",
   );
   await expect(page.getByRole("heading", { name: "Self-Attention", exact: true })).toBeVisible();
+  expect(await page.locator(".lesson-article select").count()).toBe(0);
   await expect(page.getByRole("heading", { name: "Trace one sat query row from scores through concatenation" })).toBeVisible();
   const workedTrace = page.locator(".self-attention-worked-trace");
   await expect(workedTrace).toContainText("masked = [1.414214, 0.707107, 0, -inf]");
@@ -264,6 +277,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
 
   const lab = page.locator(".self-attention-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
+  const advancedSettings = lab.locator(".challenge-advanced-settings summary");
   const scalingPreset = lab.locator('[data-self-attention-preset="scaling"]');
   const prediction = choiceGroup(lab, "Self-Attention challenge prediction");
   await scalingPreset.focus();
@@ -291,7 +305,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(inspectScores).toBeFocused();
   await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(1);
 
-  const coreControls = [scalingPreset, scaling, prediction, run, scoresStage, inspectScores];
+  const coreControls = [advancedSettings, scalingPreset, scaling, prediction, run, scoresStage, inspectScores];
   for (const target of coreControls) {
     const box = await target.boundingBox();
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
@@ -387,6 +401,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
@@ -395,12 +410,14 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
 
 test("retries and completes the independent Self-Attention practice on fresh fixtures", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   const response = await page.goto(`${previewPath}?lang=en`);
   expect(response?.status()).toBe(200);
 
   const practice = page.locator(".self-attention-practice-deck");
+  expect(await practice.locator("select").count()).toBe(0);
   await expect(practice.getByRole("heading", {
     name: "Can you preserve Self-Attention row semantics outside the guided lab?",
   })).toBeVisible();
@@ -491,4 +508,5 @@ test("retries and completes the independent Self-Attention practice on fresh fix
     "outputs-follow-token-permutation",
   )).toBeFocused();
   expect(await selfAttentionOverflow(page)).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });

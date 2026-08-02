@@ -1954,3 +1954,15 @@ First slice implemented 2026-08-01:
   390×844 repeated the required failure→correction flow; all 69 visible
   effective lesson targets met 44×44, with zero page overflow, native selects,
   or console warnings/errors. No UI or content mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring and
+  explicit native-select-zero assertions to all three Self-Attention flows:
+  Korean completion, English 390×844 keyboard/localization, and independent
+  practice. Console and native-select-zero coverage are now both 30/32,
+  leaving 4 explicit browser-spec targets.
+- The in-app browser corrected a wrong projection prediction, recorded all five
+  challenge traces, ran the projection/concat NumPy cell, repaired the intended
+  mask-after-softmax failure, and recovered the first independent row-
+  permutation contract. Korean 390×844 repeated failure→correction and exposed
+  a real 32px advanced-settings disclosure; it now has a 48px minimum height
+  and visible focus. Both viewports then had zero page overflow, native selects,
+  sub-44px enabled targets, or console warnings/errors.
