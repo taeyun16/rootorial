@@ -29,13 +29,15 @@ build, curriculum-quality, and E2E discovery checks also pass. This is Chrome
 evidence requested after the Codex in-app-browser webview failed to attach
 across three consecutive runs; it is not represented as in-app-browser proof.
 
-Registry-derived interaction inventory, updated 2026-08-02: all 32 implemented chapters
+Registry-derived interaction inventory, updated 2026-08-03: all 32 implemented chapters
 join cleanly across renderer, experience, content-quality, source, and declared
 E2E contracts with zero structural issues. Browser-spec signals currently
 cover route 32/32, desktop 32/32, 390×844 32/32, keyboard 32/32, immediate
-result 32/32, console 32/32, overflow 32/32, 44px 32/32, and native-select-zero
-32/32, leaving no explicit coverage targets. These are source-pattern
-inventory signals rather than proof that every control was activated. CURR-049
+result 32/32, console 32/32, overflow 32/32, 44px assertion-pattern 32/32,
+and native-select-zero 32/32, leaving no browser-spec assertion gaps. These are
+source-pattern inventory signals rather than proof that every control was
+measured or activated. A 44px pattern may cover one named target, a component,
+or a page-wide scan. CURR-049
 adds the missing shared route spec and Codex in-app-browser evidence: all five
 advanced Linux Networking routes opened at 1280×720 and 390×844, exposed
 immediate wrong/correct prediction feedback, accepted Enter, unlocked the next
@@ -45,6 +47,16 @@ discovers both tests but cannot execute them without the global Clerk
 publishable key. The Interfaces chapter now also carries an explicit
 native-select-zero assertion in both its desktop and 390×844 flows, completing
 that signal across all six Linux Networking chapters.
+
+Representative 44px runtime evidence, updated 2026-08-03: English Vectors and
+English Linux Shell content-preview pages were scanned at 390×844 using each
+rendered enabled control's effective visible target. The pre-fix scan found two
+25.9px notation disclosures and one 34×44px mobile wordmark. After repair, all
+106 Vectors and 53 Linux Shell targets met 44×44, both notation answers opened
+with focus retained, document width remained exactly 390px, and native selects
+plus console warnings/errors were zero. These two page-wide scans cover both
+compass families but remain representative evidence, not a 32-chapter runtime
+completion claim.
 
 Content-feedback preview contract, revalidated 2026-08-03: public chapter
 feedback remains available, while the contextual prompts embedded in both

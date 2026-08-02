@@ -138,6 +138,7 @@ test("keeps the Linux sample usable on a narrow mobile viewport", async ({ page 
   expect(overflow).toBeLessThanOrEqual(1);
 
   for (const target of [
+    page.getByRole("link", { name: "Rootorial 홈" }),
     page.getByRole("button", { name: "처음 상태로" }),
     page.getByRole("button", { name: "실행", exact: true }),
     page.getByRole("button", { name: "파일: /etc/os-release" }),

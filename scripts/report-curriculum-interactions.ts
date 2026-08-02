@@ -24,7 +24,7 @@ export type BrowserSpecSignals = Readonly<{
   immediateResult: boolean;
   console: boolean;
   overflow: boolean;
-  targetSize44: boolean;
+  targetSize44Assertion: boolean;
   nativeSelectZero: boolean;
 }>;
 
@@ -101,7 +101,7 @@ function browserSignals(chapterId: string, e2eSource: string): BrowserSpecSignal
     immediateResult: /to(?:Contain|Have)Text\(|getByRole\(["']status["']|\.is-(?:correct|incorrect|passed|failed)/.test(e2eSource),
     console: /page\.on\(["']console["']|consoleErrors|consoleWarnings/.test(e2eSource),
     overflow: /scrollWidth/.test(e2eSource),
-    targetSize44: /(?:>=|<|toBeGreaterThanOrEqual\()\s*44|44px/.test(e2eSource),
+    targetSize44Assertion: /(?:>=|<|toBeGreaterThanOrEqual\()\s*44|44px/.test(e2eSource),
     nativeSelectZero: /locator\((?:'[^']*select[^']*'|"[^"]*select[^"]*")\)[\s\S]{0,160}(?:toHaveCount\(0\)|count\(\)[\s\S]{0,80}toBe\(0\))/.test(e2eSource),
   };
 }
@@ -114,7 +114,7 @@ const signalLabels: Record<keyof BrowserSpecSignals, string> = {
   immediateResult: "immediate result assertion",
   console: "console monitoring",
   overflow: "horizontal overflow assertion",
-  targetSize44: "44px target assertion",
+  targetSize44Assertion: "44px target assertion pattern",
   nativeSelectZero: "native-select zero assertion",
 };
 
@@ -207,19 +207,19 @@ export function renderCurriculumInteractionAuditMarkdown(report: CurriculumInter
     const signals = chapter.browserSpecSignals;
     const controls = chapter.sourceControlDefinitions;
     const targets = chapter.coverageTargets.length ? chapter.coverageTargets.join("; ") : "—";
-    return `| ${chapter.chapterId} | ${chapter.interaction} | ${chapter.activityKinds.join(" · ")} | ${controls.buttons}/${controls.inputs}/${controls.textareas}/${controls.nativeSelects} | ${yesNo(signals.mobile390x844)} | ${yesNo(signals.keyboard)} | ${yesNo(signals.immediateResult)} | ${yesNo(signals.console)} | ${yesNo(signals.overflow)} | ${yesNo(signals.targetSize44)} | ${yesNo(signals.nativeSelectZero)} | ${chapter.learningOutput} | ${targets} |`;
+    return `| ${chapter.chapterId} | ${chapter.interaction} | ${chapter.activityKinds.join(" · ")} | ${controls.buttons}/${controls.inputs}/${controls.textareas}/${controls.nativeSelects} | ${yesNo(signals.mobile390x844)} | ${yesNo(signals.keyboard)} | ${yesNo(signals.immediateResult)} | ${yesNo(signals.console)} | ${yesNo(signals.overflow)} | ${yesNo(signals.targetSize44Assertion)} | ${yesNo(signals.nativeSelectZero)} | ${chapter.learningOutput} | ${targets} |`;
   });
   return [
     "# Curriculum interaction-audit inventory",
     "",
-    "This report derives implemented routes and declared learning outputs from the chapter registry and quality/experience contracts. Browser-spec signals indicate that the named E2E file contains an assertion pattern; they do not prove that every control was clicked. Source control counts cover only the primary chapter file and do not expand imported child components.",
+    "This report derives implemented routes and declared learning outputs from the chapter registry and quality/experience contracts. Browser-spec signals indicate only that the named E2E file contains an assertion pattern; they do not prove that every control was measured or clicked. The 44px assertion pattern can cover one named control or a scoped scan, so it is not exhaustive runtime evidence. Source control counts cover only the primary chapter file and do not expand imported child components.",
     "",
-    "| Chapter | Interaction | Activities | Primary-source button/input/textarea/select | 390x844 | Keyboard | Result | Console | Overflow | 44px | Select=0 | Learning output | Coverage targets |",
+    "| Chapter | Interaction | Activities | Primary-source button/input/textarea/select | 390x844 | Keyboard | Result | Console | Overflow | 44px assertion pattern | Select=0 | Learning output | Assertion gaps |",
     "|---|---|---|---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|---|",
     ...rows,
     "",
     `Structural issues: ${report.structuralIssues.length}`,
-    `Browser-spec coverage targets: ${report.coverageTargets.length}`,
+    `Browser-spec assertion gaps: ${report.coverageTargets.length}`,
     `Signal coverage: ${Object.entries(report.signalCoverage).map(([signal, count]) => `${signal} ${count}/${report.chapters.length}`).join(" · ")}`,
   ].join("\n");
 }
@@ -237,7 +237,7 @@ function runCli() {
       process.exitCode = 1;
       return;
     }
-    console.log(`Curriculum interaction inventory valid: ${report.chapters.length} implemented chapters; ${report.coverageTargets.length} browser-spec coverage targets tracked.`);
+    console.log(`Curriculum interaction inventory valid: ${report.chapters.length} implemented chapters; ${report.coverageTargets.length} browser-spec assertion gaps tracked.`);
     return;
   }
   console.log(renderCurriculumInteractionAuditMarkdown(report));

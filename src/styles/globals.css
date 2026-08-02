@@ -1461,9 +1461,11 @@ textarea:focus-visible {
 }
 
 .wordmark {
+  min-width: 44px;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 11px;
   font-size: 16px;
   font-weight: 750;
@@ -3225,10 +3227,18 @@ textarea:focus-visible {
 }
 
 .notation-quick-check summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
   color: var(--ink);
   cursor: pointer;
   font-size: 10px;
   font-weight: 750;
+}
+
+.notation-quick-check summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
 }
 
 .notation-quick-check summary code,

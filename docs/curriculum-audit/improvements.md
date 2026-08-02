@@ -1634,6 +1634,29 @@ Research basis:
   compilation of the closed boundary; no production browser session was
   claimed.
 
+### IMP-050 — Honest 44px assertion semantics and representative runtime repair
+
+- Renamed the registry-derived signal from `targetSize44` to
+  `targetSize44Assertion`. The generated report now says that all values are
+  static assertion patterns, that one target or scoped scan can satisfy the
+  44px pattern, and that zero assertion gaps is not exhaustive browser proof.
+- Added a regression contract that rejects the old bare `44px` column and the
+  old exhaustive-sounding report language.
+- Ran one page-wide effective-target scan on each curriculum-compass family at
+  390×844. The scan treats a visible label as an input's effective target only
+  when it is at least as large as the input, avoiding a false failure from the
+  Linux shell's 1px screen-reader-only label while correctly using 44px slider
+  rows.
+- Repaired two actual misses: Vectors' two notation disclosures grew from
+  25.9px to 44px with visible focus, and the shared mobile wordmark grew from
+  34×44px to 44×44px. Both disclosures opened and retained focus. Final
+  page-wide scans found 0 undersized targets among 106 Vectors and 53 Linux
+  Shell controls, with zero overflow, native selects, or console warnings and
+  errors.
+- Added the notation disclosures and Rootorial home link to their existing
+  mobile E2E contracts. This slice does not convert two representative scans
+  into a 32-chapter runtime-completion claim.
+
 ## Candidates
 
 ### IMP-003 — Shared exhaustive-interaction harness

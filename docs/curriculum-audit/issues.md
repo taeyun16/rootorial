@@ -6,6 +6,27 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-077 — The 44px inventory signal implied more runtime coverage than it proved
+
+Resolved 2026-08-03. The interaction inventory reported `targetSize44 32/32`
+when each chapter's declared E2E file merely contained any matching `44`
+assertion pattern. That pattern could cover one named control, one component,
+or a page-wide scan, so a zero-gap result did not prove that every rendered
+control had been measured. The report now names the signal
+`targetSize44Assertion`, labels its column as an assertion pattern, calls
+missing patterns assertion gaps, and explicitly excludes exhaustive runtime
+claims.
+
+A representative 390×844 in-app-browser page scan then found two real gaps the
+old signal had hidden: the Vectors notation disclosures were 25.9px high, and
+the shared Rootorial home link collapsed to 34×44px when its mobile wordmark
+text was hidden. The disclosures now expose 44px targets with visible focus;
+the shared wordmark has a 44px minimum width. Post-fix scans measured all 106
+rendered enabled Vectors targets and all 53 Linux Shell targets at least 44×44,
+with exact 390px document width, zero native selects, and zero console
+warnings/errors. These two page-wide scans are representative runtime evidence,
+not full-curriculum proof.
+
 ### CURR-076 — Content-preview chapter feedback controls opened nothing
 
 Resolved 2026-08-03. Chapter-compass feedback prompts rendered inside the

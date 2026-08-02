@@ -149,6 +149,20 @@ test("keeps the vectors practice usable on a 390px reduced-motion viewport", asy
   );
   expect(pageOverflow).toBeLessThanOrEqual(1);
 
+  const notationSummaries = page.locator(".notation-quick-check summary");
+  await expect(notationSummaries).toHaveCount(2);
+  const undersizedNotationSummaries = await notationSummaries.evaluateAll((summaries) =>
+    summaries.map((summary) => {
+      const rect = summary.getBoundingClientRect();
+      return {
+        text: summary.textContent?.trim() ?? "",
+        width: rect.width,
+        height: rect.height,
+      };
+    }).filter(({ width, height }) => width < 44 || height < 44)
+  );
+  expect(undersizedNotationSummaries).toEqual([]);
+
   const firstMission = page.locator(".shape-debug-mission").first();
   await firstMission.getByRole("button", { name: "(1, 3)", exact: true }).click();
   await firstMission.getByRole("button", { name: "Check prediction" }).click();

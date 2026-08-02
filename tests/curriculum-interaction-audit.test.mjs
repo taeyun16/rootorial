@@ -16,14 +16,14 @@ test("derives one structurally valid interaction-audit row for every implemented
   assert.equal(report.chapters.every(({ sourceControlDefinitions }) => sourceControlDefinitions.nativeSelects === 0), true);
 });
 
-test("keeps browser-spec evidence separate from remaining exhaustive coverage targets", () => {
+test("labels browser-spec assertion patterns without implying exhaustive runtime coverage", () => {
   const report = analyzeCurriculumInteractionAudit();
   assert.equal(report.signalCoverage.route, 32);
   assert.equal(report.signalCoverage.desktop, 32);
   assert.equal(report.signalCoverage.mobile390x844, 32);
   assert.equal(report.signalCoverage.keyboard, 32);
   assert.equal(report.signalCoverage.console, 32);
-  assert.equal(report.signalCoverage.targetSize44, 32);
+  assert.equal(report.signalCoverage.targetSize44Assertion, 32);
   assert.equal(report.signalCoverage.nativeSelectZero, 32);
   assert.equal(report.coverageTargets.length, 0);
   assert.deepEqual(
@@ -34,8 +34,11 @@ test("keeps browser-spec evidence separate from remaining exhaustive coverage ta
   );
 
   const markdown = renderCurriculumInteractionAuditMarkdown(report);
-  assert.match(markdown, /do not prove that every control was clicked/);
-  assert.match(markdown, /Browser-spec coverage targets:/);
+  assert.match(markdown, /do not prove that every control was measured or clicked/);
+  assert.match(markdown, /44px assertion pattern can cover one named control or a scoped scan/);
+  assert.match(markdown, /Browser-spec assertion gaps:/);
+  assert.doesNotMatch(markdown, /\| 44px \|/);
+  assert.match(markdown, /\| 44px assertion pattern \|/);
   assert.match(markdown, /transformer-from-zero\/vectors/);
   assert.match(markdown, /linux-systems\/shell-and-filesystem/);
   assert.match(markdown, /infrastructure-design\/assemble-a-namespace-platform/);
