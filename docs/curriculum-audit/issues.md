@@ -6,6 +6,28 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-078 — Touch-target assertions did not declare how much UI they measured
+
+Resolved 2026-08-03. After CURR-077 renamed the 44px source signal, the
+interaction inventory still could not distinguish a finite named-control check
+from a component-wide or lesson-wide scan. A chapter with one measured button
+therefore looked identical to one that enumerated every currently visible
+enabled lesson control.
+
+Every curriculum E2E file now has an explicit strongest scope declaration:
+`specific-control`, `component-scan`, or `page-visible-scan`. The report rejects
+missing or orphaned declarations and declarations without a matching 44px
+assertion. Current chapter coverage is 6/32 specific-control, 6/32 component-
+scan, and 20/32 page-visible-scan. A page-visible result remains evidence for
+one rendered state, not all disclosure, disabled/enabled, or post-action states.
+
+Vectors and Linux Shell now share an effective-target E2E scanner that uses a
+visible associated label only when it is at least as large as its input. The
+390×844 in-app browser found 93 Vectors and 39 Linux Shell enabled lesson
+targets with no sub-44px result, native select, horizontal overflow, or console
+warning/error. Linux retained the same result after running `pwd`, immediately
+showing `/home/student` and 1/5 task progress.
+
 ### CURR-077 — The 44px inventory signal implied more runtime coverage than it proved
 
 Resolved 2026-08-03. The interaction inventory reported `targetSize44 32/32`

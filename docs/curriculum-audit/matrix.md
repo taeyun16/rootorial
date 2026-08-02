@@ -58,6 +58,19 @@ plus console warnings/errors were zero. These two page-wide scans cover both
 compass families but remain representative evidence, not a 32-chapter runtime
 completion claim.
 
+Touch-target evidence scope, updated 2026-08-03: every implemented chapter's
+declared E2E file now records its strongest 44px scope. The registry-derived
+distribution is 6/32 `specific-control`, 6/32 `component-scan`, and 20/32
+`page-visible-scan`; missing, orphaned, or assertion-free declarations fail the
+interaction report. Vectors and Linux Shell now run the same effective-target
+page scanner in their mobile E2E contracts. The in-app browser revalidated
+93/93 Vectors targets and 39/39 Linux Shell targets at 390×844 with exact 390px
+width, zero native selects, and zero console warnings/errors. Linux retained
+the result after `pwd` produced `/home/student` and 1/5 progress. A page-visible
+scope still describes one rendered state, not all possible disclosure or
+post-action states; the 12 component/specific chapters remain visible follow-up
+work.
+
 Content-feedback preview contract, revalidated 2026-08-03: public chapter
 feedback remains available, while the contextual prompts embedded in both
 Linux Shell and Transformer Vectors now open their shared panel inside the

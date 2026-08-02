@@ -12,6 +12,11 @@ import {
   type VisualFamily,
 } from "../src/features/chapters/experience-contracts.ts";
 import { registeredChapterIds } from "../src/features/chapters/chapter-registry.ts";
+import {
+  touchTargetAuditScopeByE2EFile,
+  touchTargetAuditScopeValues,
+  type TouchTargetAuditScope,
+} from "../src/features/chapters/touch-target-audit.ts";
 
 const scriptFile = fileURLToPath(import.meta.url);
 const defaultRepoRoot = path.resolve(path.dirname(scriptFile), "..");
@@ -44,6 +49,7 @@ export type CurriculumInteractionAuditRow = Readonly<{
     textareas: number;
     nativeSelects: number;
   }>;
+  touchTargetAuditScope: TouchTargetAuditScope | "undeclared";
   structuralIssues: readonly string[];
   coverageTargets: readonly string[];
 }>;
@@ -53,6 +59,7 @@ export type CurriculumInteractionAuditReport = Readonly<{
   structuralIssues: readonly string[];
   coverageTargets: readonly string[];
   signalCoverage: Readonly<Record<keyof BrowserSpecSignals, number>>;
+  touchTargetScopeCoverage: Readonly<Record<TouchTargetAuditScope, number>>;
 }>;
 
 type NormalizedQualityContract = Readonly<{
@@ -151,6 +158,12 @@ export function analyzeCurriculumInteractionAudit(
     const source = sourcePath && fs.existsSync(sourcePath) ? fs.readFileSync(sourcePath, "utf8") : "";
     const e2eSource = e2ePath && fs.existsSync(e2ePath) ? fs.readFileSync(e2ePath, "utf8") : "";
     const signals = browserSignals(chapterId, e2eSource);
+    const touchTargetAuditScope = touchTargetAuditScopeByE2EFile[e2eFile] ?? "undeclared";
+    if (touchTargetAuditScope === "undeclared") {
+      structuralIssues.push("missing touch-target audit scope metadata");
+    } else if (!signals.targetSize44Assertion) {
+      structuralIssues.push("touch-target audit scope declared without a 44px assertion pattern");
+    }
     const sourceControlDefinitions = {
       buttons: countMatches(source, /<button\b/g),
       inputs: countMatches(source, /<input\b/g),
@@ -176,6 +189,7 @@ export function analyzeCurriculumInteractionAudit(
       activityKinds: quality?.activityKinds ?? [],
       browserSpecSignals: signals,
       sourceControlDefinitions,
+      touchTargetAuditScope,
       structuralIssues,
       coverageTargets,
     };
@@ -187,14 +201,28 @@ export function analyzeCurriculumInteractionAudit(
       chapters.filter((chapter) => chapter.browserSpecSignals[signal]).length,
     ]),
   ) as Record<keyof BrowserSpecSignals, number>;
+  const touchTargetScopeCoverage = Object.fromEntries(
+    touchTargetAuditScopeValues.map((scope) => [
+      scope,
+      chapters.filter((chapter) => chapter.touchTargetAuditScope === scope).length,
+    ]),
+  ) as Record<TouchTargetAuditScope, number>;
+  const usedE2EFiles = new Set(chapters.map(({ e2eFile }) => e2eFile));
+  const orphanScopeIssues = Object.keys(touchTargetAuditScopeByE2EFile)
+    .filter((e2eFile) => !usedE2EFiles.has(e2eFile))
+    .map((e2eFile) => `${e2eFile}: touch-target audit scope is not referenced by an implemented chapter`);
 
   return {
     chapters,
-    structuralIssues: chapters.flatMap((chapter) =>
-      chapter.structuralIssues.map((issue) => `${chapter.chapterId}: ${issue}`)),
+    structuralIssues: [
+      ...chapters.flatMap((chapter) =>
+        chapter.structuralIssues.map((issue) => `${chapter.chapterId}: ${issue}`)),
+      ...orphanScopeIssues,
+    ],
     coverageTargets: chapters.flatMap((chapter) =>
       chapter.coverageTargets.map((target) => `${chapter.chapterId}: ${target}`)),
     signalCoverage,
+    touchTargetScopeCoverage,
   };
 }
 
@@ -207,19 +235,20 @@ export function renderCurriculumInteractionAuditMarkdown(report: CurriculumInter
     const signals = chapter.browserSpecSignals;
     const controls = chapter.sourceControlDefinitions;
     const targets = chapter.coverageTargets.length ? chapter.coverageTargets.join("; ") : "—";
-    return `| ${chapter.chapterId} | ${chapter.interaction} | ${chapter.activityKinds.join(" · ")} | ${controls.buttons}/${controls.inputs}/${controls.textareas}/${controls.nativeSelects} | ${yesNo(signals.mobile390x844)} | ${yesNo(signals.keyboard)} | ${yesNo(signals.immediateResult)} | ${yesNo(signals.console)} | ${yesNo(signals.overflow)} | ${yesNo(signals.targetSize44Assertion)} | ${yesNo(signals.nativeSelectZero)} | ${chapter.learningOutput} | ${targets} |`;
+    return `| ${chapter.chapterId} | ${chapter.interaction} | ${chapter.activityKinds.join(" · ")} | ${controls.buttons}/${controls.inputs}/${controls.textareas}/${controls.nativeSelects} | ${yesNo(signals.mobile390x844)} | ${yesNo(signals.keyboard)} | ${yesNo(signals.immediateResult)} | ${yesNo(signals.console)} | ${yesNo(signals.overflow)} | ${yesNo(signals.targetSize44Assertion)} | ${chapter.touchTargetAuditScope} | ${yesNo(signals.nativeSelectZero)} | ${chapter.learningOutput} | ${targets} |`;
   });
   return [
     "# Curriculum interaction-audit inventory",
     "",
-    "This report derives implemented routes and declared learning outputs from the chapter registry and quality/experience contracts. Browser-spec signals indicate only that the named E2E file contains an assertion pattern; they do not prove that every control was measured or clicked. The 44px assertion pattern can cover one named control or a scoped scan, so it is not exhaustive runtime evidence. Source control counts cover only the primary chapter file and do not expand imported child components.",
+    "This report derives implemented routes and declared learning outputs from the chapter registry and quality/experience contracts. Browser-spec signals indicate only that the named E2E file contains an assertion pattern; they do not prove that every control was measured or clicked. Touch-target scope distinguishes a finite named-control check (`specific-control`), all matching controls inside named components (`component-scan`), and all currently visible enabled lesson controls (`page-visible-scan`). Even page-visible scans cover one rendered state, not every possible state. Source control counts cover only the primary chapter file and do not expand imported child components.",
     "",
-    "| Chapter | Interaction | Activities | Primary-source button/input/textarea/select | 390x844 | Keyboard | Result | Console | Overflow | 44px assertion pattern | Select=0 | Learning output | Assertion gaps |",
-    "|---|---|---|---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|---|---|",
+    "| Chapter | Interaction | Activities | Primary-source button/input/textarea/select | 390x844 | Keyboard | Result | Console | Overflow | 44px assertion pattern | Touch-target scope | Select=0 | Learning output | Assertion gaps |",
+    "|---|---|---|---:|:---:|:---:|:---:|:---:|:---:|:---:|---|:---:|---|---|",
     ...rows,
     "",
     `Structural issues: ${report.structuralIssues.length}`,
     `Browser-spec assertion gaps: ${report.coverageTargets.length}`,
+    `Touch-target scope: ${touchTargetAuditScopeValues.map((scope) => `${scope} ${report.touchTargetScopeCoverage[scope]}/${report.chapters.length}`).join(" · ")}`,
     `Signal coverage: ${Object.entries(report.signalCoverage).map(([signal, count]) => `${signal} ${count}/${report.chapters.length}`).join(" · ")}`,
   ].join("\n");
 }
@@ -237,7 +266,10 @@ function runCli() {
       process.exitCode = 1;
       return;
     }
-    console.log(`Curriculum interaction inventory valid: ${report.chapters.length} implemented chapters; ${report.coverageTargets.length} browser-spec assertion gaps tracked.`);
+    const scopeSummary = touchTargetAuditScopeValues
+      .map((scope) => `${scope} ${report.touchTargetScopeCoverage[scope]}`)
+      .join(", ");
+    console.log(`Curriculum interaction inventory valid: ${report.chapters.length} implemented chapters; ${report.coverageTargets.length} browser-spec assertion gaps tracked; touch-target scopes: ${scopeSummary}.`);
     return;
   }
   console.log(renderCurriculumInteractionAuditMarkdown(report));

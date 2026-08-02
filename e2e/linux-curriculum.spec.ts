@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { findUndersizedVisibleTouchTargets } from "./helpers/touch-targets";
 
 test("moves from the Linux roadmap through the sample chapter and persists progress", async ({ page }) => {
   test.setTimeout(120_000);
@@ -148,4 +149,5 @@ test("keeps the Linux sample usable on a narrow mobile viewport", async ({ page 
     expect(box?.height).toBeGreaterThanOrEqual(44);
     expect(box?.width).toBeGreaterThanOrEqual(44);
   }
+  expect(await findUndersizedVisibleTouchTargets(page.locator(".lesson-article"))).toEqual([]);
 });

@@ -1,5 +1,6 @@
 import { clerk } from "@clerk/testing/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { findUndersizedVisibleTouchTargets } from "./helpers/touch-targets";
 
 function watchConsoleErrors(page: Page) {
   const consoleErrors: string[] = [];
@@ -162,6 +163,7 @@ test("keeps the vectors practice usable on a 390px reduced-motion viewport", asy
     }).filter(({ width, height }) => width < 44 || height < 44)
   );
   expect(undersizedNotationSummaries).toEqual([]);
+  expect(await findUndersizedVisibleTouchTargets(page.locator(".lesson-article"))).toEqual([]);
 
   const firstMission = page.locator(".shape-debug-mission").first();
   await firstMission.getByRole("button", { name: "(1, 3)", exact: true }).click();

@@ -1657,6 +1657,26 @@ Research basis:
   mobile E2E contracts. This slice does not convert two representative scans
   into a 32-chapter runtime-completion claim.
 
+### IMP-051 — Explicit touch-target audit scope
+
+- Added one typed scope registry for every curriculum E2E file:
+  `specific-control`, `component-scan`, or `page-visible-scan`.
+- Made the interaction report fail on missing, orphaned, or assertion-free scope
+  declarations and display both the per-chapter scope and aggregate 6/6/20
+  distribution.
+- Added a reusable effective-target scanner that covers buttons, links,
+  disclosures, inputs, text areas, and ARIA button/radio controls while treating
+  a visible associated label as the target only when it is actually larger than
+  its input.
+- Upgraded Vectors and Linux Shell from representative named controls to
+  page-visible mobile E2E scans. At 390×844 the in-app browser found 93/93 and
+  39/39 enabled lesson targets at least 44×44, exact 390px width, zero native
+  selects, and zero console warnings/errors. Linux retained the result after a
+  real `pwd` simulator step exposed `/home/student` and 1/5 progress.
+- Kept the claim bounded: page-visible means one rendered state. Six component-
+  scoped and six specific-control chapters remain explicit follow-up work rather
+  than being counted as page-wide runtime proof.
+
 ## Candidates
 
 ### IMP-003 — Shared exhaustive-interaction harness
