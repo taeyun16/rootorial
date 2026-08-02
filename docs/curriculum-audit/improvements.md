@@ -1943,3 +1943,14 @@ First slice implemented 2026-08-01:
   flow; all 69 visible effective lesson targets met 44×44, with zero page
   overflow, native selects, or console warnings/errors. No UI or content
   mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring to all
+  three Attention chapter flows: Korean completion, English 390×844
+  keyboard/localization, and the independent three-challenge practice. Console
+  coverage is now 29/32, leaving 6 explicit browser-spec targets.
+- The in-app browser corrected a wrong source-row prediction, recorded all
+  three required routing-evidence items, ran the three-query NumPy trace,
+  repaired the context read from `weights @ K` to `weights @ values`, and
+  recovered the first independent value-space routing contract. Korean
+  390×844 repeated the required failure→correction flow; all 69 visible
+  effective lesson targets met 44×44, with zero page overflow, native selects,
+  or console warnings/errors. No UI or content mutation was warranted.

@@ -6,6 +6,23 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-072 — Attention E2E omitted console monitoring
+
+Resolved 2026-08-02. The Attention chapter already separated full Korean
+completion, English 390×844 keyboard/localization, and independent-practice
+journeys into three browser flows, but none failed when the browser emitted an
+unexpected console error.
+
+All three flows now collect console errors before navigation and assert an
+empty error list after their final learner-visible result. The Codex in-app
+browser separately corrected a wrong source-row prediction, completed all three
+required routing-evidence items, ran the three-query NumPy trace, repaired the
+context read from `weights @ K` to `weights @ values`, and recovered the first
+independent routing contract. Korean 390×844 repeated the required
+failure→correction flow; all 69 visible effective lesson targets met 44×44,
+with zero page overflow, native selects, or console warnings/errors. No
+presentation or curriculum-content mutation was warranted.
+
 ### CURR-071 — Sequences E2E omitted console monitoring
 
 Resolved 2026-08-02. The Sequences chapter already separated full Korean
