@@ -8128,15 +8128,22 @@ textarea:focus-visible {
 .transformer-block-workbench button,
 .transformer-block-workbench select,
 .transformer-block-workbench input,
+.transformer-block-workbench summary,
 .transformer-block-debugger-lab button,
 .transformer-block-debugger-lab select {
   min-height: 48px;
   max-inline-size: 100%;
 }
 
+.transformer-block-workbench summary {
+  display: flex;
+  align-items: center;
+}
+
 .transformer-block-workbench button:focus-visible,
 .transformer-block-workbench select:focus-visible,
 .transformer-block-workbench input:focus-visible,
+.transformer-block-workbench summary:focus-visible,
 .transformer-block-debugger-lab button:focus-visible,
 .transformer-block-debugger-lab select:focus-visible {
   outline: 3px solid #27635d;

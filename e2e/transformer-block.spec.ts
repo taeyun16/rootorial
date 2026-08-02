@@ -40,6 +40,14 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 async function transformerBlockOverflow(page: TestPage) {
   return page.locator(
     ".transformer-block-boundary-grid, .transformer-block-formula-stack, .transformer-block-flow, .transformer-block-prerequisite, .transformer-block-workbench, .transformer-block-preset-row, .transformer-block-control-panel, .transformer-block-run-actions, .transformer-block-workbench .step-explorer, .transformer-block-stage-panel, .transformer-block-matrix-stack, .transformer-block-matrix-stack .array-diagram, .transformer-block-matrix-stack .array-diagram-scroll, .transformer-block-stat-grid, .transformer-block-handoff-note, .transformer-block-evidence, .transformer-block-python-bridge, .transformer-block-python-bridge .notebook-cell, .transformer-block-debugger-lab, .transformer-block-debug-progress, .transformer-block-debug-grid, .transformer-block-debug-card, .transformer-block-debug-actions, .transformer-block-debug-feedback, .transformer-block-practice-deck, .transformer-block-practice-deck .practice-workspace, .transformer-block-transfer-task, .transformer-block-completion-checklist, .transformer-block-chapter-shell .math-formula-display",
@@ -80,6 +88,7 @@ async function completeChallenge({
 test("completes five block challenges, four repairs, and concepts in the Korean draft preview", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
@@ -94,6 +103,7 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
   await expect(page.getByText("관리자 미리보기", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "공개 URL 확인" })).toHaveAttribute("href", publicPath);
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "Transformer 블록", exact: true })).toBeVisible();
+  expect(await page.locator(".lesson-article select").count()).toBe(0);
   await expect(page.getByText("필수 LAB · PREDICT → CONFIGURE → ASSEMBLE → INSPECT", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · PRE-NORM BLOCK REPAIR CONSOLE", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "한 token을 E+P부터 두 번째 residual까지 숫자로 추적합니다" })).toBeVisible();
@@ -219,6 +229,7 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
   await expect(completionButton).toBeDisabled();
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
@@ -228,6 +239,7 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
 test("keeps the English draft keyboard-usable at 390px with reduced motion and no overflow", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
@@ -241,6 +253,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
     "Add a deterministic absolute positional signal once before the first block, then execute and debug a decoder-only pre-LayerNorm block whose causal self-attention and position-wise FFN preserve [T,d_model] through residual paths.",
   );
   await expect(page.getByRole("heading", { name: "The Transformer Block", exact: true })).toBeVisible();
+  expect(await page.locator(".lesson-article select").count()).toBe(0);
   await expect(page.getByRole("heading", { name: "Trace one token numerically from E+P through the second residual" })).toBeVisible();
   await expect(page.getByText("Verify the pre-norm block stage ledger", { exact: true })).toBeVisible();
   await expect(page.getByText("Repair the second residual base", { exact: true })).toBeVisible();
@@ -277,6 +290,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
 
   const lab = page.locator(".transformer-block-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
+  const advancedSettings = lab.locator(".challenge-advanced-settings summary");
   const prediction = choiceGroup(lab, "Transformer block challenge prediction");
   const positionScale = lab.getByLabel("Transformer block position scale");
   const run = lab.getByRole("button", { name: "Assemble and run the Transformer block" });
@@ -324,7 +338,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(normCell).toBeFocused();
   await expect(lab.locator(".transformer-block-evidence .is-complete")).toHaveCount(1);
 
-  const coreControls = [layerNormPreset, preNormChoice, correctPrediction, run, normStage, normCell];
+  const coreControls = [advancedSettings, layerNormPreset, preNormChoice, correctPrediction, run, normStage, normCell];
   for (const target of coreControls) {
     const box = await target.boundingBox();
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
@@ -389,6 +403,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
@@ -397,12 +412,14 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
 
 test("retries and completes independent Transformer Block practice on fresh fixtures", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   const response = await page.goto(`${previewPath}?lang=en`);
   expect(response?.status()).toBe(200);
 
   const practice = page.locator(".transformer-block-practice-deck");
+  expect(await practice.locator("select").count()).toBe(0);
   await expect(practice.getByRole("heading", {
     name: "Can you preserve Transformer Block state outside the guided lab?",
   })).toBeVisible();
@@ -488,4 +505,5 @@ test("retries and completes independent Transformer Block practice on fresh fixt
       .locator('[data-choice-value="both-branches-update-shared-stream"]'),
   ).toBeFocused();
   expect(await transformerBlockOverflow(page)).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });

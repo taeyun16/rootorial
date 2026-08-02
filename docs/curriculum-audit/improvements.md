@@ -1966,3 +1966,16 @@ First slice implemented 2026-08-01:
   a real 32px advanced-settings disclosure; it now has a 48px minimum height
   and visible focus. Both viewports then had zero page overflow, native selects,
   sub-44px enabled targets, or console warnings/errors.
+- The next Transformer inventory slice added console-error monitoring and
+  explicit native-select-zero assertions to all three Transformer Block flows:
+  Korean completion, English 390×844 keyboard/localization, and independent
+  practice. Console and native-select-zero coverage are now both 31/32,
+  leaving 2 explicit browser-spec targets.
+- The in-app browser corrected a wrong position prediction, recorded all five
+  assembly traces, ran the pre-norm NumPy ledger, repaired the intended second-
+  residual-source failure from 1.732005 to zero, and recovered the first
+  independent residual contract from 0.350000/0.450000 errors. Korean 390×844
+  repeated failure→correction and exposed a real 32px advanced-numeric-settings
+  disclosure; it now has a 48px minimum height and visible focus. Both
+  viewports then had zero page overflow, native selects, sub-44px enabled
+  targets, or console warnings/errors.
