@@ -1,5 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
+import { findUndersizedVisibleTouchTargets } from "./helpers/touch-targets";
 
 const previewPath = "/admin/preview/curricula/linux-systems/chapters/networking-from-a-packet";
 const publicPath = "/curricula/linux-systems/chapters/networking-from-a-packet";
@@ -357,18 +358,8 @@ test("keeps the English draft keyboard-usable at 390px without untranslated or h
   await expect(page.locator(".network-completion-checklist .is-complete")).toHaveCount(3);
   await expect(completionButton).toHaveAttribute("data-completion-ready", "true");
 
-  const representativeControls = [
-    page
-      .locator(".network-journey-lab")
-      .getByRole("group", { name: "Fd, connect, and send boundaries", exact: true })
-      .getByRole("button", { name: "Fd is local · connect waits for handshake · send enqueues locally", exact: true }),
-    page.locator(".network-journey-lab").getByRole("button", { name: "Check both paths and TCP prediction" }),
-    page.locator(".network-incident-lab").getByRole("button", { name: "Reset all incidents" }),
-  ];
-  for (const control of representativeControls) {
-    const box = await control.boundingBox();
-    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
-  }
+  // 44px page-visible contract for the completed lesson state.
+  expect(await findUndersizedVisibleTouchTargets(page.locator(".lesson-article"), 44)).toEqual([]);
   const overflowingNetworkSurfaces = await page.locator('[class*="network-"]').evaluateAll((elements) => elements.filter((element) => element.scrollWidth - element.clientWidth > 1).map((element) => element.className));
   expect(overflowingNetworkSurfaces).toEqual([]);
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);

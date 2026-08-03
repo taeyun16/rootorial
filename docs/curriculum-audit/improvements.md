@@ -1712,6 +1712,29 @@ Research basis:
   warnings/errors. Korean 1280×720 showed the corrected evidence and the same
   36/36 target, width, select, overflow, and console result.
 
+### IMP-053 — Promote the packet journey from representative to page-visible touch evidence
+
+- Reconfirmed that `e2e/linux-networking.spec.ts` opens only
+  `linux-systems/networking-from-a-packet`; its filename must not be treated as
+  shared evidence for the separate Linux Networking curriculum.
+- Replaced three hand-picked height checks with the shared effective-target
+  scanner on the completed lesson article and promoted the declared scope from
+  `specific-control` to `page-visible-scan`.
+- The Codex in-app browser replayed EN 390×844 through wrong/correct prediction,
+  every causal network phase, one failed route diagnosis and all four repairs,
+  a concept retry, and three completion outputs. The initial page had 110
+  enabled targets and the completed lesson article 93; both scans found zero
+  sub-44px targets, native selects, page overflow, or console warnings/errors,
+  and English contained no untranslated Korean strings.
+- KO 1280×720 preserved the completed journey, incidents, concepts, and language
+  switch with exact 1280px document width, zero sub-44px lesson targets, native
+  selects, or console gaps. SVG text reports nonzero `scrollWidth-clientWidth`
+  because that DOM metric does not represent SVG clipping; it is not counted as
+  a desktop surface-overflow pass. Page width remained exact.
+- The page-visible scope remains state-bounded: it measures the completed state
+  and does not claim every disabled or disclosure state was simultaneously
+  visible.
+
 ## Candidates
 
 ### IMP-003 — Shared exhaustive-interaction harness

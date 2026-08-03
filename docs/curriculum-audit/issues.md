@@ -6,6 +6,23 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-080 — Networking packet E2E measured only three representative targets
+
+Resolved 2026-08-03. The `linux-systems/networking-from-a-packet` browser spec
+completed the mobile learning flow but its 44px assertion sampled only one
+prediction choice, the prediction submit button, and the incident reset. The
+audit therefore correctly classified the chapter as `specific-control`, even
+though prior in-app-browser evidence had measured a wider rendered state.
+
+The mobile E2E now runs the shared effective-target scanner over every visible,
+enabled button, link, disclosure, input, textarea, and ARIA button/radio in the
+completed lesson article. The scope advances to `page-visible-scan`, changing
+the honest distribution to 4/32 specific, 6/32 component, and 22/32 page-visible.
+This still proves one completed rendered state, not every possible disclosure or
+disabled-state transition. The similarly named spec remains correctly mapped
+only to Linux Systems `networking-from-a-packet`; it is not evidence for the six
+chapters in the separate `linux-networking` curriculum.
+
 ### CURR-079 — Linux brief link output was teaching operstate as admin state
 
 Resolved 2026-08-03. The first Linux Networking chapter said that the `DOWN`
