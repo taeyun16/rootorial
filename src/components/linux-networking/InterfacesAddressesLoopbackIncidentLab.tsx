@@ -31,10 +31,10 @@ const copy = {
       },
       "admin-down": {
         title: "사건 2 · eth0 DOWN",
-        symptom: "인터페이스와 MAC 주소는 보이지만 관리 상태가 down입니다.",
-        evidence: "$ ip -br link\nlo               UP             UNKNOWN\neth0             DOWN           02:00:00:00:00:02",
-        correct: "eth0는 이미 존재합니다. 관리 상태만 up으로 바꾸는 것이 가장 작은 복구입니다.",
-        incorrect: "DOWN 행은 장치가 존재한다는 증거입니다. 관리 상태를 직접 바꾸세요.",
+        symptom: "인터페이스와 MAC 주소는 보이고 operstate는 DOWN이며 UP flag가 없습니다.",
+        evidence: "$ ip -br link\nlo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP>\neth0             DOWN           02:00:00:00:00:02 <BROADCAST,MULTICAST>",
+        correct: "eth0는 이미 존재합니다. UP flag가 없으므로 admin 상태만 up으로 바꾸는 것이 가장 작은 복구입니다.",
+        incorrect: "DOWN은 operstate입니다. 이 사건의 admin down은 flag 목록에 UP이 없다는 증거로 판정하세요.",
       },
       "carrier-down": {
         title: "사건 3 · UP, NO-CARRIER",
@@ -79,10 +79,10 @@ const copy = {
       },
       "admin-down": {
         title: "Incident 2 · eth0 DOWN",
-        symptom: "The object and MAC are visible, but admin state is down.",
-        evidence: "$ ip -br link\nlo               UP             UNKNOWN\neth0             DOWN           02:00:00:00:00:02",
-        correct: "The eth0 object already exists. Changing only admin state to up is the smallest repair.",
-        incorrect: "A DOWN row proves the device exists. Repair admin state directly.",
+        symptom: "The object and MAC are visible, operstate is DOWN, and the UP flag is absent.",
+        evidence: "$ ip -br link\nlo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP>\neth0             DOWN           02:00:00:00:00:02 <BROADCAST,MULTICAST>",
+        correct: "The eth0 object already exists. The absent UP flag makes changing only admin state the smallest repair.",
+        incorrect: "DOWN is operstate. In this incident, the missing UP flag is the evidence that admin is down.",
       },
       "carrier-down": {
         title: "Incident 3 · UP, NO-CARRIER",

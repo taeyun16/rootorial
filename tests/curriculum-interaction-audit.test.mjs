@@ -27,9 +27,9 @@ test("labels browser-spec assertion patterns without implying exhaustive runtime
   assert.equal(report.signalCoverage.nativeSelectZero, 32);
   assert.equal(report.coverageTargets.length, 0);
   assert.deepEqual(report.touchTargetScopeCoverage, {
-    "specific-control": 6,
+    "specific-control": 5,
     "component-scan": 6,
-    "page-visible-scan": 20,
+    "page-visible-scan": 21,
   });
   assert.equal(
     report.chapters.every(({ touchTargetAuditScope }) => touchTargetAuditScope !== "undeclared"),
@@ -49,7 +49,7 @@ test("labels browser-spec assertion patterns without implying exhaustive runtime
   assert.match(markdown, /page-visible-scan/);
   assert.match(markdown, /Even page-visible scans cover one rendered state, not every possible state/);
   assert.match(markdown, /Browser-spec assertion gaps:/);
-  assert.match(markdown, /Touch-target scope: specific-control 6\/32 · component-scan 6\/32 · page-visible-scan 20\/32/);
+  assert.match(markdown, /Touch-target scope: specific-control 5\/32 · component-scan 6\/32 · page-visible-scan 21\/32/);
   assert.doesNotMatch(markdown, /\| 44px \|/);
   assert.match(markdown, /\| 44px assertion pattern \|/);
   assert.match(markdown, /\| Touch-target scope \|/);

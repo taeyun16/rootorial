@@ -6,6 +6,27 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-079 — Linux brief link output was teaching operstate as admin state
+
+Resolved 2026-08-03. The first Linux Networking chapter said that the `DOWN`
+column in `ip -br link` proved admin-down. The current iproute2 brief printer
+uses `IFLA_OPERSTATE` for that column, while Linux exposes admin intent through
+`IFF_UP` and lower-layer carrier through `IFF_LOWER_UP`. The old sentence could
+therefore teach learners to infer more than one output field proves. The
+chapter's browser spec had also drifted behind its direct-button UI: it tried
+to operate the hidden sequential command list before answering the prediction
+and selected concept answers through radio inputs that no longer exist.
+
+The chapter now makes row existence, the `UP` admin flag, carrier, and
+operstate separate visible columns and evidence. The state lab keeps operstate
+`DOWN` after `ip link set eth0 up` while carrier is absent, incident 2 includes
+the flag list needed to diagnose admin-down, and the first concept retry checks
+the same distinction. The E2E follows the direct prediction and concept
+buttons, completes the sequential state trace, then scans every currently
+visible enabled lesson target at 390×844. Its declared scope advances from
+`specific-control` to `page-visible-scan`, changing the current distribution to
+5/32, 6/32, and 21/32 respectively.
+
 ### CURR-078 — Touch-target assertions did not declare how much UI they measured
 
 Resolved 2026-08-03. After CURR-077 renamed the 44px source signal, the

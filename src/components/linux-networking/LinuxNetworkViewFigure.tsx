@@ -11,6 +11,7 @@ import { canExecuteSequentialPhase, hasMasteredSequentialEvidence } from "../../
 import {
   networkViewPhaseIds,
   networkViewPhaseSnapshot,
+  networkOperationalState,
   type HostNetworkInterface,
   type NetworkAdminState,
   type NetworkViewEvidenceCommandId,
@@ -133,6 +134,7 @@ const copy = {
     exists: "존재",
     yes: "있음",
     admin: "ADMIN",
+    operstate: "OPERSTATE",
     carrier: "LINK",
     mac: "LINK IDENTITY",
     address: "IPv4 ADDRESS",
@@ -148,15 +150,15 @@ const copy = {
       {
         short: "INSPECT",
         label: "인터페이스 존재 확인",
-        delta: "lo와 eth0 행이 보이지만 두 인터페이스의 관리 상태는 DOWN입니다.",
-        invariant: "목록에 존재하는 것과 관리 상태가 UP인 것은 서로 다른 사실입니다.",
-        announcement: "기준 상태. lo와 eth0 인터페이스가 존재하며 둘 다 관리 상태가 down입니다. lo에는 127.0.0.1 slash 8이 남아 있습니다.",
+        delta: "lo와 eth0 행이 보입니다. eth0의 operstate는 DOWN이고 UP flag가 없어 admin도 down입니다.",
+        invariant: "행의 존재, UP flag의 admin 상태, operstate 열은 서로 다른 증거입니다.",
+        announcement: "기준 상태. lo와 eth0 인터페이스가 존재합니다. eth0의 operstate는 down이고 UP flag가 없어 관리 상태도 down입니다. lo에는 127.0.0.1 slash 8이 남아 있습니다.",
       },
       {
         short: "ADMIN UP",
         label: "eth0 관리 상태 올리기",
-        delta: "eth0의 관리 상태만 UP으로 바뀌고 연결 신호는 NO-CARRIER, IPv4 주소는 없음으로 남습니다.",
-        invariant: "관리 상태를 UP으로 바꿔도 케이블이나 가상 peer의 연결 신호가 생기지는 않습니다.",
+        delta: "eth0에 UP flag가 생겨 admin은 up이지만 operstate는 DOWN, 연결 신호는 NO-CARRIER로 남습니다.",
+        invariant: "관리 상태를 UP으로 바꿔도 carrier나 operstate가 자동으로 UP이 되지는 않습니다.",
         announcement: "eth0 관리 상태가 up으로 바뀌었습니다. 연결 신호는 no carrier이고 MAC 주소는 유지되며 IPv4 주소는 아직 없습니다.",
       },
       {
@@ -210,6 +212,7 @@ const copy = {
     exists: "EXISTS",
     yes: "yes",
     admin: "ADMIN",
+    operstate: "OPERSTATE",
     carrier: "LINK",
     mac: "LINK IDENTITY",
     address: "IPv4 ADDRESS",
@@ -225,15 +228,15 @@ const copy = {
       {
         short: "INSPECT",
         label: "Observe interface existence",
-        delta: "Rows for lo and eth0 exist while both admin states are DOWN.",
-        invariant: "Appearing in the list and having a link that is UP are separate facts.",
-        announcement: "Baseline. The lo and eth0 interfaces exist with both admin states down. Lo still has 127.0.0.1 slash 8.",
+        delta: "Rows for lo and eth0 exist. eth0 operstate is DOWN and the absent UP flag proves admin is down.",
+        invariant: "Row existence, the admin UP flag, and the operstate column are separate evidence.",
+        announcement: "Baseline. The lo and eth0 interfaces exist. Eth0 operstate is down and its absent UP flag proves admin is also down. Lo still has 127.0.0.1 slash 8.",
       },
       {
         short: "ADMIN UP",
         label: "Set eth0 admin up",
-        delta: "Only eth0 admin changes to UP; carrier remains NO-CARRIER and no IPv4 address appears.",
-        invariant: "Admin UP cannot create carrier from a cable or virtual peer.",
+        delta: "eth0 gains the admin UP flag, but operstate stays DOWN, carrier stays NO-CARRIER, and no IPv4 address appears.",
+        invariant: "Admin UP cannot create carrier or make operstate UP by itself.",
         announcement: "The eth0 admin state changed to up. Carrier remains no carrier, its MAC stayed fixed, and it still has no IPv4 address.",
       },
       {
@@ -565,6 +568,7 @@ export function LinuxNetworkViewFigure({
                 <th scope="col">{t.interfaceName}</th>
                 <th scope="col">{t.exists}</th>
                 <th scope="col">{t.admin}</th>
+                <th scope="col">{t.operstate}</th>
                 <th scope="col">{t.carrier}</th>
                 <th scope="col">{t.mac}</th>
                 <th scope="col">{t.address}</th>
@@ -582,6 +586,7 @@ export function LinuxNetworkViewFigure({
                   <th scope="row" data-column={t.interfaceName}>{id}</th>
                   <td data-column={t.exists}>{t.yes}</td>
                   <td data-column={t.admin}><strong>{stateLabel(state.adminState)}</strong></td>
+                  <td data-column={t.operstate}><strong>{networkOperationalState(state)}</strong></td>
                   <td
                     className="linux-network-carrier-cell"
                     data-column={t.carrier}

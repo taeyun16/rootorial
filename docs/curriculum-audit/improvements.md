@@ -1677,6 +1677,41 @@ Research basis:
   scoped and six specific-control chapters remain explicit follow-up work rather
   than being counted as page-wide runtime proof.
 
+### IMP-052 — Read Linux link flags and operstate as separate evidence
+
+- Compared the chapter with the Linux kernel operational-state documentation,
+  current iproute2 source and `ip-link(8)`. The brief `DOWN` value is
+  operational state; admin intent comes from `IFF_UP`, and carrier from the
+  lower-layer state. The old copy incorrectly called `DOWN` admin state.
+- Added `OPERSTATE` beside `ADMIN` and `LINK` in the executable ledger. The
+  admin-up/no-carrier phase now visibly keeps operstate `DOWN`, so the learner
+  sees the counterexample instead of receiving another prose warning.
+- Rewrote incident 2 and the first concept question to require the row, state
+  column, and `<...>` flags together. The optional real-Linux commands now
+  include detailed link output and `/sys/class/net/eth0/operstate`.
+- Kept the research boundary small. `ip-address(8)` confirms protocol addresses
+  attach to devices and host scope stays inside the host, while RFC 1122 keeps
+  127/8 inside a host; those existing chapter claims needed no redesign. The
+  full RFC 2863 state machine, DORMANT/802.1X policy, and driver API were not
+  added because they do not help this first-chapter observation task.
+- Primary sources:
+  [Linux operational states](https://www.kernel.org/doc/html/latest/networking/operstates.html),
+  [iproute2 current source mirror](https://kernel.googlesource.com/pub/scm/network/iproute2/iproute2/),
+  [`ip-link(8)`](https://www.man7.org/linux/man-pages/man8/ip-link.8.html),
+  [`ip-address(8)`](https://man7.org/linux/man-pages/man8/ip-address.8.html), and
+  [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122.html).
+- Repaired the browser spec to answer the prediction before sequential commands
+  and to click the current concept buttons rather than removed radio inputs.
+  Replaced its finite target list with the shared effective-target scan and
+  promoted the audit scope to `page-visible-scan`.
+- The Codex in-app browser ran the English 390×844 flow through wrong/correct
+  prediction, all six state phases, one incident failure and four repairs, one
+  concept failure and retry, and all three completion outputs. The completed
+  state had 36/36 enabled lesson targets at least 44×44, exact 390px document
+  width, zero native selects, untranslated strings, overflow, or console
+  warnings/errors. Korean 1280×720 showed the corrected evidence and the same
+  36/36 target, width, select, overflow, and console result.
+
 ## Candidates
 
 ### IMP-003 — Shared exhaustive-interaction harness

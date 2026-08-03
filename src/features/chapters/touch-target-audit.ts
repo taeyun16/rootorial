@@ -30,7 +30,7 @@ export const touchTargetAuditScopeByE2EFile: Readonly<Record<string, TouchTarget
   "e2e/linux-curriculum.spec.ts": "page-visible-scan",
   "e2e/linux-memory.spec.ts": "page-visible-scan",
   "e2e/linux-networking-chapter-routes.spec.ts": "page-visible-scan",
-  "e2e/linux-networking-interfaces.spec.ts": "specific-control",
+  "e2e/linux-networking-interfaces.spec.ts": "page-visible-scan",
   "e2e/linux-networking.spec.ts": "specific-control",
   "e2e/linux-permissions.spec.ts": "page-visible-scan",
   "e2e/linux-processes.spec.ts": "page-visible-scan",
@@ -43,4 +43,3 @@ export const touchTargetAuditScopeByE2EFile: Readonly<Record<string, TouchTarget
   "e2e/training.spec.ts": "component-scan",
   "e2e/transformer-block.spec.ts": "specific-control",
 };
-
