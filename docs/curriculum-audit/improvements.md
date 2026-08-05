@@ -1735,6 +1735,24 @@ Research basis:
   and does not claim every disabled or disclosure state was simultaneously
   visible.
 
+### IMP-054 — Promote storage completion from representative to page-visible touch evidence
+
+- Extended the English 390×844 E2E from the path calculation into the full
+  link/unlink, dirty-loss, fsync-survival, incident, and concept journey. It now
+  preserves a failed incident and failed concept decision before recovery and
+  reaches all three completion outputs before measuring targets.
+- Replaced the three hand-picked height checks with the shared effective-target
+  scanner on the completed lesson article and promoted the declared scope from
+  `specific-control` to `page-visible-scan`.
+- The Codex in-app browser replayed the same completed English flow. The initial
+  lesson exposed 89 enabled targets and the completed state 94; both had zero
+  sub-44px targets, native selects, page overflow, storage-surface overflow, or
+  untranslated Korean strings. The completed Korean 1280×720 state retained
+  all three outputs and 94/94 conforming targets with exact document width.
+- No production component change was warranted: the runtime already met the
+  interaction contract. The improvement closes the automated evidence gap and
+  remains bounded to one completed rendered state.
+
 ## Candidates
 
 ### IMP-003 — Shared exhaustive-interaction harness

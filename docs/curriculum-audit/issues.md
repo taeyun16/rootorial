@@ -6,6 +6,22 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-081 — Storage E2E measured only three representative targets
+
+Resolved 2026-08-05. The English 390×844 storage journey already exercised a
+wrong and corrected block trace, but its 44px contract measured only the inode
+input, filesystem choice, and trace button. That finite sample could not guard
+the link, crash, incident, concept, and completion states already expected from
+the chapter.
+
+The mobile flow now completes all five storage-lab evidence checks, recovers one
+incident diagnosis and one concept decision, finishes all four incidents and
+three completion outputs, then runs the shared effective-target scanner over
+the completed lesson article. The scope advances from `specific-control` to
+`page-visible-scan`, changing the honest distribution to 3/32 specific, 6/32
+component, and 23/32 page-visible. This remains evidence for one completed
+rendered state, not every possible disabled or disclosure state.
+
 ### CURR-080 — Networking packet E2E measured only three representative targets
 
 Resolved 2026-08-03. The `linux-systems/networking-from-a-packet` browser spec

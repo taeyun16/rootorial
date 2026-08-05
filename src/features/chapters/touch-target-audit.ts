@@ -34,7 +34,7 @@ export const touchTargetAuditScopeByE2EFile: Readonly<Record<string, TouchTarget
   "e2e/linux-networking.spec.ts": "page-visible-scan",
   "e2e/linux-permissions.spec.ts": "page-visible-scan",
   "e2e/linux-processes.spec.ts": "page-visible-scan",
-  "e2e/linux-storage.spec.ts": "specific-control",
+  "e2e/linux-storage.spec.ts": "page-visible-scan",
   "e2e/mini-transformer.spec.ts": "specific-control",
   "e2e/neural-networks.spec.ts": "component-scan",
   "e2e/optimization.spec.ts": "component-scan",
