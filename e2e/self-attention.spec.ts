@@ -1,5 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
+import { findUndersizedVisibleTouchTargets } from "./helpers/touch-targets";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/self-attention";
 const publicPath = "/curricula/transformer-from-zero/chapters/self-attention";
@@ -17,6 +18,16 @@ function choiceOption(scope: Locator, label: string, value: string) {
 async function choose(scope: Locator, label: string, value: string) {
   const option = choiceOption(scope, label, value);
   await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
+
+async function chooseConceptOption(scope: Locator, questionId: string, optionIndex: number) {
+  const option = scope
+    .locator(`.concept-question[data-question-id="${questionId}"] .concept-option`)
+    .nth(optionIndex);
+  await option.focus();
+  await option.press("Space");
   await expect(option).toHaveAttribute("aria-pressed", "true");
   return option;
 }
@@ -201,13 +212,13 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   }
   await expect(page.locator(".self-attention-debug-progress strong")).toHaveText("4 / 4");
 
-  await page.locator('input[name="qkv-source"][value="same-x-separate-projections"]').check();
-  await page.locator('input[name="scaled-score"][value="divide-by-sqrt-head-dimension"]').check();
-  await page.locator('input[name="causal-mask"][value="block-future-logits-before-softmax"]').check();
-  await page.locator('input[name="multi-head-contract"][value="split-features-run-heads-concat"]').check();
-  await page.locator('input[name="position-boundary"][value="mask-limits-visibility-position-next"]').check();
+  await chooseConceptOption(page, "qkv-source", 1);
+  await chooseConceptOption(page, "scaled-score", 2);
+  await chooseConceptOption(page, "causal-mask", 0);
+  await chooseConceptOption(page, "multi-head-contract", 1);
+  await chooseConceptOption(page, "position-boundary", 2);
   await page.getByRole("button", { name: "Self-Attention 계약 확인하기" }).click();
-  await expect(page.getByText("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.")).toBeVisible();
+  await expect(page.getByText("이해 확인 완료 — 핵심 challenge 세 개의 완료 상태를 확인하세요.")).toBeVisible();
 
   await expect(page.locator(".self-attention-completion-checklist .is-complete")).toHaveCount(3);
   await expect(completionButton).toHaveAttribute("data-completion-ready", "true");
@@ -278,8 +289,19 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const lab = page.locator(".self-attention-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
   const advancedSettings = lab.locator(".challenge-advanced-settings summary");
+  const projectionPreset = lab.locator('[data-self-attention-preset="projection"]');
   const scalingPreset = lab.locator('[data-self-attention-preset="scaling"]');
   const prediction = choiceGroup(lab, "Self-Attention challenge prediction");
+  await choose(lab, "Self-Attention challenge prediction", "same-x-separate-qkv");
+  const run = lab.getByRole("button", { name: "Run the Self-Attention pipeline" });
+  await run.press("Enter");
+  await choose(lab, "Self-Attention head to inspect", "1");
+  await choose(lab, "Query token to inspect", "0");
+  const inspectProjection = lab.getByRole("button", { name: "Inspect the selected token's Q/K/V rows" });
+  await inspectProjection.focus();
+  await inspectProjection.press("Enter");
+  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(1);
+
   await scalingPreset.focus();
   await scalingPreset.press("Enter");
   await expect(scalingPreset).toHaveAttribute("aria-pressed", "true");
@@ -288,7 +310,6 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
 
   const scaling = await choose(lab, "Self-Attention score scaling", "1");
   const scalingPrediction = await choose(lab, "Self-Attention challenge prediction", "same-top-higher-entropy");
-  const run = lab.getByRole("button", { name: "Run the Self-Attention pipeline" });
   await run.focus();
   await run.press("Enter");
   await expect(scalingPrediction).toBeFocused();
@@ -303,9 +324,19 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await inspectScores.focus();
   await inspectScores.press("Enter");
   await expect(inspectScores).toBeFocused();
-  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(1);
+  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(2);
 
-  const coreControls = [advancedSettings, scalingPreset, scaling, prediction, run, scoresStage, inspectScores];
+  const coreControls = [
+    advancedSettings,
+    projectionPreset,
+    inspectProjection,
+    scalingPreset,
+    scaling,
+    prediction,
+    run,
+    scoresStage,
+    inspectScores,
+  ];
   for (const target of coreControls) {
     const box = await target.boundingBox();
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
@@ -347,16 +378,10 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const inspectOutput = lab.getByRole("button", { name: "Inspect both heads and the [T,4] handoff for the selected token" });
   await inspectOutput.focus();
   await inspectOutput.press("Enter");
-  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(4);
+  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(5);
+  await expect(lab.locator(".self-attention-evidence")).toHaveAttribute("data-mastered", "true");
   expect(await selfAttentionOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
-
-  const resetLab = lab.getByRole("button", { name: "Reset the entire Self-Attention lab", exact: true });
-  await resetLab.focus();
-  await resetLab.press("Enter");
-  await expect(resetLab).toBeFocused();
-  await expect(prediction.locator('[aria-pressed="true"]')).toHaveCount(0);
-  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(0);
 
   const firstIncident = page.locator(".self-attention-debug-card").first();
   const repairSelect = choiceGroup(firstIncident, "Repair for Self-Attention incident 1");
@@ -373,29 +398,44 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
     expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
   }
 
-  const resetDebugger = page.getByRole("button", { name: "Reset the entire Self-Attention debugger", exact: true });
-  await resetDebugger.focus();
-  await resetDebugger.press("Enter");
-  await expect(resetDebugger).toBeFocused();
-  await expect(repairSelect.locator('[aria-pressed="true"]')).toHaveCount(0);
-
-  const conceptAnswers = [
-    ['input[name="qkv-source"][value="same-x-separate-projections"]'],
-    ['input[name="scaled-score"][value="divide-by-sqrt-head-dimension"]'],
-    ['input[name="causal-mask"][value="block-future-logits-before-softmax"]'],
-    ['input[name="multi-head-contract"][value="split-features-run-heads-concat"]'],
-    ['input[name="position-boundary"][value="mask-limits-visibility-position-next"]'],
+  const repairs = [
+    "project-qkv-independently",
+    "divide-by-sqrt-head-dimension",
+    "mask-before-softmax",
+    "concat-features-then-output",
   ] as const;
-  for (const [selector] of conceptAnswers) {
-    const answer = page.locator(selector);
-    await answer.focus();
-    await answer.press("Space");
-    await expect(answer).toBeChecked();
+  for (let index = 0; index < repairs.length; index += 1) {
+    const incident = page.locator(".self-attention-debug-card").nth(index);
+    await choose(incident, `Repair for Self-Attention incident ${index + 1}`, repairs[index]);
+    await incident.getByRole("button", {
+      name: `Apply repair and run contract for Self-Attention incident ${index + 1}`,
+    }).press("Enter");
+    await expect(incident).toHaveAttribute("data-repair-result", "correct");
   }
+  await expect(page.locator(".self-attention-debug-progress strong")).toHaveText("4 / 4");
+
+  const conceptQuestionIds = [
+    "qkv-source",
+    "scaled-score",
+    "causal-mask",
+    "multi-head-contract",
+    "position-boundary",
+  ] as const;
+  for (const questionId of conceptQuestionIds) await chooseConceptOption(page, questionId, 0);
   const checkConcepts = page.getByRole("button", { name: "Check the self-attention contract" });
   await checkConcepts.focus();
   await checkConcepts.press("Enter");
-  await expect(page.getByText("Concept check complete — now confirm both activity states.", { exact: true })).toBeVisible();
+  await expect(page.locator(".concept-check-summary")).toContainText("still mixed");
+  await chooseConceptOption(page, "qkv-source", 1);
+  await chooseConceptOption(page, "scaled-score", 2);
+  await chooseConceptOption(page, "causal-mask", 0);
+  await chooseConceptOption(page, "multi-head-contract", 1);
+  await chooseConceptOption(page, "position-boundary", 2);
+  await checkConcepts.press("Enter");
+  await expect(page.getByText("Concept check complete — now confirm all three core challenge states.", { exact: true })).toBeVisible();
+
+  await expect(page.locator(".self-attention-completion-checklist .is-complete")).toHaveCount(3);
+  expect(await findUndersizedVisibleTouchTargets(page.locator(".lesson-article"), 44)).toEqual([]);
 
   expect(await selfAttentionOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);

@@ -38,7 +38,7 @@ export const touchTargetAuditScopeByE2EFile: Readonly<Record<string, TouchTarget
   "e2e/mini-transformer.spec.ts": "specific-control",
   "e2e/neural-networks.spec.ts": "component-scan",
   "e2e/optimization.spec.ts": "component-scan",
-  "e2e/self-attention.spec.ts": "specific-control",
+  "e2e/self-attention.spec.ts": "page-visible-scan",
   "e2e/sequences.spec.ts": "component-scan",
   "e2e/training.spec.ts": "component-scan",
   "e2e/transformer-block.spec.ts": "specific-control",

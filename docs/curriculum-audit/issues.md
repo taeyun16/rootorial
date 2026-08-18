@@ -6,6 +6,24 @@ No open issues in the current slice.
 
 ## Resolved
 
+### CURR-082 — Self-Attention E2E stopped at a partial state and targeted retired concept inputs
+
+Resolved 2026-08-18. The English 390×844 journey measured a finite set of lab
+and debugger controls, then reset both activities before checking concepts. Its
+concept selectors still targeted removed radio inputs even though the current
+shared concept renderer exposes direct `aria-pressed` buttons. The spec could
+therefore neither reach the current three-output completion state nor support
+the `page-visible-scan` claim.
+
+The mobile journey now completes all five numeric traces, preserves one failed
+repair before restoring all four incidents, submits an incorrect concept set
+before recovering all five answers, and reaches all three completion outputs.
+It then scans every visible enabled target in the lesson article with the shared
+effective-target helper. The scope advances from `specific-control` to
+`page-visible-scan`, changing the honest distribution to 2/32 specific, 6/32
+component, and 24/32 page-visible. The scan remains evidence for one completed
+rendered state rather than every intermediate or disclosure state.
+
 ### CURR-081 — Storage E2E measured only three representative targets
 
 Resolved 2026-08-05. The English 390×844 storage journey already exercised a

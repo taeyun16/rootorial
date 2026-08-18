@@ -1753,6 +1753,25 @@ Research basis:
   interaction contract. The improvement closes the automated evidence gap and
   remains bounded to one completed rendered state.
 
+### IMP-055 — Promote Self-Attention completion to page-visible touch evidence
+
+- Replaced the retired concept-radio selectors in both Self-Attention E2E
+  journeys with keyboard-operated direct concept buttons from the current
+  shared renderer.
+- Extended the English 390×844 journey through all five lab traces, a preserved
+  failed repair followed by all four recoveries, an incorrect concept attempt
+  followed by all five correct answers, and all three completion outputs.
+- Replaced the finite named-control touch sample with the shared effective-target
+  scanner and promoted the chapter from `specific-control` to
+  `page-visible-scan`.
+- The Codex in-app browser replayed that completed English state with 86/86
+  enabled lesson targets at least 44×44, exact 390px document width, zero native
+  selects, untranslated Korean strings, overflow, or console warnings/errors.
+  Korean 1280×720 preserved the completion state and the same 86/86 result.
+- No production component change was warranted. The rendered UX already met the
+  contract; this slice closes stale automation and state-coverage gaps without
+  claiming every intermediate or disclosure state.
+
 ## Candidates
 
 ### IMP-003 — Shared exhaustive-interaction harness
