@@ -6,6 +6,14 @@ const publicPath = "/curricula/transformer-from-zero/chapters/neural-networks";
 
 type TestPage = Parameters<typeof signInTestUser>[0];
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 function choiceGroup(scope: Locator, label: string) {
   return scope.getByRole("group", { name: label });
 }
@@ -125,6 +133,7 @@ async function completeBackpropLab(
 
 test("completes XOR, hidden backprop, network surgery, and concepts in the Korean admin draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -213,9 +222,11 @@ test("completes XOR, hidden backprop, network surgery, and concepts in the Korea
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with no heavy runtime or public access", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -330,4 +341,87 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
+});
+
+test("retries and completes the independent neural-network practice without hidden choices", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
+  await signInAsAdmin(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const response = await page.goto(`${previewPath}?lang=en`);
+  expect(response?.status()).toBe(200);
+
+  const practice = page.getByRole("region", {
+    name: "Can you rebuild the forward and backward contracts on fresh inputs?",
+  });
+  await expect(practice).toBeVisible();
+
+  await choose(
+    practice,
+    "Predict loss direction after one update",
+    "both-increase",
+  );
+  await choose(practice, "learnerSignal", "y-minus-p");
+  await practice.getByRole("button", { name: "Run both scalar fixtures" }).click();
+  await expect(practice.getByText(
+    "Inspect the first failed contract, then run the same challenge again.",
+  )).toBeVisible();
+
+  await choose(
+    practice,
+    "Predict loss direction after one update",
+    "both-decrease",
+  );
+  await choose(practice, "learnerSignal", "p-minus-y");
+  await practice.getByRole("button", { name: "Run both scalar fixtures" }).click();
+  await expect(practice.getByText("✓ δ² = ?", { exact: true })).toBeVisible();
+
+  const gradientChallenge = practice.getByRole("button", {
+    name: "02 · Multi-boundary Gradient check",
+    exact: true,
+  });
+  await gradientChallenge.press("Enter");
+  await expect(gradientChallenge).toHaveAttribute("aria-pressed", "true");
+  await choose(
+    practice,
+    "Predict analytic-to-numeric results",
+    "both-match",
+  );
+  await choose(practice, "learnerHiddenPath", "complete-chain");
+  await practice.getByRole("button", {
+    name: "Compare analytic and numeric gradients",
+  }).click();
+  await expect(practice.getByText("✓ Gradient check", { exact: true })).toBeVisible();
+
+  const transferChallenge = practice.getByRole("button", {
+    name: "03 · Transfer XOR → XNOR",
+    exact: true,
+  });
+  await transferChallenge.press(" ");
+  await expect(transferChallenge).toHaveAttribute("aria-pressed", "true");
+  await choose(practice, "Predict the XNOR truth table", "invert-labels");
+  await choose(practice, "learnerTransform", "negate-logit");
+  await practice.getByRole("button", { name: "Run both XNOR fixtures" }).click();
+  await expect(practice.getByText("✓ XOR → XNOR", { exact: true })).toBeVisible();
+  await expect(practice.getByText("3 / 3", { exact: true })).toBeVisible();
+
+  expect(await page.locator("select").count()).toBe(0);
+  expect(await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth,
+  )).toBeLessThanOrEqual(1);
+  const undersized = await practice.locator("button:enabled").evaluateAll(
+    (buttons) => buttons
+      .filter((button) => {
+        const rect = button.getBoundingClientRect();
+        return rect.width < 44 || rect.height < 44;
+      })
+      .map((button) => button.textContent?.trim() ?? ""),
+  );
+  expect(undersized).toEqual([]);
+
+  await practice.getByRole("button", {
+    name: "Reset all three challenges",
+  }).click();
+  await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });

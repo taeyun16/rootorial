@@ -40,6 +40,14 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 async function runBatch(
   lab: ReturnType<TestPage["locator"]>,
   prediction: string,
@@ -52,6 +60,7 @@ async function runBatch(
 
 test("completes mini-batch training, four repairs, and concepts in the Korean admin draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -141,10 +150,12 @@ test("completes mini-batch training, four repairs, and concepts in the Korean ad
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with no heavy runtime or public access", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -240,4 +251,97 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
+});
+
+test("retries and completes the independent Training practice on fresh batches", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
+  await signInAsAdmin(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const response = await page.goto(`${previewPath}?lang=en`);
+  expect(response?.status()).toBe(200);
+
+  const practice = page.getByRole("region", {
+    name: "Can you rebuild a training step on fresh batches?",
+  });
+  await expect(practice).toBeVisible();
+
+  await choose(
+    practice,
+    "Predict the class-gradient sum for both rows",
+    "positive-sum-both",
+  );
+  await choose(practice, "learnerGradient", "probabilities-only");
+  await practice.getByRole("button", { name: "Run both class rows" }).click();
+  await expect(practice.getByText(
+    "Inspect the first failed contract, then run the same challenge again.",
+  )).toBeVisible();
+
+  await choose(
+    practice,
+    "Predict the class-gradient sum for both rows",
+    "zero-sum-both",
+  );
+  await choose(
+    practice,
+    "learnerGradient",
+    "probability-minus-onehot",
+  );
+  await practice.getByRole("button", { name: "Run both class rows" }).click();
+  await expect(practice.getByText("✓ ∂CE/∂logits", { exact: true })).toBeVisible();
+
+  const reductionChallenge = practice.getByRole("button", {
+    name: "02 · Multi-boundary Mean reduction",
+    exact: true,
+  });
+  await reductionChallenge.press("Enter");
+  await expect(reductionChallenge).toHaveAttribute("aria-pressed", "true");
+  await choose(
+    practice,
+    "Predict the mean gradient after duplicating every sample",
+    "same-gradient",
+  );
+  await choose(practice, "learnerReduction", "mean");
+  await practice.getByRole("button", {
+    name: "Run both duplicated-batch contracts",
+  }).click();
+  await expect(practice.getByText("✓ Mean reduction", { exact: true })).toBeVisible();
+
+  const adamChallenge = practice.getByRole("button", {
+    name: "03 · Transfer Adam memory",
+    exact: true,
+  });
+  await adamChallenge.press(" ");
+  await expect(adamChallenge).toHaveAttribute("aria-pressed", "true");
+  await choose(
+    practice,
+    "Predict gradient and state at the new batch boundary",
+    "continue-moments",
+  );
+  await choose(practice, "learnerStatePolicy", "preserve-state");
+  await practice.getByRole("button", {
+    name: "Run both Adam-state transfers",
+  }).click();
+  await expect(practice.getByText("✓ Adam memory", { exact: true })).toBeVisible();
+  await expect(practice.getByText("3 / 3", { exact: true })).toBeVisible();
+
+  expect(await page.locator("select").count()).toBe(0);
+  expect(await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth,
+  )).toBeLessThanOrEqual(1);
+  const undersized = await practice.locator("button:enabled").evaluateAll(
+    (buttons) => buttons
+      .filter((button) => {
+        const rect = button.getBoundingClientRect();
+        return rect.width < 44 || rect.height < 44;
+      })
+      .map((button) => button.textContent?.trim() ?? ""),
+  );
+  expect(undersized).toEqual([]);
+
+  await practice.getByRole("button", {
+    name: "Reset all three challenges",
+  }).click();
+  await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });

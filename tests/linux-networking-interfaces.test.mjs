@@ -21,6 +21,7 @@ import {
   networkViewPhaseIds,
   networkViewPhaseSnapshot,
   networkViewPhaseSnapshots,
+  networkOperationalState,
   projectNetworkViewCommand,
   traceLocalhost,
 } from "../src/features/linux-networking/interfaces-addresses-and-loopback.ts";
@@ -48,6 +49,8 @@ test("builds six cumulative figure phases from observable network state", () => 
   assert.equal(adminUp.invariants.eth0AdminUp, true);
   assert.equal(adminUp.invariants.eth0CarrierUp, false);
   assert.equal(adminUp.commands["eth0-operstate"].lines[0], "down");
+  assert.equal(networkOperationalState(adminUp.machine.interfaces.find(({ id }) => id === "eth0")), "DOWN");
+  assert.match(adminUp.commands["ip-brief-link"].lines.join("\n"), /eth0\s+DOWN.*<BROADCAST,MULTICAST,UP>/);
 
   const addressed = networkViewPhaseSnapshot("address-added");
   assert.equal(addressed.invariants.eth0CarrierUp, false);

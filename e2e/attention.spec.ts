@@ -40,6 +40,14 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 async function attentionOverflow(page: TestPage) {
   return page.locator(
     ".attention-routing-lab, .attention-prediction-workspace, .attention-query-controls, .attention-prediction-controls, .attention-pipeline-workspace, .attention-memory-stage, .attention-stage-visual, .attention-contribution-stage, .attention-slot-inspections, .attention-counterfactual, .attention-evidence, .attention-causal-ledger, .attention-ledger-example, .attention-python-bridge, .attention-python-bridge .notebook-cell, .attention-debugger-lab, .attention-debug-grid, .attention-debug-card, .attention-chapter-shell .math-formula-display",
@@ -53,6 +61,7 @@ async function attentionOverflow(page: TestPage) {
 
 test("completes routing evidence, four repairs, and concepts in the Korean draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -193,10 +202,12 @@ test("completes routing evidence, four repairs, and concepts in the Korean draft
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with reduced motion and no overflow", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -324,4 +335,102 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
+});
+
+test("retries and completes the independent Attention practice on fresh fixtures", async ({ page }) => {
+  test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
+  await signInAsAdmin(page);
+  await page.goto(`${previewPath}?lang=en`);
+
+  const practice = page.locator(".attention-practice-deck");
+  await expect(practice.getByRole("heading", {
+    name: "Can you preserve Attention routing outside the guided lab?",
+  })).toBeVisible();
+
+  await choose(
+    practice,
+    "Predict routing output shape and meaning",
+    "context-in-key-space",
+  );
+  await choose(
+    practice,
+    "learnerNormalize + learnerRead",
+    "stable-softmax-keys",
+  );
+  await practice.getByRole("button", {
+    name: "Run both Attention routing fixtures",
+  }).click();
+  await expect(practice.getByText(
+    "Inspect the first failed contract, then run the same challenge again.",
+  )).toBeVisible();
+
+  await choose(
+    practice,
+    "Predict routing output shape and meaning",
+    "weights-per-key-context-in-value-space",
+  );
+  await choose(
+    practice,
+    "learnerNormalize + learnerRead",
+    "stable-softmax-values",
+  );
+  await practice.getByRole("button", {
+    name: "Run both Attention routing fixtures",
+  }).click();
+  await expect(practice.getByText("1 / 3", { exact: true })).toBeVisible();
+
+  const pairingChallenge = practice.getByRole("button", {
+    name: "02 · Multi-boundary K ↔ V rows",
+  });
+  await pairingChallenge.focus();
+  await pairingChallenge.press("Enter");
+  await choose(
+    practice,
+    "Predict the paired-row permutation result",
+    "context-and-top-label-stable",
+  );
+  await choose(
+    practice,
+    "learnerReorder",
+    "reorder-paired-rows",
+  );
+  await practice.getByRole("button", {
+    name: "Run both row-pairing contracts",
+  }).click();
+
+  const shiftChallenge = practice.getByRole("button", {
+    name: "03 · Transfer softmax(s+c)",
+  });
+  await shiftChallenge.focus();
+  await shiftChallenge.press("Space");
+  await choose(
+    practice,
+    "Predict the shared score-offset result",
+    "weights-context-invariant",
+  );
+  await choose(practice, "learnerSoftmax", "subtract-row-max");
+  await practice.getByRole("button", {
+    name: "Run both score-shift transfers",
+  }).click();
+  await expect(practice.getByText("3 / 3", { exact: true })).toBeVisible();
+
+  await expect(page.getByRole("button", {
+    name: "Completion is disabled in preview",
+  })).toBeDisabled();
+  expect(await practice.locator("select").count()).toBe(0);
+  const undersized = await practice.locator("button:not(:disabled)").evaluateAll(
+    (buttons) => buttons.filter((button) => {
+      const box = button.getBoundingClientRect();
+      return box.width < 44 || box.height < 44;
+    }).map((button) => button.textContent),
+  );
+  expect(undersized).toEqual([]);
+
+  await practice.getByRole("button", {
+    name: "Reset all three challenges",
+  }).click();
+  await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });

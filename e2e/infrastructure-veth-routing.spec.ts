@@ -141,16 +141,52 @@ async function repairIncidents(page: TestPage, locale: "ko" | "en") {
   }
 }
 
-async function answerConcepts(page: TestPage, locale: "ko" | "en") {
-  const answers = [
-    'input[name="veth-pair-contract"][value="two-linked-interface-objects"]',
-    'input[name="bridge-forwarding-scope"][value="same-l2-domain-only"]',
-    'input[name="gateway-reachability"][value="gateway-must-be-on-link"]',
-    'input[name="router-forwarding"][value="enable-ip-forwarding"]',
-    'input[name="return-path"][value="reply-needs-route-back"]',
-  ];
-  for (const selector of answers) await page.locator(selector).check();
-  await page.getByRole("button", { name: locale === "ko" ? "토폴로지 판정 확인" : "Check topology decisions" }).click();
+async function answerConcepts(page: TestPage, locale: "ko" | "en", retryFirst = false) {
+  const questions = page.locator(".concept-question");
+  await expect(questions).toHaveCount(5);
+  const answers = locale === "ko"
+    ? [
+        "서로 연결된 두 interface가 각자 하나의 namespace를 소유",
+        "서로 다른 CIDR 사이의 IP routing",
+        "gateway가 선택한 egress link에서 on-link가 아님",
+        "net.ipv4.ip_forward=1",
+        "reply path가 없어 왕복 연결 실패",
+      ]
+    : [
+        "two linked interfaces each have one namespace owner",
+        "IP routing between different CIDRs",
+        "the gateway is not on-link through the selected egress",
+        "net.ipv4.ip_forward=1",
+        "the connection fails because the reply path is missing",
+      ];
+  const submit = page.getByRole("button", {
+    name: locale === "ko" ? "토폴로지 판정 확인" : "Check topology decisions",
+  });
+
+  if (retryFirst) {
+    await questions.nth(0).getByRole("button", {
+      name: locale === "ko"
+        ? "한 interface가 두 namespace에 동시에 존재"
+        : "one interface exists in both namespaces",
+      exact: true,
+    }).click();
+  } else {
+    await questions.nth(0).getByRole("button", { name: answers[0], exact: true }).click();
+  }
+  for (let index = 1; index < answers.length; index += 1) {
+    await questions.nth(index).getByRole("button", { name: answers[index], exact: true }).click();
+  }
+  await submit.click();
+
+  if (retryFirst) {
+    await expect(questions.nth(0)).toContainText(
+      locale === "ko"
+        ? "Chapter 1의 interface 단일 소유권을 유지하세요"
+        : "Keep Chapter 1's single-owner interface rule",
+    );
+    await questions.nth(0).getByRole("button", { name: answers[0], exact: true }).click();
+    await submit.click();
+  }
 }
 
 function topologyOverflow(page: TestPage) {
@@ -210,7 +246,7 @@ test("completes bridge, router, incidents, and concepts in the Korean draft prev
   await expect(visual).toHaveAttribute("data-grade-state", "passed");
 
   await repairIncidents(page, "ko");
-  await answerConcepts(page, "ko");
+  await answerConcepts(page, "ko", true);
   await expect(page.getByText("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", { exact: true })).toBeVisible();
   await expect(page.locator(".network-completion-checklist .is-complete")).toHaveCount(4);
   await expect(completion).toHaveAttribute("data-completion-ready", "true");
@@ -291,6 +327,28 @@ test("keeps the English draft keyboard-usable at 390px without overflow or untra
   await answerConcepts(page, "en");
   await expect(page.getByText("Concept check complete — now confirm both activity states.", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Completion is disabled in preview" })).toHaveAttribute("data-completion-ready", "false");
+  const undersizedTargets = await page
+    .locator('.lesson-article button:not([disabled]), .lesson-article a[href], .lesson-article summary, .lesson-article input:not([disabled]), .lesson-article textarea:not([disabled])')
+    .evaluateAll((elements) => elements
+      .filter((element) => {
+        const style = getComputedStyle(element);
+        const rect = element.getBoundingClientRect();
+        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+      })
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.width < 44 || rect.height < 44;
+      })
+      .map((element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          tag: element.tagName,
+          text: (element.getAttribute("aria-label") || element.textContent || "").trim().slice(0, 80),
+          width: rect.width,
+          height: rect.height,
+        };
+      }));
+  expect(undersizedTargets).toEqual([]);
   expect(await topologyOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();

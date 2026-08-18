@@ -25,6 +25,7 @@ import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { SequenceDebuggerLab } from "./SequenceDebuggerLab";
 import { SequenceMemoryLab } from "./SequenceMemoryLab";
 import { SequencesConceptCheck } from "./SequencesConceptCheck";
+import { SequencesPracticeDeck } from "./SequencesPracticeDeck";
 
 const tocItems = {
   ko: [
@@ -35,6 +36,7 @@ const tocItems = {
     { id: "numpy-bridge", label: "NumPy로 다시 증명" },
     { id: "gates", label: "선택 · LSTM gates" },
     { id: "debug", label: "선택 · 계약 디버깅" },
+    { id: "practice", label: "선택 · 독립 연습" },
     { id: "transfer", label: "Attention으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -46,6 +48,7 @@ const tocItems = {
     { id: "numpy-bridge", label: "Recheck in NumPy" },
     { id: "gates", label: "Optional · LSTM gates" },
     { id: "debug", label: "Optional · Contract debugging" },
+    { id: "practice", label: "Optional · Independent practice" },
     { id: "transfer", label: "Transfer to Attention" },
     { id: "check", label: "Concept check" },
   ],
@@ -295,8 +298,21 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
             <SequenceDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
 
+          <section className="article-section" id="practice">
+            <div className="margin-label">08 — OPTIONAL PRACTICE · REPRODUCE / DIAGNOSE / TRANSFER</div>
+            <h2>{t(
+              "새 sequence에서 recurrence·gradient·gate 경계를 다시 조립합니다",
+              "Rebuild recurrence, gradient, and gate boundaries on fresh sequences",
+            )}</h2>
+            <p>{t(
+              "필수 memory lab의 preset을 반복하지 않고, 새 scalar sequence 두 개로 state trace를 재현하고, 서로 다른 길이의 시간축 gradient를 수치 probe로 진단하고, 새 gate 값에서 cell carry와 hidden reveal을 분리하세요.",
+              "Without repeating the required memory-lab presets, reproduce state traces on two fresh scalar sequences, diagnose two temporal-gradient path lengths against a numerical probe, and separate cell carry from hidden reveal under fresh gate values.",
+            )}</p>
+            <SequencesPracticeDeck />
+          </section>
+
           <section className="article-section" id="transfer">
-            <div className="margin-label">08 — TRANSFER</div>
+            <div className="margin-label">09 — TRANSFER</div>
             <h2>{t("마지막 query가 첫 증거를 찾는 경로 길이를 비교하세요", "Compare path lengths from the final query to the first clue")}</h2>
             <p>{t(
               "길이 T의 RNN에서 첫 token의 정보는 마지막 state까지 T−1개의 recurrent edge를 통과합니다. 다음 장에서는 마지막 query가 허용된 모든 key와 비교하고 value들의 softmax 가중합을 만듭니다. 먼 t0가 큰 weight를 받으면 한 층의 가중 경로로 강하게 참조되지만, 한 위치를 hard-select하는 것은 아닙니다. Q·K·V 계산 자체는 아직 실행하지 않습니다.",
@@ -316,7 +332,7 @@ export function SequencesChapter({ learnerCount = 0 }: { learnerCount?: number }
           </section>
 
           <section className="article-section" id="check">
-            <div className="margin-label">09 — CONCEPT CHECK</div>
+            <div className="margin-label">10 — CONCEPT CHECK</div>
             <SequencesConceptCheck onMasteryChange={setConceptsMastered} />
             <div className="sequences-completion-checklist" aria-label={t("챕터 완료 조건", "Chapter completion requirements")}>
               <span className={memoryLabComplete ? "is-complete" : undefined}>{memoryLabComplete ? "✓" : "○"} {t("필수 sequence memory lab", "Required sequence memory lab")}</span>

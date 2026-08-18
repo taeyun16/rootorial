@@ -21,6 +21,7 @@ import { AuthControls } from "./AuthControls";
 import { PublicLearningProof } from "./PublicLearningProof";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { usePublicationPreview } from "./PublicationPreview";
+import { VectorsPracticeDeck } from "./vectors/VectorsPracticeDeck";
 import { useLocale } from "../features/localization/localization";
 import { chaptersEn, chaptersKo } from "../data/curriculum";
 import {
@@ -35,6 +36,7 @@ const tocItemsKo = [
   { id: "orientation", label: "행·열과 전치" },
   { id: "tensor-shape", label: "텐서 shape" },
   { id: "dot-product", label: "내적" },
+  { id: "practice", label: "선택 · 독립 연습" },
   { id: "check", label: "이해 확인" },
 ];
 
@@ -44,6 +46,7 @@ const tocItemsEn = [
   { id: "orientation", label: "Rows, columns, transpose" },
   { id: "tensor-shape", label: "Tensor shape" },
   { id: "dot-product", label: "Dot product" },
+  { id: "practice", label: "Optional · Independent practice" },
   { id: "check", label: "Concept check" },
 ];
 
@@ -381,8 +384,21 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             </div>
           </section>
 
+          <section className="article-section" id="practice">
+            <div className="margin-label">06 — OPTIONAL PRACTICE · REPRODUCE / DIAGNOSE / TRANSFER</div>
+            <h2>{t(
+              "walkthrough 없이 shape 규칙을 다시 만드세요",
+              "Rebuild the shape rules without the walkthrough",
+            )}</h2>
+            <p>{t(
+              "앞선 실습과 다른 숫자로 reshape 추론, broadcasting 실패 경계, Attention score shape를 각각 독립적으로 증명합니다.",
+              "Use fresh numbers to independently prove reshape inference, a broadcasting failure boundary, and Attention score shape.",
+            )}</p>
+            <VectorsPracticeDeck />
+          </section>
+
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">06 — CHECK</div>
+            <div className="margin-label">07 — CHECK</div>
             <h2>{isKo ? "이해 확인: 계산 전에 구조를 예측하기" : "Concept check: predict the structure before calculating"}</h2>
             <p>
               {isKo

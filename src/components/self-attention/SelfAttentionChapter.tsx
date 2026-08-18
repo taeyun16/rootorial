@@ -26,6 +26,7 @@ import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { SelfAttentionConceptCheck } from "./SelfAttentionConceptCheck";
 import { SelfAttentionDebuggerLab } from "./SelfAttentionDebuggerLab";
 import { SelfAttentionLab } from "./SelfAttentionLab";
+import { SelfAttentionPracticeDeck } from "./SelfAttentionPracticeDeck";
 
 const tocItems = {
   ko: [
@@ -38,6 +39,7 @@ const tocItems = {
     { id: "self-attention-lab", label: "핵심 3 challenge lab" },
     { id: "numpy-bridge", label: "선택 NumPy bridge" },
     { id: "debug", label: "선택 · 정보 누출·shape 디버깅" },
+    { id: "practice", label: "선택 · 독립 수행" },
     { id: "transfer", label: "Transformer block으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -51,6 +53,7 @@ const tocItems = {
     { id: "self-attention-lab", label: "Three-core-challenge lab" },
     { id: "numpy-bridge", label: "Optional NumPy bridge" },
     { id: "debug", label: "Optional · Debug leaks and shapes" },
+    { id: "practice", label: "Optional · Independent practice" },
     { id: "transfer", label: "Transfer to the Transformer block" },
     { id: "check", label: "Concept check" },
   ],
@@ -317,8 +320,13 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
             <SelfAttentionDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
 
+          <section className="article-section" id="practice">
+            <div className="margin-label">09 — OPTIONAL PRACTICE · INDEPENDENT PERFORMANCE</div>
+            <SelfAttentionPracticeDeck />
+          </section>
+
           <section className="article-section" id="transfer">
-            <div className="margin-label">09 — TRANSFER TO A TRANSFORMER BLOCK</div>
+            <div className="margin-label">10 — TRANSFER TO A TRANSFORMER BLOCK</div>
             <h2>{t("[T,d_model] 출력은 완성된 Transformer block이 아니라 다음 조립 지점입니다", "A [T,d_model] output is the next assembly point, not a complete Transformer block")}</h2>
             <div className="self-attention-transfer-task">
               <strong>{t("전이 과제", "TRANSFER TASK")}</strong>
@@ -331,7 +339,7 @@ export function SelfAttentionChapter({ learnerCount = 0 }: { learnerCount?: numb
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">10 — CONCEPT CHECK</div>
+            <div className="margin-label">11 — CONCEPT CHECK</div>
             <SelfAttentionConceptCheck onMasteryChange={setConceptsMastered} />
             <div className="self-attention-completion-checklist" role="status" aria-live="polite">
               <span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("핵심 challenge 3개", "Three core challenges")}</span>

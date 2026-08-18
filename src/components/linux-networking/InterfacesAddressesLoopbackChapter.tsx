@@ -112,7 +112,7 @@ export function InterfacesAddressesLoopbackChapter({
             <div className="lesson-objectives">
               <span>{t("학습 목표", "LEARNING OBJECTIVES")}</span>
               <ul>
-                <li>{t("인터페이스의 존재, 관리 상태(admin), 연결 신호(carrier)를 서로 다른 관찰 결과로 읽을 수 있다.", "Read interface existence, admin state, and carrier as separate observations.")}</li>
+                <li>{t("인터페이스의 존재, 관리 상태(admin), 연결 신호(carrier), 운용 상태(operstate)를 서로 다른 관찰 결과로 읽을 수 있다.", "Read interface existence, admin state, carrier, and operstate as separate observations.")}</li>
                 <li>{t("MAC 주소와 IPv4 주소·프리픽스가 담당하는 정보를 구분할 수 있다.", "Distinguish a MAC address from an IPv4 address and prefix.")}</li>
                 <li>{t("localhost 이름 해석과 lo를 통한 로컬 전달이 별도 단계임을 설명할 수 있다.", "Explain why localhost resolution and local delivery through lo are separate steps.")}</li>
                 <li>{t("인터페이스·링크·주소·루프백 장애를 가장 작은 수정으로 복구할 수 있다.", "Repair interface, link, address, and loopback failures with the smallest change.")}</li>
@@ -146,16 +146,16 @@ export function InterfacesAddressesLoopbackChapter({
             <h2>{t("DOWN 행이 보인다면 인터페이스는 이미 존재합니다", "If a DOWN row is visible, the interface already exists")}</h2>
             <p>
               {isKo ? (
-                <><code>ip -br link</code>가 <code>eth0 DOWN</code>을 출력하면 두 사실을 읽을 수 있습니다. <code>eth0</code> 인터페이스가 목록에 있고 관리 상태가 down입니다. 반대로 장치나 드라이버가 없다면 행 자체가 나타나지 않습니다. <code>ip link set eth0 up</code>은 관리 상태만 바꾸며 케이블 또는 가상 peer의 연결 신호(carrier)를 만들어 내지 않습니다.</>
+                <><code>ip -br link</code>의 <code>eth0 DOWN</code>에서 행은 인터페이스의 존재를, <code>DOWN</code> 열은 운용 상태(operstate)를 말합니다. admin 상태는 같은 행의 <code>&lt;...&gt;</code> flag 목록에서 <code>UP</code>의 유무로 따로 읽어야 합니다. 장치나 드라이버가 없다면 행 자체가 나타나지 않습니다. <code>ip link set eth0 up</code>은 admin flag만 바꾸며 케이블 또는 가상 peer의 연결 신호(carrier)를 만들어 내지 않으므로 operstate가 여전히 <code>DOWN</code>일 수 있습니다.</>
               ) : (
-                <>When <code>ip -br link</code> prints <code>eth0 DOWN</code>, it reveals two facts: the <code>eth0</code> object exists and its admin state is down. A missing device or driver produces no row. <code>ip link set eth0 up</code> changes only admin state; it cannot create carrier from a cable or virtual peer.</>
+                <>In <code>ip -br link</code>, the <code>eth0</code> row proves the interface exists while the <code>DOWN</code> column reports operational state. Read admin state separately from the presence or absence of <code>UP</code> in the same row's <code>&lt;...&gt;</code> flags. A missing device or driver produces no row. <code>ip link set eth0 up</code> changes the admin flag only; it cannot create carrier from a cable or virtual peer, so operstate may remain <code>DOWN</code>.</>
               )}
             </p>
             <div className="concept-callout misconception-callout">
               <span className="callout-mark">!</span>
               <div>
-                <strong>{t("UP ≠ 연결 완료", "UP ≠ connected")}</strong>
-                <p>{t("관리자가 인터페이스를 켰다는 사실과 연결 상대가 있어 carrier가 감지된 사실은 별개입니다. 주소 할당 역시 두 상태를 대신하지 않습니다.", "The administrator enabling an interface and a link partner producing carrier are separate axes. Address assignment replaces neither one.")}</p>
+                <strong>{t("UP flag ≠ operstate UP", "UP flag ≠ operstate UP")}</strong>
+                <p>{t("관리자가 인터페이스를 켠 admin flag, 하위 계층의 carrier, 둘을 반영한 operstate는 별개입니다. 주소 할당 역시 어느 상태도 대신하지 않습니다.", "The admin flag, lower-layer carrier, and resulting operstate are separate axes. Address assignment replaces none of them.")}</p>
               </div>
             </div>
           </section>
@@ -196,7 +196,7 @@ export function InterfacesAddressesLoopbackChapter({
             <div className="margin-label">06 — OPTIONAL REAL LINUX OBSERVATION</div>
             <h2>{t("실제 Linux에서도 같은 상태를 확인해 보세요", "Check the same states on a real Linux system")}</h2>
             <p>{t("로컬 Linux나 VM이 있다면 다음 조회 명령으로 인터페이스 이름, 링크 상태, 주소와 로컬 경로를 따로 확인할 수 있습니다. 인터페이스 이름과 출력은 배포판·VM·네트워크 네임스페이스에 따라 달라집니다. 이 선택 실습은 챕터 완료에 필요하지 않으며 root 권한이나 외부 네트워크도 요구하지 않습니다.", "If a local Linux machine or VM is available, these read-only commands inspect interface names, link state, addresses, and the local route separately. Interface names and output vary by distribution, VM, and network namespace. This optional lab is not required for completion and needs neither root nor external network access.")}</p>
-            <pre className="network-view-observation-command" aria-label={t("선택 Linux 네트워크 관찰 명령", "Optional Linux network observation commands")}><code>{`ip -br link\nip -br address\nip route get 127.0.0.1\ngetent ahostsv4 localhost`}</code></pre>
+            <pre className="network-view-observation-command" aria-label={t("선택 Linux 네트워크 관찰 명령", "Optional Linux network observation commands")}><code>{`ip -br link\nip -details link show dev eth0\ncat /sys/class/net/eth0/operstate\nip -br -4 address\nip route get 127.0.0.1\ngetent ahostsv4 localhost`}</code></pre>
           </section>
 
           <section className="article-section" id="transfer">

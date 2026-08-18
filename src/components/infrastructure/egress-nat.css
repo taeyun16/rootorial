@@ -14,7 +14,7 @@
 .nat-check-control { grid-template-columns: auto 1fr; align-items: start; }
 .nat-control-grid select, .nat-incident-card select, .nat-run-row select { width: 100%; min-height: 2.7rem; }
 .nat-derived-state { padding: .75rem; border-left: 3px solid #ffb547; }
-.nat-flow-visualization { margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--border-color, #354052); background: color-mix(in srgb, var(--surface, #111827) 94%, #0b6a73 6%); color: #f3f7fb; }
+.nat-flow-visualization { container-type: inline-size; margin: 1.5rem 0; padding: 1rem; border: 1px solid var(--border-color, #354052); background: color-mix(in srgb, var(--surface, #111827) 94%, #0b6a73 6%); color: #f3f7fb; }
 .nat-flow-visualization code { color: inherit; }
 .nat-visual-header > strong { font: 700 .78rem ui-monospace, monospace; text-transform: uppercase; }
 .nat-topology-map { display: grid; grid-template-columns: minmax(0, 1fr) 7rem minmax(0, 1fr) 7rem minmax(0, 1fr); gap: .7rem; align-items: center; margin-top: 1rem; }
@@ -58,6 +58,11 @@
 .nat-incident-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .nat-incident-card > span { font: 700 .68rem ui-monospace, monospace; color: #ffca76; }
 .nat-incident-card .button { margin-top: .35rem; }
+@container (max-width: 56.25rem) {
+  .nat-topology-map { grid-template-columns: 1fr; }
+  .nat-connector { transform: rotate(90deg); width: 5rem; margin: -1rem auto; }
+  .nat-node { min-height: 0; }
+}
 @media (max-width: 900px) {
   .nat-control-grid { grid-template-columns: 1fr; }
   .nat-topology-map { grid-template-columns: 1fr; }

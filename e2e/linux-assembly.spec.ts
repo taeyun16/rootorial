@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
 
 const previewPath = "/admin/preview/curricula/linux-systems/chapters/assemble-a-tiny-linux";
@@ -28,6 +28,22 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function collectConsoleErrors(page: TestPage) {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  return errors;
+}
+
+async function choose(scope: Locator, groupName: string, optionName: string) {
+  const option = scope
+    .getByRole("group", { name: groupName, exact: true })
+    .getByRole("button", { name: optionName, exact: true });
+  await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+}
+
 async function activate(control: ReturnType<TestPage["getByRole"]>, useKeyboard: boolean) {
   if (useKeyboard) {
     await control.focus();
@@ -44,32 +60,29 @@ async function completeAssembly(
 ) {
   const isKo = locale === "ko";
   const lab = page.locator(".tiny-system-assembly-lab");
-  const prediction = lab.getByRole("combobox", {
-    name: isKo ? "다음 최초 실패 경계 예측" : "Predicted next first-failure boundary",
-  });
   const run = lab.getByRole("button", {
     name: isKo ? "부팅·요청 실행하고 판정" : "Run boot and request, then grade",
   });
 
-  await prediction.selectOption("init-not-executable");
+  await choose(lab, isKo ? "다음 stop code" : "Next stop code", isKo ? "/init 실행 bit가 없음" : "/init has no execute bit");
   await activate(run, useKeyboard);
   await expect(lab.locator(".tiny-system-attempt strong")).toHaveText("init-not-executable");
   await expect(lab.locator(".tiny-system-live-feedback")).toContainText(
     isKo ? "예측이 맞았습니다: /init 실행 bit가 없음" : "Prediction correct: /init has no execute bit",
   );
 
-  await lab.getByRole("combobox", { name: "PID 1 init mode" }).selectOption("0755");
-  await prediction.selectOption("synack-no-return-route");
+  await choose(lab, "/init mode", "0755 · rwxr-xr-x");
+  await choose(lab, isKo ? "다음 stop code" : "Next stop code", isKo ? "SYN-ACK return route가 없음" : "The SYN-ACK has no return route");
   await activate(run, useKeyboard);
   await expect(lab.locator(".tiny-system-attempt strong")).toHaveText("synack-no-return-route");
 
-  await lab.getByRole("combobox", { name: "SYN-ACK default return route" }).selectOption("10.0.0.1");
-  await prediction.selectOption("report-read-denied");
+  await choose(lab, isKo ? "default return route" : "Default return route", "default via 10.0.0.1");
+  await choose(lab, isKo ? "다음 stop code" : "Next stop code", isKo ? "report file group read 거부" : "Group read of the report file is denied");
   await activate(run, useKeyboard);
   await expect(lab.locator(".tiny-system-attempt strong")).toHaveText("report-read-denied");
 
-  await lab.getByRole("combobox", { name: "report file mode" }).selectOption("0640");
-  await prediction.selectOption("served");
+  await choose(lab, "/srv/report.txt mode", "0640 · group read");
+  await choose(lab, isKo ? "다음 stop code" : "Next stop code", isKo ? "remote recv까지 18 byte 전달" : "All 18 bytes reach remote recv");
   await activate(run, useKeyboard);
   await expect(lab.locator(".tiny-system-attempt strong")).toHaveText("served");
   await expect(lab.locator(".tiny-system-live-feedback")).toContainText(
@@ -78,10 +91,10 @@ async function completeAssembly(
       : "Prediction correct. Now open all five probes and collect boundary-specific evidence.",
   );
 
-  const explorer = lab.getByRole("group", {
+  const explorer = lab.getByRole("tablist", {
     name: isKo ? "작은 Linux readiness probe 단계" : "Tiny Linux readiness probe stages",
   });
-  const tabs = explorer.getByRole("button");
+  const tabs = explorer.getByRole("tab");
   await expect(tabs).toHaveCount(5);
   const probes = [
     "boot log · ls -l /init",
@@ -120,15 +133,9 @@ async function completeIncidents(
   await expect(cards).toHaveCount(4);
 
   const init = cards.nth(0);
-  await init.getByRole("combobox", {
-    name: isKo ? "init 사건 PID 1 경로" : "Init incident PID 1 path",
-  }).selectOption("/init");
-  await init.getByRole("combobox", {
-    name: isKo ? "기존 kernel 보존" : "Preserve existing kernel",
-  }).selectOption("true");
-  await init.getByRole("combobox", {
-    name: isKo ? "기존 initramfs 보존" : "Preserve existing initramfs",
-  }).selectOption("true");
+  await choose(init, isKo ? "PID 1 경로" : "PID 1 path", "/init");
+  await choose(init, isKo ? "기존 kernel 보존" : "Preserve existing kernel", "true");
+  await choose(init, isKo ? "기존 initramfs 보존" : "Preserve existing initramfs", "true");
   const initSubmit = init.getByRole("button", {
     name: isKo ? "상태 재계산·진단" : "Recompute state and diagnose",
   });
@@ -141,54 +148,34 @@ async function completeIncidents(
   await expect(init).toHaveClass(/is-correct/);
 
   const supervision = cards.nth(1);
-  await supervision.getByRole("combobox", {
-    name: isKo ? "PID 1 사건 zombie 처리" : "PID 1 incident zombie action",
-  }).selectOption("wait-child");
-  await supervision.getByRole("combobox", {
-    name: isKo ? "PID 1 사건 서비스 재시작" : "PID 1 incident service restart",
-  }).selectOption("spawn-child");
+  await choose(supervision, isKo ? "zombie 처리" : "Zombie action", "wait(child)");
+  await choose(supervision, isKo ? "서비스 재시작" : "Service restart", "spawn child");
   await supervision.getByRole("spinbutton", {
     name: isKo ? "PID 1 사건 새 PID" : "PID 1 incident new PID",
   }).fill("8");
   await supervision.getByRole("spinbutton", {
     name: isKo ? "PID 1 사건 새 PPID" : "PID 1 incident new PPID",
   }).fill("1");
-  await supervision.getByRole("combobox", {
-    name: isKo ? "PID 1 유지" : "PID 1 remains",
-  }).selectOption("true");
+  await choose(supervision, isKo ? "PID 1 유지" : "PID 1 remains", "true");
   await supervision.getByRole("button", {
     name: isKo ? "상태 재계산·진단" : "Recompute state and diagnose",
   }).click();
   await expect(supervision).toHaveClass(/is-correct/);
 
   const access = cards.nth(2);
-  await access.getByRole("combobox", {
-    name: isKo ? "권한 사건 service UID" : "Permission incident service UID",
-  }).selectOption("1100");
-  await access.getByRole("combobox", {
-    name: isKo ? "권한 사건 service GID" : "Permission incident service GID",
-  }).selectOption("4000");
-  await access.getByRole("combobox", {
-    name: isKo ? "권한 사건 directory mode" : "Permission incident directory mode",
-  }).selectOption("0750");
-  await access.getByRole("combobox", {
-    name: isKo ? "권한 사건 report group" : "Permission incident report group",
-  }).selectOption("4000");
-  await access.getByRole("combobox", {
-    name: isKo ? "권한 사건 report mode" : "Permission incident report mode",
-  }).selectOption("0640");
+  await choose(access, "reportd UID", "1100 · report");
+  await choose(access, "reportd GID", "4000 · report");
+  await choose(access, "/srv mode", "0750");
+  await choose(access, "report group", "4000 · report");
+  await choose(access, "report mode", "0640");
   await access.getByRole("button", {
     name: isKo ? "상태 재계산·진단" : "Recompute state and diagnose",
   }).click();
   await expect(access).toHaveClass(/is-correct/);
 
   const listener = cards.nth(3);
-  await listener.getByRole("combobox", {
-    name: isKo ? "listener 사건 listen 주소" : "Listener incident listen address",
-  }).selectOption("0.0.0.0");
-  await listener.getByRole("combobox", {
-    name: isKo ? "listener 사건 listen port" : "Listener incident listen port",
-  }).selectOption("8080");
+  await choose(listener, isKo ? "listen 주소" : "Listen address", "0.0.0.0");
+  await choose(listener, isKo ? "listen port" : "Listen port", "8080");
   for (const [key, value] of [
     ["listenerFd", "3"],
     ["acceptedFd", "4"],
@@ -211,13 +198,16 @@ async function completeConceptChecks(
   locale: Locale,
   useKeyboard = false,
 ) {
-  await page.locator('input[name="artifact-runtime-boundary"][value="rootfs-carries-userspace"]').check();
-  await page.locator('input[name="pid-one-service-order"][value="mount-network-then-service"]').check();
-  await page.locator('input[name="least-privilege-service"][value="group-read-without-world-write"]').check();
-  await page.locator('input[name="readiness-evidence"][value="probe-each-boundary"]').check();
-  await page.locator('input[name="optional-v86-scope"][value="fixed-guest-observation-only"]').check();
+  const isKo = locale === "ko";
+  const questions = page.locator(".concept-question");
+  const correctAnswers = isKo
+    ? [/initramfs manifest에 \/init/, /필요한 filesystem mount/, /reportd의 egid/, /mount·credentials/, /고정 guest의 실제 kernel/]
+    : [/Add \/init and the required userspace/, /Mount required filesystems/, /Give reportd GID 4000/, /Check mounts, credentials/, /It lets us compare real kernel/];
+  for (let index = 0; index < correctAnswers.length; index += 1) {
+    await questions.nth(index).getByRole("button", { name: correctAnswers[index] }).click();
+  }
   const submit = page.getByRole("button", {
-    name: locale === "ko" ? "작은 Linux 계약 확인하기" : "Check the tiny-Linux contracts",
+    name: isKo ? "작은 Linux 계약 확인하기" : "Check the tiny-Linux contracts",
   });
   if (useKeyboard) {
     await submit.focus();
@@ -226,7 +216,7 @@ async function completeConceptChecks(
     await submit.click();
   }
   await expect(page.getByText(
-    locale === "ko"
+    isKo
       ? "이해 확인 완료 — 조립 실습과 사건 진단의 완료 상태를 확인하세요."
       : "Concept check complete — now confirm the assembly and incident activity states.",
   )).toBeVisible();
@@ -236,6 +226,7 @@ test("completes assembly, incidents, and concepts in the Korean admin draft prev
   test.setTimeout(120_000);
   await signInAsAdmin(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = collectConsoleErrors(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
 
   const response = await page.goto(previewPath);
@@ -255,11 +246,12 @@ test("completes assembly, incidents, and concepts in the Korean admin draft prev
   await expect(page.locator('.tiny-system-incident-lab [data-interactive-ready="true"]')).toHaveCount(1);
   const completionButton = page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" });
   await expect(completionButton).toHaveAttribute("data-completion-ready", "false");
+  await expect(page.locator("select")).toHaveCount(0);
 
   const firstIncident = page.locator(".tiny-system-incident-card").first();
-  await firstIncident.getByRole("combobox", { name: "init 사건 PID 1 경로" }).selectOption("/sbin/init");
-  await firstIncident.getByRole("combobox", { name: "기존 kernel 보존" }).selectOption("true");
-  await firstIncident.getByRole("combobox", { name: "기존 initramfs 보존" }).selectOption("true");
+  await choose(firstIncident, "PID 1 경로", "/sbin/init");
+  await choose(firstIncident, "기존 kernel 보존", "true");
+  await choose(firstIncident, "기존 initramfs 보존", "true");
   await firstIncident.getByRole("button", { name: "상태 재계산·진단" }).click();
   await expect(firstIncident).toHaveClass(/is-incorrect/);
   await expect(firstIncident.locator(".tiny-system-incident-feedback")).toContainText(
@@ -268,6 +260,15 @@ test("completes assembly, incidents, and concepts in the Korean admin draft prev
 
   await completeAssembly(page, "ko");
   await completeIncidents(page, "ko");
+  const conceptQuestions = page.locator(".concept-question");
+  await conceptQuestions.nth(0).getByRole("button", { name: /kernel config에서 init/ }).click();
+  await conceptQuestions.nth(1).getByRole("button", { name: /필요한 filesystem mount/ }).click();
+  await conceptQuestions.nth(2).getByRole("button", { name: /reportd의 egid/ }).click();
+  await conceptQuestions.nth(3).getByRole("button", { name: /mount·credentials/ }).click();
+  await conceptQuestions.nth(4).getByRole("button", { name: /고정 guest의 실제 kernel/ }).click();
+  await page.getByRole("button", { name: "작은 Linux 계약 확인하기" }).click();
+  await expect(conceptQuestions.nth(0)).toContainText("artifact, PID 1, 권한과 readiness 증거를 다시 나누세요");
+  await expect(page.locator(".tiny-system-completion-checklist .is-complete")).toHaveCount(2);
   await completeConceptChecks(page, "ko");
   await expect(page.locator(".tiny-system-completion-checklist .is-complete")).toHaveCount(3);
   await expect(completionButton).toHaveAttribute("data-completion-ready", "true");
@@ -275,16 +276,19 @@ test("completes assembly, incidents, and concepts in the Korean admin draft prev
   await expect(page.getByRole("button", { name: "Linux 부팅 시작" })).toBeEnabled();
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the complete English capstone keyboard-usable at 390px before optional runtime starts", async ({ page }) => {
   test.setTimeout(120_000);
   await signInAsAdmin(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = collectConsoleErrors(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
 
@@ -303,6 +307,7 @@ test("keeps the complete English capstone keyboard-usable at 390px before option
   await expect(page.locator('.tiny-system-incident-lab [data-interactive-ready="true"]')).toHaveCount(1);
   const completionButton = page.getByRole("button", { name: "Completion is disabled in preview" });
   await expect(completionButton).toHaveAttribute("data-completion-ready", "false");
+  await expect(page.locator("select")).toHaveCount(0);
 
   const untranslated = await page.locator(".lesson-article").evaluate((root) => {
     const rows: string[] = [];
@@ -330,9 +335,10 @@ test("keeps the complete English capstone keyboard-usable at 390px before option
   expect(await resetAssembly.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
   await resetAssembly.focus();
   await resetAssembly.press("Enter");
-  await expect(page.locator(".tiny-system-assembly-lab").getByRole("combobox", {
-    name: "PID 1 init mode",
-  })).toHaveValue("0644");
+  await expect(page.locator(".tiny-system-assembly-lab")
+    .getByRole("group", { name: "/init mode", exact: true })
+    .getByRole("button", { name: "0644 · rw-r--r--", exact: true }))
+    .toHaveAttribute("aria-pressed", "true");
   const resetIncidents = page.locator(".tiny-system-incident-lab").getByRole("button", { name: "Reset incidents" });
   await resetIncidents.focus();
   await resetIncidents.press("Enter");
@@ -345,23 +351,24 @@ test("keeps the complete English capstone keyboard-usable at 390px before option
   await expect(completionButton).toHaveAttribute("data-completion-ready", "true");
   await expect(page.getByRole("button", { name: "Start Linux boot" })).toBeEnabled();
 
-  const representativeControls = [
-    page.locator(".tiny-system-assembly-lab").getByRole("combobox", {
-      name: "Predicted next first-failure boundary",
-    }),
-    resetAssembly,
-    page.locator(".tiny-system-incident-lab").getByRole("combobox", {
-      name: "Init incident PID 1 path",
-    }),
-    resetIncidents,
-    page.getByRole("button", { name: "Check the tiny-Linux contracts" }),
-    page.getByRole("button", { name: "Start Linux boot" }),
-  ];
-  for (const control of representativeControls) {
-    const box = await control.boundingBox();
-    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
-    expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
-  }
+  const undersizedTargets = await page
+    .locator('.lesson-article button:not([disabled]), .lesson-article a[href], .lesson-article summary, .lesson-article input:not([disabled])')
+    .evaluateAll((elements) => elements
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return style.visibility !== "hidden"
+          && style.display !== "none"
+          && rect.width > 0
+          && rect.height > 0
+          && (rect.width < 44 || rect.height < 44);
+      })
+      .map((element) => ({
+        label: element.textContent?.trim() || element.getAttribute("aria-label"),
+        width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height,
+      })));
+  expect(undersizedTargets).toEqual([]);
 
   const horizontalOverflow = await page.evaluate(
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -374,8 +381,10 @@ test("keeps the complete English capstone keyboard-usable at 390px before option
   );
   expect(overflowingTinySystemSurfaces).toEqual([]);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });

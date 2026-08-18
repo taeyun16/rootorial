@@ -1136,6 +1136,642 @@ Research basis:
   origin authentication therefore remains a signature/provenance concern, not
   a property of this fingerprint.
 
+### IMP-037 — Independent practice deck and Optimization pilot
+
+- Added a reusable practice contract with three levels: reproduce one boundary,
+  diagnose a multi-boundary failure, and transfer the rule to fresh fixtures.
+  Each result exposes expected, actual, and explanatory evidence immediately
+  beside the learner controls.
+- Piloted the contract in Optimization with three independent problems:
+  complete both learner-owned update operators, diagnose correct-sign
+  overshoot and choose a stable repair, then select one learning rate that
+  lands on target for two new fixtures with shared curvature.
+- Kept fixed support code, learner-owned controls, retry/reset state, and
+  session-only mastery visually distinct. The deck is optional and does not
+  mutate the existing chapter-completion contract.
+- In the in-app browser, reproduced a three-contract failure and retry, passed
+  all three problems, reset all evidence, switched KO/EN, activated a mobile
+  prediction by keyboard, and confirmed reset focus recovery. At 1280×720 and
+  390×844 there were no console errors, native selects, horizontal overflow,
+  or enabled practice buttons below 44px.
+
+Research basis:
+
+- [TensorTonic's problem model](https://www.tensortonic.com/) emphasizes
+  implementing an algorithm, running it against real test cases, and seeing
+  exactly where it breaks. Its
+  [Optimization study plan](https://www.tensortonic.com/study-plans/math-optimization)
+  separates foundations, gradient-descent basics, adaptive methods, scheduling,
+  regularization, and advanced optimization into explicit problem sets rather
+  than hiding them in one long lesson.
+- Rootorial adopts the independently executable problem and explicit test
+  evidence, but not the full editor, account, streak, leaderboard, or cloud
+  execution model. The first pilot stays deterministic, local, dependency-free,
+  and small enough to reuse across existing chapters without changing their
+  completion gates.
+
+### IMP-038 — Vectors independent shape-practice pilot
+
+- Reused the practice contract in Vectors as one continuous workspace rather
+  than a grid of disconnected cards or a hidden selector. Three direct challenge
+  buttons expose reproduce, diagnose, and transfer states and keep every result
+  next to the learner's choice.
+- Added fresh deterministic fixtures for `reshape(3, -1)`, right-to-left
+  broadcasting diagnosis, and Attention score shape. The learner first predicts
+  the output, chooses the smallest editable expression, runs both visible and
+  second fixtures, and receives expected/actual/explanation evidence for each
+  contract.
+- Kept support code read-only, evidence session-only, resets deterministic, and
+  the existing completion gate unchanged. Explicit Enter/Space handling now
+  covers the shared challenge navigation as well as the direct answer buttons.
+- In the in-app browser, an incorrect reshape attempt exposed only the second
+  fixture failure before a successful retry; broadcasting and Attention then
+  passed for 3/3 independent evidence. Korean mobile transfer, all-state reset,
+  keyboard navigation, and focus recovery also passed. At 1280×720 and 390×844
+  there were no console errors, native selects, horizontal overflow, or enabled
+  practice buttons below 44px.
+
+Research basis:
+
+- [TensorTonic's Linear Algebra study plan](https://www.tensortonic.com/study-plans/math-linear-algebra)
+  moves from vector and matrix operations into machine-learning applications,
+  including scaled dot-product Attention. Rootorial mirrors that transfer while
+  keeping scaling and masking in the later Attention chapters.
+- [TensorTonic's NumPy study plan](https://www.tensortonic.com/study-plans/numpy-basics)
+  treats reshaping and broadcasting as executable problem sets. Rootorial uses
+  the same problem-sized practice idea but keeps execution deterministic and
+  local, with no account, cloud editor, leaderboard, or streak dependency.
+
+### IMP-039 — Neural Networks independent gradient-practice pilot
+
+- Reused the shared practice workspace after the required XOR/backprop labs,
+  keeping the challenge navigation and results visible rather than hiding
+  state in a selector or adding another disconnected card grid.
+- Added three fresh deterministic contracts: reproduce `δ²=p−y` across two
+  scalar neurons and observe both losses after one update, diagnose the complete
+  `W² × H(1−H)` hidden path against a central finite difference, and transfer
+  fixed XOR logits to XNOR by negating only the output logit.
+- Kept all network parameters and fixture support code fixed while exposing only
+  predictions and the learner-owned signal/path/transform. Evidence is
+  session-only, each problem has retry/current-reset/all-reset behavior, and the
+  existing two-lab-plus-concepts completion gate is unchanged.
+- In the in-app browser, a reversed output signal visibly raised both losses
+  before the corrected retry lowered them. The English desktop flow completed
+  all three challenges; the Korean mobile flow completed the gradient challenge
+  and restored focus after reset. At 1280×720 and 390×844 there were no console
+  warnings/errors, native selects, horizontal overflow, or enabled practice
+  buttons below 44px.
+
+Research basis:
+
+- [Rumelhart, Hinton, and Williams (1986)](https://www.nature.com/articles/323533a0)
+  motivates propagating output error backward to learn internal
+  representations. The new practice turns that existing chapter claim into a
+  reproducible hidden-gradient contract rather than adding a second guided XOR
+  walkthrough.
+- [SciPy's numerical-derivative documentation](https://docs.scipy.org/doc/scipy/reference/generated/scipy.differentiate.derivative.html)
+  supports the central finite-difference comparison used as an implementation-
+  independent diagnostic. Adaptive step control remains outside this first
+  scalar gradient check because the goal is locating a missing chain-rule edge.
+
+### IMP-040 — Training independent gradient-and-state practice pilot
+
+- Reused the shared practice workspace after the optional training debugger so
+  the learner can reconstruct one full update boundary without a selector,
+  separate card grid, or hidden state. Direct challenge buttons keep controls
+  and results visible together.
+- Added three fresh deterministic contracts: reproduce
+  `∂CE/∂logits = p − oneHot(y)` on two class rows and observe lower loss,
+  diagnose why duplicating every sample leaves a mean parameter gradient
+  unchanged, and transfer a fresh batch gradient through persistent Adam
+  `m`, `v`, and `t` state.
+- Kept logits, batch tensors, optimizer states, and learning rates fixed while
+  exposing only predictions and the learner-owned gradient, reduction, or state
+  policy. Evidence is session-only; each challenge supports retry/current reset,
+  and the all-state reset leaves the existing mini-batch-plus-concepts
+  completion gate untouched.
+- In the in-app browser, a deliberate `p`-only gradient exposed class sums of
+  1.0000 before the corrected retry lowered both losses. The English desktop
+  flow completed 3/3, including B=2→4 and B=3→6 invariance plus Adam t=4 and
+  t=6 transfers; the Korean mobile flow completed and reset the mean-reduction
+  challenge with focus recovery. At 1280×720 and 390×844 there were no console
+  warnings/errors, native selects, horizontal overflow, or enabled practice
+  buttons below 44px.
+
+Research basis:
+
+- [PyTorch CrossEntropyLoss](https://docs.pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html)
+  specifies unnormalized class logits and mean reduction. The new class-row and
+  duplicated-batch problems make those two existing chapter contracts
+  independently executable instead of adding another guided training loop.
+- [Kingma and Ba, Adam (2014)](https://arxiv.org/abs/1412.6980) defines persistent
+  first- and second-moment estimates over stochastic gradients. The new transfer
+  problem therefore refreshes the ordinary batch gradient while preserving
+  `m`, `v`, and the continued step number; optimizer variants and a larger
+  framework runtime remain outside this deterministic practice slice.
+
+### IMP-041 — Embeddings independent lookup-and-gradient practice pilot
+
+- Reused the shared practice workspace after the optional Embeddings debugger,
+  keeping all three challenges directly visible without a select, dropdown, or
+  second card system.
+- Added three fresh deterministic contracts: reproduce `rows[t] = E[ids[t]]`
+  across two sequence lengths, diagnose one repeated row whose occurrence
+  gradients partially cancel and another whose gradients fully cancel, and
+  transfer whole-word tokenization to two unseen-word fixtures with shared
+  `[UNK]` row 1.
+- Kept the embedding table, IDs, occurrence gradients, vocabulary, and tokenizer
+  contract fixed while exposing only predictions and the learner-owned lookup,
+  scatter-add, or unknown-token path. Evidence is session-only; each challenge
+  supports retry/current reset, and all-state reset leaves the existing required
+  lab and concept completion gate untouched.
+- In the in-app browser, a deliberate `V × D` plus first-row-for-all attempt
+  exposed the wrong shape and repeated first row before the corrected English
+  desktop flow reached 3/3. The Korean mobile flow proved row 7's partial
+  cancellation `[0.200, 0.100]` and row 4's full cancellation `[0.000, 0.000]`,
+  then restored focus after reset. A chapter-scoped mobile repair also removed
+  existing heading/MathML overflow from 566px to 390px. At 1280×720 and
+  390×844 there were no console warnings/errors, native selects, horizontal
+  overflow, or enabled practice buttons below 44px.
+
+Research basis:
+
+- [PyTorch `Embedding`](https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.sparse.Embedding.html)
+  defines a fixed lookup table whose index inputs return the corresponding
+  embedding rows. The first challenge independently reproduces that address
+  contract across changed IDs and sequence lengths; padding, sparse optimizer
+  support, and frequency scaling stay in the guided chapter or later work.
+- [NumPy `ufunc.at`](https://numpy.org/doc/stable/reference/generated/numpy.ufunc.at.html)
+  documents unbuffered repeated-index accumulation and contrasts it with
+  buffered advanced-index updates that can apply a repeated index only once.
+  The second challenge therefore makes occurrence-wise scatter-add and
+  cancellation observable rather than adding more gradient prose.
+- The `[UNK]=1` transfer is intentionally a deterministic chapter-local
+  tokenizer contract, not a claim that all production tokenizers share one
+  unknown-token policy. Byte-level fallbacks and model-specific vocabulary
+  behavior remain out of this bounded lookup exercise.
+
+### IMP-042 — Sequences independent temporal-state practice pilot
+
+- Reused the shared single-workspace PracticeDeck after the optional sequence
+  debugger, with direct challenge buttons and adjacent results rather than a
+  selector, dropdown, or separate card grid.
+- Added three fresh deterministic contracts: reproduce
+  `h[t]=tanh(x[t]+r·h[t−1])` on T=3 and T=4 sequences, diagnose the complete
+  `x0→hT` chain against central finite differences on paths with three and four
+  recurrent edges, and transfer `c=f·old+i·g`, `h=o·tanh(c)` across carry-only
+  and mixed-gate fixtures.
+- Kept inputs, order, recurrent gains, epsilon, cell/candidate values, and gate
+  values fixed while exposing only predictions and the learner-owned recurrence,
+  temporal path, or cell/reveal rule. Retry, current reset, and all-state reset
+  remain session-only and do not affect chapter completion.
+- The in-app browser exposed wrong input-only traces before the corrected English
+  desktop flow reached 3/3. The Korean mobile flow matched both analytic and
+  numerical gradients and restored focus after reset. A chapter-scoped mobile
+  repair also removed heading/MathML overflow from 417px to 390px. At 1280×720
+  and 390×844 there were no console warnings/errors, native selects, horizontal
+  overflow, or enabled practice buttons below 44px.
+
+Research basis:
+
+- [PyTorch `RNN`](https://docs.pytorch.org/docs/main/generated/torch.nn.RNN.html)
+  specifies a hidden update from current input and previous hidden state and
+  returns one output feature per timestep plus a final hidden state. The first
+  challenge makes that shared-state contract executable across changed lengths;
+  stacked and bidirectional variants remain outside this scalar boundary.
+- [Elman, Finding Structure in Time (1990)](https://jeffelman.ucsd.edu/research/publications/)
+  is the historical source for learning temporal structure with recurrent
+  context. The chapter keeps that stateful order sensitivity but avoids claiming
+  that a fixed-width hidden state is a lossless history.
+- [Hochreiter and Schmidhuber, Long Short-Term Memory (1997)](https://direct.mit.edu/neco/article/9/8/1735/6109/Long-Short-Term-Memory)
+  identifies decaying error backflow as the long-range learning problem that
+  motivated LSTM. The new practice separates cell carry from hidden reveal on
+  deterministic gates; peepholes, projections, and modern framework variants
+  remain out of scope.
+
+### IMP-043 — Attention independent routing-invariant practice pilot
+
+- Reused the shared single-workspace PracticeDeck after the optional Attention
+  debugger, with three direct challenge buttons and adjacent expected/actual
+  evidence rather than a select, dropdown, or second card system.
+- Added three fresh deterministic contracts: reproduce unscaled
+  `qKᵀ → stable softmax → αV` on two Q/K/V memories, diagnose whether K, V, and
+  semantic labels move together across two different row permutations, and
+  transfer the same weights and contexts through common score offsets `+1000`
+  and `−800`.
+- Kept Q, K, V, row order, permutations, and score differences fixed while
+  exposing only output predictions and the learner-owned normalize/read,
+  row-reorder, or softmax policy. Retry, current reset, and all-state reset are
+  session-only and leave the existing required lab and concept gate untouched.
+- The in-app browser exposed two key-space contexts from a deliberate
+  `weights @ K` error before the corrected English desktop flow reached 3/3.
+  The Korean mobile flow preserved both top labels and contexts across paired
+  permutations, then restored focus after reset. A chapter-scoped mobile repair
+  also removed 25px of internal overflow from a long Korean H2. At 1280×720 and
+  390×844 there were no console warnings/errors, native selects, horizontal
+  overflow, or enabled practice buttons below 44px.
+
+Research basis:
+
+- [Bahdanau, Cho, and Bengio (2014)](https://arxiv.org/abs/1409.0473)
+  introduced a soft search over source annotations to avoid a single
+  fixed-length encoder bottleneck. The practice keeps the normalized weighted
+  source read, but does not import the paper's additive alignment network into
+  this chapter's deliberately unscaled dot-product boundary.
+- [Luong, Pham, and Manning (2015)](https://aclanthology.org/D15-1166/)
+  studies global and local attention and includes multiplicative score
+  functions. The fresh routing fixtures use the chapter's global dot-product
+  family; local windows and translation-system claims remain outside scope.
+- [PyTorch `Softmax`](https://docs.pytorch.org/docs/stable/generated/torch.nn.modules.activation.Softmax.html)
+  defines normalization along an explicit dimension so each slice sums to one.
+  The practice therefore keeps one coefficient per source key and rejects
+  score-sum normalization that creates negative routing coefficients.
+- [Blanchard, Higham, and Higham (2019)](https://arxiv.org/abs/1909.03469)
+  analyzes overflow and underflow in softmax and reports that shifted formulas
+  are typically more accurate. The transfer challenge turns that numerical
+  boundary into observable `+1000` overflow and `−800` underflow failures;
+  scaled dot-product attention, masking, and multiple heads remain for the next
+  chapter.
+
+### IMP-044 — Self-Attention row-semantics independent practice pilot
+
+- Reused the shared single-workspace PracticeDeck after the optional
+  Self-Attention debugger, with direct challenge buttons and adjacent
+  expected/actual evidence rather than a selector, dropdown, or second card
+  system.
+- Added three fresh deterministic contracts: reproduce non-causal token-row
+  permutation equivariance by applying P to X once before shared Q/K/V
+  projections and checking `Y' = P·Y`; diagnose accidental position leakage by
+  verifying that identical token rows receive identical contexts when full
+  visibility and no positional signal distinguish them; and transfer the
+  contract across causal visibility by contrasting token-only reordering with
+  joint `X'=P·X`, `M'=P·M·Pᵀ` relabeling.
+- Kept projections, tokens, permutations, duplicate rows, and visibility
+  fixtures fixed while exposing only predictions and the learner-owned
+  permutation, boundary, or relabel policy. Retry, current reset, and all-state
+  reset remain session-only and do not affect the required
+  projection/mask/multi-head completion gate.
+- The actual English 1280×720 flow showed a deliberate keys-only failure with
+  maximum row errors 0.225610 and 0.158358, then zero-error correction, identical
+  duplicate-row contexts, zero-error causal relabeling, 3/3 evidence,
+  Enter/Space navigation, reset/focus recovery, and an unchanged disabled
+  completion preview. The Korean 390×844 flow passed and reset the duplicate-row
+  contract. A pre-existing repair-console H2 produced 129px internal overflow;
+  chapter-scoped mobile wrapping reduced its 479px scroll width to the 342px
+  container. Both sizes ended with no console warning/error, native select,
+  relevant overflow, or enabled practice button below 44px.
+
+Research basis:
+
+- [Vaswani et al., Attention Is All You Need (2017)](https://arxiv.org/abs/1706.03762)
+  removes recurrence and convolution and therefore supplies positional
+  information separately. The duplicate-row exercise makes the absence of that
+  signal observable without implementing positional encoding early.
+- [Lee et al., Set Transformer (2018)](https://arxiv.org/abs/1810.00825)
+  uses attention for set-structured, order-independent interactions. The first
+  exercise turns the corresponding row-permutation behavior into an executable
+  contract.
+- [Yun et al., Are Transformers universal approximators of sequence-to-sequence functions? (2019)](https://arxiv.org/abs/1912.10077)
+  separates the permutation-equivariant restriction from the role of
+  positional encoding, motivating the position-leak diagnosis and the explicit
+  boundary to the next chapter.
+- [PyTorch `MultiheadAttention`](https://docs.pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention)
+  specifies `attn_mask` as a query-by-key `[L,S]` relation and key padding as a
+  separate mask. The causal transfer exercise therefore relabels both mask axes
+  rather than attaching visibility to token values.
+- Set Transformer pooling/inducing points, learned or relative positional
+  encodings, optimized kernels, and framework-specific boolean-mask polarity
+  remain outside this bounded exercise. Positional representation and residual
+  assembly stay in the Transformer-block chapter.
+
+### IMP-045 — Transformer Block state-and-stack independent practice pilot
+
+- Reused the shared single-workspace PracticeDeck after the optional
+  Transformer Block debugger, with direct challenge buttons and adjacent
+  expected/actual evidence rather than a selector, dropdown, or new card
+  system.
+- Added three fresh deterministic contracts: reproduce `x₁=x₀+A`,
+  `y=x₁+F` across two changed residual ledgers; diagnose the combination of
+  `LN(x+c·1)=LN(x)` and residual identity transport by requiring an unchanged
+  branch plus an output shifted by c; and transfer two distinct fixed
+  pre-norm microblocks by adding E+P once and handing y₁ to block₂.
+- Kept branch outputs, common shifts, E/P, and both blocks' parameters fixed
+  while exposing only predictions and learner-owned residual, normalization,
+  or handoff policies. Retry, current reset, and all-state reset remain
+  session-only and do not affect the required block-lab-plus-concepts
+  completion gate.
+- In the English 1280×720 in-app-browser flow, reusing x₀ for the second skip
+  produced visible maximum errors 0.350000 and 0.450000 before the corrected
+  retry reduced both to zero. The +2 and -1.5 shift probes kept branch drift at
+  zero while transporting the shift through the residual output, and both
+  two-block fixtures reached zero error for 3/3 evidence. Enter/Space,
+  current/all reset, disabled completion preview, focus restoration, and
+  native-select absence passed.
+- In the Korean 390×844 flow, the shift contract and current reset passed with
+  zero practice overflow and no enabled visible practice target below 44px.
+  The pass also exposed an existing 417px residual-formula section; scoping
+  containment and horizontal scrolling to the actual KaTeX display restored
+  the document to 390px and the article/section to 358px. Neither viewport
+  produced a console warning/error.
+
+Research basis:
+
+- [Ba, Kiros, and Hinton, Layer Normalization (2016)](https://arxiv.org/abs/1607.06450)
+  computes normalization statistics within one training case rather than
+  across a mini-batch. The shift probe narrows that idea to one token row and
+  makes the branch-versus-identity-path distinction executable.
+- [He et al., Deep Residual Learning for Image Recognition (2015)](https://arxiv.org/abs/1512.03385)
+  reformulates layers as residual functions relative to their inputs. The
+  fresh ledgers therefore require each branch to update its matching current
+  state rather than replace or restart it.
+- [Xiong et al., On Layer Normalization in the Transformer Architecture (2020)](https://proceedings.mlr.press/v119/xiong20b.html)
+  explicitly distinguishes Post-LN from putting LayerNorm inside the residual
+  blocks as Pre-LN. The practice grades only the chapter's declared pre-norm
+  variant and does not claim universal superiority.
+- [PyTorch `TransformerEncoderLayer`](https://docs.pytorch.org/docs/stable/generated/torch.nn.TransformerEncoderLayer.html)
+  exposes `norm_first=True` as normalization before attention and feedforward
+  operations. Framework fast paths, dropout, learned training behavior, and
+  alternative normalization layouts remain outside this bounded exercise.
+
+### IMP-046 — Mini Transformer causal-readout-and-cache independent practice pilot
+
+- Reused the shared single-workspace PracticeDeck after the optional Mini
+  Transformer debugger, with direct challenge buttons and adjacent
+  expected/actual evidence rather than a selector, dropdown, or new card
+  system.
+- Added three fresh deterministic contracts: append a suffix and compare every
+  matching causal-prefix logit row from the real tiny model; diagnose that
+  teacher-forced cross entropy reads every shifted row while generation reads
+  only the final row; and transfer fixed causal attention to incremental
+  decoding by accumulating both past keys and values.
+- Kept token IDs, model parameters, logits, shifted targets, Q/K/V, and scaled
+  attention fixed while exposing only predictions and learner-owned prefix-row,
+  training/generation-row, or cache-retention policies. Retry, current reset,
+  and all-state reset remain session-only and do not affect the required
+  core-lab-plus-concepts completion gate.
+- English 1280×720 in-app-browser evidence covered deliberate causal-prefix
+  failures (`2.731864` and `1.808742`) followed by zero-error recovery, zero
+  training-loss-row error with generated tokens 2 and 1, and zero cached/full
+  context error with final contexts `[0.454352, 0.391821]` and
+  `[0.322331, 0.536958]`. The complete 3/3 flow, Enter/Space navigation,
+  retry, all reset, focus recovery, and unchanged disabled completion preview
+  passed without console warnings/errors.
+- Korean 390×844 in-app-browser evidence repeated the row-boundary contract and
+  current reset/focus path. It also exposed and repaired an existing debugger
+  H2 overflow from 377px to its 342px content width. The final page had zero
+  horizontal overflow, native selects, practice overflow, or enabled visible
+  practice targets below 44px.
+
+Research basis:
+
+- [Vaswani et al., Attention Is All You Need (2017)](https://arxiv.org/abs/1706.03762)
+  masks subsequent decoder positions and offsets outputs by one. The prefix
+  exercise turns the resulting future-suffix independence into a direct
+  logit-row comparison.
+- [Radford et al., Improving Language Understanding by Generative Pre-Training
+  (2018)](https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf)
+  models conditional next-token likelihood over prior context. The row
+  diagnosis separates its parallel training objective from the single next
+  read made by an autoregressive controller.
+- [Hugging Face Transformers caching documentation](https://huggingface.co/docs/transformers/v4.57.0/en/cache_explanation)
+  describes reusing past key/value states during inference and preserving
+  cache positions. The transfer exercise therefore requires paired K/V
+  accumulation and compares contexts rather than claiming only a speedup.
+- [PyTorch scaled dot-product attention](https://docs.pytorch.org/docs/main/generated/torch.nn.functional.scaled_dot_product_attention.html)
+  defines causal masking, scaling, Softmax, and the final value mixture. The
+  cache fixtures reuse that semantic order without depending on a fused kernel.
+- Cache memory benchmarks, latency claims, training-time caching, sampling
+  quality, tied embeddings, quantization, and production cache layouts remain
+  outside this bounded semantic-equivalence exercise.
+
+### IMP-047 — Shared next-incomplete progression contract
+
+- Audited all ten Transformer PracticeDeck wrappers. Each chapter already has
+  exactly three optional challenge levels, three adjacent result surfaces,
+  three current-reset controls, direct choices, session-only evidence, and no
+  native select or completion-gate coupling.
+- Reproduced the remaining common friction after a passing Vectors result:
+  the challenge navigation sat 108px above the desktop viewport and the footer
+  exposed only global reset. This made the learner leave the evidence boundary
+  and search for the next problem.
+- Added a shared post-pass action that names and opens the next incomplete
+  challenge, wraps around completed challenges, stays absent before a pass and
+  after 3/3, accepts Enter/Space, and restores focus to the first enabled
+  learner control. The ten chapter wrappers use identical Korean/English
+  labels.
+- English 1280×720 in-app-browser evidence advanced Vectors challenge 1→2 by
+  click and 2→3 by Enter, focusing `Broadcast succeeds` and then
+  `Queries × keys`. Korean 390×844 evidence advanced Mini Transformer 1→2 by
+  Space and focused the correct row-boundary prediction. A mobile grid repair
+  expanded both footer buttons from 167px to the full 308px content width.
+  Both viewports had zero console warnings/errors, native selects,
+  page/practice overflow, or enabled practice targets below 44px.
+- [WAI-ARIA Authoring Practices button pattern](https://www.w3.org/WAI/ARIA/apg/patterns/button/)
+  specifies Enter and Space activation. [WCAG 2.2 Focus Order
+  guidance](https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html)
+  requires focus sequences to preserve meaning and operability, which supports
+  moving focus into the newly selected learner workspace. [WCAG 2.2 Target
+  Size](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum)
+  sets a 24px minimum and recommends larger targets; Rootorial retains its
+  stricter 44px product contract.
+
+### IMP-048 — Shared first-failed-contract result ordering
+
+- Audited all 30 Transformer practice challenges and their 90 localized check
+  explanations. Every challenge has three adjacent expected/actual checks and
+  every wrapper already uses the same retry instruction. The longest checked
+  explanation is 93 Korean characters or 161 English characters, within the
+  new source-contract bounds of 100 and 170.
+- Found one shared scan-order gap: when earlier contracts passed and a later
+  fresh fixture failed, the result header told the learner to inspect the first
+  failed contract while the mobile list still showed passing evidence first.
+- Added a pure ordering helper that promotes only the original first failed
+  contract, preserves all other evidence in relative order, and returns the
+  original array when the first check fails or every check passes. The shared
+  result surface marks that promoted check with one bilingual text label and a
+  restrained failure tint; it adds no interaction chrome.
+- Added a shared unit/source contract and a Vectors browser-flow assertion.
+  The full 548/548 unit/SSR suite, production build, curriculum-quality report
+  for 32 chapters with zero targets, E2E discovery, and `git diff --check`
+  pass.
+- Revalidated the late-failure path in Chrome because the user explicitly
+  requested Chrome control after the Codex in-app-browser webview failed to
+  attach across three consecutive runs. English Vectors at 1280×720 promoted
+  the original failed prediction above one passing and one failed fixture,
+  exposed `FIX THIS CONTRACT FIRST`, and passed all three checks after changing
+  `4` to `-1`. Korean Mini Transformer at 390×844 promoted the first failed
+  fixture above the passing prediction, exposed `먼저 고칠 계약`, and passed
+  all three checks after changing `short[t] ↔ long[-1]` to
+  `short[t] ↔ long[t]`. Both flows ended at `1 / 3` with zero console
+  warnings/errors, native selects, horizontal overflow, or enabled practice
+  targets below 44px. This is Chrome evidence, not in-app-browser evidence.
+- [WCAG 2.2 Error Identification](https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html)
+  requires the erroneous item and problem to be identified in text.
+  [WCAG 2.2 Error Suggestion](https://www.w3.org/WAI/WCAG22/Understanding/error-suggestion.html)
+  supports providing a known correction path. Rootorial therefore puts the
+  first repair boundary first while retaining the specific explanation and
+  same-challenge retry instruction beside it. Alert dialogs and focus moves
+  were not adopted because this result is persistent, adjacent, and does not
+  need to interrupt the learner's task.
+
+### IMP-049 — Preview-only contextual feedback surface
+
+- Reproduced a shared preview gap across both curriculum compass families:
+  contextual feedback prompts were visible on `/admin/preview` chapter pages,
+  but the root layout suppressed their only feedback panel because the path
+  began with `/admin`.
+- Added a pure fail-closed visibility contract. Public learning routes keep the
+  existing surface; exact `/admin/preview` routes gain it only in explicit
+  `content-preview` mode; operational admin and production-mode preview routes
+  do not render it.
+- English desktop Linux Shell preview and English 390×844 Transformer Vectors
+  preview both opened the contextual panel and moved focus to its close button.
+  The mobile panel occupied exactly 390px with zero page overflow, native
+  selects, or console warnings/errors. Public mobile Linux Shell retained the
+  same behavior, while `/admin` retained zero feedback roots.
+- Added route/mode unit coverage for public, preview, nested preview,
+  preview-like, and operational-admin paths. The production build validates
+  compilation of the closed boundary; no production browser session was
+  claimed.
+
+### IMP-050 — Honest 44px assertion semantics and representative runtime repair
+
+- Renamed the registry-derived signal from `targetSize44` to
+  `targetSize44Assertion`. The generated report now says that all values are
+  static assertion patterns, that one target or scoped scan can satisfy the
+  44px pattern, and that zero assertion gaps is not exhaustive browser proof.
+- Added a regression contract that rejects the old bare `44px` column and the
+  old exhaustive-sounding report language.
+- Ran one page-wide effective-target scan on each curriculum-compass family at
+  390×844. The scan treats a visible label as an input's effective target only
+  when it is at least as large as the input, avoiding a false failure from the
+  Linux shell's 1px screen-reader-only label while correctly using 44px slider
+  rows.
+- Repaired two actual misses: Vectors' two notation disclosures grew from
+  25.9px to 44px with visible focus, and the shared mobile wordmark grew from
+  34×44px to 44×44px. Both disclosures opened and retained focus. Final
+  page-wide scans found 0 undersized targets among 106 Vectors and 53 Linux
+  Shell controls, with zero overflow, native selects, or console warnings and
+  errors.
+- Added the notation disclosures and Rootorial home link to their existing
+  mobile E2E contracts. This slice does not convert two representative scans
+  into a 32-chapter runtime-completion claim.
+
+### IMP-051 — Explicit touch-target audit scope
+
+- Added one typed scope registry for every curriculum E2E file:
+  `specific-control`, `component-scan`, or `page-visible-scan`.
+- Made the interaction report fail on missing, orphaned, or assertion-free scope
+  declarations and display both the per-chapter scope and aggregate 6/6/20
+  distribution.
+- Added a reusable effective-target scanner that covers buttons, links,
+  disclosures, inputs, text areas, and ARIA button/radio controls while treating
+  a visible associated label as the target only when it is actually larger than
+  its input.
+- Upgraded Vectors and Linux Shell from representative named controls to
+  page-visible mobile E2E scans. At 390×844 the in-app browser found 93/93 and
+  39/39 enabled lesson targets at least 44×44, exact 390px width, zero native
+  selects, and zero console warnings/errors. Linux retained the result after a
+  real `pwd` simulator step exposed `/home/student` and 1/5 progress.
+- Kept the claim bounded: page-visible means one rendered state. Six component-
+  scoped and six specific-control chapters remain explicit follow-up work rather
+  than being counted as page-wide runtime proof.
+
+### IMP-052 — Read Linux link flags and operstate as separate evidence
+
+- Compared the chapter with the Linux kernel operational-state documentation,
+  current iproute2 source and `ip-link(8)`. The brief `DOWN` value is
+  operational state; admin intent comes from `IFF_UP`, and carrier from the
+  lower-layer state. The old copy incorrectly called `DOWN` admin state.
+- Added `OPERSTATE` beside `ADMIN` and `LINK` in the executable ledger. The
+  admin-up/no-carrier phase now visibly keeps operstate `DOWN`, so the learner
+  sees the counterexample instead of receiving another prose warning.
+- Rewrote incident 2 and the first concept question to require the row, state
+  column, and `<...>` flags together. The optional real-Linux commands now
+  include detailed link output and `/sys/class/net/eth0/operstate`.
+- Kept the research boundary small. `ip-address(8)` confirms protocol addresses
+  attach to devices and host scope stays inside the host, while RFC 1122 keeps
+  127/8 inside a host; those existing chapter claims needed no redesign. The
+  full RFC 2863 state machine, DORMANT/802.1X policy, and driver API were not
+  added because they do not help this first-chapter observation task.
+- Primary sources:
+  [Linux operational states](https://www.kernel.org/doc/html/latest/networking/operstates.html),
+  [iproute2 current source mirror](https://kernel.googlesource.com/pub/scm/network/iproute2/iproute2/),
+  [`ip-link(8)`](https://www.man7.org/linux/man-pages/man8/ip-link.8.html),
+  [`ip-address(8)`](https://man7.org/linux/man-pages/man8/ip-address.8.html), and
+  [RFC 1122](https://www.rfc-editor.org/rfc/rfc1122.html).
+- Repaired the browser spec to answer the prediction before sequential commands
+  and to click the current concept buttons rather than removed radio inputs.
+  Replaced its finite target list with the shared effective-target scan and
+  promoted the audit scope to `page-visible-scan`.
+- The Codex in-app browser ran the English 390×844 flow through wrong/correct
+  prediction, all six state phases, one incident failure and four repairs, one
+  concept failure and retry, and all three completion outputs. The completed
+  state had 36/36 enabled lesson targets at least 44×44, exact 390px document
+  width, zero native selects, untranslated strings, overflow, or console
+  warnings/errors. Korean 1280×720 showed the corrected evidence and the same
+  36/36 target, width, select, overflow, and console result.
+
+### IMP-053 — Promote the packet journey from representative to page-visible touch evidence
+
+- Reconfirmed that `e2e/linux-networking.spec.ts` opens only
+  `linux-systems/networking-from-a-packet`; its filename must not be treated as
+  shared evidence for the separate Linux Networking curriculum.
+- Replaced three hand-picked height checks with the shared effective-target
+  scanner on the completed lesson article and promoted the declared scope from
+  `specific-control` to `page-visible-scan`.
+- The Codex in-app browser replayed EN 390×844 through wrong/correct prediction,
+  every causal network phase, one failed route diagnosis and all four repairs,
+  a concept retry, and three completion outputs. The initial page had 110
+  enabled targets and the completed lesson article 93; both scans found zero
+  sub-44px targets, native selects, page overflow, or console warnings/errors,
+  and English contained no untranslated Korean strings.
+- KO 1280×720 preserved the completed journey, incidents, concepts, and language
+  switch with exact 1280px document width, zero sub-44px lesson targets, native
+  selects, or console gaps. SVG text reports nonzero `scrollWidth-clientWidth`
+  because that DOM metric does not represent SVG clipping; it is not counted as
+  a desktop surface-overflow pass. Page width remained exact.
+- The page-visible scope remains state-bounded: it measures the completed state
+  and does not claim every disabled or disclosure state was simultaneously
+  visible.
+
+### IMP-054 — Promote storage completion from representative to page-visible touch evidence
+
+- Extended the English 390×844 E2E from the path calculation into the full
+  link/unlink, dirty-loss, fsync-survival, incident, and concept journey. It now
+  preserves a failed incident and failed concept decision before recovery and
+  reaches all three completion outputs before measuring targets.
+- Replaced the three hand-picked height checks with the shared effective-target
+  scanner on the completed lesson article and promoted the declared scope from
+  `specific-control` to `page-visible-scan`.
+- The Codex in-app browser replayed the same completed English flow. The initial
+  lesson exposed 89 enabled targets and the completed state 94; both had zero
+  sub-44px targets, native selects, page overflow, storage-surface overflow, or
+  untranslated Korean strings. The completed Korean 1280×720 state retained
+  all three outputs and 94/94 conforming targets with exact document width.
+- No production component change was warranted: the runtime already met the
+  interaction contract. The improvement closes the automated evidence gap and
+  remains bounded to one completed rendered state.
+
+### IMP-055 — Promote Self-Attention completion to page-visible touch evidence
+
+- Replaced the retired concept-radio selectors in both Self-Attention E2E
+  journeys with keyboard-operated direct concept buttons from the current
+  shared renderer.
+- Extended the English 390×844 journey through all five lab traces, a preserved
+  failed repair followed by all four recoveries, an incorrect concept attempt
+  followed by all five correct answers, and all three completion outputs.
+- Replaced the finite named-control touch sample with the shared effective-target
+  scanner and promoted the chapter from `specific-control` to
+  `page-visible-scan`.
+- The Codex in-app browser replayed that completed English state with 86/86
+  enabled lesson targets at least 44×44, exact 390px document width, zero native
+  selects, untranslated Korean strings, overflow, or console warnings/errors.
+  Korean 1280×720 preserved the completion state and the same 86/86 result.
+- No production component change was warranted. The rendered UX already met the
+  contract; this slice closes stale automation and state-coverage gaps without
+  claiming every intermediate or disclosure state.
+
 ## Candidates
 
 ### IMP-003 — Shared exhaustive-interaction harness
@@ -1143,3 +1779,373 @@ Research basis:
 Derive each implemented chapter route and declared interaction contract from the
 registry, then record button/input/toggle coverage, immediate-result evidence,
 native controls, console errors, mobile overflow, and final learning output.
+
+First slice implemented 2026-08-01:
+
+- Added `report:curriculum-interactions` and
+  `check:curriculum-interactions`. The report derives 32 implemented routes
+  from the chapter registry, joins their quality and experience contracts,
+  preserves the declared interaction family, primary visual, activity kinds,
+  and final linked learning output, and fails closed on missing contracts,
+  source/E2E files, or native selects in the primary chapter source.
+- Browser-spec signals are deliberately reported separately from real runtime
+  evidence. They state only whether the declared E2E file contains route,
+  desktop, 390×844, keyboard, immediate-result, console, overflow, 44px, and
+  native-select-zero assertion patterns. They do not claim that every control
+  was clicked, and primary-source control counts do not expand imported child
+  components.
+- The baseline had zero structural issues and 61 explicit browser-spec
+  coverage targets: route 27/32, desktop 32/32, 390×844 32/32, keyboard 30/32,
+  immediate result 32/32, console 7/32, overflow 32/32, 44px 20/32, and native
+  select zero 15/32. This turned undocumented omissions into reviewable rows
+  without weakening the existing manual browser matrix.
+- A Playwright CLI spot check opened English Linux Networking
+  `subnets-neighbors-and-gateways` at 390×844. The rendered page exposed 38
+  buttons, four tabs, seven status surfaces, and 30 enabled visible targets,
+  with zero native selects, horizontal overflow, sub-44px targets, console
+  warnings, or console errors. The browser check remains separate from the
+  static report.
+- CURR-049 is resolved by a dedicated route-driven shared spec for the five
+  Linux Networking chapters that previously borrowed an unrelated Linux
+  Systems E2E file. The current source-signal inventory is route 32/32,
+  desktop 32/32, 390×844 32/32, keyboard 30/32, immediate result 32/32,
+  console 12/32, overflow 32/32, 44px 20/32, and native-select zero 20/32,
+  leaving 46 explicit targets.
+- The Codex in-app browser ran the shared prediction contract at 1280×720 and
+  the layout contract at 390×844 for all five routes. Each route exposed the
+  correct chapter, immediate wrong/correct feedback, Enter activation, and an
+  unlocked second execution step. Mobile target counts were 28/30/30/30/33,
+  with zero console errors, native selects, horizontal overflow, or sub-44px
+  core controls. Playwright discovery passes; execution through the repository
+  runner is blocked before the spec by the missing Clerk publishable key.
+- The next bounded inventory slice added an explicit native-select-zero
+  assertion to both Korean desktop and English 390×844 flows in
+  `e2e/linux-networking-interfaces.spec.ts`. This completes that source signal
+  for all six Linux Networking chapters, moves native-select-zero coverage to
+  21/32, and reduces the remaining inventory from 46 to 45 targets without
+  changing the chapter UI or broadening the prior interaction claim.
+- The following bounded slice closed all three source-signal gaps for the
+  earliest Linux Systems chapter, `shell-and-filesystem`. Its existing
+  deterministic shell form is now submitted with Enter for the first required
+  command, the end-to-end flow records unexpected console errors, and the
+  390×844 contract explicitly asserts zero native selects. This moves keyboard
+  coverage to 31/32, console coverage to 13/32, native-select-zero coverage to
+  22/32, and reduces the remaining inventory from 45 to 42 targets without
+  changing the learner interface.
+- That replay also exposed a stale downstream contract: the browser spec still
+  expected the retired three-radio concept check while the live chapter uses
+  five direct-choice buttons. The flow now covers all five current questions,
+  one wrong-answer explanation, a focused repair, unlock, completion, and local
+  persistence. The in-app browser completed that current public flow at
+  1280×720 and measured the English 390×844 preview at zero native selects,
+  overflow, console errors, and undersized core shell controls. Its keyboard
+  injector did not deliver Enter to the text field, so the keyboard assertion
+  remains source-level evidence pending repository Playwright execution.
+- The next Linux Systems slice aligned `boot-to-shell` with its current
+  direct-button UI: retired combobox/select calls and four radio answers were
+  replaced by named button-group interactions and all five concept answers.
+  Desktop and mobile flows now record console errors; mobile additionally
+  asserts zero native selects and the 44×44 contract for every visible enabled
+  lesson button, link, and disclosure. Signal coverage is now console 14/32,
+  44px 21/32, and native-select-zero 23/32, leaving 39 explicit targets.
+- The in-app browser reproduced a wrong boot prediction, the correct recovery
+  to 4/4 stages, a wrong diagnosis, all four repairs, and a deterministic reset.
+  At 390×844 all 70 enabled visible lesson targets passed 44×44, with zero
+  native selects, horizontal overflow, or console errors. The in-app keyboard
+  injector did not dispatch Enter, so existing keyboard behavior remains
+  source-covered until the Clerk-gated repository runner can execute it.
+- The next Linux Systems slice aligned `processes-and-signals` with its current
+  direct-button UI. Retired combobox/select operations and five radio inputs
+  were replaced by named button-group actions, a deliberate fork/exec failure,
+  all four incident chains, and a concept failure→repair. Desktop and mobile
+  now record console errors; mobile asserts zero native selects and 44×44 for
+  every visible enabled lesson button, link, disclosure, and text input. Signal
+  coverage is now console 15/32, 44px 22/32, and native-select-zero 24/32,
+  leaving 36 explicit targets.
+- The in-app browser reached all seven lifecycle evidence checks, separated PID
+  73 terminal output from PID 74 out.log output, solved four state incidents,
+  and unlocked all three completion outputs after a focused concept retry. At
+  390×844 all 67 visible enabled lesson targets passed 44×44, with zero native
+  selects, horizontal overflow, or console errors. Enter injection again did
+  not dispatch in the in-app browser, so the existing keyboard assertion is
+  kept as source-level evidence pending the Clerk-gated repository runner.
+- The next Linux Systems slice aligned `users-and-permissions` with its current
+  direct-button UI. Retired combobox/select operations and five radio inputs
+  were replaced by named button-group actions, a wrong access prediction, a
+  no-op chmod, an overgrant, all four incident repairs, and a focused concept
+  retry. Desktop and mobile now record console errors; mobile asserts zero
+  native selects and 44×44 for every visible enabled lesson button, link,
+  disclosure, and text input. Signal coverage is now console 16/32, 44px
+  23/32, and native-select-zero 25/32, leaving 33 explicit targets.
+- The in-app browser completed all four policy evidence checks, rejected chmod
+  777, solved the four least-privilege incidents, and unlocked all three chapter
+  outputs after a concept retry. At 390×844 all 61 visible enabled lesson
+  targets passed 44×44, with zero native selects, horizontal overflow,
+  untranslated strings, or console errors; reset removed the adjacent
+  overgrant feedback deterministically.
+- The next Linux Systems slice aligned `memory-and-virtual-addresses` with its
+  current direct-button UI. Retired combobox/select operations and five radio
+  inputs were replaced by named button-group actions, a wrong access prediction,
+  a wrong address calculation, four computed incident repairs, and a focused
+  concept retry. Desktop and mobile now record console errors; mobile asserts
+  zero native selects and 44×44 for every visible enabled lesson button, link,
+  disclosure, and text input. Signal coverage is now console 17/32, 44px
+  24/32, and native-select-zero 26/32, leaving 30 explicit targets.
+- The in-app browser completed all five translation, COW, isolation, and demand
+  evidence checks, repaired the four memory incidents, and unlocked all three
+  chapter outputs after a concept retry. At 390×844 all 57 visible enabled
+  lesson targets passed 44×44, with zero native selects, horizontal overflow,
+  untranslated strings, or console errors; both reset paths returned to their
+  deterministic initial states.
+- The next Linux Systems slice aligned `storage-and-filesystems` with its
+  current direct-button UI. Thirteen retired combobox/select operations and
+  five native radio inputs were replaced by named button-group actions, a
+  wrong block prediction, all four incident diagnoses, and a focused concept
+  retry. Desktop and mobile now record console errors and assert zero native
+  selects. Signal coverage is now console 18/32, 44px 24/32, and
+  native-select-zero 27/32, leaving 28 explicit targets.
+- The in-app browser reached all five path, hard-link, dirty-cache, and fsync
+  evidence checks, solved four storage incidents, and unlocked all three
+  chapter outputs after a concept retry. At 390×844 every visible enabled
+  lesson target passed 44×44, with zero native selects, horizontal overflow,
+  untranslated strings, or console errors; underlay, lab, and incident resets
+  returned to deterministic initial states.
+- The next Linux Systems slice aligned `networking-from-a-packet` with its
+  current direct-button UI. Thirty-nine retired combobox/select operations and
+  ten native radio interactions were replaced by named button-group actions,
+  wrong route/TCP predictions, a wrong incident repair, and a focused concept
+  retry. Both viewports now record console errors and assert zero native
+  selects. Signal coverage is now console 19/32, 44px 24/32, and
+  native-select-zero 28/32, leaving 26 explicit targets.
+- The in-app browser completed the causal hostname→socket→route/ARP/handshake→
+  accept→send→deliver/drop/deliver→RTO→recv journey, solved all four network
+  incidents, and unlocked all three chapter outputs after a concept retry. At
+  390×844 all 90 visible lesson targets passed 44×44, with zero native selects,
+  horizontal overflow, untranslated strings, or console errors; lab and
+  incident resets returned to deterministic initial states.
+- The next Linux Systems slice aligned `assemble-a-tiny-linux` with its current
+  direct-button UI. Retired combobox/select operations and five native radio
+  interactions were replaced by named button-group actions, a wrong init
+  incident, and a focused concept retry. Both viewports now record console
+  errors and assert zero native selects; mobile checks every visible enabled
+  lesson button, link, disclosure, and input against 44×44. Signal coverage is
+  now console 20/32, 44px 24/32, and native-select-zero 29/32, leaving 24
+  explicit targets.
+- The in-app browser completed the ordered `/init` mode→return route→report
+  group-read repairs, recorded all five readiness probes, solved four incidents,
+  and unlocked all three chapter outputs after a concept retry. The English
+  390×844 replay exposed 109 visible lesson targets with zero native selects,
+  horizontal overflow, untranslated strings, undersized targets, or console
+  errors; required-lab and incident resets returned to deterministic initial
+  states.
+- The first Infrastructure inventory slice added the missing exhaustive 44×44
+  assertion to `assemble-a-namespace-platform`. It checks every visible enabled
+  lesson button, link, disclosure, input, and textarea instead of a hand-picked
+  representative set. The stale five-radio concept helper was also aligned with
+  the current direct-button questions and now preserves a focused failure/retry.
+  Signal coverage is now 44px 25/32, leaving 23 explicit targets.
+- The in-app browser completed all seven evidence evaluators, four platform
+  scenarios, four incidents, five concepts, and seven completion outputs on
+  Korean desktop and English 390×844. Mobile exposed 76 visible enabled lesson
+  targets with zero sub-44px targets, native selects, untranslated strings,
+  horizontal overflow, or console errors.
+- The next Infrastructure slice refreshed `availability-and-failure-domains`:
+  five retired concept-radio selectors now follow the visible direct-button
+  groups, reset carries a keyboard focus/Enter contract, both viewports capture
+  console errors, and English mobile checks every enabled visible lesson target
+  against 44×44. Signal coverage is now keyboard 32/32, console 21/32, and 44px
+  26/32, leaving 20 explicit targets.
+- The in-app browser exercised every placement, prediction, 20/90-second
+  recovery budget, incident distractor/repair, concept option, reset, anchor,
+  and language switch. A newly reproduced four-pixel desktop overflow came from
+  the long `recommendations` node identifier; wrapping that identifier reduced
+  the map from 490/486 to 486/486 without clipping it. English 390×844 exposed
+  43 enabled targets with zero undersized targets, native selects, untranslated
+  strings, overflow, or console errors.
+- The next Infrastructure slice refreshed `egress-nat-and-conntrack`: retired
+  concept-radio selectors now follow the five direct-button groups, both
+  viewports capture console errors, and English mobile checks every enabled
+  visible lesson target against 44×44. Signal coverage is now console 22/32 and
+  44px 27/32, leaving 18 explicit targets.
+- The in-app browser exercised every switch state, NAT option, prediction,
+  incident distractor/repair, concept option, reset, anchor, and language
+  switch. The completed desktop topology revealed up to 130px of clipped child
+  controls because its responsive breakpoint followed the viewport. An
+  inline-size container now stacks the topology according to its actual width;
+  desktop and mobile both report zero component overflow. English 390×844
+  exposed 51 enabled targets with zero undersized targets, native selects,
+  untranslated strings, overflow, or console errors.
+- The next Infrastructure slice refreshed `network-namespaces-and-boundaries`:
+  five retired concept-radio selectors now follow the visible direct-button
+  groups and preserve a focused failure/retry. English mobile now measures every
+  visible enabled lesson button, link, disclosure, input, and textarea against
+  44×44. Signal coverage is now 44px 28/32, leaving 17 explicit targets.
+- The in-app browser exercised all ownership phases, 18 placement transitions,
+  both loopback switches, every prediction, every incident distractor/repair,
+  all 15 concept options, resets, anchors, and both language directions. Korean
+  desktop reached all three completion outputs. English 390×844 exposed 53
+  enabled targets with zero undersized targets, native selects, untranslated
+  strings, page overflow, or console errors; the ownership command strip remains
+  an intentional, keyboard-addressable `overflow-x: auto` sequence.
+- The next Infrastructure slice refreshed `network-observability-and-capacity`:
+  retired concept-radio selectors now follow the five direct-button groups and
+  preserve a focused failure/retry. English mobile checks every visible enabled
+  lesson button, link, disclosure, input, and textarea against 44×44. Signal
+  coverage is now 44px 29/32, leaving 16 explicit targets.
+- The completed desktop packet-path map reproduced four columns inside a 359px
+  visualization container, with long boundary labels spilling up to 60px into
+  adjacent cards before the outer surface clipped them. Inline-size container
+  queries now select two columns for narrow desktop workspaces and one column
+  on mobile, while labels wrap visibly. The in-app browser exercised all
+  evidence choices, three capacity scenarios, incident distractors/repairs,
+  resets, 15 concept options, anchors, and locale switching; mobile retained
+  zero undersized targets, selects, untranslated strings, overflow, or errors.
+- The next Infrastructure slice refreshed `network-policy-and-firewalls`:
+  retired concept-radio selectors now follow the five visible direct-button
+  groups and retain a wrong-hook retry. English mobile now measures every
+  visible enabled lesson button, link, disclosure, input, and textarea against
+  44×44. Signal coverage is now 44px 30/32, leaving 15 explicit targets.
+- The in-app browser re-exercised both policy modes, every policy-field and
+  prediction alternative, failed/repaired probe suites, all incident choices,
+  resets, all 15 concept options, ten anchors, and both languages. Completed
+  390×844 remained free of undersized controls, native selects, untranslated
+  strings, component/page overflow, and console errors, so no UI or content
+  mutation beyond the executable audit alignment was warranted.
+- The next Infrastructure slice refreshed
+  `service-discovery-and-load-balancing`: retired concept-radio selectors now
+  follow the five visible direct-button groups and retain a focused wrong-TTL
+  retry. English mobile checks every visible enabled lesson button, link,
+  disclosure, input, and textarea against 44×44. Signal coverage is now 44px
+  31/32, leaving 14 explicit targets.
+- The completed 1280×720 service map reproduced a hidden container mismatch:
+  its four columns required 691px inside a 542px map while the document itself
+  remained 1280/1280. An inline-size container now stacks the map at its actual
+  workspace width. The in-app browser exercised every lab and incident choice,
+  all 15 concept options, resets, anchors, help, locale switching, and the
+  fail-closed public route. English 390×844 exposed 48 enabled targets with zero
+  undersized targets, selects, untranslated strings, overflow, or errors.
+- The next Infrastructure slice refreshed `veth-bridges-and-routing`: retired
+  concept-radio selectors now follow the five visible direct-button groups and
+  retain a focused wrong interface-ownership retry. English mobile checks every
+  visible enabled lesson button, link, disclosure, input, and textarea against
+  44×44. Signal coverage is now 44px 32/32, leaving 13 explicit targets.
+- The in-app browser re-exercised every bridge/router topology alternative,
+  failed and repaired round trips, all incident choices, resets, all 15 concept
+  options, nine anchors, help, locale switching, and the fail-closed public
+  route. Completed desktop and 390×844 each exposed 65 enabled targets with
+  zero undersized targets, selects, untranslated strings, component/page
+  overflow, or visible runtime error state, so no UI or content mutation was
+  warranted.
+- The next Transformer inventory slice added console-error monitoring to all
+  four Vectors chapter flows: English localization, the two-cell Python and
+  completion journey, reduced-motion mobile retry/reset, and the independent
+  three-challenge practice. Console coverage is now 23/32, leaving 12 explicit
+  browser-spec targets.
+- The in-app browser ran both English NumPy cells, repaired the first reshape
+  contract, and completed independent practice to 3/3. Korean 390×844 reproduced
+  a Shape Detective error, recovered, and reset to 0/3. Both viewports retained
+  zero console warnings/errors; mobile also had zero native selects and page
+  overflow, so no learner-interface mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring to both
+  Optimization chapter flows: the complete Korean desktop journey and the
+  English 390×844 keyboard, localization, overflow, and public-route contract.
+  Console coverage is now 24/32, leaving 11 explicit browser-spec targets.
+- The in-app browser observed an English divergent trace, repaired only the
+  learning rate to reach steady convergence, ran the NumPy trace, and recovered
+  the intended finite-difference gradient failure with the learner-owned MSE
+  line. Korean 390×844 repeated the divergent-to-convergent repair with zero
+  page overflow, native selects, or console warnings/errors, so no UI or content
+  mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring to all
+  three Neural Networks chapter flows: Korean completion, English 390×844
+  keyboard/localization, and the independent three-challenge practice. Console
+  coverage is now 25/32, leaving 10 explicit browser-spec targets.
+- The in-app browser recovered the English single-line XOR prediction to 3/4,
+  assembled OR/NAND hidden features to reach XOR 4/4, restored both hidden
+  backprop factors while reducing BCE 0.329→0.315, and repaired the missing
+  NumPy activation to reach 4/4 at mean BCE 0.022529. It also promoted and
+  repaired the first independent output-signal contract. Korean 390×844 rebuilt
+  XOR to 4/4; all 95 visible enabled lesson targets met 44×44, with zero page
+  overflow, native selects, or console warnings/errors, so no UI or content
+  mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring to all
+  three Training chapter flows: Korean completion, English 390×844
+  keyboard/localization, and the independent three-challenge practice. Console
+  coverage is now 26/32, leaving 9 explicit browser-spec targets.
+- The in-app browser reproduced and corrected the required mini-batch direction,
+  repaired the Softmax class axis, traced Adam through the tail batch, and
+  recovered the first independent gradient contract. Korean 390×844 repeated
+  the required failure→correction flow; all 70 visible enabled lesson targets
+  met 44×44, with zero page overflow, native selects, or console warnings/errors,
+  so no UI or content mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring to all
+  three Embeddings chapter flows: Korean completion, English 390×844
+  keyboard/localization, and the independent three-challenge practice. Console
+  coverage is now 27/32, leaving 8 explicit browser-spec targets.
+- The in-app browser reproduced and corrected token-shape and affected-row
+  predictions, completed all four required lookup-gradient checks, repaired
+  repeated-index scatter-add, and recovered the first independent lookup
+  contract. Korean 390×844 exposed a real 20px prerequisite-link target; the
+  link now has a 44px minimum height, while the radio labels retain their 44px
+  effective areas. All 82 effective lesson targets passed with zero overflow,
+  native selects, or console warnings/errors after repair.
+- The next Transformer inventory slice added console-error monitoring to all
+  three Sequences chapter flows: Korean completion, English 390×844
+  keyboard/localization, and the independent three-challenge practice. Console
+  coverage is now 28/32, leaving 7 explicit browser-spec targets.
+- The in-app browser corrected a wrong long-gap RNN prediction, recorded all
+  four required memory-lab evidence items, ran the order-sensitivity NumPy cell,
+  repaired the omitted recurrent gain so analytic and finite-difference
+  gradients both reached 0.005453, and recovered the first independent shared-
+  recurrence contract. Korean 390×844 repeated the required failure→correction
+  flow; all 69 visible effective lesson targets met 44×44, with zero page
+  overflow, native selects, or console warnings/errors. No UI or content
+  mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring to all
+  three Attention chapter flows: Korean completion, English 390×844
+  keyboard/localization, and the independent three-challenge practice. Console
+  coverage is now 29/32, leaving 6 explicit browser-spec targets.
+- The in-app browser corrected a wrong source-row prediction, recorded all
+  three required routing-evidence items, ran the three-query NumPy trace,
+  repaired the context read from `weights @ K` to `weights @ values`, and
+  recovered the first independent value-space routing contract. Korean
+  390×844 repeated the required failure→correction flow; all 69 visible
+  effective lesson targets met 44×44, with zero page overflow, native selects,
+  or console warnings/errors. No UI or content mutation was warranted.
+- The next Transformer inventory slice added console-error monitoring and
+  explicit native-select-zero assertions to all three Self-Attention flows:
+  Korean completion, English 390×844 keyboard/localization, and independent
+  practice. Console and native-select-zero coverage are now both 30/32,
+  leaving 4 explicit browser-spec targets.
+- The in-app browser corrected a wrong projection prediction, recorded all five
+  challenge traces, ran the projection/concat NumPy cell, repaired the intended
+  mask-after-softmax failure, and recovered the first independent row-
+  permutation contract. Korean 390×844 repeated failure→correction and exposed
+  a real 32px advanced-settings disclosure; it now has a 48px minimum height
+  and visible focus. Both viewports then had zero page overflow, native selects,
+  sub-44px enabled targets, or console warnings/errors.
+- The next Transformer inventory slice added console-error monitoring and
+  explicit native-select-zero assertions to all three Transformer Block flows:
+  Korean completion, English 390×844 keyboard/localization, and independent
+  practice. Console and native-select-zero coverage are now both 31/32,
+  leaving 2 explicit browser-spec targets.
+- The in-app browser corrected a wrong position prediction, recorded all five
+  assembly traces, ran the pre-norm NumPy ledger, repaired the intended second-
+  residual-source failure from 1.732005 to zero, and recovered the first
+  independent residual contract from 0.350000/0.450000 errors. Korean 390×844
+  repeated failure→correction and exposed a real 32px advanced-numeric-settings
+  disclosure; it now has a 48px minimum height and visible focus. Both
+  viewports then had zero page overflow, native selects, sub-44px enabled
+  targets, or console warnings/errors.
+- The final Transformer inventory slice added console-error monitoring and
+  explicit native-select-zero assertions to all three Mini Transformer flows:
+  Korean completion, English 390×844 keyboard/localization, and independent
+  practice. Console and native-select-zero coverage are now both 32/32, leaving
+  zero explicit browser-spec coverage targets.
+- The in-app browser corrected a wrong BOS prediction, recorded all five
+  end-to-end numeric traces, lowered the NumPy LM-head loss 1.655967→1.552597,
+  repaired prefix lengths 3/3/3/3/3→3/4/5/6/7, and recovered the first
+  independent causal-prefix contract from 2.731864/1.808742 errors to zero.
+  Korean 390×844 repeated failure→correction and exposed the remaining 32px
+  advanced-generation-settings disclosure; it now has a 48px minimum height
+  and visible focus.

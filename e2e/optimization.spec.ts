@@ -3,6 +3,15 @@ import { signInTestUser } from "./helpers";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/optimization";
 const publicPath = "/curricula/transformer-from-zero/chapters/optimization";
+type TestPage = Parameters<typeof signInTestUser>[0];
+
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
 
 function choiceGroup(scope: Locator, label: string) {
   return scope.getByRole("group", { name: label });
@@ -15,13 +24,13 @@ async function choose(scope: Locator, label: string, value: string) {
   return option;
 }
 
-async function signInAsAdmin(page: Parameters<typeof signInTestUser>[0]) {
+async function signInAsAdmin(page: TestPage) {
   test.skip(!process.env.E2E_ADMIN_EMAIL, "E2E admin bootstrap is required.");
   await signInTestUser(page, process.env.E2E_ADMIN_EMAIL!);
 }
 
 async function completeLearningRateRepair(
-  page: Parameters<typeof signInTestUser>[0],
+  page: TestPage,
 ) {
   const lab = page.locator(".optimization-descent-lab");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, {
@@ -56,8 +65,45 @@ async function completeLearningRateRepair(
   await expect(lab.getByText("안정적 수렴")).toHaveClass(/is-complete/);
 }
 
+async function completeOptimizationPractice(
+  page: TestPage,
+) {
+  const practice = page.locator(".optimization-practice-deck");
+  await expect(practice.getByLabel("0 / 3")).toBeVisible();
+  await expect(practice.locator("select")).toHaveCount(0);
+
+  await choose(practice, "실행 전 update 방향 예측", "follows");
+  await choose(practice, "bias: weights.bias ___ η × gradient.bias", "add");
+  await choose(practice, "slope: weights.slope ___ η × gradient.slope", "subtract");
+  await practice.getByRole("button", { name: "공개·전이 fixture 실행" }).click();
+  await expect(practice.getByText("첫 실패 계약을 확인하고 같은 문제를 다시 실행하세요.")).toBeVisible();
+  await expect(practice.getByText("[-2, 1.5]", { exact: true })).toBeVisible();
+  await expect(practice.getByText("[-1, 1.5]", { exact: true })).toBeVisible();
+
+  await choose(practice, "실행 전 update 방향 예측", "opposes");
+  await choose(practice, "bias: weights.bias ___ η × gradient.bias", "subtract");
+  await practice.getByRole("button", { name: "공개·전이 fixture 실행" }).click();
+  await expect(practice.getByText("이 문제의 증거가 완성되었습니다.")).toBeVisible();
+
+  await practice.getByRole("button", { name: /Overshoot 진단/ }).click();
+  await choose(practice, "다음 loss 예측", "loss-increases");
+  await choose(practice, "첫 실패 계약", "overshoot");
+  await choose(practice, "세 후보 중 가장 안정적인 복구 η", "0.2");
+  await practice.getByRole("button", { name: "실행하고 첫 실패 경계 확인" }).click();
+  await expect(practice.getByText("η=0.2 · loss 8 → 0.32", { exact: true })).toHaveCount(2);
+
+  await practice.getByRole("button", { name: /새 곡률/ }).click();
+  await choose(practice, "공개 fixture 결과 예측", "lands-on-target");
+  await choose(practice, "두 fixture를 한 번에 푸는 η", "0.1");
+  await practice.getByRole("button", { name: "두 fixture 실행" }).click();
+  await expect(practice.getByText("w′=1.5 · loss=0", { exact: true })).toBeVisible();
+  await expect(practice.getByLabel("3 / 3")).toBeVisible();
+  await expect(practice.getByText("재현·진단·전이 세 증거를 모두 만들었습니다.")).toBeVisible();
+}
+
 test("completes both optimization activities in the admin draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const optionalRuntimeRequests: string[] = [];
   page.on("request", (request) => {
     if (
@@ -113,6 +159,13 @@ test("completes both optimization activities in the admin draft preview", async 
   }
   await expect(page.locator(".optimization-debug-progress strong")).toHaveText("4 / 4");
 
+  await completeOptimizationPractice(page);
+  const practice = page.locator(".optimization-practice-deck");
+  await practice.getByRole("button", { name: "세 문제 모두 초기화" }).click();
+  await expect(practice.getByLabel("0 / 3")).toBeVisible();
+  await expect(practice.getByRole("button", { name: /step\(w, lr\)/ })).toHaveAttribute("aria-pressed", "true");
+  await completeOptimizationPractice(page);
+
   await page.locator('input[name="loss-role"][value="scalar-summary"]').check();
   await page.locator('input[name="gradient-direction"][value="subtract-gradient"]').check();
   await page.locator('input[name="learning-rate"][value="overshoot-diverge"]').check();
@@ -126,9 +179,11 @@ test("completes both optimization activities in the admin draft preview", async 
   await expect(page.getByRole("button", { name: "미리보기에서는 완료할 수 없습니다" })).toBeDisabled();
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(optionalRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px and its public URL closed", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
   const optionalRuntimeRequests: string[] = [];
   page.on("request", (request) => {
     if (
@@ -224,7 +279,32 @@ test("keeps the English draft keyboard-usable at 390px and its public URL closed
   await resetDebugger.press("Enter");
   await expect(choiceGroup(firstIncident, "Optimizer action").locator('[aria-pressed="true"]')).toHaveCount(0);
 
+  const practice = page.locator(".optimization-practice-deck");
+  await expect(practice.getByRole("heading", { name: "Can you rebuild the same rule with new numbers?" })).toBeVisible();
+  await practice.getByRole("button", { name: /New curvature/ }).focus();
+  await practice.getByRole("button", { name: /New curvature/ }).press("Enter");
+  await choose(practice, "Predict the visible-fixture outcome", "lands-on-target");
+  await choose(practice, "One η for both fixtures", "0.1");
+  const runTransfer = practice.getByRole("button", { name: "Run both fixtures" });
+  await runTransfer.focus();
+  await runTransfer.press("Enter");
+  await expect(practice.getByText("w′=1.5 · loss=0", { exact: true })).toBeVisible();
+  await expect(practice.getByText("Evidence for this challenge is complete.")).toBeVisible();
+  expect(await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  )).toBeLessThanOrEqual(1);
+  const smallPracticeTargets = await practice.locator("button:enabled").evaluateAll((buttons) =>
+    buttons
+      .map((button) => {
+        const rect = button.getBoundingClientRect();
+        return { width: rect.width, height: rect.height, text: button.textContent?.trim() };
+      })
+      .filter(({ width, height }) => width < 44 || height < 44),
+  );
+  expect(smallPracticeTargets).toEqual([]);
+
   expect(optionalRuntimeRequests).toEqual([]);
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
+  expect(consoleErrors).toEqual([]);
 });

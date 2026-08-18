@@ -40,8 +40,17 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 test("completes lookup evidence, four repairs, and concepts in the Korean admin draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -176,10 +185,12 @@ test("completes lookup evidence, four repairs, and concepts in the Korean admin 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with fallback and no heavy runtime", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -218,6 +229,16 @@ test("keeps the English draft keyboard-usable at 390px with fallback and no heav
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
+
+  const undersizedCoreTargets = await page.locator(
+    ".embeddings-prerequisite a, .embeddings-input-grid fieldset label",
+  ).evaluateAll((elements) => elements
+    .filter((element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.width < 44 || rect.height < 44;
+    })
+    .map((element) => element.textContent?.trim() ?? ""));
+  expect(undersizedCoreTargets).toEqual([]);
 
   const lab = page.locator(".embeddings-lookup-lab");
   const repeatedPreset = lab.getByRole("button", { name: "Repeated token" });
@@ -288,4 +309,100 @@ test("keeps the English draft keyboard-usable at 390px with fallback and no heav
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
+});
+
+test("retries and completes the independent Embeddings practice on fresh tokens", async ({ page }) => {
+  const consoleErrors = watchConsoleErrors(page);
+  await signInAsAdmin(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  const response = await page.goto(`${previewPath}?lang=en`);
+  expect(response?.status()).toBe(200);
+
+  const practice = page.getByRole("region", {
+    name: "Can you rebuild lookup and gradient boundaries on fresh tokens?",
+  });
+  await expect(practice).toBeVisible();
+
+  await choose(
+    practice,
+    "Predict the lookup output shape",
+    "vocabulary-by-dimension",
+  );
+  await choose(practice, "learnerLookup", "first-row-for-all");
+  await practice.getByRole("button", {
+    name: "Run both lookup fixtures",
+  }).click();
+  await expect(practice.getByText(
+    "Inspect the first failed contract, then run the same challenge again.",
+  )).toBeVisible();
+
+  await choose(
+    practice,
+    "Predict the lookup output shape",
+    "positions-by-dimension",
+  );
+  await choose(practice, "learnerLookup", "direct-row");
+  await practice.getByRole("button", {
+    name: "Run both lookup fixtures",
+  }).click();
+  await expect(practice.getByText("✓ E[ids]", { exact: true })).toBeVisible();
+
+  const scatterChallenge = practice.getByRole("button", {
+    name: "02 · Multi-boundary scatter-add",
+    exact: true,
+  });
+  await scatterChallenge.press("Enter");
+  await expect(scatterChallenge).toHaveAttribute("aria-pressed", "true");
+  await choose(
+    practice,
+    "Predict the net gradient of both repeated rows",
+    "partial-then-zero",
+  );
+  await choose(practice, "learnerScatterAdd", "sum-occurrences");
+  await practice.getByRole("button", {
+    name: "Run both scatter-add contracts",
+  }).click();
+  await expect(practice.getByText("✓ scatter-add", { exact: true })).toBeVisible();
+
+  const unknownChallenge = practice.getByRole("button", {
+    name: "03 · Transfer [UNK] collision",
+    exact: true,
+  });
+  await unknownChallenge.press(" ");
+  await expect(unknownChallenge).toHaveAttribute("aria-pressed", "true");
+  await choose(
+    practice,
+    "Predict rows for distinct unseen words",
+    "shared-unknown-row",
+  );
+  await choose(practice, "learnerUnknownPath", "keep-unknown-id");
+  await practice.getByRole("button", {
+    name: "Run both unseen-word transfers",
+  }).click();
+  await expect(practice.getByText("✓ [UNK] collision", { exact: true })).toBeVisible();
+  await expect(practice.getByText("3 / 3", { exact: true })).toBeVisible();
+
+  await expect(page.getByRole("button", {
+    name: "Completion is disabled in preview",
+  })).toBeDisabled();
+  expect(await page.locator("select").count()).toBe(0);
+  expect(await page.evaluate(
+    () => document.documentElement.scrollWidth - window.innerWidth,
+  )).toBeLessThanOrEqual(1);
+  const undersized = await practice.locator("button:enabled").evaluateAll(
+    (buttons) => buttons
+      .filter((button) => {
+        const rect = button.getBoundingClientRect();
+        return rect.width < 44 || rect.height < 44;
+      })
+      .map((button) => button.textContent?.trim() ?? ""),
+  );
+  expect(undersized).toEqual([]);
+
+  await practice.getByRole("button", {
+    name: "Reset all three challenges",
+  }).click();
+  await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });

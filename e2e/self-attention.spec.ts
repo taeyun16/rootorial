@@ -1,5 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
+import { findUndersizedVisibleTouchTargets } from "./helpers/touch-targets";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/self-attention";
 const publicPath = "/curricula/transformer-from-zero/chapters/self-attention";
@@ -17,6 +18,16 @@ function choiceOption(scope: Locator, label: string, value: string) {
 async function choose(scope: Locator, label: string, value: string) {
   const option = choiceOption(scope, label, value);
   await option.click();
+  await expect(option).toHaveAttribute("aria-pressed", "true");
+  return option;
+}
+
+async function chooseConceptOption(scope: Locator, questionId: string, optionIndex: number) {
+  const option = scope
+    .locator(`.concept-question[data-question-id="${questionId}"] .concept-option`)
+    .nth(optionIndex);
+  await option.focus();
+  await option.press("Space");
   await expect(option).toHaveAttribute("aria-pressed", "true");
   return option;
 }
@@ -44,9 +55,17 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 async function selfAttentionOverflow(page: TestPage) {
   return page.locator(
-    ".self-attention-boundary-grid, .self-attention-shape-ladder, .self-attention-worked-trace, .self-attention-formula-stack, .self-attention-mask-table-wrap, .self-attention-workbench, .self-attention-preset-row, .self-attention-control-panel, .self-attention-run-actions, .self-attention-workbench .step-explorer, .self-attention-stage-panel, .self-attention-matrix-stack, .self-attention-matrix-stack .array-diagram, .self-attention-matrix-stack .array-diagram-scroll, .self-attention-masked-grid-wrap, .self-attention-evidence, .self-attention-python-bridge, .self-attention-python-bridge .notebook-cell, .self-attention-debugger-lab, .self-attention-debug-grid, .self-attention-debug-card, .self-attention-debug-actions, .self-attention-debug-feedback, .self-attention-transfer-task, .self-attention-completion-checklist, .self-attention-chapter-shell .math-formula-display",
+    ".self-attention-boundary-grid, .self-attention-shape-ladder, .self-attention-worked-trace, .self-attention-formula-stack, .self-attention-mask-table-wrap, .self-attention-workbench, .self-attention-preset-row, .self-attention-control-panel, .self-attention-run-actions, .self-attention-workbench .step-explorer, .self-attention-stage-panel, .self-attention-matrix-stack, .self-attention-matrix-stack .array-diagram, .self-attention-matrix-stack .array-diagram-scroll, .self-attention-masked-grid-wrap, .self-attention-evidence, .self-attention-python-bridge, .self-attention-python-bridge .notebook-cell, .self-attention-debugger-lab, .self-attention-debug-grid, .self-attention-debug-card, .self-attention-debug-actions, .self-attention-debug-feedback, .self-attention-practice-deck, .self-attention-practice-deck .practice-workspace, .self-attention-transfer-task, .self-attention-completion-checklist, .self-attention-chapter-shell .math-formula-display",
   ).evaluateAll((elements) => elements
     .filter((element) => element.scrollWidth - element.clientWidth > 1)
     .map((element) => ({
@@ -58,6 +77,7 @@ async function selfAttentionOverflow(page: TestPage) {
 test("completes five traces, four repairs, and concepts in the Korean draft preview", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
@@ -72,6 +92,7 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   await expect(page.getByText("관리자 미리보기", { exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "공개 URL 확인" })).toHaveAttribute("href", publicPath);
   await expect(page.locator(".lesson-article").getByRole("heading", { name: "Self-Attention", exact: true })).toBeVisible();
+  expect(await page.locator(".lesson-article select").count()).toBe(0);
   await expect(page.getByText("필수 LAB · PREDICT → CONFIGURE → RUN → INSPECT", { exact: true })).toBeVisible();
   await expect(page.getByText("별도 활동 · CAUSAL MULTI-HEAD REPAIR CONSOLE", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "sat query 한 행을 score에서 concat까지 끝까지 추적합니다" })).toBeVisible();
@@ -191,19 +212,20 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
   }
   await expect(page.locator(".self-attention-debug-progress strong")).toHaveText("4 / 4");
 
-  await page.locator('input[name="qkv-source"][value="same-x-separate-projections"]').check();
-  await page.locator('input[name="scaled-score"][value="divide-by-sqrt-head-dimension"]').check();
-  await page.locator('input[name="causal-mask"][value="block-future-logits-before-softmax"]').check();
-  await page.locator('input[name="multi-head-contract"][value="split-features-run-heads-concat"]').check();
-  await page.locator('input[name="position-boundary"][value="mask-limits-visibility-position-next"]').check();
+  await chooseConceptOption(page, "qkv-source", 1);
+  await chooseConceptOption(page, "scaled-score", 2);
+  await chooseConceptOption(page, "causal-mask", 0);
+  await chooseConceptOption(page, "multi-head-contract", 1);
+  await chooseConceptOption(page, "position-boundary", 2);
   await page.getByRole("button", { name: "Self-Attention 계약 확인하기" }).click();
-  await expect(page.getByText("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.")).toBeVisible();
+  await expect(page.getByText("이해 확인 완료 — 핵심 challenge 세 개의 완료 상태를 확인하세요.")).toBeVisible();
 
   await expect(page.locator(".self-attention-completion-checklist .is-complete")).toHaveCount(3);
   await expect(completionButton).toHaveAttribute("data-completion-ready", "true");
   await expect(completionButton).toBeDisabled();
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
@@ -213,6 +235,7 @@ test("completes five traces, four repairs, and concepts in the Korean draft prev
 test("keeps the English draft keyboard-usable at 390px with reduced motion and no overflow", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = watchConsoleErrors(page);
 
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
@@ -226,6 +249,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
     "Project Q, K, and V separately from the same input, compute scaled dot products for every token row, then execute causal-masking and multi-head split/merge contracts while debugging information leaks and shape defects.",
   );
   await expect(page.getByRole("heading", { name: "Self-Attention", exact: true })).toBeVisible();
+  expect(await page.locator(".lesson-article select").count()).toBe(0);
   await expect(page.getByRole("heading", { name: "Trace one sat query row from scores through concatenation" })).toBeVisible();
   const workedTrace = page.locator(".self-attention-worked-trace");
   await expect(workedTrace).toContainText("masked = [1.414214, 0.707107, 0, -inf]");
@@ -264,8 +288,20 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
 
   const lab = page.locator(".self-attention-workbench");
   await expect(lab.locator('[data-interactive-ready="true"]')).toHaveCount(1, { timeout: 30_000 });
+  const advancedSettings = lab.locator(".challenge-advanced-settings summary");
+  const projectionPreset = lab.locator('[data-self-attention-preset="projection"]');
   const scalingPreset = lab.locator('[data-self-attention-preset="scaling"]');
   const prediction = choiceGroup(lab, "Self-Attention challenge prediction");
+  await choose(lab, "Self-Attention challenge prediction", "same-x-separate-qkv");
+  const run = lab.getByRole("button", { name: "Run the Self-Attention pipeline" });
+  await run.press("Enter");
+  await choose(lab, "Self-Attention head to inspect", "1");
+  await choose(lab, "Query token to inspect", "0");
+  const inspectProjection = lab.getByRole("button", { name: "Inspect the selected token's Q/K/V rows" });
+  await inspectProjection.focus();
+  await inspectProjection.press("Enter");
+  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(1);
+
   await scalingPreset.focus();
   await scalingPreset.press("Enter");
   await expect(scalingPreset).toHaveAttribute("aria-pressed", "true");
@@ -274,7 +310,6 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
 
   const scaling = await choose(lab, "Self-Attention score scaling", "1");
   const scalingPrediction = await choose(lab, "Self-Attention challenge prediction", "same-top-higher-entropy");
-  const run = lab.getByRole("button", { name: "Run the Self-Attention pipeline" });
   await run.focus();
   await run.press("Enter");
   await expect(scalingPrediction).toBeFocused();
@@ -289,9 +324,19 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await inspectScores.focus();
   await inspectScores.press("Enter");
   await expect(inspectScores).toBeFocused();
-  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(1);
+  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(2);
 
-  const coreControls = [scalingPreset, scaling, prediction, run, scoresStage, inspectScores];
+  const coreControls = [
+    advancedSettings,
+    projectionPreset,
+    inspectProjection,
+    scalingPreset,
+    scaling,
+    prediction,
+    run,
+    scoresStage,
+    inspectScores,
+  ];
   for (const target of coreControls) {
     const box = await target.boundingBox();
     expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
@@ -333,16 +378,10 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const inspectOutput = lab.getByRole("button", { name: "Inspect both heads and the [T,4] handoff for the selected token" });
   await inspectOutput.focus();
   await inspectOutput.press("Enter");
-  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(4);
+  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(5);
+  await expect(lab.locator(".self-attention-evidence")).toHaveAttribute("data-mastered", "true");
   expect(await selfAttentionOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
-
-  const resetLab = lab.getByRole("button", { name: "Reset the entire Self-Attention lab", exact: true });
-  await resetLab.focus();
-  await resetLab.press("Enter");
-  await expect(resetLab).toBeFocused();
-  await expect(prediction.locator('[aria-pressed="true"]')).toHaveCount(0);
-  await expect(lab.locator(".self-attention-evidence .is-complete")).toHaveCount(0);
 
   const firstIncident = page.locator(".self-attention-debug-card").first();
   const repairSelect = choiceGroup(firstIncident, "Repair for Self-Attention incident 1");
@@ -359,36 +398,155 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
     expect(box?.width ?? 0).toBeGreaterThanOrEqual(44);
   }
 
-  const resetDebugger = page.getByRole("button", { name: "Reset the entire Self-Attention debugger", exact: true });
-  await resetDebugger.focus();
-  await resetDebugger.press("Enter");
-  await expect(resetDebugger).toBeFocused();
-  await expect(repairSelect.locator('[aria-pressed="true"]')).toHaveCount(0);
-
-  const conceptAnswers = [
-    ['input[name="qkv-source"][value="same-x-separate-projections"]'],
-    ['input[name="scaled-score"][value="divide-by-sqrt-head-dimension"]'],
-    ['input[name="causal-mask"][value="block-future-logits-before-softmax"]'],
-    ['input[name="multi-head-contract"][value="split-features-run-heads-concat"]'],
-    ['input[name="position-boundary"][value="mask-limits-visibility-position-next"]'],
+  const repairs = [
+    "project-qkv-independently",
+    "divide-by-sqrt-head-dimension",
+    "mask-before-softmax",
+    "concat-features-then-output",
   ] as const;
-  for (const [selector] of conceptAnswers) {
-    const answer = page.locator(selector);
-    await answer.focus();
-    await answer.press("Space");
-    await expect(answer).toBeChecked();
+  for (let index = 0; index < repairs.length; index += 1) {
+    const incident = page.locator(".self-attention-debug-card").nth(index);
+    await choose(incident, `Repair for Self-Attention incident ${index + 1}`, repairs[index]);
+    await incident.getByRole("button", {
+      name: `Apply repair and run contract for Self-Attention incident ${index + 1}`,
+    }).press("Enter");
+    await expect(incident).toHaveAttribute("data-repair-result", "correct");
   }
+  await expect(page.locator(".self-attention-debug-progress strong")).toHaveText("4 / 4");
+
+  const conceptQuestionIds = [
+    "qkv-source",
+    "scaled-score",
+    "causal-mask",
+    "multi-head-contract",
+    "position-boundary",
+  ] as const;
+  for (const questionId of conceptQuestionIds) await chooseConceptOption(page, questionId, 0);
   const checkConcepts = page.getByRole("button", { name: "Check the self-attention contract" });
   await checkConcepts.focus();
   await checkConcepts.press("Enter");
-  await expect(page.getByText("Concept check complete — now confirm both activity states.", { exact: true })).toBeVisible();
+  await expect(page.locator(".concept-check-summary")).toContainText("still mixed");
+  await chooseConceptOption(page, "qkv-source", 1);
+  await chooseConceptOption(page, "scaled-score", 2);
+  await chooseConceptOption(page, "causal-mask", 0);
+  await chooseConceptOption(page, "multi-head-contract", 1);
+  await chooseConceptOption(page, "position-boundary", 2);
+  await checkConcepts.press("Enter");
+  await expect(page.getByText("Concept check complete — now confirm all three core challenge states.", { exact: true })).toBeVisible();
+
+  await expect(page.locator(".self-attention-completion-checklist .is-complete")).toHaveCount(3);
+  expect(await findUndersizedVisibleTouchTargets(page.locator(".lesson-article"), 44)).toEqual([]);
 
   expect(await selfAttentionOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+});
+
+test("retries and completes the independent Self-Attention practice on fresh fixtures", async ({ page }) => {
+  test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
+
+  await signInAsAdmin(page);
+  const response = await page.goto(`${previewPath}?lang=en`);
+  expect(response?.status()).toBe(200);
+
+  const practice = page.locator(".self-attention-practice-deck");
+  expect(await practice.locator("select").count()).toBe(0);
+  await expect(practice.getByRole("heading", {
+    name: "Can you preserve Self-Attention row semantics outside the guided lab?",
+  })).toBeVisible();
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("0 / 3");
+  const completionButton = page.getByRole("button", {
+    name: "Completion is disabled in preview",
+  });
+  await expect(completionButton).toHaveAttribute(
+    "data-completion-ready",
+    "false",
+  );
+
+  await choose(
+    practice,
+    "Predict token-row permutation output",
+    "outputs-stay-in-original-order",
+  );
+  await choose(practice, "learnerPermute", "permute-keys-only");
+  await practice.getByRole("button", {
+    name: "Run both row-permutation fixtures",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-failed/);
+  await expect(practice.locator(".practice-result")).toContainText(
+    "max|Y'−P·Y|=",
+  );
+
+  await choose(
+    practice,
+    "Predict token-row permutation output",
+    "outputs-follow-token-permutation",
+  );
+  await choose(
+    practice,
+    "learnerPermute",
+    "permute-input-before-qkv",
+  );
+  await practice.getByRole("button", {
+    name: "Run both row-permutation fixtures",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+
+  const navigation = practice.locator(".practice-deck-navigation button");
+  await navigation.nth(1).focus();
+  await navigation.nth(1).press("Enter");
+  await choose(
+    practice,
+    "Predict contexts for identical token rows",
+    "duplicate-rows-produce-duplicate-contexts",
+  );
+  await choose(practice, "learnerBoundary", "no-position-signal");
+  await practice.getByRole("button", {
+    name: "Run both duplicate-row contracts",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+
+  await navigation.nth(2).focus();
+  await navigation.nth(2).press("Space");
+  await choose(
+    practice,
+    "Predict the causal permutation boundary",
+    "token-only-changes-joint-relabel-restores",
+  );
+  await choose(
+    practice,
+    "learnerRelabel",
+    "permute-input-and-visibility",
+  );
+  await practice.getByRole("button", {
+    name: "Run both causal relabel fixtures",
+  }).click();
+  await expect(practice.locator(".practice-result")).toHaveClass(/is-passed/);
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("3 / 3");
+  await expect(practice.locator(".practice-deck-evidence")).toContainText(
+    "You produced row-permutation, position-free duplicate, and causal-visibility transfer evidence.",
+  );
+  await expect(completionButton).toHaveAttribute(
+    "data-completion-ready",
+    "false",
+  );
+
+  await practice.getByRole("button", {
+    name: "Reset all three challenges",
+  }).click();
+  await expect(practice.locator(".practice-deck-header > strong")).toHaveText("0 / 3");
+  await expect(choiceOption(
+    practice,
+    "Predict token-row permutation output",
+    "outputs-follow-token-permutation",
+  )).toBeFocused();
+  expect(await selfAttentionOverflow(page)).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });

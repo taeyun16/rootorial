@@ -25,6 +25,7 @@ import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { MiniTransformerConceptCheck } from "./MiniTransformerConceptCheck";
 import { MiniTransformerDebuggerLab } from "./MiniTransformerDebuggerLab";
 import { MiniTransformerLab } from "./MiniTransformerLab";
+import { MiniTransformerPracticeDeck } from "./MiniTransformerPracticeDeck";
 
 const tocItems = {
   ko: [
@@ -36,6 +37,7 @@ const tocItems = {
     { id: "mini-transformer-lab", label: "핵심 3 challenge lab" },
     { id: "numpy-bridge", label: "NumPy로 경계 검증" },
     { id: "debug", label: "선택 · 모델 경계 디버깅" },
+    { id: "practice", label: "선택 · 독립 수행" },
     { id: "transfer", label: "실제 모델로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -48,6 +50,7 @@ const tocItems = {
     { id: "mini-transformer-lab", label: "Three-core-challenge lab" },
     { id: "numpy-bridge", label: "Verify boundaries in NumPy" },
     { id: "debug", label: "Optional · Debug model boundaries" },
+    { id: "practice", label: "Optional · Independent performance" },
     { id: "transfer", label: "Transfer to real models" },
     { id: "check", label: "Concept check" },
   ],
@@ -261,8 +264,13 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
             <MiniTransformerDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
 
+          <section className="article-section" id="practice">
+            <div className="margin-label">09 — OPTIONAL PRACTICE · INDEPENDENT PERFORMANCE</div>
+            <MiniTransformerPracticeDeck />
+          </section>
+
           <section className="article-section" id="transfer">
-            <div className="margin-label">09 — TRANSFER BEYOND THE FIXTURE</div>
+            <div className="margin-label">10 — TRANSFER BEYOND THE FIXTURE</div>
             <h2>{t("크기가 커져도 경계는 유지되고 구현 전략이 추가됩니다", "The boundaries remain as scale grows; implementation strategies are added")}</h2>
             <div className="mini-transformer-transfer-task"><strong>{t("전이 과제", "TRANSFER TASK")}</strong><p>{t(
               "block을 12개로 늘리고 tied embedding, subword vocabulary, KV cache, temperature sampling을 추가한다고 가정하세요. [T,d_model]을 유지하는 부분, [T,V]가 처음 생기는 부분, training에서만 필요한 shifted loss, generation에서만 필요한 append/stop controller를 네 범주로 분류하세요. cache는 결과 의미를 바꾸지 않고 중복 계산만 줄여야 합니다.",
@@ -271,7 +279,7 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
           </section>
 
           <section className="article-section" id="check">
-            <div className="margin-label">10 — CONCEPT CHECK</div>
+            <div className="margin-label">11 — CONCEPT CHECK</div>
             <MiniTransformerConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 

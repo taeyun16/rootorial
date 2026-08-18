@@ -1,5 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
+import { findUndersizedVisibleTouchTargets } from "./helpers/touch-targets";
 
 const previewPath = "/admin/preview/curricula/linux-networking/chapters/interfaces-addresses-and-loopback";
 const publicPath = "/curricula/linux-networking/chapters/interfaces-addresses-and-loopback";
@@ -43,6 +44,16 @@ async function activate(control: Locator) {
   await control.press("Enter");
 }
 
+async function predictDelivery(page: TestPage, locale: "ko" | "en") {
+  const label = locale === "ko"
+    ? "현재 network view의 lo 상태와 주소"
+    : "The lo state and address in the current network view";
+  const control = page.getByRole("button", { name: label, exact: true });
+  await expect(control).toHaveCount(1);
+  await control.click();
+  await expect(control).toHaveAttribute("aria-pressed", "true");
+}
+
 async function completeFigure(figure: Locator) {
   const phaseControls = figure.locator("[data-command-id] button[data-command-trigger]");
   for (let index = 1; index < 6; index += 1) {
@@ -73,22 +84,33 @@ async function repairAllIncidents(page: TestPage) {
   await expect(lab.locator(".network-view-incident-progress strong")).toHaveText("4 / 4");
 }
 
-async function answerAllConcepts(page: TestPage) {
-  const correctAnswers = [
-    'input[name="interface-link-state"][value="interface-exists-while-link-down"]',
-    'input[name="address-prefix"][value="address-on-interface-prefix-defines-network"]',
-    'input[name="loopback-scope"][value="loopback-stays-inside-current-network-view"]',
-    'input[name="localhost-resolution"][value="localhost-resolves-to-loopback"]',
-    'input[name="observation-scope"][value="inspect-link-address-and-route-separately"]',
-  ] as const;
-  for (const selector of correctAnswers) {
-    await page.locator(selector).check();
+async function answerAllConcepts(page: TestPage, locale: "ko" | "en" = "ko") {
+  const correctAnswers = locale === "ko" ? [
+    "행은 존재, DOWN은 operstate, UP flag 부재는 admin down",
+    "주소는 인터페이스의 IPv4 식별값, /24는 네트워크 경계",
+    "현재 호스트 안의 lo와 로컬 네트워크 스택",
+    "127.0.0.1 같은 루프백 주소로 해석되는 호스트 이름",
+    "링크 상태, 주소, 선택된 경로를 각각 확인",
+  ] : [
+    "The row proves existence, DOWN is operstate, and the absent UP flag means admin down",
+    "The address is the interface's IPv4 identity; /24 defines the network boundary",
+    "Through lo and the local stack inside the current host network view",
+    "A hostname that resolves to a loopback address such as 127.0.0.1",
+    "Inspect link, address, and the selected route as separate evidence",
+  ];
+  for (const label of correctAnswers) {
+    const control = page.getByRole("button", { name: label, exact: true });
+    await expect(control).toHaveCount(1);
+    await control.click();
   }
-  await page.getByRole("button", { name: "답 확인하기" }).click();
-  await expect(page.getByText(
-    "개념 확인 완료 — 필수 실습과 장애 복구 상태를 확인하세요.",
-    { exact: true },
-  )).toBeVisible();
+  const submitLabel = locale === "ko" ? "답 확인하기" : "Check answers";
+  const completionCopy = locale === "ko"
+    ? "개념 확인 완료 — 필수 실습과 장애 복구 상태를 확인하세요."
+    : "Concept check complete — now confirm the required lab and incident repairs.";
+  const submit = page.getByRole("button", { name: submitLabel, exact: true });
+  await expect(submit).toHaveCount(1);
+  await submit.click();
+  await expect(page.getByText(completionCopy, { exact: true })).toBeVisible();
 }
 
 function untranslatedHangul(page: TestPage) {
@@ -133,6 +155,7 @@ test("completes the executable host view, four repairs, and concepts in the Kore
     name: "인터페이스·주소·루프백",
     exact: true,
   })).toBeVisible();
+  await expect(page.locator("select")).toHaveCount(0);
 
   const figure = page.getByTestId("linux-network-view-figure");
   await expect(page.locator('figure[data-testid="linux-network-view-figure"]')).toHaveCount(1);
@@ -147,6 +170,8 @@ test("completes the executable host view, four repairs, and concepts in the Kore
   await expect(figure).toHaveAttribute("data-mastered", "false");
   await expect(figure.locator(":scope > figcaption.executable-figure-caption")).toHaveCount(1);
   await expect(figure.locator("figure")).toHaveCount(0);
+
+  await predictDelivery(page, "ko");
 
   const phaseControls = figure.locator("[data-command-id] button[data-command-trigger]");
   await expect(phaseControls).toHaveCount(6);
@@ -206,6 +231,7 @@ test("keeps the English executable figure keyboard-usable at 390px with reduced 
     name: "Interfaces, Addresses, and Loopback",
     exact: true,
   })).toBeVisible();
+  await expect(page.locator("select")).toHaveCount(0);
 
   const figure = page.getByTestId("linux-network-view-figure");
   await expect(page.locator('figure[data-testid="linux-network-view-figure"]')).toHaveCount(1);
@@ -217,8 +243,11 @@ test("keeps the English executable figure keyboard-usable at 390px with reduced 
   await expect(figure).toHaveAttribute("data-network-view-phase", "observe");
   expect(await page.evaluate(() => matchMedia("(prefers-reduced-motion: reduce)").matches)).toBe(true);
 
+  await predictDelivery(page, "en");
+
   const phaseControls = figure.locator("[data-command-id] button[data-command-trigger]");
   await expect(phaseControls).toHaveCount(6);
+  await completeFigure(figure);
   const first = phaseControls.nth(0);
   const second = phaseControls.nth(1);
   const third = phaseControls.nth(2);
@@ -264,17 +293,11 @@ test("keeps the English executable figure keyboard-usable at 390px with reduced 
   expect(figureMotionViolations).toEqual([]);
   expect(await untranslatedHangul(page)).toEqual([]);
 
-  const touchControls = [
-    ...await phaseControls.all(),
-    figure.getByTestId("linux-network-view-reset"),
-    page.locator(".network-view-incident-rail button").first(),
-    page.locator(".network-view-repair-action").first(),
-    page.getByRole("button", { name: "Check answers" }),
-  ];
-  for (const control of touchControls) {
-    const box = await control.boundingBox();
-    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
-  }
+  await answerAllConcepts(page, "en");
+  expect(
+    await findUndersizedVisibleTouchTargets(page.locator(".lesson-article"), 44),
+    "every currently visible enabled lesson target should meet the 44px mobile contract",
+  ).toEqual([]);
 
   expect(await figure.evaluate(
     (element) => element.scrollWidth - element.clientWidth,

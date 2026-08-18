@@ -7,6 +7,7 @@ export const NETWORK_VIEW_LOOPBACK_PREFIX = 8;
 export type NetworkInterfaceKind = "ethernet" | "loopback";
 export type NetworkAdminState = "up" | "down";
 export type NetworkCarrierState = "up" | "down" | "not-applicable";
+export type NetworkOperationalState = "UP" | "DOWN" | "UNKNOWN";
 
 export type NetworkLinkIdentity =
   | Readonly<{ kind: "ethernet"; mac: string }>
@@ -249,7 +250,9 @@ function findInterface(
   return machine.interfaces.find((candidate) => candidate.id === interfaceId);
 }
 
-function operationalState(networkInterface: HostNetworkInterface): "UP" | "DOWN" | "UNKNOWN" {
+export function networkOperationalState(
+  networkInterface: HostNetworkInterface,
+): NetworkOperationalState {
   if (networkInterface.adminState === "down") return "DOWN";
   if (networkInterface.kind === "loopback") return "UNKNOWN";
   return networkInterface.carrierState === "up" ? "UP" : "DOWN";
@@ -360,7 +363,7 @@ export function projectNetworkViewCommand(
 
   if (id === "ip-brief-link") {
     const lines = machine.interfaces.map((candidate) =>
-      `${candidate.id.padEnd(16)} ${operationalState(candidate).padEnd(15)} ${linkAddress(candidate)} ${linkFlags(candidate)}`,
+      `${candidate.id.padEnd(16)} ${networkOperationalState(candidate).padEnd(15)} ${linkAddress(candidate)} ${linkFlags(candidate)}`,
     );
     return commandOutput(id, "ip -br link show", lines, [
       fact("lo.exists", Boolean(loopback)),
@@ -375,7 +378,7 @@ export function projectNetworkViewCommand(
       const addresses = candidate.ipv4.length > 0
         ? candidate.ipv4.map(({ address, prefixLength }) => `${address}/${prefixLength}`).join(" ")
         : "-";
-      return `${candidate.id.padEnd(16)} ${operationalState(candidate).padEnd(15)} ${addresses}`;
+      return `${candidate.id.padEnd(16)} ${networkOperationalState(candidate).padEnd(15)} ${addresses}`;
     });
     return commandOutput(id, "ip -br -4 address show", lines, [
       fact("eth0.ipv4", ethernet?.ipv4[0]

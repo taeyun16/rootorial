@@ -93,16 +93,39 @@ async function repairIncidents(page: TestPage, locale: "ko" | "en") {
   }
 }
 
-async function answerConcepts(page: TestPage, locale: "ko" | "en") {
-  const answers = [
-    'input[name="dns-ttl-lifecycle"][value="cache-until-expiry-then-refresh"]',
-    'input[name="dns-health-boundary"][value="dns-answer-is-address-not-readiness"]',
-    'input[name="health-eligibility"][value="new-connections-use-healthy-nondraining-backends"]',
-    'input[name="l4-selection-unit"][value="l4-balancer-selects-connection-flows"]',
-    'input[name="affinity-failure"][value="remap-when-sticky-target-ineligible"]',
-  ];
-  for (const selector of answers) await page.locator(selector).check();
-  await page.getByRole("button", { name: locale === "ko" ? "service path 판정 확인" : "Check service path decisions" }).click();
+async function answerConcepts(page: TestPage, locale: "ko" | "en", retryFirst = false) {
+  const isKo = locale === "ko";
+  const questions = page.locator(".concept-question");
+  const answers = isKo
+    ? [
+        "만료 전에는 cache, 만료 경계부터 authority",
+        "backend가 request를 받을 준비가 됐는지",
+        "healthy하고 draining이 아닌 후보만 사용",
+        "transport connection flow",
+        "현재 healthy set에서 다시 매핑",
+      ]
+    : [
+        "use cache before expiry and authority at the expiry boundary",
+        "whether a backend is ready to receive requests",
+        "use only healthy, non-draining candidates",
+        "a transport connection flow",
+        "remap against the current healthy set",
+      ];
+  if (retryFirst) {
+    await questions.nth(0).getByRole("button", { name: "authority 변경을 감지해 즉시 refresh", exact: true }).click();
+  } else {
+    await questions.nth(0).getByRole("button", { name: answers[0], exact: true }).click();
+  }
+  for (let index = 1; index < answers.length; index += 1) {
+    await questions.nth(index).getByRole("button", { name: answers[index], exact: true }).click();
+  }
+  const submit = page.getByRole("button", { name: isKo ? "service path 판정 확인" : "Check service path decisions" });
+  await submit.click();
+  if (retryFirst) {
+    await expect(questions.nth(0)).toContainText("authority state와 resolver가 현재 사용할 수 있는 cached answer를 분리하세요");
+    await questions.nth(0).getByRole("button", { name: answers[0], exact: true }).click();
+    await submit.click();
+  }
 }
 
 function serviceOverflow(page: TestPage) {
@@ -154,7 +177,7 @@ test("completes DNS, affinity, incidents, and concepts in the Korean draft previ
   await expect(visual).toHaveAttribute("data-grade-state", "passed");
 
   await repairIncidents(page, "ko");
-  await answerConcepts(page, "ko");
+  await answerConcepts(page, "ko", true);
   await expect(page.getByText("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", { exact: true })).toBeVisible();
   await expect(page.locator(".network-completion-checklist .is-complete")).toHaveCount(4);
   await expect(completion).toHaveAttribute("data-completion-ready", "true");
@@ -215,6 +238,25 @@ test("keeps the English draft keyboard-usable at 390px without overflow or untra
     return rows;
   });
   expect(untranslated).toEqual([]);
+  const undersizedTargets = await page
+    .locator('.lesson-article button:not([disabled]), .lesson-article a[href], .lesson-article summary, .lesson-article input:not([disabled]), .lesson-article textarea:not([disabled])')
+    .evaluateAll((elements) => elements
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0
+          && (rect.width < 44 || rect.height < 44);
+      })
+      .map((element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          tag: element.tagName,
+          text: element.textContent?.replace(/\s+/g, " ").trim().slice(0, 80),
+          width: Math.round(rect.width),
+          height: Math.round(rect.height),
+        };
+      }));
+  expect(undersizedTargets).toEqual([]);
   const documentOverflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
   expect(await serviceOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);

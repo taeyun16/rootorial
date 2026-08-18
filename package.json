@@ -13,6 +13,8 @@
     "check:llms": "node --experimental-strip-types scripts/generate-llms.ts --check",
     "report:curriculum-quality": "node --experimental-strip-types scripts/report-curriculum-quality.ts",
     "check:curriculum-quality": "node --experimental-strip-types scripts/report-curriculum-quality.ts --check",
+    "report:curriculum-interactions": "node --experimental-strip-types scripts/report-curriculum-interactions.ts",
+    "check:curriculum-interactions": "node --experimental-strip-types scripts/report-curriculum-interactions.ts --check",
     "prebuild": "npm run generate:llms",
     "build": "tsc --noEmit && vite build",
     "start": "vite preview --port 3000",

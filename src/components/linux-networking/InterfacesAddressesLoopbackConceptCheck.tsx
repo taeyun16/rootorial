@@ -27,14 +27,14 @@ export function InterfacesAddressesLoopbackConceptCheck({
       id: "interface-link-state",
       index: "01",
       prompt: isKo ? (
-        <><code>eth0 DOWN</code>이 출력됐습니다. 이 한 줄이 확실히 증명하는 것은 무엇일까요?</>
+        <><code>eth0 DOWN ... &lt;BROADCAST,MULTICAST&gt;</code>가 출력됐습니다. 무엇을 분리해 읽어야 할까요?</>
       ) : (
-        <><code>eth0 DOWN</code> is printed. What does that line prove?</>
+        <><code>eth0 DOWN ... &lt;BROADCAST,MULTICAST&gt;</code> is printed. Which evidence is separate?</>
       ),
       options: [
         {
           value: "interface-exists-while-link-down",
-          label: t("eth0는 존재하지만 관리 상태가 down이다", "eth0 exists while its admin state is down"),
+          label: t("행은 존재, DOWN은 operstate, UP flag 부재는 admin down", "The row proves existence, DOWN is operstate, and the absent UP flag means admin down"),
         },
         {
           value: "interface-does-not-exist",
@@ -46,9 +46,9 @@ export function InterfacesAddressesLoopbackConceptCheck({
         },
       ],
       correctAnswer: "interface-exists-while-link-down",
-      answerLabel: t("정답: 존재와 관리 상태는 별도", "Answer: existence and link state are separate"),
-      correctFeedback: t("맞았습니다. 출력에 이름이 있다는 것은 인터페이스의 존재를, DOWN은 관리 상태를 말합니다.", "Right. The name proves the object exists; DOWN reports its admin state."),
-      incorrectFeedback: t("존재하지 않는 인터페이스는 이 목록에 행 자체가 없습니다. 이름과 상태를 분리해 읽으세요.", "A missing interface has no row in the list. Read the name and state separately."),
+      answerLabel: t("정답: 존재 · operstate · admin flag는 별도", "Answer: existence, operstate, and the admin flag are separate"),
+      correctFeedback: t("맞았습니다. brief 출력의 DOWN 열은 operstate이고, admin은 flag 목록의 UP 유무로 읽습니다.", "Right. DOWN in brief output is operstate; admin comes from the presence or absence of the UP flag."),
+      incorrectFeedback: t("존재하지 않는 인터페이스는 행 자체가 없습니다. DOWN 열과 &lt;...&gt; flag 목록도 같은 상태로 합치지 마세요.", "A missing interface has no row. Do not collapse the DOWN column and the <...> flag list into one state."),
     },
     {
       id: "address-prefix",

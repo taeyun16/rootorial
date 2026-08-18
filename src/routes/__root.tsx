@@ -10,6 +10,7 @@ import { ClerkBoundary } from "../components/ClerkBoundary";
 import { ContentFeedback } from "../components/ContentFeedback";
 import { ProgressProvider } from "../components/ProgressProvider";
 import { PageMetadataSync } from "../components/PageMetadataSync";
+import { shouldRenderContentFeedback } from "../features/feedback/content-feedback-visibility";
 import {
   LocalizationProvider,
   localeFromSearch,
@@ -46,6 +47,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   const search = useRouterState({ select: (state) => state.location.searchStr });
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const documentLocale = localeFromSearch(search) ?? "ko";
+  const showContentFeedback = shouldRenderContentFeedback({
+    pathname,
+    contentPreviewMode: import.meta.env.MODE === "content-preview",
+  });
 
   return (
     <html lang={documentLocale} suppressHydrationWarning>
@@ -57,7 +62,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <ClerkBoundary>
             <ProgressProvider>
               {children}
-              {!pathname.startsWith("/admin") && <ContentFeedback />}
+              {showContentFeedback && <ContentFeedback />}
             </ProgressProvider>
           </ClerkBoundary>
         </LocalizationProvider>

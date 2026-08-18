@@ -1,5 +1,6 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
+import { findUndersizedVisibleTouchTargets } from "./helpers/touch-targets";
 
 const previewPath = "/admin/preview/curricula/linux-systems/chapters/networking-from-a-packet";
 const publicPath = "/curricula/linux-systems/chapters/networking-from-a-packet";
@@ -26,13 +27,28 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function collectConsoleErrors(page: TestPage) {
+  const errors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") errors.push(message.text());
+  });
+  return errors;
+}
+
+async function choose(scope: Locator, groupName: string, optionName: string) {
+  await scope
+    .getByRole("group", { name: groupName, exact: true })
+    .getByRole("button", { name: optionName, exact: true })
+    .click();
+}
+
 async function fillCorrectPrediction(page: TestPage) {
   const lab = page.locator(".network-journey-lab");
-  await lab.getByRole("combobox", { name: "socket syscall 경계 예측" }).selectOption("fd-handshake-queue");
-  await lab.getByRole("combobox", { name: "같은 link 경로 예측" }).selectOption("direct-24-peer");
-  await lab.getByRole("combobox", { name: "원격 route와 주소 경계 예측" }).selectOption("default-gateway-preserve-ip");
-  await lab.getByRole("combobox", { name: "TCP segmentation 예측" }).selectOption("mss-1460-syn-consumes-one");
-  await lab.getByRole("combobox", { name: "TCP 유실 복구 예측" }).selectOption("gap-rto-cumulative");
+  await choose(lab, "fd · connect · send 경계", "fd는 local 참조 · connect는 handshake · send는 local queue");
+  await choose(lab, "same-link 10.0.0.42", "/24 direct · next hop 10.0.0.42 · peer MAC");
+  await choose(lab, "remote route · frame", "/0 via 10.0.0.1 · gateway MAC · IP dst 203.0.113.20");
+  await choose(lab, "MTU · MSS · sequence", "MSS 1460 · payload 1460/1460/80 · seq 1001/2461/3921");
+  await choose(lab, "gap · RTO · cumulative ACK", "ACK 2461 → 2461 · RTO seq 2461 · final ACK 4001");
   await lab.getByRole("button", { name: "두 경로·TCP 예측 판정" }).click();
   await expect(lab.locator(".network-live-feedback")).toContainText("예측이 맞았습니다");
 }
@@ -62,20 +78,20 @@ async function completeJourney(page: TestPage) {
   await expect(timeline.locator('[data-segment-index="2"]')).toContainText("[2461, 3921) · 1460 B");
   await expect(timeline.locator('[data-segment-index="3"]')).toContainText("[3921, 4001) · 80 B");
 
-  const disposition = lab.getByRole("combobox", { name: "다음 segment 전달 또는 유실 선택" });
+  const disposition = lab.getByRole("group", { name: "다음 segment의 wire 결과", exact: true });
   const transmit = lab.getByRole("button", { name: /6–8 · 다음 segment 전송/ });
-  await disposition.selectOption("deliver");
+  await disposition.getByRole("button", { name: "전달", exact: true }).click();
   await transmit.click();
   await expect(visual).toHaveAttribute("data-network-phase", "transmitting");
   await expect(timeline.locator('[data-segment-index="1"]')).toContainText("누적 ACK 완료");
   await expect(visual.locator(".network-packet-current-state")).toContainText("ACK 2461");
   await expect(lab.getByText("receive queue 1460 B")).toBeVisible();
-  await disposition.selectOption("drop");
+  await disposition.getByRole("button", { name: "유실", exact: true }).click();
   await transmit.click();
   await expect(visual).toHaveAttribute("data-network-phase", "gap");
   await expect(timeline.locator('[data-segment-index="2"]')).toContainText("첫 전송 유실");
   await expect(timeline.locator('[data-segment-index="2"]')).toContainText("ACK 2461");
-  await disposition.selectOption("deliver");
+  await disposition.getByRole("button", { name: "전달", exact: true }).click();
   await transmit.click();
   await expect(timeline.locator('[data-segment-index="3"]')).toContainText("순서 밖 buffer");
   await expect(timeline.locator('[data-segment-index="3"]')).toContainText("duplicate ACK 2461");
@@ -105,15 +121,18 @@ async function completeIncidents(page: TestPage) {
 
   const route = cards.nth(0);
   await route.getByRole("spinbutton", { name: "route 사건 prefix 길이" }).fill("25");
-  await route.getByRole("combobox", { name: "route 사건 gateway" }).selectOption("10.0.0.252");
-  await route.getByRole("combobox", { name: "route 사건 egress interface" }).selectOption("eth0");
+  await choose(route, "gateway", "10.0.0.253");
+  await choose(route, "interface", "eth0");
+  await route.getByRole("button", { name: "route 계산·진단" }).click();
+  await expect(route.locator(".network-incident-feedback")).toContainText("낮은 metric 100");
+  await choose(route, "gateway", "10.0.0.252");
   await route.getByRole("button", { name: "route 계산·진단" }).click();
   await expect(route).toHaveClass(/is-correct/);
 
   const frame = cards.nth(1);
-  await frame.getByRole("combobox", { name: "frame 사건 next hop" }).selectOption("192.0.2.1");
-  await frame.getByRole("combobox", { name: "frame 사건 Ethernet 목적지" }).selectOption("02:00:00:00:00:21");
-  await frame.getByRole("combobox", { name: "frame 사건 IPv4 목적지" }).selectOption("203.0.113.20");
+  await choose(frame, "next hop", "192.0.2.1");
+  await choose(frame, "Ethernet dst", "02:00:00:00:00:21");
+  await choose(frame, "IPv4 dst", "203.0.113.20");
   await frame.getByRole("spinbutton", { name: "frame 사건 outgoing TTL" }).fill("2");
   await frame.getByRole("button", { name: "frame 전달·진단" }).click();
   await expect(frame).toHaveClass(/is-correct/);
@@ -127,10 +146,10 @@ async function completeIncidents(page: TestPage) {
   await expect(ack).toHaveClass(/is-correct/);
 
   const listener = cards.nth(3);
-  await listener.getByRole("combobox", { name: "listener 사건 network delivery" }).selectOption("true");
-  await listener.getByRole("combobox", { name: "listener 사건 listener match" }).selectOption("false");
-  await listener.getByRole("combobox", { name: "listener 사건 TCP 응답" }).selectOption("rst");
-  await listener.getByRole("combobox", { name: "listener 사건 application delivery" }).selectOption("false");
+  await choose(listener, "IP packet 전달", "예");
+  await choose(listener, "listener 일치", "아니요");
+  await choose(listener, "TCP response", "RST");
+  await choose(listener, "application byte 인수", "아니요");
   await listener.getByRole("button", { name: "demux·delivery 진단" }).click();
   await expect(listener).toHaveClass(/is-correct/);
   await expect(lab.locator(".network-incident-progress strong")).toHaveText("4 / 4");
@@ -142,11 +161,11 @@ async function completeEnglishJourneyWithKeyboard(page: TestPage) {
   await expect(visual.getByRole("img", { name: /Packet path topology/ })).toBeVisible();
   await expect(visual.getByRole("list", { name: "TCP ACK timeline" })).toBeVisible();
   await expect(visual).toHaveAttribute("data-network-phase", "idle");
-  await lab.getByRole("combobox", { name: "Predict socket syscall boundaries" }).selectOption("fd-handshake-queue");
-  await lab.getByRole("combobox", { name: "Predict on-link route" }).selectOption("direct-24-peer");
-  await lab.getByRole("combobox", { name: "Predict remote route and addressing boundaries" }).selectOption("default-gateway-preserve-ip");
-  await lab.getByRole("combobox", { name: "Predict TCP segmentation" }).selectOption("mss-1460-syn-consumes-one");
-  await lab.getByRole("combobox", { name: "Predict TCP loss recovery" }).selectOption("gap-rto-cumulative");
+  await choose(lab, "Fd, connect, and send boundaries", "Fd is local · connect waits for handshake · send enqueues locally");
+  await choose(lab, "Same-link 10.0.0.42", "/24 direct · next hop 10.0.0.42 · peer MAC");
+  await choose(lab, "Remote route and frame", "/0 via 10.0.0.1 · gateway MAC · IP dst 203.0.113.20");
+  await choose(lab, "MTU, MSS, and sequence", "MSS 1460 · payload 1460/1460/80 · seq 1001/2461/3921");
+  await choose(lab, "Gap, RTO, and cumulative ACK", "ACK 2461 → 2461 · RTO seq 2461 · final ACK 4001");
 
   const submitPrediction = lab.getByRole("button", { name: "Check both paths and TCP prediction" });
   await submitPrediction.focus();
@@ -161,14 +180,14 @@ async function completeEnglishJourneyWithKeyboard(page: TestPage) {
   await lab.getByRole("button", { name: /4 · accept\(fd 3\) → fd 5/ }).click();
   await lab.getByRole("button", { name: /5 · send\(3000\)/ }).click();
 
-  const disposition = lab.getByRole("combobox", { name: "Choose delivery or loss for next segment" });
+  const disposition = lab.getByRole("group", { name: "Next segment wire result", exact: true });
   const transmit = lab.getByRole("button", { name: /6–8 · Transmit next segment/ });
-  await disposition.selectOption("deliver");
+  await disposition.getByRole("button", { name: "Deliver", exact: true }).click();
   await transmit.focus();
   await transmit.press("Enter");
-  await disposition.selectOption("drop");
+  await disposition.getByRole("button", { name: "Drop", exact: true }).click();
   await transmit.click();
-  await disposition.selectOption("deliver");
+  await disposition.getByRole("button", { name: "Deliver", exact: true }).click();
   await transmit.click();
   await lab.getByRole("button", { name: /9 · RTO · Retransmit first gap/ }).click();
   await lab.locator(".network-layer-tabs").getByRole("button", { name: "tcp", exact: true }).click();
@@ -185,17 +204,17 @@ async function completeEnglishIncidentsWithKeyboard(page: TestPage) {
 
   const route = cards.nth(0);
   await route.getByRole("spinbutton", { name: "Route incident prefix length" }).fill("25");
-  await route.getByRole("combobox", { name: "Route incident gateway" }).selectOption("10.0.0.252");
-  await route.getByRole("combobox", { name: "Route incident egress interface" }).selectOption("eth0");
+  await choose(route, "gateway", "10.0.0.252");
+  await choose(route, "interface", "eth0");
   const routeAudit = route.getByRole("button", { name: "Compute route and diagnose" });
   await routeAudit.focus();
   await routeAudit.press("Enter");
   await expect(route).toHaveClass(/is-correct/);
 
   const frame = cards.nth(1);
-  await frame.getByRole("combobox", { name: "Frame incident next hop" }).selectOption("192.0.2.1");
-  await frame.getByRole("combobox", { name: "Frame incident Ethernet destination" }).selectOption("02:00:00:00:00:21");
-  await frame.getByRole("combobox", { name: "Frame incident IPv4 destination" }).selectOption("203.0.113.20");
+  await choose(frame, "next hop", "192.0.2.1");
+  await choose(frame, "Ethernet dst", "02:00:00:00:00:21");
+  await choose(frame, "IPv4 dst", "203.0.113.20");
   await frame.getByRole("spinbutton", { name: "Frame incident outgoing TTL" }).fill("2");
   await frame.getByRole("button", { name: "Forward frame and diagnose" }).click();
 
@@ -207,10 +226,10 @@ async function completeEnglishIncidentsWithKeyboard(page: TestPage) {
   await ack.getByRole("button", { name: "Compute byte stream and diagnose" }).click();
 
   const listener = cards.nth(3);
-  await listener.getByRole("combobox", { name: "Listener incident network delivery" }).selectOption("true");
-  await listener.getByRole("combobox", { name: "Listener incident listener match" }).selectOption("false");
-  await listener.getByRole("combobox", { name: "Listener incident TCP response" }).selectOption("rst");
-  await listener.getByRole("combobox", { name: "Listener incident application delivery" }).selectOption("false");
+  await choose(listener, "Network delivered", "Yes");
+  await choose(listener, "Listener matched", "No");
+  await choose(listener, "TCP response", "RST");
+  await choose(listener, "Application received bytes", "No");
   await listener.getByRole("button", { name: "Diagnose demux and delivery" }).click();
   await expect(lab.locator(".network-incident-progress strong")).toHaveText("4 / 4");
 }
@@ -218,6 +237,7 @@ async function completeEnglishIncidentsWithKeyboard(page: TestPage) {
 test("completes the causal packet journey, incidents, and concepts in the Korean draft preview", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = collectConsoleErrors(page);
   await signInAsAdmin(page);
   await page.evaluate(() => localStorage.removeItem("rootorial-progress"));
 
@@ -242,11 +262,11 @@ test("completes the causal packet journey, incidents, and concepts in the Korean
   await prematureConnect.press("Enter");
   await expect(lab.locator(".network-live-feedback")).toContainText("socket fd 4를 먼저");
 
-  await lab.getByRole("combobox", { name: "socket syscall 경계 예측" }).selectOption("wire-dns-delivered");
-  await lab.getByRole("combobox", { name: "같은 link 경로 예측" }).selectOption("default-gateway");
-  await lab.getByRole("combobox", { name: "원격 route와 주소 경계 예측" }).selectOption("direct-server-rewrite-ip");
-  await lab.getByRole("combobox", { name: "TCP segmentation 예측" }).selectOption("mtu-1500-syn-free");
-  await lab.getByRole("combobox", { name: "TCP 유실 복구 예측" }).selectOption("skip-gap-new-sequence");
+  await choose(lab, "fd · connect · send 경계", "fd가 wire로 이동 · 이름 해석 뒤 연결 · send는 remote 처리");
+  await choose(lab, "same-link 10.0.0.42", "/0 via 10.0.0.1 · gateway MAC");
+  await choose(lab, "remote route · frame", "/24 direct · server MAC · IP dst 10.0.0.1");
+  await choose(lab, "MTU · MSS · sequence", "MSS 1486 · payload 1500/1500 · seq 1000/2460/3920");
+  await choose(lab, "gap · RTO · cumulative ACK", "ACK 2461 → 4001 · new seq 4001 · final ACK 3921");
   await lab.getByRole("button", { name: "두 경로·TCP 예측 판정" }).click();
   await expect(lab.locator(".network-live-feedback")).toContainText("fd는 process-local 참조");
   await expect(lab.locator(".network-live-feedback")).toContainText("1500−IPv4 20−TCP 20=1460");
@@ -254,27 +274,34 @@ test("completes the causal packet journey, incidents, and concepts in the Korean
 
   await completeJourney(page);
   await completeIncidents(page);
-  await page.locator('input[name="socket-boundary"][value="fd-references-kernel-socket"]').check();
-  await page.locator('input[name="longest-prefix-route"][value="most-specific-prefix"]').check();
-  await page.locator('input[name="next-hop-addressing"][value="gateway-mac-keeps-remote-ip"]').check();
-  await page.locator('input[name="cumulative-ack"][value="ack-covers-contiguous-bytes"]').check();
-  await page.locator('input[name="listener-delivery"][value="accept-new-fd-recv-confirms-delivery"]').check();
+  await page.getByRole("button", { name: "fd 번호 4가 TCP header에 들어가 원격 프로세스의 같은 번호 fd를 선택", exact: true }).click();
+  await page.getByRole("button", { name: "목적지와 일치하는 route 중 prefix가 가장 긴 /25, next hop 192.0.2.254", exact: true }).click();
+  await page.getByRole("button", { name: "frame은 gateway의 MAC, IP packet은 계속 remote server의 IP 198.51.100.20", exact: true }).click();
+  await page.getByRole("button", { name: "server TCP가 1099까지 연속된 byte를 받았고 다음으로 1100을 기대함", exact: true }).click();
+  await page.getByRole("button", { name: "fd 3은 LISTEN을 유지하고 fd 5가 연결을 담당하며, application delivery는 recv(fd 5)가 payload를 반환할 때 확인", exact: true }).click();
+  await page.getByRole("button", { name: "네트워크 경로 판정 확인하기" }).click();
+  await expect(page.getByText("fd, route, link hop, TCP와 application 경계를 다시 추적하세요", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "fd 4는 이 프로세스의 커널 socket 참조이고, send는 user buffer의 byte를 그 socket의 send buffer로 복사", exact: true }).click();
   await page.getByRole("button", { name: "네트워크 경로 판정 확인하기" }).click();
   await expect(page.getByText("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.")).toBeVisible();
   await expect(page.locator(".network-completion-checklist .is-complete")).toHaveCount(3);
   await expect(completionButton).toHaveAttribute("data-completion-ready", "true");
   await expect(completionButton).toBeDisabled();
+  await expect(page.locator("select")).toHaveCount(0);
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px without untranslated or heavy runtime surfaces", async ({ page }) => {
   test.setTimeout(120_000);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
+  const consoleErrors = collectConsoleErrors(page);
   await signInAsAdmin(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -306,7 +333,12 @@ test("keeps the English draft keyboard-usable at 390px without untranslated or h
   expect(await reset.evaluate((element) => getComputedStyle(element).transitionDuration)).toBe("0s");
   await reset.focus();
   await reset.press("Enter");
-  await expect(page.locator(".network-journey-lab").getByRole("combobox", { name: "Predict socket syscall boundaries" })).toHaveValue("");
+  await expect(
+    page
+      .locator(".network-journey-lab")
+      .getByRole("group", { name: "Fd, connect, and send boundaries", exact: true })
+      .getByRole("button", { name: "Fd is local · connect waits for handshake · send enqueues locally", exact: true }),
+  ).toHaveAttribute("aria-pressed", "false");
 
   await completeEnglishJourneyWithKeyboard(page);
   const markerMotion = await page.locator(".network-journey-lab [data-packet-marker]").evaluate((element) => {
@@ -315,32 +347,28 @@ test("keeps the English draft keyboard-usable at 390px without untranslated or h
   });
   expect(markerMotion).toEqual(["none", "0s"]);
   await completeEnglishIncidentsWithKeyboard(page);
-  await page.locator('input[name="socket-boundary"][value="fd-references-kernel-socket"]').check();
-  await page.locator('input[name="longest-prefix-route"][value="most-specific-prefix"]').check();
-  await page.locator('input[name="next-hop-addressing"][value="gateway-mac-keeps-remote-ip"]').check();
-  await page.locator('input[name="cumulative-ack"][value="ack-covers-contiguous-bytes"]').check();
-  await page.locator('input[name="listener-delivery"][value="accept-new-fd-recv-confirms-delivery"]').check();
+  await page.getByRole("button", { name: "fd 4 is this process's reference to a kernel socket, and send copies bytes from the user buffer into that socket's send buffer", exact: true }).click();
+  await page.getByRole("button", { name: "The matching route with the longest prefix: /25 via next hop 192.0.2.254", exact: true }).click();
+  await page.getByRole("button", { name: "The frame targets the gateway's MAC while the IP packet keeps remote server IP 198.51.100.20", exact: true }).click();
+  await page.getByRole("button", { name: "Server TCP received contiguous bytes through 1099 and expects 1100 next", exact: true }).click();
+  await page.getByRole("button", { name: "fd 3 remains in LISTEN, fd 5 owns the connection, and application delivery is confirmed when recv(fd 5) returns the payload", exact: true }).click();
   const conceptSubmit = page.getByRole("button", { name: "Check the network-path decisions" });
   await conceptSubmit.focus();
   await conceptSubmit.press("Enter");
   await expect(page.locator(".network-completion-checklist .is-complete")).toHaveCount(3);
   await expect(completionButton).toHaveAttribute("data-completion-ready", "true");
 
-  const representativeControls = [
-    page.locator(".network-journey-lab").getByRole("combobox", { name: "Predict socket syscall boundaries" }),
-    page.locator(".network-journey-lab").getByRole("button", { name: "Check both paths and TCP prediction" }),
-    page.locator(".network-incident-lab").getByRole("button", { name: "Reset all incidents" }),
-  ];
-  for (const control of representativeControls) {
-    const box = await control.boundingBox();
-    expect(box?.height ?? 0).toBeGreaterThanOrEqual(44);
-  }
+  // 44px page-visible contract for the completed lesson state.
+  expect(await findUndersizedVisibleTouchTargets(page.locator(".lesson-article"), 44)).toEqual([]);
   const overflowingNetworkSurfaces = await page.locator('[class*="network-"]').evaluateAll((elements) => elements.filter((element) => element.scrollWidth - element.clientWidth > 1).map((element) => element.className));
   expect(overflowingNetworkSurfaces).toEqual([]);
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
+  await expect(page.locator("select")).toHaveCount(0);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });

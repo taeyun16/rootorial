@@ -28,6 +28,7 @@ import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { OptimizationConceptCheck } from "./OptimizationConceptCheck";
 import { OptimizationDebuggerLab } from "./OptimizationDebuggerLab";
 import { OptimizationDescentLab } from "./OptimizationDescentLab";
+import { OptimizationPracticeDeck } from "./OptimizationPracticeDeck";
 
 const tocItems = {
   ko: [
@@ -36,6 +37,7 @@ const tocItems = {
     { id: "gradient", label: "Gradient 방향" },
     { id: "descent", label: "필수 경사하강 실습" },
     { id: "debug", label: "선택 · 업데이트 디버깅" },
+    { id: "practice", label: "선택 · 독립 연습 3문제" },
     { id: "transfer", label: "뉴런으로 전이" },
     { id: "check", label: "이해 확인" },
   ],
@@ -45,6 +47,7 @@ const tocItems = {
     { id: "gradient", label: "Gradient direction" },
     { id: "descent", label: "Required descent lab" },
     { id: "debug", label: "Optional · Debug updates" },
+    { id: "practice", label: "Optional · Three independent challenges" },
     { id: "transfer", label: "Transfer to neurons" },
     { id: "check", label: "Concept check" },
   ],
@@ -278,8 +281,15 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
             <OptimizationDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
 
+          <section className="article-section" id="practice">
+            <div className="margin-label">07 — OPTIONAL PRACTICE · REPRODUCE / DIAGNOSE / TRANSFER</div>
+            <h2>{t("안내 없이 같은 update 원리를 다시 만드세요", "Rebuild the same update rule without the walkthrough")}</h2>
+            <p>{t("앞 실습과 다른 숫자를 사용합니다. support code는 고정하고 학습자가 소유한 작은 영역만 조작한 뒤, 공개 fixture와 두 번째 fixture의 결과를 같은 자리에서 확인합니다.", "These challenges use different numbers from the walkthrough. Support code stays fixed; you change only a small learner-owned region, then inspect visible and second-fixture results in the same place.")}</p>
+            <OptimizationPracticeDeck />
+          </section>
+
           <section className="article-section" id="transfer">
-            <div className="margin-label">07 — TRANSFER</div>
+            <div className="margin-label">08 — TRANSFER</div>
             <h2>{t("직선의 W가 다음 장에서는 뉴런의 weight가 됩니다", "The line's W becomes a neuron's weights in the next chapter")}</h2>
             <p>{t("이번 장의 예측 ŷ=b+w·x는 다음 장에서 z=b+w·x라는 뉴런의 입력 합으로 다시 나타납니다. 다음 장은 여기에 sigmoid와 여러 뉴런을 더하지만, loss를 측정하고 gradient 반대 방향으로 파라미터를 옮기는 뼈대는 같습니다.", "This chapter's prediction ŷ=b+w·x returns in the next chapter as a neuron's pre-activation z=b+w·x. The next chapter adds sigmoid and multiple neurons, but the loop—measure loss and move parameters opposite the gradient—stays the same.")}</p>
             <div className="optimization-transfer-map" aria-label={t("선형 모델에서 뉴런으로의 개념 전이", "Concept transfer from linear model to neuron")}>
@@ -292,7 +302,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
           </section>
 
           <section className="article-section concept-check-section" id="check">
-            <div className="margin-label">08 — CHECK</div>
+            <div className="margin-label">09 — CHECK</div>
             <OptimizationConceptCheck onMasteryChange={setConceptsMastered} />
           </section>
 

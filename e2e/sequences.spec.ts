@@ -40,8 +40,17 @@ function watchHeavyRuntimeRequests(page: TestPage) {
   return requests;
 }
 
+function watchConsoleErrors(page: TestPage) {
+  const consoleErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") consoleErrors.push(message.text());
+  });
+  return consoleErrors;
+}
+
 test("completes memory evidence, four repairs, and concepts in the Korean draft preview", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -191,10 +200,12 @@ test("completes memory evidence, four repairs, and concepts in the Korean draft 
   const publicResponse = await page.goto(publicPath);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
 });
 
 test("keeps the English draft keyboard-usable at 390px with reduced motion and no heavy runtime", async ({ page }) => {
   test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
   const heavyRuntimeRequests = watchHeavyRuntimeRequests(page);
 
   await signInAsAdmin(page);
@@ -307,4 +318,60 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   const publicResponse = await page.goto(`${publicPath}?lang=en`);
   expect(publicResponse?.status()).toBe(404);
   expect(heavyRuntimeRequests).toEqual([]);
+  expect(consoleErrors).toEqual([]);
+});
+
+test("retries and completes the independent Sequences practice on fresh fixtures", async ({ page }) => {
+  test.setTimeout(120_000);
+  const consoleErrors = watchConsoleErrors(page);
+  await signInAsAdmin(page);
+  await page.goto(`${previewPath}?lang=en`);
+
+  const practice = page.locator(".sequences-practice-deck");
+  await expect(practice.getByRole("heading", {
+    name: "Can you rebuild temporal state boundaries on fresh sequences?",
+  })).toBeVisible();
+
+  await choose(practice, "Predict the state trace for both sequences", "final-state-only");
+  await choose(practice, "learnerRecurrence", "input-only");
+  await practice.getByRole("button", { name: "Run both recurrence fixtures" }).click();
+  await expect(practice.getByText("Inspect the first failed contract, then run the same challenge again.")).toBeVisible();
+
+  await choose(practice, "Predict the state trace for both sequences", "state-per-timestep");
+  await choose(practice, "learnerRecurrence", "shared-recurrence");
+  await practice.getByRole("button", { name: "Run both recurrence fixtures" }).click();
+  await expect(practice.getByText("1 / 3", { exact: true })).toBeVisible();
+
+  const gradientChallenge = practice.getByRole("button", {
+    name: "02 · Multi-boundary ∂hT/∂x0",
+  });
+  await gradientChallenge.focus();
+  await gradientChallenge.press("Enter");
+  await choose(practice, "Predict the x0→hT gradient path", "all-local-edges");
+  await choose(practice, "learnerTemporalPath", "include-recurrent-gains");
+  await practice.getByRole("button", { name: "Run both temporal-gradient contracts" }).click();
+
+  const carryChallenge = practice.getByRole("button", {
+    name: "03 · Transfer c / h",
+  });
+  await carryChallenge.focus();
+  await carryChallenge.press("Space");
+  await choose(practice, "Predict cell and hidden when o=0", "cell-survives-closed-output");
+  await choose(practice, "learnerCellReveal", "carry-write-reveal");
+  await practice.getByRole("button", { name: "Run both gated-carry transfers" }).click();
+  await expect(practice.getByText("3 / 3", { exact: true })).toBeVisible();
+
+  await expect(page.getByRole("button", { name: "Completion is disabled in preview" })).toBeDisabled();
+  expect(await practice.locator("select").count()).toBe(0);
+  const undersized = await practice.locator("button:not(:disabled)").evaluateAll(
+    (buttons) => buttons.filter((button) => {
+      const box = button.getBoundingClientRect();
+      return box.width < 44 || box.height < 44;
+    }).map((button) => button.textContent),
+  );
+  expect(undersized).toEqual([]);
+
+  await practice.getByRole("button", { name: "Reset all three challenges" }).click();
+  await expect(practice.getByText("0 / 3", { exact: true })).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });

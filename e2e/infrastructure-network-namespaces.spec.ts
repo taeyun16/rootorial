@@ -127,6 +127,30 @@ async function repairAllIncidents(page: TestPage) {
   await expect(page.locator(".namespace-mastery-progress .is-complete")).toHaveCount(4);
 }
 
+async function answerConcepts(page: TestPage, locale: "ko" | "en", retryFirst = false) {
+  const questions = page.locator(".concept-question");
+  const answers = locale === "ko"
+    ? [/interface · route · neighbor · socket/, /호출 프로세스의 현재 namespace loopback/, /socket을 만든 시점의 network namespace/, /정확히 한 network namespace에만 존재/, /ip netns exec app ss -lnt/]
+    : [/interfaces · routes · neighbors · sockets/, /caller's current namespace/, /network namespace active when the socket was created/, /exactly one network namespace at a time/, /ip netns exec app ss -lnt/];
+  for (let index = 0; index < answers.length; index += 1) {
+    await questions.nth(index).getByRole("button", { name: answers[index] }).click();
+  }
+  const submit = page.getByRole("button", {
+    name: locale === "ko" ? "namespace 경계 판정 확인" : "Check namespace-boundary decisions",
+  });
+  if (retryFirst) {
+    await questions.nth(0).getByRole("button", {
+      name: locale === "ko" ? /kernel image · physical memory/ : /kernel image · physical memory/,
+    }).click();
+    await submit.click();
+    await expect(questions.nth(0)).toContainText(
+      locale === "ko" ? "network namespace를 작은 VM과 동일시하지 마세요" : "Do not equate a network namespace with a small VM",
+    );
+    await questions.nth(0).getByRole("button", { name: answers[0] }).click();
+  }
+  await submit.click();
+}
+
 function namespaceOverflow(page: TestPage) {
   return page.locator(
     ".network-namespaces-chapter-shell, .namespace-view-grid, .namespace-loopback-strip, .namespace-ownership-story, .namespace-ownership-timeline, .namespace-ownership-frame, .namespace-ownership-scene, .namespace-ownership-controls, .namespace-evidence-pipeline, .namespace-lab, .namespace-editor-workspace, .infrastructure-workspace, .infrastructure-workspace-stage, .infrastructure-workspace-inspector, .infrastructure-choice-rail, .namespace-boundary-visualization, .namespace-kernel-boundary-map, .namespace-boundary-map-grid, .namespace-boundary-map-card, .namespace-boundary-object-lanes, .namespace-boundary-probe-list, .namespace-incident-grid, .namespace-incident-card, .network-completion-checklist",
@@ -282,12 +306,7 @@ test("completes the namespace topology, four incidents, and concepts in the Kore
 
   await repairAllIncidents(page);
 
-  await page.locator('input[name="namespace-network-view"][value="interfaces-routes-neighbors-sockets"]').check();
-  await page.locator('input[name="loopback-scope"][value="current-namespace-loopback"]').check();
-  await page.locator('input[name="socket-ownership"][value="creation-network-namespace"]').check();
-  await page.locator('input[name="interface-ownership"][value="one-network-namespace-at-a-time"]').check();
-  await page.locator('input[name="observation-scope"][value="execute-observer-in-target-namespace"]').check();
-  await page.getByRole("button", { name: "namespace 경계 판정 확인" }).click();
+  await answerConcepts(page, "ko", true);
   await expect(page.getByText("이해 확인 완료 — 두 활동의 완료 상태를 확인하세요.", { exact: true })).toBeVisible();
 
   await expect(page.locator(".network-completion-checklist .is-complete")).toHaveCount(3);
@@ -461,24 +480,28 @@ test("keeps the English draft keyboard-usable and resettable at 390px without ov
   await expect(repair).toHaveAttribute("aria-pressed", "false");
   await expect(firstIncident.locator(".namespace-feedback")).not.toHaveClass(/is-success/);
 
-  const conceptAnswers = [
-    'input[name="namespace-network-view"][value="interfaces-routes-neighbors-sockets"]',
-    'input[name="loopback-scope"][value="current-namespace-loopback"]',
-    'input[name="socket-ownership"][value="creation-network-namespace"]',
-    'input[name="interface-ownership"][value="one-network-namespace-at-a-time"]',
-    'input[name="observation-scope"][value="execute-observer-in-target-namespace"]',
-  ] as const;
-  for (const selector of conceptAnswers) {
-    const answer = page.locator(selector);
-    await answer.focus();
-    await answer.press("Space");
-    await expect(answer).toBeChecked();
-  }
-  const checkConcepts = page.getByRole("button", { name: "Check namespace-boundary decisions" });
-  await activate(checkConcepts);
-  await expect(checkConcepts).toBeFocused();
+  await answerConcepts(page, "en");
   await expect(page.getByText("Concept check complete — now confirm both activity states.", { exact: true })).toBeVisible();
   await expect(completionButton).toHaveAttribute("data-completion-ready", "false");
+
+  const undersizedTargets = await page
+    .locator('.lesson-article button:not([disabled]), .lesson-article a[href], .lesson-article summary, .lesson-article input:not([disabled]), .lesson-article textarea:not([disabled])')
+    .evaluateAll((elements) => elements
+      .filter((element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return style.visibility !== "hidden"
+          && style.display !== "none"
+          && rect.width > 0
+          && rect.height > 0
+          && (rect.width < 44 || rect.height < 44);
+      })
+      .map((element) => ({
+        label: element.textContent?.trim() || element.getAttribute("aria-label"),
+        width: element.getBoundingClientRect().width,
+        height: element.getBoundingClientRect().height,
+      })));
+  expect(undersizedTargets).toEqual([]);
 
   expect(await namespaceOverflow(page)).toEqual([]);
   expect(await documentOverflow()).toBeLessThanOrEqual(1);
