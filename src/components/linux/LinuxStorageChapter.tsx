@@ -9,6 +9,7 @@ import { useLocale } from "../../features/localization/localization";
 import { canCompleteStorageChapter } from "../../features/linux-runtime/storage-and-filesystems";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -222,6 +223,15 @@ df -i /path/to/file`}</pre>
               lockedMessage={t("필수 실습, 사건 진단과 다섯 개념 확인을 모두 완료하세요.", "Complete the required lab, incident diagnosis, and all five concept checks.")}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Operating Systems: Three Easy Pieces (OSTEP)",
+                url: "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousHref}>← {t("이전: 메모리와 가상 주소", "Previous: Memory and Virtual Addresses")}</a> : <span>← {t("이전: 메모리와 가상 주소", "Previous: Memory and Virtual Addresses")} <small>{t("드래프트 미리보기 전용", "Draft preview only")}</small></span>}
