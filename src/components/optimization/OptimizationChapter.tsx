@@ -15,6 +15,7 @@ import { useLocale } from "../../features/localization/localization";
 import { canCompleteOptimizationChapter } from "../../features/optimization/gradient-descent";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { LanguageSwitcher } from "../LanguageSwitcher";
@@ -309,7 +310,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
           <section className="chapter-finish">
             <p className="eyebrow">CHECKPOINT</p>
             <h2>{t("이제 loss trace를 읽고 한 번의 update를 설명할 수 있습니다", "You can now read a loss trace and explain one update")}</h2>
-            <p>{t("나쁜 학습률을 관찰해 안정적인 값으로 복구하고 gradient의 shape와 부호를 설명하면 핵심 목표에 도달합니다. 더 연습하고 싶을 때만 optimizer 사건을 이어서 해결하세요.", "You reach the core goal when you can repair a bad learning rate and explain gradient shape and sign. Continue with the optimizer incidents only when you want more practice.")}</p>
+            <p>{t("나쁜 학습률을 관찰해 안정적인 값으로 복구하고 gradient의 shape와 부호를 설명하면 됩니다. 더 연습하고 싶을 때만 optimizer 사건을 이어서 해결하세요.", "Repair a bad learning rate and explain gradient shape and sign. Continue with the optimizer incidents only when you want more practice.")}</p>
             <div className="optimization-completion-checklist" role="status" aria-live="polite">
               <span className={descentLabComplete ? "is-complete" : undefined}>{descentLabComplete ? "✓" : "○"} {t("학습률 복구 실습", "Learning-rate repair lab")}</span>
               <span className={`is-optional${debuggerComplete ? " is-complete" : ""}`}>{debuggerComplete ? "✓" : t("선택", "Optional")} {t("업데이트 디버깅 4개", "Four update incidents")}</span>
@@ -325,6 +326,19 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
               )}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Understanding Deep Learning (Prince, 2023)",
+                url: "https://udlbook.github.io/udlbook/",
+              },
+              {
+                title: "3Blue1Brown — Neural Networks Series",
+                url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? (
