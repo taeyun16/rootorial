@@ -429,8 +429,9 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
           <CitationSection
             citations={[
               {
-                title: "3Blue1Brown — Neural Networks Series",
-                url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi",
+                title: "3Blue1Brown — Essence of Linear Algebra",
+                url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab",
+                description: "Covers vectors, span, basis, and dot products with visual intuition.",
               },
               {
                 title: "Understanding Deep Learning (Prince, 2023)",
