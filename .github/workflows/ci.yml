@@ -1,0 +1,135 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  typecheck-and-build:
+    name: Typecheck and Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate LLMs metadata
+        run: npm run check:llms
+
+      - name: TypeScript typecheck
+        run: npm run check
+
+      - name: Build
+        run: npm run build
+
+  curriculum-quality:
+    name: Curriculum Quality and Interaction Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check curriculum quality
+        run: npm run check:curriculum-quality
+
+      - name: Check curriculum interactions
+        run: npm run check:curriculum-interactions
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run check:llms && npm run build && node --experimental-strip-types --test tests/*.test.mjs
+
+  e2e-tests:
+    name: E2E Tests (Citations)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            playwright-browsers-${{ runner.os }}-
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify Clerk secrets
+        run: |
+          if [ -z "$CLERK_PUBLISHABLE_KEY" ] || [ -z "$CLERK_SECRET_KEY" ]; then
+            echo "::error::❌ E2E tests require CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY secrets."
+            echo "::error::Please add these secrets in GitHub repository settings (Settings > Secrets and variables > Actions)."
+            echo "::error::Get Clerk keys from: https://dashboard.clerk.com/"
+            echo "::error::Without these secrets, Playwright will timeout waiting for Clerk authentication."
+            exit 1
+          fi
+        env:
+          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+
+      - name: Create .env.local for E2E tests
+        run: |
+          cat > .env.local << EOF
+          CLERK_PUBLISHABLE_KEY=${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }}
+          ROOTORIAL_ADMIN_USER_IDS=temp_user_for_ci
+          EOF
+
+      - name: Run citations E2E test
+        run: npm run test:e2e -- e2e/citations.spec.ts
+        env:
+          CI: true
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
