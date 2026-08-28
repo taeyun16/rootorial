@@ -14,6 +14,7 @@ import { useLocale } from "../../features/localization/localization";
 import { AttentionPipelineExplorer } from "../AttentionPipelineExplorer";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { MatrixGrid } from "../interactive/MatrixGrid";
@@ -382,6 +383,23 @@ export function AttentionChapter({ learnerCount = 0 }: { learnerCount?: number }
               )}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Attention Is All You Need (Vaswani et al., 2017)",
+                url: "https://research.google/pubs/attention-is-all-you-need/",
+              },
+              {
+                title: "The Illustrated Transformer",
+                url: "https://krugis.github.io/transformer-guide/",
+              },
+              {
+                title: "AnimatedLLM — Step-by-step transformer walkthrough",
+                url: "https://animatedllm.github.io",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview

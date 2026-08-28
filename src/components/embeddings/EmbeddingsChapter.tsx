@@ -19,6 +19,7 @@ import {
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { MatrixGrid } from "../interactive/MatrixGrid";
@@ -416,6 +417,19 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
               )}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Understanding Deep Learning (Prince, 2023)",
+                url: "https://udlbook.github.io/udlbook/",
+              },
+              {
+                title: "Andrej Karpathy — Neural Networks: Zero to Hero",
+                url: "https://karpathy.ai/zero-to-hero.html",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview

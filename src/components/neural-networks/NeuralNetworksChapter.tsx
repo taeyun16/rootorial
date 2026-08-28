@@ -15,6 +15,7 @@ import { useLocale } from "../../features/localization/localization";
 import { canCompleteNeuralNetworksChapter } from "../../features/neural-networks/forward-pass";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { LanguageSwitcher } from "../LanguageSwitcher";
@@ -386,6 +387,19 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
               )}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Understanding Deep Learning (Prince, 2023)",
+                url: "https://udlbook.github.io/udlbook/",
+              },
+              {
+                title: "3Blue1Brown — Neural Networks Series",
+                url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview

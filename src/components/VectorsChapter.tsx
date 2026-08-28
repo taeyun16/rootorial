@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChapterToc } from "./ChapterToc";
+import { CitationSection } from "./CitationSection";
 import { CompleteChapter } from "./CompleteChapter";
 import { ConceptCheck } from "./ConceptCheck";
 import { ConceptLearningStage } from "./ConceptLearningStage";
@@ -183,10 +184,10 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             <div className="margin-label">01 — VECTOR</div>
             <h2>{t("숫자 두 개가 방향이 되는 순간", "When two numbers become a direction")}</h2>
             <p>
-              {isKo ? <>벡터 <PythonCode>v = [3, 2]</PythonCode>는 단순히 숫자 두 개가 아닙니다. 원점에서 오른쪽으로 3, 위로 2만큼 이동하는 화살표입니다. 숫자의 개수가 늘어나면 눈으로 그릴 수 없을 뿐, 같은 규칙이 계속됩니다.</> : <>The vector <PythonCode>v = [3, 2]</PythonCode> is more than two numbers. It is an arrow that moves 3 units right and 2 units up from the origin. With more numbers it becomes impossible to draw, but the same rules still apply.</>}
+              {isKo ? <>벡터 <PythonCode>v = [3, 2]</PythonCode>는 단순히 숫자 두 개가 아닙니다. 원점에서 오른쪽으로 3, 위로 2만큼 이동하는 화살표입니다. 숫자의 개수가 늘어나면 눈으로 그릴 수 없을 뿐, 같은 규칙이 계속됩니다.</> : <>The vector <PythonCode>v = [3, 2]</PythonCode> is not just two numbers. It is an arrow that moves 3 units right and 2 units up from the origin. With more numbers it becomes impossible to draw, but the same rules still apply.</>}
             </p>
             <p>
-              {isKo ? <>중요한 것은 숫자 하나하나의 이름보다 <strong>벡터 전체가 어떤 상태를 표현하는가</strong>입니다. 이미지의 픽셀, 사용자의 취향, 토큰의 의미처럼 서로 다른 대상을 같은 계산 규칙으로 다룰 수 있게 해 주는 공통 언어가 벡터입니다.</> : <>What matters is not the name of each number, but <strong>the state represented by the vector as a whole</strong>. Vectors are a common language that lets us apply the same computational rules to very different things: image pixels, user preferences, and token meanings.</>}
+              {isKo ? <>중요한 것은 숫자 하나하나의 이름보다 <strong>벡터 전체가 어떤 상태를 표현하는가</strong>입니다. 이미지의 픽셀, 사용자의 취향, 토큰의 의미처럼 서로 다른 대상을 같은 계산 규칙으로 다룰 수 있게 해 주는 공통 언어가 벡터입니다.</> : <>What matters is not the name of each number, but <strong>the state represented by the vector as a whole</strong>. Vectors are a common language that lets us apply the same math rules to very different things: image pixels, user preferences, and token meanings.</>}
             </p>
             <ConceptLearningStage locale={locale} variant="lesson" />
             <Discussable scopeId="transformer-from-zero.vectors.meaning" subjectLabel={t("벡터를 읽는 세 관점", "Three ways to read a vector")}>
@@ -424,6 +425,19 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
               lockedMessage={`${t("남은 조건", "Remaining")}: ${remainingRequirements.join(" · ")}`}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "3Blue1Brown — Neural Networks Series",
+                url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi",
+              },
+              {
+                title: "Understanding Deep Learning (Prince, 2023)",
+                url: "https://udlbook.github.io/udlbook/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={isKo ? "챕터 이동" : "Chapter navigation"}>
             {preview ? (

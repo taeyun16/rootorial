@@ -14,6 +14,7 @@ import { canCompleteMiniTransformerChapter } from "../../features/mini-transform
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
@@ -292,6 +293,27 @@ export function MiniTransformerChapter({ learnerCount = 0 }: { learnerCount?: nu
             </div>
             <CompleteChapter curriculumSlug={TRANSFORMER_CURRICULUM_SLUG} slug="mini-transformer" canComplete={canComplete} lockedMessage={t("핵심 challenge 세 개와 다섯 개념 확인을 완료하세요. 나머지 challenge와 debugger는 선택입니다.", "Complete the three core challenges and all five concept checks. The remaining challenges and debugger are optional.")} />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Attention Is All You Need (Vaswani et al., 2017)",
+                url: "https://research.google/pubs/attention-is-all-you-need/",
+              },
+              {
+                title: "The Illustrated Transformer",
+                url: "https://krugis.github.io/transformer-guide/",
+              },
+              {
+                title: "Andrej Karpathy — Neural Networks: Zero to Hero",
+                url: "https://karpathy.ai/zero-to-hero.html",
+              },
+              {
+                title: "LLM Cutaway — Real GPU-backed transformer",
+                url: "https://github.com/Letemoin/llm-cutaway",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousPreviewHref}>← {t("이전: Transformer 블록", "Previous: The Transformer Block")}</a> : <span>← {t("이전: Transformer 블록", "Previous: The Transformer Block")}</span>}

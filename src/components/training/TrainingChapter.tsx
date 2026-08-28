@@ -20,6 +20,7 @@ import {
 } from "../../features/training/training-simulator";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { MatrixGrid } from "../interactive/MatrixGrid";
@@ -124,7 +125,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             <h1>{chapter.title}</h1>
             <p className="lesson-deck">
               {isKo ? (
-                <>forward pass가 낸 한 묶음의 logits를 <em>학습 가능한 loop</em>로 바꿉니다. 한 batch의 gradient와 Adam 기억을 분리하고, train loss가 아니라 validation으로 멈출 지점을 고릅니다.</>
+                <>forward pass logits를 <em>학습 가능한 loop</em>로 바꿉니다. 한 batch의 gradient와 Adam 기억을 분리하고, train loss가 아니라 validation으로 멈출 지점을 고릅니다.</>
               ) : (
                 <>Turn one block of forward-pass logits into a <em>trainable loop</em>. Separate a batch gradient from Adam's memory, then choose where to stop by validation rather than training loss.</>
               )}
@@ -236,7 +237,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             <h2>{t("backward는 gradient를 계산하고 Adam step이 파라미터를 바꿉니다", "Backward computes gradients; the Adam step changes parameters")}</h2>
             <p>{t(
               "한 epoch는 모든 표본을 한 번 순회하는 범위입니다. 지난 장에서 full XOR에 실행한 dZ²→dH→dZ¹→parameter gradient를 이제 mini-batch마다 반복하고, Adam이 그 gradient로 update합니다. 따라서 epoch 하나는 여러 optimizer step을 포함할 수 있습니다.",
-              "An epoch is one pass over every sample. The dZ²→dH→dZ¹→parameter-gradient path run on full XOR in the previous chapter now repeats for every mini-batch, and Adam uses those gradients to update parameters. One epoch can therefore contain many optimizer steps.",
+              "An epoch is one pass over every sample. Each mini-batch repeats the dZ²→dH→dZ¹→parameter-gradient path from XOR. Adam takes those gradients and updates parameters. One epoch can therefore contain many optimizer steps.",
             )}</p>
             <ol className="training-loop-steps">
               <li><span>01</span><div><strong>{t("mini-batch 선택", "Choose mini-batch")}</strong><p>{t("epoch마다 순서를 섞고 마지막 짧은 batch도 처리", "Shuffle each epoch and keep the short tail batch")}</p></div></li>
@@ -253,7 +254,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
               </div>
               <p>{t(
                 "gradient g는 batch마다 새로 계산하지만 m·v와 step t는 optimizer의 기억으로 유지됩니다. Adam도 최적점이나 generalization을 보장하지 않으며 learning rate가 여전히 중요합니다.",
-                "Gradient g is recomputed per batch, while m, v, and step t persist as optimizer memory. Adam guarantees neither an optimum nor generalization, and learning rate still matters.",
+                "Gradient g is recomputed per batch, while m, v, and step t persist as optimizer memory. Adam does not find the best point or make the model generalize. Learning rate still matters.",
               )}</p>
             </div>
           </section>
@@ -445,6 +446,19 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
               )}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Understanding Deep Learning (Prince, 2023)",
+                url: "https://udlbook.github.io/udlbook/",
+              },
+              {
+                title: "3Blue1Brown — Neural Networks Series",
+                url: "https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview
