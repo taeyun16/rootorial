@@ -80,16 +80,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Verify Clerk secrets
+        id: clerk
+        run: |
+          if [ -z "$CLERK_PUBLISHABLE_KEY" ] || [ -z "$CLERK_SECRET_KEY" ]; then
+            echo "::notice::Skipping E2E tests: CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY secrets are not set"
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
+
       - name: Setup Node.js
+        if: steps.clerk.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '22.13.0'
           cache: 'npm'
 
       - name: Install dependencies
+        if: steps.clerk.outputs.skip != 'true'
         run: npm ci
 
       - name: Cache Playwright browsers
+        if: steps.clerk.outputs.skip != 'true'
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
@@ -98,22 +114,11 @@ jobs:
             playwright-browsers-${{ runner.os }}-
 
       - name: Install Playwright browsers
+        if: steps.clerk.outputs.skip != 'true'
         run: npx playwright install --with-deps chromium
 
-      - name: Verify Clerk secrets
-        run: |
-          if [ -z "$CLERK_PUBLISHABLE_KEY" ] || [ -z "$CLERK_SECRET_KEY" ]; then
-            echo "::error::❌ E2E tests require CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY secrets."
-            echo "::error::Please add these secrets in GitHub repository settings (Settings > Secrets and variables > Actions)."
-            echo "::error::Get Clerk keys from: https://dashboard.clerk.com/"
-            echo "::error::Without these secrets, Playwright will timeout waiting for Clerk authentication."
-            exit 1
-          fi
-        env:
-          CLERK_PUBLISHABLE_KEY: ${{ secrets.CLERK_PUBLISHABLE_KEY }}
-          CLERK_SECRET_KEY: ${{ secrets.CLERK_SECRET_KEY }}
-
       - name: Create .env.local for E2E tests
+        if: steps.clerk.outputs.skip != 'true'
         run: |
           cat > .env.local << EOF
           CLERK_PUBLISHABLE_KEY=${{ secrets.CLERK_PUBLISHABLE_KEY }}
@@ -122,6 +127,7 @@ jobs:
           EOF
 
       - name: Run citations E2E test
+        if: steps.clerk.outputs.skip != 'true'
         run: npm run test:e2e -- e2e/citations.spec.ts
         env:
           CI: true
