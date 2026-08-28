@@ -94,15 +94,15 @@ export function LinuxConceptCheck({
       id: "path-after-cd",
       index: "04",
       prompt: isKo
-        ? <><code>cd /var/log</code> 다음에 <code>cat app.log</code>를 실행하면 상대 경로는 어디에서 시작할까요?</>
-        : <>After <code>cd /var/log</code>, where does the relative path in <code>cat app.log</code> begin?</>,
+        ? <><code>cd /var/log</code> 다음에 <code>cat boot.log</code>를 실행하면 상대 경로는 어디에서 시작할까요?</>
+        : <>After <code>cd /var/log</code>, where does the relative path in <code>cat boot.log</code> begin?</>,
       options: [
-        { value: "new-working-directory", label: "/var/log/app.log" },
-        { value: "previous-directory", label: "/home/student/app.log" },
-        { value: "filesystem-root", label: "/app.log" },
+        { value: "new-working-directory", label: "/var/log/boot.log" },
+        { value: "previous-directory", label: "/home/student/boot.log" },
+        { value: "filesystem-root", label: "/boot.log" },
       ],
       correctAnswer: "new-working-directory",
-      answerLabel: <code>/var/log/app.log</code>,
+      answerLabel: <code>/var/log/boot.log</code>,
       correctFeedback: t(
         "맞았습니다. cd가 프로세스의 현재 작업 디렉터리를 바꾸므로 이후 상대 경로의 기준도 함께 바뀝니다.",
         "Right. cd changes the process working directory, so later relative paths use the new location.",

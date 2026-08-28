@@ -138,7 +138,7 @@ export function ShapeDebuggingLab({ onCompletionChange }: ShapeDebuggingLabProps
       <header className="shape-debug-header">
         <div>
           <p className="tensor-shape-kicker">SHAPE DETECTIVE</p>
-          <h3 id="shape-debug-title">{isKo ? "실행 전에 원인을 찾고 코드를 고쳐 보세요" : "Find the cause and repair the code before running it"}</h3>
+          <h3 id="shape-debug-title">{isKo ? "실행 전에 shape를 예측하세요" : "Predict the shape before you run"}</h3>
           <p>{isKo ? "정답을 외우기보다 shape가 만들어지는 규칙을 세 번 추적합니다." : "Trace how each shape is formed instead of memorizing the answer."}</p>
         </div>
         <div className="shape-debug-progress">
