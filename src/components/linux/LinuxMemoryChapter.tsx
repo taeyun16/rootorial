@@ -9,6 +9,7 @@ import { useLocale } from "../../features/localization/localization";
 import { canCompleteMemoryChapter } from "../../features/linux-runtime/memory-and-virtual-addresses";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -117,7 +118,7 @@ export function LinuxMemoryChapter({ learnerCount = 0 }: { learnerCount?: number
           <section className="article-section" id="address-space">
             <div className="margin-label">01 — PER-PROCESS ADDRESS SPACE</div>
             <h2>{t("주소 숫자는 PID의 주소 공간 안에서 해석됩니다", "An address number is interpreted inside a PID's address space")}</h2>
-            <p>{t("프로그램의 load·store 명령은 가상 주소를 냅니다. CPU와 커널은 현재 프로세스의 page table을 사용해 그 주소를 물리 frame으로 번역합니다. 그래서 부모와 자식이 모두 0x4018을 출력해도 같은 물리 저장소라고 단정할 수 없습니다. 서로 다른 frame일 수도 있고, shared mapping이나 COW 첫 쓰기 전처럼 같은 frame을 의도적으로 가리킬 수도 있습니다.", "A program's load and store instructions produce virtual addresses. The CPU and kernel translate each address through the current process's page table into a physical frame. Therefore, a parent and child both printing 0x4018 does not prove identical physical storage. Their PTEs may point to different frames, or intentionally share one through a shared mapping or before the first COW write.")}</p>
+            <p>{t("프로그램의 load·store 명령은 가상 주소를 냅니다. CPU와 커널은 현재 프로세스의 page table을 써서 그 주소를 물리 frame으로 번역합니다. 그래서 부모와 자식이 모두 0x4018을 출력해도 같은 물리 저장소라고 단정할 수 없습니다. 서로 다른 frame일 수도 있고, shared mapping이나 COW 첫 쓰기 전처럼 같은 frame을 의도적으로 가리킬 수도 있습니다.", "A program's load and store instructions produce virtual addresses. The CPU and kernel use the current process's page table to translate each address into a physical frame. Therefore, a parent and child both printing 0x4018 does not prove identical physical storage. Their PTEs may point to different frames, or intentionally share one through a shared mapping or before the first COW write.")}</p>
             <div className="memory-address-space-figure" role="group" aria-label={t("같은 가상 주소의 프로세스별 번역", "Process-specific translation of the same virtual address")}>
               <article><span>PID 420</span><strong>VA 0x4018</strong><p>PTE[0x4] → F7</p></article>
               <span aria-hidden="true">≠ / =</span>
@@ -227,7 +228,7 @@ $ getconf PAGESIZE`}</pre>
           <section className="chapter-finish">
             <p className="eyebrow">CHECKPOINT</p>
             <h2>{t("이제 VA에서 frame까지의 경계를 설명할 수 있습니다", "You can now explain every boundary from a VA to a frame")}</h2>
-            <p>{t("주소 번역과 COW·demand fault를 직접 실행하고, 네 오진을 수치와 상태로 수리하며 다섯 개념을 연결하면 목표에 도달했습니다.", "You reach the goal by running translation plus COW and demand faults, repairing four misdiagnoses with numeric and state evidence, and connecting all five concepts.")}</p>
+            <p>{t("주소 번역과 COW·demand fault를 직접 실행하고, 네 오진을 수치와 상태로 수리하며 다섯 개념을 연결했다면 목표를 달성했습니다.", "Run translation, COW, and demand faults. Repair four misdiagnoses with numeric and state evidence. Connect all five concepts.")}</p>
             <div className="memory-completion-checklist" role="status" aria-live="polite">
               <span className={memoryLabComplete ? "is-complete" : undefined}>{memoryLabComplete ? "✓" : "○"} {t("주소 변환·COW 실습", "Translation and COW lab")}</span>
               <span className={incidentsComplete ? "is-complete" : undefined}>{incidentsComplete ? "✓" : "○"} {t("메모리 사건 4개", "Four memory incidents")}</span>
@@ -240,6 +241,19 @@ $ getconf PAGESIZE`}</pre>
               lockedMessage={t("주소 변환 실습, 메모리 사건 네 개와 이해 확인 다섯 문제를 모두 마치면 완료할 수 있습니다.", "Finish the translation lab, all four memory incidents, and all five concept questions to complete the chapter.")}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Operating Systems: Three Easy Pieces (OSTEP)",
+                url: "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+              },
+              {
+                title: "Linux Kernel Development (Love, 2010)",
+                url: "https://www.oreilly.com/library/view/linux-kernel-development/9780768696974/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousHref}>← {t("이전: 사용자와 권한", "Previous: Users and Permissions")}</a> : <span>← {t("이전: 사용자와 권한", "Previous: Users and Permissions")} <small>{t("드래프트 미리보기 전용", "Draft preview only")}</small></span>}

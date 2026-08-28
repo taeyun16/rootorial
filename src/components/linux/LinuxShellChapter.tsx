@@ -8,6 +8,7 @@ import {
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { PublicLearningProof } from "../PublicLearningProof";
@@ -205,6 +206,15 @@ export function LinuxShellChapter({ learnerCount = 0 }: { learnerCount?: number 
               lockedMessage={lockedMessage}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Operating Systems: Three Easy Pieces (OSTEP)",
+                url: "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             <Link

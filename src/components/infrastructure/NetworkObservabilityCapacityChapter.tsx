@@ -10,6 +10,7 @@ import { canCompleteNetworkObservabilityChapter } from "../../features/infrastru
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -246,6 +247,19 @@ export function NetworkObservabilityCapacityChapter({ learnerCount = 0 }: { lear
               )}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Site Reliability Engineering (Google SRE Book)",
+                url: "https://sre.google/sre-book/table-of-contents/",
+              },
+              {
+                title: "TCP/IP Illustrated (Stevens, Fall & Stevens)",
+                url: "https://www.oreilly.com/library/view/tcpip-illustrated-volume/9780132808200/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousPreviewHref}>← {t("이전: 가용성과 failure domain", "Previous: Availability and failure domains")}</a> : <span>← {t("이전: 가용성", "Previous: Availability")}</span>}

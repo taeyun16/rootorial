@@ -5,6 +5,7 @@ import { canCompleteSubnetsChapter } from "../../features/linux-networking/subne
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -74,7 +75,16 @@ export function SubnetsNeighborsGatewaysChapter({ learnerCount = 0, continuation
 
           <section className="article-section" id="transfer"><div className="margin-label">06 — TRANSFER TO ROUTING AND INFRASTRUCTURE</div><h2>{t("다음에는 여러 경로 중 가장 구체적인 경로를 고릅니다", "Next, choose the most specific route among several candidates")}</h2><p>{t("이번 장은 연결된 /24와 기본 경로 하나만 사용했습니다. 다음 장에서는 여러 프리픽스와 metric을 비교하고 router를 지나는 packet path를 추적합니다.", "This chapter used one connected /24 and one default route. The next chapter compares multiple prefixes and metrics, then traces the packet path across a router.")}</p><LinuxNetworkingHandoff targetChapter="veth-bridges-and-routing" preview={preview} continuationAvailable={continuationAvailable} /></section>
 
-          <section className="article-section concept-check" id="check"><div className="margin-label">07 — CONCEPT CHECK</div><SubnetConceptCheck onMasteryChange={setConceptsMastered} /><div className="network-view-completion-checklist" role="status" aria-live="polite"><span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("여섯 경로 상태", "Six path states")}</span><span className={incidentsComplete ? "is-complete" : undefined}>{incidentsComplete ? "✓" : "○"} {t("네 가지 장애 복구", "Four incident repairs")}</span><span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("다섯 개념 확인", "Five concept checks")}</span></div><CompleteChapter curriculumSlug={LINUX_NETWORKING_CURRICULUM_SLUG} slug="subnets-neighbors-and-gateways" canComplete={canComplete} lockedMessage={t("여섯 경로 상태, 네 가지 장애 복구와 다섯 개념 확인을 완료하세요.", "Complete all six path states, four incident repairs, and five concept checks.")} /></section>
+          <section className="article-section concept-check" id="check"><div className="margin-label">07 — CONCEPT CHECK</div><SubnetConceptCheck onMasteryChange={setConceptsMastered} /><div className="network-view-completion-checklist" role="status" aria-live="polite"><span className={labComplete ? "is-complete" : undefined}>{labComplete ? "✓" : "○"} {t("여섯 경로 상태", "Six path states")}</span><span className={incidentsComplete ? "is-complete" : undefined}>{incidentsComplete ? "✓" : "○"} {t("네 가지 장애 복구", "Four incident repairs")}</span><span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("다섯 개념 확인", "Five concept checks")}</span></div><CompleteChapter curriculumSlug={LINUX_NETWORKING_CURRICULUM_SLUG} slug="subnets-neighbors-and-gateways" canComplete={canComplete} lockedMessage={t("여섯 경로 상태, 네 가지 장애 복구와 다섯 개념 확인을 완료하세요.", "Complete all six path states, four incident repairs, and five concept checks.")} />          </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "TCP/IP Illustrated (Stevens, Fall & Stevens)",
+                url: "https://www.oreilly.com/library/view/tcpip-illustrated-volume/9780132808200/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={`/admin/preview/curricula/${LINUX_NETWORKING_CURRICULUM_SLUG}/chapters/interfaces-addresses-and-loopback${isKo ? "" : "?lang=en"}`}>← {t("이전: 인터페이스·주소·루프백", "Previous: Interfaces, Addresses, and Loopback")}</a> : <Link to="/curricula/$curriculumSlug/chapters/$chapterSlug" params={{ curriculumSlug: LINUX_NETWORKING_CURRICULUM_SLUG, chapterSlug: "interfaces-addresses-and-loopback" }} search={isKo ? {} : { lang: "en" }}>← {t("이전: 인터페이스·주소·루프백", "Previous: Interfaces, Addresses, and Loopback")}</Link>}

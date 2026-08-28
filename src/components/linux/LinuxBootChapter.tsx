@@ -9,6 +9,7 @@ import { useLocale } from "../../features/localization/localization";
 import { canCompleteBootChapter } from "../../features/linux-runtime/boot-sequence";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { PublicLearningProof } from "../PublicLearningProof";
@@ -169,8 +170,8 @@ export function LinuxBootChapter({ learnerCount = 0 }: { learnerCount?: number }
             <h2>{t("오류 문장보다 마지막 성공 표식을 먼저 찾습니다", "Find the last good marker before reading the error sentence")}</h2>
             <p>
               {t(
-                "부팅 로그가 길어도 질문은 작습니다. 마지막으로 성공한 주체가 누구인지 찾으면 원인이 있을 수 없는 앞 단계와 아직 시작하지 못한 뒷 단계를 동시에 지울 수 있습니다. 아래 로그는 정확한 게스트 캡처가 아니라 경계를 연습하기 위한 결정론적 교육 모델입니다.",
-                "Even a long boot log reduces to one small question: who succeeded last? That marker rules out earlier stages and tells you which later stages never began. The snippets below are deterministic teaching models, not claimed verbatim captures from the guest image.",
+                "부팅 로그가 길어도 질문은 작습니다. 마지막으로 성공한 주체가 누구인지 찾으면 원인이 있을 수 없는 앞 단계와 아직 시작하지 못한 뒷 단계를 동시에 지울 수 있습니다. 아래 로그는 정확한 게스트 캡처가 아니라 경계를 연습하기 위한 반복 가능한 교육 모델입니다.",
+                "Even a long boot log reduces to one small question: who succeeded last? That marker rules out earlier stages and tells you which later stages never began. The snippets below are repeatable teaching models, not claimed verbatim captures from the guest image.",
               )}
             </p>
             <LinuxBootFailureLab onCompletionChange={setDiagnosticsComplete} />
@@ -241,6 +242,19 @@ export function LinuxBootChapter({ learnerCount = 0 }: { learnerCount?: number }
               )}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Operating Systems: Three Easy Pieces (OSTEP)",
+                url: "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+              },
+              {
+                title: "Linux Kernel Development (Love, 2010)",
+                url: "https://www.oreilly.com/library/view/linux-kernel-development/9780768696974/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             <Link

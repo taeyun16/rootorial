@@ -9,6 +9,7 @@ import { canCompleteServiceDiscoveryChapter } from "../../features/infrastructur
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -190,6 +191,19 @@ ip netns exec app-c ss -lnt '( sport = :8080 )'`}</pre>
             </div>
             <CompleteChapter curriculumSlug={INFRASTRUCTURE_CURRICULUM_SLUG} slug="service-discovery-and-load-balancing" canComplete={canComplete} lockedMessage={t("두 service-path mode, 네 사건과 다섯 개념 확인을 모두 완료하세요.", "Complete both service-path modes, all four incidents, and all five concept checks.")} />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Designing Data-Intensive Applications (Kleppmann, 2017)",
+                url: "https://dataintensive.net/",
+              },
+              {
+                title: "Site Reliability Engineering (Google SRE Book)",
+                url: "https://sre.google/sre-book/table-of-contents/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={policyPreviewHref}>← {t("이전: 네트워크 정책과 firewall", "Previous: Network policy and firewalls")}</a> : <span>← {t("이전: 네트워크 정책과 firewall", "Previous: Network policy and firewalls")}</span>}

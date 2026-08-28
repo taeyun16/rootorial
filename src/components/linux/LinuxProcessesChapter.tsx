@@ -9,6 +9,7 @@ import { useLocale } from "../../features/localization/localization";
 import { canCompleteProcessesChapter } from "../../features/linux-runtime/processes-and-signals";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -244,6 +245,19 @@ export function LinuxProcessesChapter({ learnerCount = 0 }: { learnerCount?: num
               )}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Operating Systems: Three Easy Pieces (OSTEP)",
+                url: "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+              },
+              {
+                title: "Linux Kernel Development (Love, 2010)",
+                url: "https://www.oreilly.com/library/view/linux-kernel-development/9780768696974/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             <a href={previousHref}>← {t("이전: 전원이 켜지고 셸이 뜨기까지", "Previous: From Power-On to a Shell")}</a>

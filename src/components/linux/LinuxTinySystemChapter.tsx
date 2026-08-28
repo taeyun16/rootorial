@@ -9,6 +9,7 @@ import { useLocale } from "../../features/localization/localization";
 import { canCompleteTinyLinuxChapter } from "../../features/linux-runtime/assemble-a-tiny-linux";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -294,6 +295,19 @@ export function LinuxTinySystemChapter({ learnerCount = 0 }: { learnerCount?: nu
               )}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Operating Systems: Three Easy Pieces (OSTEP)",
+                url: "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+              },
+              {
+                title: "Linux Kernel Development (Love, 2010)",
+                url: "https://www.oreilly.com/library/view/linux-kernel-development/9780768696974/",
+              },
+            ]}
+          />
 
           <section className="chapter-finish tiny-system-finish">
             <p className="eyebrow">LINUX SYSTEMS · ASSEMBLED</p>

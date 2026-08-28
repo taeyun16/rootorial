@@ -5,6 +5,7 @@ import { useLocale } from "../../features/localization/localization";
 import { canCompleteNetworkingChapter } from "../../features/linux-runtime/networking-from-a-packet";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -106,7 +107,7 @@ export function LinuxNetworkingChapter({ learnerCount = 0 }: { learnerCount?: nu
             <h2>{t("TCP는 packet 개수가 아니라 다음에 필요한 byte를 ACK합니다", "TCP acknowledges the next required byte, not a packet count")}</h2>
             <p>{t("client ISN 1000의 SYN은 sequence 하나를 소비하므로 첫 data는 1001에서 시작합니다. IPv4·TCP option이 없는 이 fixture에서 MTU 1500에서 IPv4 20바이트와 TCP 20바이트를 빼면 MSS는 1460입니다. 따라서 3,000바이트는 [1001,2461), [2461,3921), [3921,4001) 세 범위가 됩니다.", "A SYN with client ISN 1000 consumes one sequence number, so data begins at 1001. In this fixture with no IPv4 or TCP options, subtracting 20-byte IPv4 and TCP headers from MTU 1500 yields MSS 1460. The 3,000 bytes therefore occupy [1001,2461), [2461,3921), and [3921,4001).")}</p>
             <ol className="network-ack-pipeline"><li><span>01</span><strong>ACK 2461</strong><p>{t("첫 범위가 연속으로 도착했습니다.", "The first contiguous range arrived.")}</p></li><li><span>02</span><strong>ACK 2461</strong><p>{t("두 번째는 유실되고 세 번째만 먼저 도착해 gap을 건너뛰지 않습니다.", "The second range was lost; an early third range cannot skip the gap.")}</p></li><li><span>03</span><strong>RTO · seq 2461</strong><p>{t("같은 byte 범위를 새 sequence가 아니라 그대로 재전송합니다.", "Retransmit the same byte range, not a newly numbered one.")}</p></li><li><span>04</span><strong>ACK 4001</strong><p>{t("gap이 채워져 buffer의 연속 범위까지 한 번에 누적 확인합니다.", "Filling the gap cumulatively acknowledges the buffered contiguous range too.")}</p></li></ol>
-            <p>{t("여기서 두 번째 구간은 명시적인 deterministic RTO로 복구합니다. 후속 duplicate ACK가 충분하지 않으므로 이를 fast retransmit이라 부르지 않습니다. TCP segmentation만 모델링하며 IP fragmentation은 만들지 않습니다.", "The second range is recovered by an explicit deterministic RTO. There are not enough following duplicate acknowledgements to call this fast retransmit. The model performs TCP segmentation only and does not create IP fragmentation.")}</p>
+            <p>{t("여기서 두 번째 구간은 명시적인 고정 RTO로 복구합니다. 후속 duplicate ACK가 충분하지 않으므로 이를 fast retransmit이라 부르지 않습니다. TCP segmentation만 모델링하며 IP fragmentation은 만들지 않습니다.", "The second range is recovered by an explicit fixed RTO. There are not enough following duplicate acknowledgements to call this fast retransmit. The model performs TCP segmentation only and does not create IP fragmentation.")}</p>
           </section>
 
           <section className="article-section" id="delivery">
@@ -123,7 +124,24 @@ export function LinuxNetworkingChapter({ learnerCount = 0 }: { learnerCount?: nu
 
           <section className="article-section" id="transfer"><div className="margin-label">08 — TRANSFER TO TINY LINUX</div><h2>{t("마지막 장에서는 이 경로를 직접 부팅한 시스템에 조립합니다", "The final chapter assembles this path into a system you boot")}</h2><div className="network-transfer-task"><strong>{t("전이 과제", "TRANSFER TASK")}</strong><p>{t("eth0은 있지만 down이고 address·default route가 없는 tiny Linux에서 다음 상태를 순서대로 조립하세요: driver/interface 존재 → PID 1이 link up·10.0.0.20/24 address·default via 10.0.0.1 설정 → reportd 시작 → 0.0.0.0:8080 bind/listen → accept → report 파일 read → connected fd로 send. driver·link·address는 ip address, route는 ip route get, listener는 ss -lnt, accepted connection은 ss -tn, file read·send는 reportd event trace로 각각 확인하세요.", "On a tiny Linux system where eth0 exists but is down and has no address or default route, assemble these states in order: driver/interface exists → PID 1 configures link up, address 10.0.0.20/24, and default via 10.0.0.1 → start reportd → bind/listen on 0.0.0.0:8080 → accept → read the report file → send through the connected fd. Verify driver, link, and address with ip address; the route with ip route get; the listener with ss -lnt; the accepted connection with ss -tn; and file read plus send with the reportd event trace.")}</p></div></section>
 
-          <section className="article-section concept-check" id="check"><div className="margin-label">09 — CONCEPT CHECK</div><LinuxNetworkingConceptCheck onMasteryChange={setConceptsMastered} /><div className="network-completion-checklist" role="status" aria-live="polite"><span className={journeyComplete ? "is-complete" : undefined}>{journeyComplete ? "✓" : "○"} {t("필수 패킷 여정 실습", "Required packet journey lab")}</span><span className={incidentsComplete ? "is-complete" : undefined}>{incidentsComplete ? "✓" : "○"} {t("네트워크 사건 진단", "Network incident diagnosis")}</span><span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("개념 확인", "Concept check")}</span></div><CompleteChapter curriculumSlug={LINUX_CURRICULUM_SLUG} slug="networking-from-a-packet" canComplete={canComplete} lockedMessage={t("필수 패킷 여정, 사건 진단과 다섯 개념 확인을 모두 완료하세요.", "Complete the required packet journey, incident diagnosis, and all five concept checks.")} /></section>
+          <section className="article-section concept-check" id="check"><div className="margin-label">09 — CONCEPT CHECK</div><LinuxNetworkingConceptCheck onMasteryChange={setConceptsMastered} /><div className="network-completion-checklist" role="status" aria-live="polite"><span className={journeyComplete ? "is-complete" : undefined}>{journeyComplete ? "✓" : "○"} {t("필수 패킷 여정 실습", "Required packet journey lab")}</span><span className={incidentsComplete ? "is-complete" : undefined}>{incidentsComplete ? "✓" : "○"} {t("네트워크 사건 진단", "Network incident diagnosis")}</span><span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("개념 확인", "Concept check")}</span></div><CompleteChapter curriculumSlug={LINUX_CURRICULUM_SLUG} slug="networking-from-a-packet" canComplete={canComplete} lockedMessage={t("필수 패킷 여정, 사건 진단과 다섯 개념 확인을 모두 완료하세요.", "Complete the required packet journey, incident diagnosis, and all five concept checks.")} />          </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Operating Systems: Three Easy Pieces (OSTEP)",
+                url: "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+              },
+              {
+                title: "TCP/IP Illustrated (Stevens, Fall & Stevens)",
+                url: "https://www.oreilly.com/library/view/tcpip-illustrated-volume/9780132808200/",
+              },
+              {
+                title: "Beej's Guide to Network Programming",
+                url: "https://beej.us/guide/bgnet/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousHref}>← {t("이전: 저장장치와 파일시스템", "Previous: Storage and Filesystems")}</a> : <span>← {t("이전: 저장장치와 파일시스템", "Previous: Storage and Filesystems")} <small>{t("드래프트 미리보기 전용", "Draft preview only")}</small></span>}

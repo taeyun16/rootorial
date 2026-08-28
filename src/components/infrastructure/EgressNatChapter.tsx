@@ -5,6 +5,7 @@ import { canCompleteEgressNatChapter } from "../../features/infrastructure/egres
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -95,7 +96,16 @@ export function EgressNatChapter({ learnerCount = 0 }: { learnerCount?: number }
 
           <section className="article-section" id="transfer"><div className="margin-label">08 — TRANSFER TO LEAST-ALLOW POLICY</div><h2>{t("연결 가능한 route와 stateful NAT 위에 firewall policy를 추가합니다", "Add firewall policy on top of reachable routes and stateful NAT")}</h2><div className="network-transfer-task"><strong>{t("전이 과제", "TRANSFER TASK")}</strong><p>{t("현재 왕복 flow를 유지하면서 client의 443 egress만 허용하고 router 자체 listener는 열지 않는다고 가정하세요. transit packet을 보는 hook, established reply rule과 default verdict를 분리해 적으세요.", "Keep this round-trip flow while allowing only client egress to port 443 without opening a router-local listener. Identify the transit hook, established-reply rule, and default verdict separately.")}</p></div></section>
 
-          <section className="article-section concept-check" id="check"><div className="margin-label">09 — CONCEPT CHECK</div><EgressNatConceptCheck onMasteryChange={setConceptsMastered} /><div className="network-completion-checklist" role="status" aria-live="polite"><span className={modeCompletion.snat ? "is-complete" : undefined}>{modeCompletion.snat ? "✓" : "○"} {t("static SNAT mode", "Static SNAT mode")}</span><span className={modeCompletion.masquerade ? "is-complete" : undefined}>{modeCompletion.masquerade ? "✓" : "○"} {t("dynamic MASQUERADE mode", "Dynamic masquerade mode")}</span><span className={incidentsComplete ? "is-complete" : undefined}>{incidentsComplete ? "✓" : "○"} {t("네 egress 사건", "Four egress incidents")}</span><span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("다섯 개념", "Five concepts")}</span></div><CompleteChapter curriculumSlug={INFRASTRUCTURE_CURRICULUM_SLUG} slug="egress-nat-and-conntrack" canComplete={canComplete} lockedMessage={t("두 NAT mode, 네 사건과 다섯 개념 확인을 모두 완료하세요.", "Complete both NAT modes, four incidents, and all five concept checks.")} /></section>
+          <section className="article-section concept-check" id="check"><div className="margin-label">09 — CONCEPT CHECK</div><EgressNatConceptCheck onMasteryChange={setConceptsMastered} /><div className="network-completion-checklist" role="status" aria-live="polite"><span className={modeCompletion.snat ? "is-complete" : undefined}>{modeCompletion.snat ? "✓" : "○"} {t("static SNAT mode", "Static SNAT mode")}</span><span className={modeCompletion.masquerade ? "is-complete" : undefined}>{modeCompletion.masquerade ? "✓" : "○"} {t("dynamic MASQUERADE mode", "Dynamic masquerade mode")}</span><span className={incidentsComplete ? "is-complete" : undefined}>{incidentsComplete ? "✓" : "○"} {t("네 egress 사건", "Four egress incidents")}</span><span className={conceptsMastered ? "is-complete" : undefined}>{conceptsMastered ? "✓" : "○"} {t("다섯 개념", "Five concepts")}</span></div><CompleteChapter curriculumSlug={INFRASTRUCTURE_CURRICULUM_SLUG} slug="egress-nat-and-conntrack" canComplete={canComplete} lockedMessage={t("두 NAT mode, 네 사건과 다섯 개념 확인을 모두 완료하세요.", "Complete both NAT modes, four incidents, and all five concept checks.")} />          </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "TCP/IP Illustrated (Stevens, Fall & Stevens)",
+                url: "https://www.oreilly.com/library/view/tcpip-illustrated-volume/9780132808200/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>{preview ? <a href={previousHref}>← {t("이전: veth·bridge·routing", "Previous: veth, bridges, and routing")}</a> : <span>← {t("이전: veth·routing", "Previous: veth and routing")}</span>}{preview ? <a href={nextHref}>{t("다음: 네트워크 정책과 firewall", "Next: Network policy and firewalls")} →</a> : <span>{t("다음: 네트워크 정책과 firewall", "Next: Network policy and firewalls")} →</span>}</nav>
           <noscript>{t("NAT 활동에는 JavaScript가 필요합니다. 위의 tuple lifecycle과 선택 관찰 명령은 계속 읽을 수 있습니다.", "The NAT activities require JavaScript. The tuple lifecycle and optional observation commands remain readable.")}</noscript>

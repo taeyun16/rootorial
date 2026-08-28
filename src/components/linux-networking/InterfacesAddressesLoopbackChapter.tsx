@@ -9,6 +9,7 @@ import { canCompleteInterfacesAddressesLoopbackChapter } from "../../features/li
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -228,6 +229,19 @@ export function InterfacesAddressesLoopbackChapter({
               lockedMessage={t("필수 상태 변화 실습의 모든 단계, 네 가지 장애 복구와 다섯 개념 확인을 완료하세요.", "Complete every required state-change step, all four incident repairs, and all five concept checks.")}
             />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Operating Systems: Three Easy Pieces (OSTEP)",
+                url: "https://pages.cs.wisc.edu/~remzi/OSTEP/",
+              },
+              {
+                title: "TCP/IP Illustrated (Stevens, Fall & Stevens)",
+                url: "https://www.oreilly.com/library/view/tcpip-illustrated-volume/9780132808200/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? (

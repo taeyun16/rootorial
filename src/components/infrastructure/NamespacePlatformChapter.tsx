@@ -10,6 +10,7 @@ import { canCompleteNamespacePlatformChapter } from "../../features/infrastructu
 import { useLocale } from "../../features/localization/localization";
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
+import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { usePublicationPreview } from "../PublicationPreview";
@@ -245,6 +246,23 @@ export function NamespacePlatformChapter({ learnerCount = 0 }: { learnerCount?: 
             </div>
             <CompleteChapter curriculumSlug={INFRASTRUCTURE_CURRICULUM_SLUG} slug="assemble-a-namespace-platform" canComplete={canComplete} lockedMessage={t("evidence bundle, 네 scenario, 네 incident와 다섯 개념 확인을 모두 완료하세요.", "Complete the evidence bundle, four scenarios, four incidents, and five concept checks.")} />
           </section>
+
+          <CitationSection
+            citations={[
+              {
+                title: "Designing Data-Intensive Applications (Kleppmann, 2017)",
+                url: "https://dataintensive.net/",
+              },
+              {
+                title: "Site Reliability Engineering (Google SRE Book)",
+                url: "https://sre.google/sre-book/table-of-contents/",
+              },
+              {
+                title: "TCP/IP Illustrated (Stevens, Fall & Stevens)",
+                url: "https://www.oreilly.com/library/view/tcpip-illustrated-volume/9780132808200/",
+              },
+            ]}
+          />
 
           <nav className="chapter-bottom-nav" aria-label={t("챕터 이동", "Chapter navigation")}>
             {preview ? <a href={previousPreviewHref}>← {t("이전: 네트워크 관측과 용량", "Previous: Network observability and capacity")}</a> : <span>← {t("이전: 네트워크 관측과 용량", "Previous: Network observability and capacity")}</span>}
