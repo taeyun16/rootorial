@@ -156,8 +156,8 @@ export function ConceptLearningStage({
               onSceneStatusChange={handleSceneStatus}
             />
             <div className="concept-stage-coordinate" aria-hidden="true">
-              <span>(x, y, z)</span>
-              <strong>{format(displayedVector.x)}, {format(displayedVector.y)}, 0.00</strong>
+              <span>(x, y)</span>
+              <strong>{format(displayedVector.x)}, {format(displayedVector.y)}</strong>
             </div>
             <span className="concept-stage-vector-label" aria-hidden="true">v</span>
           </div>
@@ -184,7 +184,7 @@ export function ConceptLearningStage({
           <dl className="concept-stage-metrics">
             <div>
               <dt>{t.vector}</dt>
-              <dd>[{format(displayedVector.x)}, {format(displayedVector.y)}, 0.00]</dd>
+              <dd>[{format(displayedVector.x)}, {format(displayedVector.y)}]</dd>
             </div>
             <div>
               <dt>{t.magnitude}</dt>

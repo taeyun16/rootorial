@@ -423,6 +423,20 @@ export function CurriculumHome({
   const chapters = curriculum.chapters[locale].filter((chapter) =>
     publicationByChapter.has(chapter.slug),
   );
+  const publishedChapters = chapters.filter((chapter) => {
+    const publication = publicationByChapter.get(chapter.slug)!;
+    return (
+      publication.contentReady &&
+      publication.effectivePublicationStatus === "published"
+    );
+  });
+  const upcomingChapters = chapters.filter((chapter) => {
+    const publication = publicationByChapter.get(chapter.slug)!;
+    return (
+      !publication.contentReady ||
+      publication.effectivePublicationStatus !== "published"
+    );
+  });
   const firstOpenChapter = chapters.find((chapter) => {
     const publication = publicationByChapter.get(chapter.slug)!;
     return preview
@@ -520,8 +534,8 @@ export function CurriculumHome({
         <div className="hero-visual" aria-label={presentation.overview}>
           <div className="concept-orbit">
             <div className="orbit-core">
-              <span>{chapters.length}</span>
-              <small>{c.chapters}</small>
+              <span>{publishedChapters.length} {locale === "ko" ? "공개" : "published"}</span>
+              <small>{upcomingChapters.length} {locale === "ko" ? "준비 중" : "coming soon"}</small>
             </div>
             <span className="orbit-label orbit-label-a">{presentation.orbitLabels[0]}</span>
             <span className="orbit-label orbit-label-b">{presentation.orbitLabels[1]}</span>
