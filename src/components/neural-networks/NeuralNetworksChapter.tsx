@@ -16,7 +16,6 @@ import { canCompleteNeuralNetworksChapter } from "../../features/neural-networks
 import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
 import { CitationSection } from "../CitationSection";
-import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { LanguageSwitcher } from "../LanguageSwitcher";
