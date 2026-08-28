@@ -59,7 +59,7 @@
   "devDependencies": {
     "@clerk/backend": "3.11.4",
     "@clerk/testing": "2.2.7",
-    "@cloudflare/vite-plugin": "1.44.0",
+    "@cloudflare/vite-plugin": "^1.54.1",
     "@cloudflare/workers-types": "5.20260711.1",
     "@playwright/test": "1.61.1",
     "@types/node": "22.19.19",
