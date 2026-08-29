@@ -306,8 +306,18 @@ export function PlatformHome({
           </div>
         </div>
         <div className="curriculum-grid">
-          {availableCurricula.map(({ curriculum }, index) => {
-            const chapters = curriculum.chapters[locale];
+          {availableCurricula.map((item, index) => {
+            const { curriculum } = item;
+            const publishedChapters = item.chapters.filter(
+              ({ publication }) =>
+                publication.effectivePublicationStatus === "published" &&
+                publication.contentReady,
+            );
+            const upcomingChapters = item.chapters.filter(
+              ({ publication }) =>
+                publication.effectivePublicationStatus !== "published" ||
+                !publication.contentReady,
+            );
             const status = curriculum.status === "in-progress" ? c.building : c.available;
             const summaryId = `curriculum-${curriculum.id}-summary`;
             return (
@@ -333,7 +343,7 @@ export function PlatformHome({
                   <span>
                     {(reach.curricula[curriculum.slug]?.learners ?? 0) >= PUBLIC_SOCIAL_PROOF_MINIMUM
                       ? <>{reach.curricula[curriculum.slug].learners.toLocaleString(locale === "ko" ? "ko-KR" : "en-US")} {locale === "ko" ? "명 학습 중" : "learners"}</>
-                      : <>{chapters.length} {c.chapters}</>}
+                      : <>{publishedChapters.length} {locale === "ko" ? "공개" : "published"} · {upcomingChapters.length} {locale === "ko" ? "준비 중" : "coming soon"}</>}
                   </span>
                   <strong>{c.open} ↗</strong>
                 </div>
