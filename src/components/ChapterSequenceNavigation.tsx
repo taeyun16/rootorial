@@ -7,6 +7,7 @@ import {
   type ChapterNavigationAccess,
 } from "../features/chapters/chapter-navigation";
 import { useLocale } from "../features/localization/localization";
+import { previewHref } from "../utils/preview-href";
 
 const ChapterNavigationContext = createContext<ChapterNavigationAccess>({
   preview: false,
@@ -30,15 +31,6 @@ export function ChapterNavigationProvider({
 
 export function useChapterNavigationAccess() {
   return useContext(ChapterNavigationContext);
-}
-
-function previewHref(
-  curriculumSlug: string,
-  chapterSlug: string | null,
-  english: boolean,
-) {
-  const chapterPath = chapterSlug ? `/chapters/${chapterSlug}` : "";
-  return `/admin/preview/curricula/${curriculumSlug}${chapterPath}${english ? "?lang=en" : ""}`;
 }
 
 function Destination({

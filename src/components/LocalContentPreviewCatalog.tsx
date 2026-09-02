@@ -2,14 +2,10 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { PageMetadataSync } from "./PageMetadataSync";
 import { PublicationPreviewBanner } from "./PublicationPreview";
 import { useLocale } from "../features/localization/localization";
+import { previewHref } from "../utils/preview-href";
 import type { buildLocalContentPreviewCatalog } from "../features/publication/local-content-preview";
 
 type Catalog = ReturnType<typeof buildLocalContentPreviewCatalog>;
-
-function previewHref(curriculumSlug: string, chapterSlug?: string, english = false) {
-  const chapterPath = chapterSlug ? `/chapters/${chapterSlug}` : "";
-  return `/admin/preview/curricula/${curriculumSlug}${chapterPath}${english ? "?lang=en" : ""}`;
-}
 
 export function LocalContentPreviewCatalog({ catalog }: { catalog: Catalog }) {
   const { locale } = useLocale();
