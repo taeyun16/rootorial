@@ -10,6 +10,7 @@ import { AuthControls } from "../AuthControls";
 import { ChapterToc } from "../ChapterToc";
 import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
+import { CurriculumChapterCompass } from "../CurriculumChapterCompass";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { RootorialMark } from "../RootorialMark";
@@ -88,6 +89,11 @@ export function LinuxShellChapter({ learnerCount = 0 }: { learnerCount?: number 
           <AuthControls compact />
         </div>
       </header>
+
+      <CurriculumChapterCompass
+        curriculumSlug={LINUX_CURRICULUM_SLUG}
+        chapterSlug="shell-and-filesystem"
+      />
 
       <div className="article-layout">
         <ChapterToc items={[...tocItems[locale]]} />
