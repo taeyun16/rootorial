@@ -78,10 +78,10 @@ export function VectorsPracticeDeck() {
       "reshape-inference": {
         skillId: t("재현", "reproduce"),
         label: "reshape(3, ?)",
-        title: t("두 fixture에서 행 계약을 유지하세요", "Keep the row contract across two fixtures"),
+        title: t("두 입력 모두 세 행으로 만드세요", "Make both inputs have three rows"),
         summary: t(
-          "원소 수가 달라져도 같은 learner 표현 하나로 세 행을 유지합니다.",
-          "Keep three rows with one learner expression even when the element count changes.",
+          "원소 수가 달라져도 같은 코드로 세 행을 유지합니다.",
+          "Keep three rows with the same code even when the element count changes.",
         ),
       },
       "broadcast-repair": {
@@ -96,10 +96,10 @@ export function VectorsPracticeDeck() {
       "attention-score-shape": {
         skillId: t("전이", "transfer"),
         label: "QKᵀ shape",
-        title: t("내적 shape를 Attention score로 전이하세요", "Transfer dot-product shape to Attention scores"),
+        title: t("내적 shape를 Attention score로 확장하세요", "Extend dot-product shape to Attention scores"),
         summary: t(
-          "모든 query가 모든 key와 점수를 만들도록 하나의 행렬식을 두 fixture에 적용합니다.",
-          "Apply one matrix expression to two fixtures so every query receives a score for every key.",
+          "모든 query가 모든 key와 점수를 만들도록 하나의 행렬식을 두 입력에 적용합니다.",
+          "Apply one matrix expression to two inputs so every query receives a score for every key.",
         ),
       },
     }[challenge.id];
@@ -150,7 +150,7 @@ export function VectorsPracticeDeck() {
     updateAttempt("reshape-inference", [
       {
         id: "prediction",
-        label: t("두 fixture 결과 예측", "Prediction for both fixtures"),
+        label: t("두 테스트 결과 예측", "Prediction for both tests"),
         passed: reshapePrediction === "adapts-both",
         expected: "(3, 4) · (3, 6)",
         actual: {
@@ -165,18 +165,18 @@ export function VectorsPracticeDeck() {
       },
       {
         id: "visible-fixture",
-        label: t("공개 fixture · 원소 12개", "Visible fixture · 12 elements"),
+        label: t("공개 테스트 · 원소 12개", "Visible test · 12 elements"),
         passed: shapeText(visible) === "(3, 4)",
         expected: "(3, 4)",
         actual: shapeText(visible),
         explanation: t(
-          "12개 원소를 세 행으로 나누면 각 행에는 네 원소가 남습니다.",
-          "Dividing 12 elements into three rows leaves four elements per row.",
+          "12개 원소를 세 행으로 나누면 각 행은 네 개를 갖습니다.",
+          "Dividing 12 elements into three rows gives four elements per row.",
         ),
       },
       {
         id: "second-fixture",
-        label: t("두 번째 fixture · 원소 18개", "Second fixture · 18 elements"),
+        label: t("두 번째 테스트 · 원소 18개", "Second test · 18 elements"),
         passed: shapeText(second) === "(3, 6)",
         expected: "(3, 6)",
         actual: shapeText(second),
@@ -365,8 +365,8 @@ export function VectorsPracticeDeck() {
     >
       {activeId === "reshape-inference" ? (
         <div className="practice-workspace">
-          <div className="practice-support-code" aria-label={t("고정 support code", "Fixed support code")}>
-            <span>{t("고정 support code", "FIXED SUPPORT CODE")}</span>
+          <div className="practice-support-code" aria-label={t("고정 실행 조건", "Fixed execution context")}>
+            <span>{t("고정 실행 조건", "FIXED EXECUTION CONTEXT")}</span>
             <pre><code>{`function toRows(values) {
   return values.reshape(3, learnerColumns);
 }
@@ -376,7 +376,7 @@ second.length  = 18`}</code></pre>
             <p>{t("세 행은 고정되고 원소 수만 바뀝니다.", "The three-row contract is fixed; only the element count changes.")}</p>
           </div>
           <div className="practice-learner-controls" ref={firstControlRef}>
-            <strong>{t("학습자 편집 영역", "LEARNER-OWNED REGION")}</strong>
+            <strong>{t("편집 가능 영역", "EDITABLE REGION")}</strong>
             <DirectChoice
               label={t("두 fixture 결과 예측", "Predict both fixture results")}
               value={reshapePrediction}
@@ -412,7 +412,7 @@ second.length  = 18`}</code></pre>
               disabled={!reshapePrediction || reshapeColumns === ""}
               onClick={runReshape}
             >
-              {t("두 reshape fixture 실행", "Run both reshape fixtures")}
+              {t("두 reshape 테스트 실행", "Run both reshape tests")}
             </button>
             <button type="button" className="button button-secondary" onClick={resetCurrent}>
               {t("현재 문제 초기화", "Reset current challenge")}
@@ -492,13 +492,13 @@ output = left + right`}</code></pre>
 
       {activeId === "attention-score-shape" ? (
         <div className="practice-workspace">
-          <div className="practice-support-code" aria-label={t("새로운 transfer fixture", "New transfer fixtures")}>
-            <span>{t("새로운 transfer fixture", "NEW TRANSFER FIXTURES")}</span>
+          <div className="practice-support-code" aria-label={t("새로운 입력 케이스", "New input cases")}>
+            <span>{t("새로운 입력 케이스", "NEW INPUT CASES")}</span>
             <pre><code>{`visible: Q(2, 3), K(4, 3)
 second:  Q(5, 6), K(7, 6)
 
 scores = learnerExpression`}</code></pre>
-            <p>{t("두 입력 모두 마지막 축이 공통 feature입니다.", "The final axis is the shared feature axis in both fixtures.")}</p>
+            <p>{t("두 입력 모두 마지막 축이 공통 feature입니다.", "The final axis is the shared feature axis in both inputs.")}</p>
           </div>
           <div className="practice-learner-controls" ref={firstControlRef}>
             <strong>{t("전이 영역", "TRANSFER REGION")}</strong>
@@ -536,7 +536,7 @@ scores = learnerExpression`}</code></pre>
               disabled={!attentionPrediction || !attentionOperation}
               onClick={runAttention}
             >
-              {t("두 Attention fixture 실행", "Run both Attention fixtures")}
+              {t("두 Attention 테스트 실행", "Run both Attention tests")}
             </button>
             <button type="button" className="button button-secondary" onClick={resetCurrent}>
               {t("현재 문제 초기화", "Reset current challenge")}

@@ -12,7 +12,7 @@ ax.quiver(0, 0, v[0], v[1], angles="xy", scale_units="xy", scale=1,
           color="#365548", width=0.012)
 ax.scatter([0, v[0]], [0, v[1]], color=["#252420", "#8f4f3c"], zorder=3)
 ax.set(xlim=(-1, 4), ylim=(-1, 3), xlabel="x", ylabel="y",
-       title="A vector is magnitude + direction")
+       title="벡터는 크기 + 방향")
 ax.set_aspect("equal")
 ax.grid(alpha=0.22)
 plt.show()`;
@@ -70,7 +70,7 @@ fig, axes = plt.subplots(1, 2, figsize=(8, 3), constrained_layout=True)
 for ax, values, title in zip(
     axes,
     [batch[0], encoded[0]],
-    ["token embeddings", "+ positional values"],
+    ["token embeddings 토큰 임베딩", "+ positional values 위치 값"],
 ):
     image = ax.imshow(values, cmap="RdYlGn", vmin=-1.2, vmax=1.2, aspect="auto")
     ax.set(title=title, xlabel="d_model", ylabel="token")
@@ -93,7 +93,7 @@ ax.axvline(90, color="#8f4f3c", linestyle="--", label="orthogonal")
 ax.fill_between(degrees, cosine, 0, where=cosine >= 0, color="#365548", alpha=0.12)
 ax.fill_between(degrees, cosine, 0, where=cosine < 0, color="#8f4f3c", alpha=0.12)
 ax.set(xlim=(0, 180), ylim=(-1.08, 1.08), xlabel="angle (degrees)",
-       ylabel="cosine similarity", title="Direction becomes a similarity score")
+       ylabel="cosine similarity", title="방향이 유사도 점수로")
 ax.legend()
 ax.grid(alpha=0.18)
 plt.show()`;
@@ -120,7 +120,7 @@ for vector, color, label in zip(vectors, colors, labels):
               scale=1, color=color, width=0.009, label=label)
 ax.plot([parallel[0], w[0]], [parallel[1], w[1]], "--", color="#625f58")
 ax.set(xlim=(-2, 4), ylim=(-1, 4), xlabel="x", ylabel="y",
-       title="w = parallel + perpendicular")
+       title="w = parallel 평행 + perpendicular 수직")
 ax.set_aspect("equal")
 ax.grid(alpha=0.2)
 ax.legend(loc="upper left")
@@ -148,7 +148,7 @@ print("token 1 context:", np.round(context[0], 3))
 
 fig, ax = plt.subplots(figsize=(5, 4))
 image = ax.imshow(weights, cmap="YlGn", vmin=0, vmax=1)
-ax.set(title="Self-attention preview", xlabel="key token", ylabel="query token")
+ax.set(title="Self-attention 미리보기", xlabel="key token", ylabel="query token")
 ax.set_xticks(range(3), labels=["token 1", "token 2", "token 3"])
 ax.set_yticks(range(3), labels=["token 1", "token 2", "token 3"])
 for row in range(3):

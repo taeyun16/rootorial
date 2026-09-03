@@ -224,8 +224,8 @@ export function LinuxShellChapter({ learnerCount = 0 }: { learnerCount?: number 
             >
               ← {t("커리큘럼", "Curriculum")}
             </Link>
-            <span>
-              {t("다음: 전원이 켜지고 셸이 뜨기까지", "Next: From Power-On to a Shell")} <small>{t("준비 중", "Coming soon")}</small>
+            <span className="upcoming-chapter">
+              {t("다음: 전원이 켜지고 셸이 뜨기까지", "Next: From Power-On to a Shell")} <small>({t("준비 중", "Coming soon")})</small>
             </span>
           </nav>
         </article>

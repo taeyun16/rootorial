@@ -369,7 +369,7 @@ const readinessCopy = {
     title: "시작 전 준비도를 높여 보세요",
     summary: "선수 커리큘럼 범위",
     open: "권장 선수 커리큘럼 보기",
-    draft: "선수 커리큘럼 공개 준비 중",
+    draft: "선수 커리큘럼 공개 준비 중입니다",
   },
   en: {
     eyebrow: "RECOMMENDED PREREQUISITE",
@@ -388,7 +388,7 @@ const continuationCopy = {
     title: "완료 뒤 다음 경계로 확장하세요",
     summary: "다음 커리큘럼 범위",
     open: "다음 커리큘럼 보기",
-    draft: "다음 커리큘럼 공개 준비 중",
+    draft: "다음 커리큘럼 공개 준비 중입니다",
   },
   en: {
     eyebrow: "NEXT LEARNING PATH",

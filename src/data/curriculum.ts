@@ -93,7 +93,7 @@ export const chaptersKo: Chapter[] = [
     estimatedMinutes: VECTOR_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["reshape", "axis", "내적"],
+    concepts: ["reshape", "axis 축", "내적 dot product"],
   },
   {
     number: 2,
@@ -106,7 +106,7 @@ export const chaptersKo: Chapter[] = [
     estimatedMinutes: OPTIMIZATION_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["MSE", "gradient", "learning rate"],
+    concepts: ["MSE", "gradient 기울기", "learning rate 학습률"],
   },
   {
     number: 3,
@@ -119,7 +119,7 @@ export const chaptersKo: Chapter[] = [
     estimatedMinutes: NEURAL_NETWORKS_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["sigmoid · BCE", "hidden layer · XOR", "chain rule · backprop"],
+    concepts: ["sigmoid · BCE", "hidden layer · XOR", "chain rule 연쇄법칙 · backprop 역전파"],
   },
   {
     number: 4,
@@ -132,7 +132,7 @@ export const chaptersKo: Chapter[] = [
     estimatedMinutes: TRAINING_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["mini-batch · CE", "Adam state", "validation · Dropout"],
+    concepts: ["mini-batch · CE", "Adam state 상태", "validation 검증 · Dropout"],
   },
   {
     number: 5,
@@ -145,7 +145,7 @@ export const chaptersKo: Chapter[] = [
     estimatedMinutes: EMBEDDINGS_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["token ID · lookup", "row gradient · cosine", "masked mean"],
+    concepts: ["token ID · lookup", "row gradient · cosine 코사인", "masked mean 마스크 평균"],
   },
   {
     number: 6,
@@ -158,7 +158,7 @@ export const chaptersKo: Chapter[] = [
     estimatedMinutes: SEQUENCES_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["hidden state · recurrence", "temporal gradient", "LSTM · causal prefix"],
+    concepts: ["hidden state 은닉상태 · recurrence 순환", "temporal gradient 시간축 기울기", "LSTM · causal prefix 인과 접두사"],
   },
   {
     number: 7,
@@ -171,7 +171,7 @@ export const chaptersKo: Chapter[] = [
     estimatedMinutes: ATTENTION_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["Query · Key 역할", "key축 Softmax", "Value · context"],
+    concepts: ["Query · Key 역할", "key축 Softmax", "Value 값 · context 문맥"],
   },
   {
     number: 8,
@@ -184,7 +184,7 @@ export const chaptersKo: Chapter[] = [
     estimatedMinutes: SELF_ATTENTION_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["Q/K/V 투영 · token row", "scaled score · causal mask", "multi-head split · concat"],
+    concepts: ["Q/K/V 투영 · token row 토큰 행", "scaled score 점수 · causal mask 인과 마스크", "multi-head 다중헤드 split 분할 · concat 병합"],
   },
   {
     number: 9,
@@ -197,7 +197,7 @@ export const chaptersKo: Chapter[] = [
     estimatedMinutes: TRANSFORMER_BLOCK_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["position · block input", "pre-LayerNorm · residual", "position-wise FFN · handoff"],
+    concepts: ["position 위치 · block input 블록 입력", "pre-LayerNorm · residual 잔차", "position-wise FFN · handoff 전달"],
   },
   {
     number: 10,
@@ -210,7 +210,7 @@ export const chaptersKo: Chapter[] = [
     estimatedMinutes: MINI_TRANSFORMER_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["shifted target · causal prefix", "final norm · vocabulary logits", "loss · autoregressive decode"],
+    concepts: ["shifted target 이동 목표 · causal prefix 인과 접두사", "final norm 최종 정규화 · vocabulary logits 어휘 로짓", "loss 손실 · autoregressive decode 자기회귀 디코딩"],
   },
 ];
 
@@ -289,7 +289,7 @@ export const linuxChaptersKo: Chapter[] = [
     estimatedMinutes: LINUX_SHELL_CHAPTER_ESTIMATED_MINUTES,
     developmentStatus: "complete",
     status: "available",
-    concepts: ["shell", "path", "filesystem"],
+    concepts: ["shell 셸", "path 경로", "filesystem 파일시스템"],
   },
   {
     number: 2,

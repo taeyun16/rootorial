@@ -451,8 +451,8 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             {preview ? (
               <a href={nextPreviewHref}>{isKo ? "다음: 학습과 최적화" : "Next: Learning and Optimization"} →</a>
             ) : (
-              <span>
-                {isKo ? "다음: 학습과 최적화" : "Next: Learning and Optimization"} <small>{isKo ? "준비 중" : "Coming soon"}</small>
+              <span className="upcoming-chapter">
+                {isKo ? "다음: 학습과 최적화" : "Next: Learning and Optimization"} <small>({isKo ? "준비 중" : "Coming soon"})</small>
               </span>
             )}
           </nav>
