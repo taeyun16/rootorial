@@ -4215,6 +4215,10 @@ textarea:focus-visible {
   line-height: 1.7;
 }
 
+.concept-definition-grid p:has(.katex) {
+  line-height: 2.2;
+}
+
 .vector-transfer-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -16499,7 +16503,7 @@ textarea:focus-visible {
   .practice-deck-stage > header,
   .practice-deck-header,
   .practice-deck-evidence {
-    padding-right: 16px;
+    padding-right: 68px;
     padding-left: 16px;
   }
 }
