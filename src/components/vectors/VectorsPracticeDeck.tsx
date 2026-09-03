@@ -378,7 +378,7 @@ second.length  = 18`}</code></pre>
           <div className="practice-learner-controls" ref={firstControlRef}>
             <strong>{t("편집 가능 영역", "EDITABLE REGION")}</strong>
             <DirectChoice
-              label={t("두 fixture 결과 예측", "Predict both fixture results")}
+              label={t("두 테스트 결과 예측", "Predict both test results")}
               value={reshapePrediction}
               options={[
                 { value: "adapts-both", label: "(3, 4) · (3, 6)" },

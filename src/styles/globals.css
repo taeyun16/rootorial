@@ -1946,11 +1946,15 @@ textarea:focus-visible {
 }
 
 .curriculum-readiness-link.is-disabled {
-  transform: none;
-  border-color: var(--line-strong);
-  background: var(--paper-soft);
+  min-height: auto;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
   color: var(--muted);
-  cursor: not-allowed;
+  cursor: default;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .curriculum-continuation {
@@ -6182,6 +6186,12 @@ textarea:focus-visible {
   padding: 3px 6px;
   background: var(--paper-deep);
   font-size: 8px;
+}
+
+.chapter-bottom-nav .upcoming-chapter {
+  color: var(--muted);
+  cursor: default;
+  opacity: 0.7;
 }
 
 .continuous-chapter-frame .chapter-shell .chapter-bottom-nav {
@@ -25636,8 +25646,6 @@ textarea:focus-visible {
   }
 }
 .curriculum-chapter-compass {
-  position: relative;
-  z-index: 10;
   width: min(1180px, calc(100% - 48px));
   margin: 28px auto 0;
   padding: 28px 0;
