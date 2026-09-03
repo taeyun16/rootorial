@@ -524,7 +524,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       runtime: "TypeScript Mini Transformer 모델",
       description:
         "결정적 tokenizer→embedding+position→pre-LayerNorm decoder block→final norm→vocabulary logits를 연결하고, shifted target loss·한 번의 LM-head update와 EOS/max-length autoregressive decoding을 실행·디버깅합니다.",
-      concepts: ["shifted target · causal prefix", "final norm · vocabulary logits", "loss · autoregressive decode"],
+      concepts: ["shifted target 이동 목표 · causal prefix 인과 접두사", "final norm 최종 정규화 · vocabulary logits 어휘 로짓", "loss 손실 · autoregressive decode 자기회귀 디코딩"],
     },
   );
   assert.deepEqual(
@@ -554,7 +554,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       runtime: "TypeScript Transformer 블록 모델",
       description:
         "결정적 absolute 위치 신호를 첫 블록 입력에 한 번 더하고, pre-LayerNorm causal Self-Attention과 position-wise FFN을 residual 경로로 감싸 [T,d_model]을 보존하는 decoder-only block을 실행·디버깅합니다.",
-      concepts: ["position · block input", "pre-LayerNorm · residual", "position-wise FFN · handoff"],
+      concepts: ["position 위치 · block input 블록 입력", "pre-LayerNorm · residual 잔차", "position-wise FFN · handoff 전달"],
     },
   );
   assert.deepEqual(
@@ -584,7 +584,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       runtime: "TypeScript Self-Attention 모델",
       description:
         "같은 입력에서 Q·K·V를 따로 투영해 모든 token row의 scaled dot-product를 계산하고, causal mask와 multi-head 분할·병합 계약을 실행하며 정보 누출과 shape 결함을 디버깅합니다.",
-      concepts: ["Q/K/V 투영 · token row", "scaled score · causal mask", "multi-head split · concat"],
+      concepts: ["Q/K/V 투영 · token row 토큰 행", "scaled score 점수 · causal mask 인과 마스크", "multi-head 다중헤드 split 분할 · concat 병합"],
     },
   );
   assert.deepEqual(
@@ -612,7 +612,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       runtime: "TypeScript Attention 모델",
       description:
         "단일 query와 분리된 Key·Value로 점수를 계산하고, key축 Softmax와 value 가중합 문맥을 실행하며 잘못된 Attention 계약을 디버깅합니다.",
-      concepts: ["Query · Key 역할", "key축 Softmax", "Value · context"],
+      concepts: ["Query · Key 역할", "key축 Softmax", "Value 값 · context 문맥"],
     },
   );
   assert.deepEqual(
@@ -638,7 +638,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       runtime: "TypeScript 시퀀스 모델",
       description:
         "결정적 RNN unroll에서 hidden state와 공유 recurrence를 조작하고, 시간축 gradient와 LSTM cell update를 계산해 causal prefix를 디버깅합니다.",
-      concepts: ["hidden state · recurrence", "temporal gradient", "LSTM · causal prefix"],
+      concepts: ["hidden state 은닉상태 · recurrence 순환", "temporal gradient 시간축 기울기", "LSTM · causal prefix 인과 접두사"],
     },
   );
   assert.deepEqual(
@@ -664,7 +664,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       runtime: "TypeScript 임베딩 모델",
       description:
         "결정적 subword 토큰화에서 embedding lookup·반복 row gradient·cosine·masked mean까지 직접 계산하고 디버깅합니다.",
-      concepts: ["token ID · lookup", "row gradient · cosine", "masked mean"],
+      concepts: ["token ID · lookup", "row gradient · cosine 코사인", "masked mean 마스크 평균"],
     },
   );
   assert.deepEqual(
@@ -690,7 +690,7 @@ test("keeps the bilingual Transformer roadmap structurally aligned", () => {
       runtime: "TypeScript 수학 모델",
       description:
         "3-class logits의 Softmax·Cross Entropy를 mini-batch와 Adam update로 연결하고, validation·Dropout 경계를 실행하며 디버깅합니다.",
-      concepts: ["mini-batch · CE", "Adam state", "validation · Dropout"],
+      concepts: ["mini-batch · CE", "Adam state 상태", "validation 검증 · Dropout"],
     },
   );
   assert.deepEqual(

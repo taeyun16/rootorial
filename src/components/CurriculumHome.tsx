@@ -98,7 +98,7 @@ const transformerPresentation = {
     main: copy.ko.main,
     road: copy.ko.road,
     structure: copy.ko.structure,
-    orbitLabels: ["Vector", "Gradient", "Embedding", "Attention"],
+    orbitLabels: ["Vector 벡터", "Gradient 그래디언트", "Embedding 임베딩", "Attention"],
   },
   en: {
     eyebrow: "INTERACTIVE DEEP LEARNING TEXTBOOK",
@@ -145,7 +145,7 @@ const linuxPresentation = {
     main: "LINUX SYSTEMS CURRICULUM",
     road: "첫 명령에서 작은 Linux 조립까지",
     structure: "첫 챕터는 완성된 샘플입니다. 후속 챕터는 셸에서 확인한 상태를 실제 커널의 각 층으로 확장합니다.",
-    orbitLabels: ["Path", "Process", "Memory", "Network"],
+    orbitLabels: ["Path 경로", "Process 프로세스", "Memory 메모리", "Network 네트워크"],
   },
   en: {
     eyebrow: "INTERACTIVE LINUX SYSTEMS · SAMPLE",
@@ -369,7 +369,7 @@ const readinessCopy = {
     title: "시작 전 준비도를 높여 보세요",
     summary: "선수 커리큘럼 범위",
     open: "권장 선수 커리큘럼 보기",
-    draft: "선수 커리큘럼 공개 준비 중",
+    draft: "선수 커리큘럼 공개 준비 중입니다",
   },
   en: {
     eyebrow: "RECOMMENDED PREREQUISITE",
@@ -388,7 +388,7 @@ const continuationCopy = {
     title: "완료 뒤 다음 경계로 확장하세요",
     summary: "다음 커리큘럼 범위",
     open: "다음 커리큘럼 보기",
-    draft: "다음 커리큘럼 공개 준비 중",
+    draft: "다음 커리큘럼 공개 준비 중입니다",
   },
   en: {
     eyebrow: "NEXT LEARNING PATH",

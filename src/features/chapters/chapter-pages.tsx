@@ -38,10 +38,12 @@ function chapterPage(load: ChapterModuleLoader): ComponentType<ChapterPageProps>
         {continuousPath ? (
           <ChapterNavigationProvider access={navigation}>
             <div className="continuous-chapter-frame">
-              <CurriculumChapterCompass
-                curriculumSlug={curriculumSlug}
-                chapterSlug={chapterSlug}
-              />
+              {!(curriculumSlug === "linux-systems" && chapterSlug === "shell-and-filesystem") && (
+                <CurriculumChapterCompass
+                  curriculumSlug={curriculumSlug}
+                  chapterSlug={chapterSlug}
+                />
+              )}
               <Chapter learnerCount={learnerCount} />
               <ChapterSequenceNavigation
                 curriculumSlug={curriculumSlug}

@@ -72,7 +72,7 @@ export function VectorExplorer() {
     const width = rect.width;
     const height = rect.height;
     const origin = { x: width / 2, y: height / 2 };
-    const scale = Math.min(width / 14, height / 10);
+    const scale = Math.min(width / 10, height / 10);
 
     context.clearRect(0, 0, width, height);
     context.strokeStyle = "rgba(70, 93, 106, 0.11)";
