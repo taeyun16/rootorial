@@ -107,8 +107,8 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
   const curriculumPreviewHref = `/admin/preview/curricula/transformer-from-zero${isKo ? "" : "?lang=en"}`;
   const nextPreviewHref = `/admin/preview/curricula/transformer-from-zero/chapters/optimization${isKo ? "" : "?lang=en"}`;
   const remainingRequirements = [
-    !axisPracticeComplete ? t("Axis Builder 세 연산", "Axis Builder: three operations") : null,
-    !shapePracticeComplete ? t("Shape Detective 세 미션", "Shape Detective: three missions") : null,
+    !axisPracticeComplete ? t("축 조립 세 연산", "Axis Builder: three operations") : null,
+    !shapePracticeComplete ? t("shape 탐정 세 미션", "Shape Detective: three missions") : null,
     !mastered ? t("이해 확인 5문제", "five concept-check questions") : null,
   ].filter((requirement): requirement is string => Boolean(requirement));
 
@@ -386,9 +386,9 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
           </section>
 
           <section className="article-section" id="practice">
-            <div className="margin-label">06 — OPTIONAL PRACTICE · REPRODUCE / DIAGNOSE / TRANSFER</div>
+            <div className="margin-label">06 — 선택 실습 · OPTIONAL PRACTICE</div>
             <h2>{t(
-              "walkthrough 없이 shape 규칙을 다시 만드세요",
+              "도움 없이 shape 규칙을 다시 만드세요",
               "Rebuild the shape rules without the walkthrough",
             )}</h2>
             <p>{t(
