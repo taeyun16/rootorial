@@ -1287,7 +1287,7 @@ test("renders the interactive vectors chapter", async () => {
   assert.match(html, /shape 이해 확인/);
   assert.match(html, /이해 확인: 계산 전에 구조를 예측하기/);
   assert.match(html, /다섯 문제를 모두 맞히면/);
-  assert.match(html, /남은 조건: Axis Builder 세 연산 · Shape Detective 세 미션 · 이해 확인 5문제/);
+  assert.match(html, /남은 조건: 축 조립 세 연산 · shape 탐정 세 미션 · 이해 확인 5문제/);
   assert.match(html, /aria-label="v의 x 좌표"/);
   assert.match(html, /aria-label="w의 x 좌표"/);
   assert.match(html, /In \[ \]/);
