@@ -1064,8 +1064,10 @@ export function createLinuxShellState(): LinuxShellState {
     "/home/student": directoryEntry("student"),
     "/home/student/readme.txt": fileEntry(
       [
+        "Rootorial 셸 시뮬레이터에 오신 것을 환영합니다 (실제 커널 아님)",
         "Welcome to the Rootorial shell simulator (not a real kernel)!",
-        "Try: ls, cat readme.txt, pwd, and tree /",
+        "",
+        "시도해 보세요 | Try: ls, cat readme.txt, pwd, tree /",
         "",
       ].join("\n"),
       "student",

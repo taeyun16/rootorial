@@ -6109,10 +6109,12 @@ textarea:focus-visible {
 
 .complete-button:disabled {
   transform: none;
-  background: #99a39d;
+  background: var(--paper-deep);
+  color: var(--muted);
+  border: 1px solid var(--line);
   box-shadow: none;
   cursor: not-allowed;
-  opacity: 0.72;
+  opacity: 0.65;
 }
 
 .complete-button + p,
