@@ -87,8 +87,7 @@
   align-items: center;
 }
 
-.namespace-view-grid,
-.namespace-ownership-grid {
+.namespace-view-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.85rem;
@@ -96,8 +95,6 @@
 }
 
 .namespace-view-grid article,
-.namespace-ownership-grid article,
-.namespace-lab-panel,
 .namespace-incident-card {
   min-width: 0;
   padding: 1rem;
@@ -108,8 +105,6 @@
 }
 
 .namespace-view-grid span,
-.namespace-ownership-grid span,
-.namespace-lab-panel > span,
 .namespace-incident-card > span {
   display: block;
   margin-bottom: 0.35rem;
@@ -118,8 +113,7 @@
   letter-spacing: 0.08em;
 }
 
-.namespace-view-grid strong,
-.namespace-ownership-grid strong {
+.namespace-view-grid strong {
   display: block;
   color: var(--chapter-accent);
 }
@@ -189,9 +183,6 @@
   margin: 0;
 }
 
-.namespace-lab-grid,
-.namespace-design-grid,
-.namespace-reachability-grid,
 .namespace-incident-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -199,11 +190,6 @@
   margin-top: 1rem;
 }
 
-.namespace-design-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.namespace-design-grid fieldset,
 .namespace-incident-card fieldset {
   min-width: 0;
   margin: 0;
@@ -212,7 +198,6 @@
   border-radius: 0.8rem;
 }
 
-.namespace-design-grid label,
 .namespace-incident-card label {
   display: grid;
   gap: 0.35rem;
@@ -222,7 +207,6 @@
   font-size: 0.85rem;
 }
 
-.namespace-design-grid select,
 .namespace-incident-card select,
 .namespace-incident-card input {
   width: 100%;
@@ -233,23 +217,6 @@
   max-width: 100%;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-}
-
-.namespace-state-card,
-.namespace-reachability-card {
-  min-width: 0;
-  padding: 0.85rem;
-  border: 1px solid var(--line);
-  border-left: 0.25rem solid var(--chapter-accent);
-  border-radius: 0.75rem;
-  background: var(--paper-raised);
-  overflow-wrap: anywhere;
-}
-
-.namespace-state-card ul,
-.namespace-reachability-card ul {
-  margin: 0.55rem 0 0;
-  padding-left: 1.1rem;
 }
 
 .namespace-boundary-visualization,
@@ -647,10 +614,6 @@
 
 @media (max-width: 720px) {
   .namespace-view-grid,
-  .namespace-ownership-grid,
-  .namespace-lab-grid,
-  .namespace-design-grid,
-  .namespace-reachability-grid,
   .namespace-incident-grid,
   .namespace-evidence-pipeline {
     grid-template-columns: minmax(0, 1fr);
@@ -712,8 +675,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .namespace-lab *,
-  .namespace-view-grid *,
-  .namespace-ownership-grid * {
+  .namespace-view-grid * {
     scroll-behavior: auto;
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
