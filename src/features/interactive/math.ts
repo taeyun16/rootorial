@@ -21,15 +21,6 @@ export function transpose(matrix: NumericMatrix): NumericMatrix {
   return matrix[0].map((_, column) => matrix.map((row) => row[column]));
 }
 
-export function multiplyMatrices(left: NumericMatrix, right: NumericMatrix): NumericMatrix {
-  const rightTransposed = transpose(right);
-  return left.map((row) => rightTransposed.map((column) => dot(row, column)));
-}
-
-export function scaleMatrix(matrix: NumericMatrix, divisor: number): NumericMatrix {
-  return matrix.map((row) => row.map((value) => value / divisor));
-}
-
 export function softmaxRows(matrix: NumericMatrix): NumericMatrix {
   return matrix.map((row) => {
     const maximum = Math.max(...row);
