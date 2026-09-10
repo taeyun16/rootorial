@@ -98,9 +98,6 @@ np.testing.assert_allclose(weights[:, 3, :], np.zeros((2, 4)))
 print("PASS: projections, head split, causal attention, and concat agree")
 `;
 
-export const selfAttentionForwardTraceSupportCodeEn = selfAttentionForwardTraceSupportCode;
-export const selfAttentionForwardTraceCodeEn = selfAttentionForwardTraceCode;
-
 export const selfAttentionMaskRepairSupportCode = `import numpy as np
 
 # This cell rebuilds its own fixture; it does not depend on another cell.
@@ -191,5 +188,3 @@ assert np.isclose(padding_key_mass, 0.0)
 assert np.isclose(inactive_query_mass, 0.0)
 print("PASS: mask-before-softmax preserves unit active rows and zero blocked mass")
 `;
-
-export const selfAttentionMaskRepairSupportCodeEn = selfAttentionMaskRepairSupportCode;
