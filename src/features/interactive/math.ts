@@ -30,11 +30,6 @@ export function softmaxRows(matrix: NumericMatrix): NumericMatrix {
   });
 }
 
-export function matrixExtent(matrix: NumericMatrix) {
-  const values = matrix.flat();
-  return values.reduce((maximum, value) => Math.max(maximum, Math.abs(value)), 0) || 1;
-}
-
 export function reshapeVector(values: NumericVector, shape: number[]): NumericArray {
   if (shape.length < 1 || shape.length > 2 || shape.some((size) => !Number.isInteger(size) || size === 0 || size < -1)) {
     throw new Error("This visualizer supports rank-1 and rank-2 shapes with at most one inferred dimension.");
