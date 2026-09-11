@@ -9,7 +9,6 @@ export const ownershipStoryStepIds = [
 
 export type OwnershipStoryStepId = typeof ownershipStoryStepIds[number];
 export type OwnershipStoryNamespaceId = Extract<NetworkNamespaceId, "host" | "app">;
-export type OwnershipStoryPlayback = "idle" | "playing" | "paused" | "complete";
 
 export type OwnershipStoryObjectId =
   | "interface"

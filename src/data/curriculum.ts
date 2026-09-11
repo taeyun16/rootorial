@@ -1083,10 +1083,6 @@ export const systemArchitectureChaptersEn: Chapter[] = [
 
 export const chapters = chaptersKo;
 
-export const availableChapterCount = chaptersKo.filter(
-  (chapter) => chapter.status === "available",
-).length;
-
 function scopeChapters(curriculumSlug: string, source: Chapter[]): CurriculumChapter[] {
   return source.map((chapter) => ({
     ...chapter,
@@ -1239,10 +1235,6 @@ export const curricula: Curriculum[] = [
 
 export function getCurriculum(slug: string) {
   return curricula.find((curriculum) => curriculum.slug === slug);
-}
-
-export function getCurriculumChapters(slug: string, locale: Locale) {
-  return getCurriculum(slug)?.chapters[locale] ?? [];
 }
 
 export const curriculumChapterIds = Object.freeze(

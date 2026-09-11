@@ -10,8 +10,6 @@ const upstreamAssets = Object.freeze({
   "buildroot-bzimage68.bin": "https://i.copy.sh/buildroot-bzimage68.bin",
 });
 
-export const LINUX_EXPERIMENT_ASSET_BASE = ASSET_PREFIX;
-
 type LinuxExperimentAssetName = keyof typeof upstreamAssets;
 
 export function linuxExperimentAssetUrl(assetName: LinuxExperimentAssetName) {
