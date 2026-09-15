@@ -1081,8 +1081,6 @@ export const systemArchitectureChaptersEn: Chapter[] = [
   },
 ];
 
-export const chapters = chaptersKo;
-
 function scopeChapters(curriculumSlug: string, source: Chapter[]): CurriculumChapter[] {
   return source.map((chapter) => ({
     ...chapter,
