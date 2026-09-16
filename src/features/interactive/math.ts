@@ -9,27 +9,6 @@ export function shapeOfNumericArray(values: NumericArray): number[] {
     : [values.length];
 }
 
-export function dot(left: NumericVector, right: NumericVector) {
-  if (left.length !== right.length) {
-    throw new Error("Dot product requires vectors with the same length.");
-  }
-  return left.reduce((sum, value, index) => sum + value * right[index], 0);
-}
-
-export function transpose(matrix: NumericMatrix): NumericMatrix {
-  if (matrix.length === 0) return [];
-  return matrix[0].map((_, column) => matrix.map((row) => row[column]));
-}
-
-export function softmaxRows(matrix: NumericMatrix): NumericMatrix {
-  return matrix.map((row) => {
-    const maximum = Math.max(...row);
-    const exponents = row.map((value) => Math.exp(value - maximum));
-    const total = exponents.reduce((sum, value) => sum + value, 0);
-    return exponents.map((value) => value / total);
-  });
-}
-
 export function reshapeVector(values: NumericVector, shape: number[]): NumericArray {
   if (shape.length < 1 || shape.length > 2 || shape.some((size) => !Number.isInteger(size) || size === 0 || size < -1)) {
     throw new Error("This visualizer supports rank-1 and rank-2 shapes with at most one inferred dimension.");
