@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   optimizationGradientRepairCode,
-  optimizationGradientRepairCodeEn,
   optimizationNumpyCode,
 } from "../src/data/optimizationNotebook.ts";
 import {
@@ -41,7 +40,6 @@ test("publishes two independent English-only NumPy cells with an explicit gradie
   assert.match(optimizationGradientRepairCode, /gradient = X\.T @ residual/);
   assert.match(optimizationGradientRepairCode, /np\.allclose\(gradient, numerical_gradient/);
   assert.match(optimizationGradientRepairCode, /PASS: analytic MSE gradient matches the finite-difference probe/);
-  assert.equal(optimizationGradientRepairCodeEn, optimizationGradientRepairCode);
   assert.doesNotMatch(optimizationGradientRepairCode, /[가-힣]/);
 });
 

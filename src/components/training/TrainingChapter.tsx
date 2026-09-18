@@ -7,11 +7,8 @@ import {
 } from "../../data/curriculum";
 import {
   trainingAdamEpochCode,
-  trainingAdamEpochCodeEn,
   trainingAdamEpochSupportCode,
-  trainingAdamEpochSupportCodeEn,
   trainingSoftmaxAxisRepairCode,
-  trainingSoftmaxAxisRepairCodeEn,
 } from "../../data/trainingNotebook";
 import { useLocale } from "../../features/localization/localization";
 import {
@@ -282,7 +279,7 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             </div>
             <NotebookCell
               title={t("Softmax class 축 한 줄 수리", "Repair the Softmax class axis in one line")}
-              initialCode={isKo ? trainingSoftmaxAxisRepairCode : trainingSoftmaxAxisRepairCodeEn}
+              initialCode={trainingSoftmaxAxisRepairCode}
               description={<p>{t(
                 "처음 실행하면 class_axis=0이 row_sums=[1.490457, 1.509543]을 만들고 다른 표본을 바꿀 때 첫 행도 움직여 assertion이 실패합니다. REPAIR의 축 한 줄만 고쳐 두 행의 합 1, 첫 행 변화 0, mean_ce=0.288726을 함께 통과시키세요.",
                 "The initial class_axis=0 produces row_sums=[1.490457, 1.509543] and lets another sample change the first row, so the assertion fails. Change only the REPAIR axis and pass row sums of one, zero first-row shift, and mean_ce=0.288726 together.",
@@ -296,8 +293,8 @@ export function TrainingChapter({ learnerCount = 0 }: { learnerCount?: number })
             />
             <NotebookCell
               title={t("한 epoch Adam 상태 trace", "Trace Adam state across one epoch")}
-              initialCode={isKo ? trainingAdamEpochCode : trainingAdamEpochCodeEn}
-              supportCode={isKo ? trainingAdamEpochSupportCode : trainingAdamEpochSupportCodeEn}
+              initialCode={trainingAdamEpochCode}
+              supportCode={trainingAdamEpochSupportCode}
               description={<p>{t(
                 "각 batch에서 grad_logits를 새 배열로 만들지만 m·v·step은 loop 밖에서 이어집니다. 출력에서 batch [6]인 마지막 1행도 처리되고, adam_step=4와 final_full_loss=0.225353에 도달하는지 확인하세요.",
                 "Each batch creates a fresh grad_logits array while m, v, and step persist outside the loop. Confirm that the final one-row batch [6] runs and reaches adam_step=4 with final_full_loss=0.225353.",

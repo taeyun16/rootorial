@@ -20,11 +20,8 @@ import {
 } from "../src/features/training/training-simulator.ts";
 import {
   trainingAdamEpochCode,
-  trainingAdamEpochCodeEn,
   trainingAdamEpochSupportCode,
-  trainingAdamEpochSupportCodeEn,
   trainingSoftmaxAxisRepairCode,
-  trainingSoftmaxAxisRepairCodeEn,
 } from "../src/data/trainingNotebook.ts";
 
 function close(actual, expected, tolerance = 1e-9) {
@@ -35,9 +32,6 @@ function close(actual, expected, tolerance = 1e-9) {
 }
 
 test("ships independent Python bridges for Softmax-axis repair and a full Adam epoch", () => {
-  assert.equal(trainingSoftmaxAxisRepairCodeEn, trainingSoftmaxAxisRepairCode);
-  assert.equal(trainingAdamEpochCodeEn, trainingAdamEpochCode);
-  assert.equal(trainingAdamEpochSupportCodeEn, trainingAdamEpochSupportCode);
   const adamEpochProgram = `${trainingAdamEpochSupportCode}\n\n${trainingAdamEpochCode}`;
   assert.match(trainingSoftmaxAxisRepairCode, /class_axis = 0/);
   assert.match(trainingSoftmaxAxisRepairCode, /np\.allclose\(row_sums, np\.ones\(2\)\)/);
