@@ -20,8 +20,6 @@ for step in range(7):
     W = W - learning_rate * gradient
 `;
 
-export const optimizationNumpyCodeEn = optimizationNumpyCode;
-
 export const optimizationGradientRepairCode = `import numpy as np
 
 x = np.array([-1.0, 0.0, 1.0])
@@ -56,5 +54,3 @@ assert np.allclose(gradient, numerical_gradient, atol=1e-6), (
 )
 print("PASS: analytic MSE gradient matches the finite-difference probe")
 `;
-
-export const optimizationGradientRepairCodeEn = optimizationGradientRepairCode;

@@ -7,9 +7,7 @@ import {
 } from "../../data/curriculum";
 import {
   neuralNetworksHiddenRepairCode,
-  neuralNetworksHiddenRepairCodeEn,
   neuralNetworksLinearBoundaryCode,
-  neuralNetworksLinearBoundaryCodeEn,
 } from "../../data/neuralNetworksNotebook";
 import { useLocale } from "../../features/localization/localization";
 import { canCompleteNeuralNetworksChapter } from "../../features/neural-networks/forward-pass";
@@ -281,7 +279,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
             </div>
             <NotebookCell
               title={t("직선 하나로 XOR을 탐색", "Search XOR with one line")}
-              initialCode={isKo ? neuralNetworksLinearBoundaryCode : neuralNetworksLinearBoundaryCodeEn}
+              initialCode={neuralNetworksLinearBoundaryCode}
               description={<p>{t("대표 직선의 네 확률을 읽은 뒤 작은 정수 weight·bias 공간을 전수 탐색합니다. 출력의 single_affine_correct와 grid_search_best가 왜 모두 3/4인지 설명해 보세요.", "Read the representative line's four probabilities, then exhaustively search a small integer weight-and-bias space. Explain why both single_affine_correct and grid_search_best remain 3/4.")}</p>}
               hint={<p>{t("대표 weight나 탐색 범위를 바꿔 보세요. 4/4를 찾았다고 생각하면 predictions와 네 점의 위치를 함께 확인한 뒤 셀을 초기화하세요.", "Change the representative weights or the search range. If you think you found 4/4, inspect the predictions alongside all four points, then reset the cell.")}</p>}
               editorMinHeight={430}
@@ -314,7 +312,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
             </div>
             <NotebookCell
               title={t("빠진 hidden activation 수리", "Repair the missing hidden activation")}
-              initialCode={isKo ? neuralNetworksHiddenRepairCode : neuralNetworksHiddenRepairCodeEn}
+              initialCode={neuralNetworksHiddenRepairCode}
               description={<p>{t("처음 실행하면 hidden activation이 빠져 assertion이 실패합니다. REPAIR 아래 한 줄만 수정해 X[4,2]→hidden[4,2]→logits[4]를 유지하면서 XOR 4/4와 mean_bce<0.1을 통과시키세요.", "The first run fails its assertion because the hidden activation is missing. Change only the line below REPAIR, preserve X[4,2]→hidden[4,2]→logits[4], and reach XOR 4/4 with mean_bce<0.1.")}</p>}
               hint={<p>{t("두 affine 사이에 비선형성이 없으면 하나의 affine으로 합쳐집니다. hidden_logits를 어느 함수에 통과시켜야 OR와 NAND detector가 0–1 feature가 될까요?", "Without a nonlinearity, two affine maps collapse into one. Which function should transform hidden_logits so the OR and NAND detectors become 0–1 features?")}</p>}
               editorMinHeight={560}

@@ -43,8 +43,6 @@ assert best_correct == 3
 print("PASS: bounded search matches the geometric XOR limit")
 `;
 
-export const neuralNetworksLinearBoundaryCodeEn = neuralNetworksLinearBoundaryCode;
-
 export const neuralNetworksHiddenRepairCode = `import numpy as np
 
 X = np.array([
@@ -106,5 +104,3 @@ assert correct == 4, "Repair the hidden activation so XOR reaches 4/4"
 assert mean_bce < 0.1, "The repaired network should be confident, not barely correct"
 print("PASS: hidden activation restores XOR with low BCE")
 `;
-
-export const neuralNetworksHiddenRepairCodeEn = neuralNetworksHiddenRepairCode;

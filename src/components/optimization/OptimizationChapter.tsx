@@ -7,9 +7,7 @@ import {
 } from "../../data/curriculum";
 import {
   optimizationGradientRepairCode,
-  optimizationGradientRepairCodeEn,
   optimizationNumpyCode,
-  optimizationNumpyCodeEn,
 } from "../../data/optimizationNotebook";
 import { useLocale } from "../../features/localization/localization";
 import { canCompleteOptimizationChapter } from "../../features/optimization/gradient-descent";
@@ -258,7 +256,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
             <div className="notebook-stack">
               <NotebookCell
                 title={t("NumPy로 MSE gradient descent 실행", "Run MSE gradient descent with NumPy")}
-                initialCode={isKo ? optimizationNumpyCode : optimizationNumpyCodeEn}
+                initialCode={optimizationNumpyCode}
                 description={<p>{t("필수 실습과 같은 X, y, W, η를 사용하고 각 step의 W, loss, gradient를 출력합니다.", "Uses the same X, y, W, and η as the required lab and prints W, loss, and gradient at every step.")}</p>}
                 hint={<p>{t("learning_rate를 0.02와 1.10으로 바꾸고 loss 열이 어떻게 달라지는지 비교하세요.", "Change learning_rate to 0.02 and 1.10 and compare the loss column.")}</p>}
                 editorMinHeight={360}
@@ -266,7 +264,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
               />
               <NotebookCell
                 title={t("finite difference로 MSE gradient 수리", "Repair the MSE gradient with finite differences")}
-                initialCode={isKo ? optimizationGradientRepairCode : optimizationGradientRepairCodeEn}
+                initialCode={optimizationGradientRepairCode}
                 description={<p>{t("첫 실행은 analytic [-9, -6]과 numerical [-6, -4]가 달라 assertion이 실패합니다. REPAIR 아래 한 줄만 바꿔 두 gradient를 일치시키세요.", "The first run fails because analytic [-9, -6] disagrees with numerical [-6, -4]. Change only the line below REPAIR so the two gradients agree.")}</p>}
                 hint={<p>{t("MSE는 squared error의 합이 아니라 평균입니다. gradient = (2 / len(y)) * X.T @ residual을 완성한 뒤 다시 실행하세요.", "MSE is the mean, not the sum, of squared errors. Complete gradient = (2 / len(y)) * X.T @ residual, then run again.")}</p>}
                 editorMinHeight={500}

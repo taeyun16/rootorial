@@ -41,8 +41,6 @@ assert np.isclose(mean_ce, 0.288725992, atol=1e-6)
 print("PASS: class-axis softmax keeps rows normalized and independent")
 `;
 
-export const trainingSoftmaxAxisRepairCodeEn = trainingSoftmaxAxisRepairCode;
-
 export const trainingAdamEpochSupportCode = `import numpy as np
 
 X = np.array([
@@ -137,6 +135,3 @@ assert np.isclose(final_full_loss, 0.225353, atol=1e-6)
 assert final_full_loss < initial_full_loss
 print("PASS: fresh batch gradients and persistent Adam state complete one epoch")
 `;
-
-export const trainingAdamEpochCodeEn = trainingAdamEpochCode;
-export const trainingAdamEpochSupportCodeEn = trainingAdamEpochSupportCode;
