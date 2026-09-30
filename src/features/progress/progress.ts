@@ -147,6 +147,3 @@ export function buildProgressMetadata(completedSlugs: readonly string[]) {
     },
   };
 }
-
-export const legacyTransformerChapterId = (slug: string) =>
-  chapterId(TRANSFORMER_CURRICULUM_SLUG, slug);
