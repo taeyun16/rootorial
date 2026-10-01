@@ -1,3 +1,4 @@
+import { useLocalLearning } from "./LocalLearning";
 import { useAuth } from "@clerk/tanstack-react-start";
 import { useEffect, useRef, type ReactNode } from "react";
 import { recordCourseAccess } from "../features/learning-analytics/learning-analytics.functions";
@@ -7,6 +8,8 @@ type TrackerProps = { curriculumSlug: string; chapterSlug?: string; children: Re
 
 export function CourseAccessTracker({ curriculumSlug, chapterSlug, children }: TrackerProps) {
   const clerkEnabled = useClerkEnabled();
+  const localLearning = useLocalLearning();
+  if (localLearning) return children;
   if (!clerkEnabled) return <AnonymousCourseAccessTracker curriculumSlug={curriculumSlug} chapterSlug={chapterSlug}>{children}</AnonymousCourseAccessTracker>;
   return <ClerkCourseAccessTracker curriculumSlug={curriculumSlug} chapterSlug={chapterSlug}>{children}</ClerkCourseAccessTracker>;
 }

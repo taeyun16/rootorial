@@ -36,11 +36,11 @@ export function PublicationPreviewBanner({
       <div>
         <strong>
           {localDevelopment
-            ? isKo ? "로컬 콘텐츠 미리보기" : "Local content preview"
+            ? isKo ? "로컬 학습 연습" : "Local learning rehearsal"
             : isKo ? "관리자 미리보기" : "Admin preview"}
         </strong>
         <span>
-          {title} · {isKo
+          {title} · {localDevelopment ? (isKo ? "진도는 연습 공간에만 저장됩니다. 분석과 토론은 비활성화됩니다." : "Progress stays in the practice space. Analytics and discussions are disabled.") : isKo
             ? "공개 분석, 토론, 진도 저장이 비활성화됩니다."
             : "Public analytics, discussions, and progress saving are disabled."}
         </span>

@@ -1,3 +1,4 @@
+import { useLocalLearning } from "./LocalLearning";
 import { Link } from "@tanstack/react-router";
 import { useId } from "react";
 import { useProgress } from "./ProgressProvider";
@@ -21,6 +22,7 @@ export function CompleteChapter({
   const { completed, markComplete, retry, status } = useProgress();
   const { locale } = useLocale();
   const preview = usePublicationPreview();
+  const localLearning = useLocalLearning();
   const isKo = locale === "ko";
   const lockedMessageId = useId();
   const previewMessageId = useId();
@@ -31,7 +33,7 @@ export function CompleteChapter({
   const progressId = chapterId(curriculumSlug, slug);
   const isCompleted = completed.includes(progressId);
 
-  if (preview) {
+  if (preview && !localLearning) {
     return (
       <div>
         <button
@@ -73,6 +75,8 @@ export function CompleteChapter({
           <button className="text-link" type="button" onClick={retry}>
             {isKo ? "다시 동기화" : "Sync again"}
           </button>
+        ) : preview ? (
+          <a href={`/admin/preview/curricula/${curriculumSlug}`}>{isKo ? "커리큘럼으로" : "To curriculum"}</a>
         ) : (
           <Link to="/curricula/$curriculumSlug" params={{ curriculumSlug }}>
             {isKo ? "커리큘럼으로" : "To curriculum"}

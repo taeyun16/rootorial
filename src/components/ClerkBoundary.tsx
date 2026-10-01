@@ -33,13 +33,14 @@ function clerkIsEnabled() {
   }
 }
 
-export function ClerkBoundary({ children }: { children: React.ReactNode }) {
-  const enabled = clerkIsEnabled();
+export function ClerkBoundary({ children, disabled = false }: { children: React.ReactNode; disabled?: boolean }) {
+  const configured = clerkIsEnabled();
+  const enabled = !disabled && configured;
   const content = enabled ? <ClerkProvider>{children}</ClerkProvider> : children;
 
   return (
     <ClerkEnabledContext.Provider value={enabled}>
-      <ScriptOnce>{`window.__rootorialClerkEnabled = ${JSON.stringify(enabled)};`}</ScriptOnce>
+      <ScriptOnce>{`window.__rootorialClerkEnabled = ${JSON.stringify(configured)};`}</ScriptOnce>
       {content}
     </ClerkEnabledContext.Provider>
   );

@@ -32,6 +32,7 @@ type ProgressContextValue = {
   markComplete: (slug: string) => Promise<void>;
   status: ProgressStatus;
   retry: () => void;
+  resetLocal?: () => void;
 };
 
 const ProgressContext = createContext<ProgressContextValue | null>(null);
@@ -65,26 +66,26 @@ function removeLocalProgress(key: string) {
   }
 }
 
-function LocalProgressProvider({ children }: { children: React.ReactNode }) {
+function LocalProgressProvider({ children, storageKey = anonymousProgressKey }: { children: React.ReactNode; storageKey?: string }) {
   const [completed, setCompleted] = useState<string[]>([]);
 
   useEffect(() => {
-    setCompleted(readLocalProgress(anonymousProgressKey));
-  }, []);
+    setCompleted(readLocalProgress(storageKey));
+  }, [storageKey]);
 
   const markComplete = useCallback(async (slug: string) => {
     const [validatedSlug] = validateCompletedSlugs([slug]);
 
     setCompleted((current) => {
       const next = mergeCompletedSlugs(current, [validatedSlug]);
-      writeLocalProgress(anonymousProgressKey, next);
+      writeLocalProgress(storageKey, next);
       return next;
     });
-  }, []);
+  }, [storageKey]);
 
   return (
     <ProgressContext.Provider
-      value={{ completed, markComplete, status: "local", retry: () => {} }}
+      value={{ completed, markComplete, status: "local", retry: () => {}, resetLocal: () => { removeLocalProgress(storageKey); setCompleted([]); } }}
     >
       {children}
     </ProgressContext.Provider>
@@ -221,8 +222,10 @@ function ClerkProgressProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function ProgressProvider({ children }: { children: React.ReactNode }) {
+export function ProgressProvider({ children, isolated = false }: { children: React.ReactNode; isolated?: boolean }) {
   const clerkEnabled = useClerkEnabled();
+
+  if (isolated) return <LocalProgressProvider key="rehearsal" storageKey="rootorial-progress:rehearsal:v1">{children}</LocalProgressProvider>;
 
   return clerkEnabled ? (
     <ClerkProgressProvider>{children}</ClerkProgressProvider>

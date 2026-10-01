@@ -5,6 +5,8 @@ import {
   createRootRoute,
   useRouterState,
 } from "@tanstack/react-router";
+import { LocalLearningContext, LocalLearningTools } from "../components/LocalLearning";
+import { getLocalLearningMode } from "../features/publication/local-learning.functions";
 import appCss from "../styles/globals.css?url";
 import { ClerkBoundary } from "../components/ClerkBoundary";
 import { ContentFeedback } from "../components/ContentFeedback";
@@ -18,6 +20,7 @@ import {
 } from "../features/localization/localization";
 
 export const Route = createRootRoute({
+  loader: async () => ({ localLearning: await getLocalLearningMode() }),
   head: () => ({
     meta: [
       { charSet: "utf-8" },
@@ -46,6 +49,8 @@ export const Route = createRootRoute({
 function RootDocument({ children }: { children: React.ReactNode }) {
   const search = useRouterState({ select: (state) => state.location.searchStr });
   const pathname = useRouterState({ select: (state) => state.location.pathname });
+  const localLearning = Route.useLoaderData()?.localLearning ?? false;
+  const preview = pathname.startsWith("/admin/preview/");
   const documentLocale = localeFromSearch(search) ?? "ko";
   const showContentFeedback = shouldRenderContentFeedback({
     pathname,
@@ -59,12 +64,15 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <LocalizationProvider>
-          <ClerkBoundary>
-            <ProgressProvider>
+          <LocalLearningContext.Provider value={localLearning}>
+          <ClerkBoundary disabled={localLearning || preview}>
+            <ProgressProvider isolated={localLearning || preview}>
+              <LocalLearningTools />
               {children}
               {showContentFeedback && <ContentFeedback />}
             </ProgressProvider>
           </ClerkBoundary>
+          </LocalLearningContext.Provider>
         </LocalizationProvider>
         <Scripts />
       </body>
