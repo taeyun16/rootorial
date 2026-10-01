@@ -1,244 +1,85 @@
 import { useAuth } from "@clerk/tanstack-react-start";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import {
-  accountProgressKey,
-  anonymousProgressKey,
-  mergeCompletedSlugs,
-  parseStoredProgress,
-  validateCompletedSlugs,
-} from "../features/progress/progress";
-import {
-  getMyProgress,
-  syncMyProgress,
-} from "../features/progress/progress.functions";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { accountProgressKey, anonymousProgressKey, parseStoredProgress } from "../features/progress/progress";
+import { getMyProgress, syncMyProgress } from "../features/progress/progress.functions";
+import { ProgressClient, type ClientProgress, type ProgressStatus, type ProgressTransport } from "../features/progress/progress-client";
+import type { ResumePoint } from "../features/progress/progress-repository";
 import { useClerkEnabled } from "./ClerkBoundary";
 
-export type ProgressStatus =
-  | "loading"
-  | "local"
-  | "syncing"
-  | "synced"
-  | "error";
-
-type ProgressContextValue = {
-  completed: string[];
+export type { ProgressStatus };
+type ProgressContextValue = ClientProgress & {
   markComplete: (slug: string) => Promise<void>;
-  status: ProgressStatus;
+  saveResume: (point: ResumePoint) => Promise<void>;
   retry: () => void;
-  resetLocal?: () => void;
+  resetLocal?: () => boolean;
 };
-
+const initial: ClientProgress = { completed: [], resume: null, status: "loading", storageAvailable: true };
 const ProgressContext = createContext<ProgressContextValue | null>(null);
 
-function readLocalProgress(key: string) {
-  try {
-    const raw = window.localStorage.getItem(key);
-    const progress = parseStoredProgress(raw);
-    if (raw && raw !== JSON.stringify(progress)) {
-      window.localStorage.setItem(key, JSON.stringify(progress));
+// Access can itself throw (blocked storage); let the adapter report that truthfully.
+const browserStorage = {
+  getItem: (key: string) => window.localStorage.getItem(key),
+  setItem: (key: string, value: string) => window.localStorage.setItem(key, value),
+  removeItem: (key: string) => window.localStorage.removeItem(key),
+};
+
+function StoredProgressProvider({ children, storageKey, remote }: { children: ReactNode; storageKey: string; remote?: ProgressTransport }) {
+  const [state, setState] = useState<ClientProgress>(initial);
+  const clientRef = useRef<ProgressClient | null>(null);
+  useEffect(() => {
+    const client = new ProgressClient(browserStorage, storageKey, remote, setState);
+    clientRef.current = client;
+    let anonymousRaw: string | null = null;
+    if (remote) {
+      try { anonymousRaw = browserStorage.getItem(anonymousProgressKey); } catch { /* The adapter reports storage failure. */ }
     }
-    return progress;
-  } catch {
-    return [];
-  }
-}
-
-function writeLocalProgress(key: string, completed: string[]) {
-  try {
-    window.localStorage.setItem(key, JSON.stringify(completed));
-  } catch {
-    // Progress remains available in React state when storage is unavailable.
-  }
-}
-
-function removeLocalProgress(key: string) {
-  try {
-    window.localStorage.removeItem(key);
-  } catch {
-    // A later successful sync can retry cleanup in storage-constrained browsers.
-  }
-}
-
-function LocalProgressProvider({ children, storageKey = anonymousProgressKey }: { children: React.ReactNode; storageKey?: string }) {
-  const [completed, setCompleted] = useState<string[]>([]);
-
-  useEffect(() => {
-    setCompleted(readLocalProgress(storageKey));
-  }, [storageKey]);
-
-  const markComplete = useCallback(async (slug: string) => {
-    const [validatedSlug] = validateCompletedSlugs([slug]);
-
-    setCompleted((current) => {
-      const next = mergeCompletedSlugs(current, [validatedSlug]);
-      writeLocalProgress(storageKey, next);
-      return next;
-    });
-  }, [storageKey]);
-
-  return (
-    <ProgressContext.Provider
-      value={{ completed, markComplete, status: "local", retry: () => {}, resetLocal: () => { removeLocalProgress(storageKey); setCompleted([]); } }}
-    >
-      {children}
-    </ProgressContext.Provider>
-  );
-}
-
-function ClerkProgressProvider({ children }: { children: React.ReactNode }) {
-  const { isLoaded, isSignedIn, userId } = useAuth();
-  const [completed, setCompleted] = useState<string[]>([]);
-  const [status, setStatus] = useState<ProgressStatus>("loading");
-  const [retryVersion, setRetryVersion] = useState(0);
-  const completedRef = useRef(completed);
-  const activeUserIdRef = useRef<string | undefined>(undefined);
-
-  useEffect(() => {
-    activeUserIdRef.current = isSignedIn ? userId : undefined;
-  }, [isSignedIn, userId]);
-
-  useEffect(() => {
-    completedRef.current = completed;
-  }, [completed]);
-
-  useEffect(() => {
-    if (!isLoaded) return;
-
-    if (!isSignedIn || !userId) {
-      const local = readLocalProgress(anonymousProgressKey);
-      completedRef.current = local;
-      setCompleted(local);
-      setStatus("local");
-      return;
-    }
-
-    let cancelled = false;
-    const syncInitialProgress = async () => {
-      const anonymous = readLocalProgress(anonymousProgressKey);
-      const accountKey = accountProgressKey(userId);
-      const cached = readLocalProgress(accountKey);
-
-      setStatus("loading");
-
+    const clearImportedAnonymous = () => {
+      if (!remote || client.state.status !== "synced" || anonymousRaw === null) return;
       try {
-        const remote = await getMyProgress();
-        const merged = mergeCompletedSlugs(
-          remote.completed,
-          cached,
-          anonymous,
-        );
-
-        const synced =
-          !remote.needsMigration && merged.length === remote.completed.length
-            ? remote.completed
-            : (await syncMyProgress({ data: { completedSlugs: merged } }))
-                .completed;
-
-        if (cancelled) return;
-
-        const next = mergeCompletedSlugs(merged, synced);
-        writeLocalProgress(accountKey, next);
-        removeLocalProgress(anonymousProgressKey);
-        completedRef.current = next;
-        setCompleted(next);
-        setStatus("synced");
-      } catch {
-        if (cancelled) return;
-
-        const fallback = mergeCompletedSlugs(cached, anonymous);
-        completedRef.current = fallback;
-        setCompleted(fallback);
-        setStatus("error");
-      }
+        // Do not remove anonymous work added by another tab during the request.
+        if (browserStorage.getItem(anonymousProgressKey) === anonymousRaw) browserStorage.removeItem(anonymousProgressKey);
+      } catch { /* Safe to import again; completion inserts are idempotent. */ }
     };
-
-    void syncInitialProgress();
+    void client.start({ completed: parseStoredProgress(anonymousRaw), resume: null }).then(clearImportedAnonymous);
+    const retry = () => { void client.flush().then(clearImportedAnonymous); };
+    window.addEventListener("online", retry);
+    const interval = remote ? window.setInterval(() => { if (navigator.onLine) retry(); }, 15_000) : null;
     return () => {
-      cancelled = true;
+      client.dispose();
+      clientRef.current = null;
+      window.removeEventListener("online", retry);
+      if (interval !== null) window.clearInterval(interval);
     };
-  }, [isLoaded, isSignedIn, retryVersion, userId]);
-
-  const markComplete = useCallback(
-    async (slug: string) => {
-      const [validatedSlug] = validateCompletedSlugs([slug]);
-
-      if (!isSignedIn || !userId) {
-        const next = mergeCompletedSlugs(
-          readLocalProgress(anonymousProgressKey),
-          [validatedSlug],
-        );
-        writeLocalProgress(anonymousProgressKey, next);
-        completedRef.current = next;
-        setCompleted(next);
-        setStatus("local");
-        return;
-      }
-
-      const next = mergeCompletedSlugs(completedRef.current, [validatedSlug]);
-      const accountKey = accountProgressKey(userId);
-      writeLocalProgress(accountKey, next);
-      completedRef.current = next;
-      setCompleted(next);
-      setStatus("syncing");
-
-      try {
-        const syncingUserId = userId;
-        const remote = await syncMyProgress({
-          data: { completedSlugs: next },
-        });
-        if (activeUserIdRef.current !== syncingUserId) return;
-
-        const synced = mergeCompletedSlugs(next, remote.completed);
-        writeLocalProgress(accountKey, synced);
-        completedRef.current = synced;
-        setCompleted(synced);
-        setStatus("synced");
-      } catch {
-        if (activeUserIdRef.current === userId) {
-          setStatus("error");
-        }
-      }
-    },
-    [isSignedIn, userId],
-  );
-
-  const retry = useCallback(() => {
-    if (isSignedIn && userId) {
-      setRetryVersion((version) => version + 1);
-    }
-  }, [isSignedIn, userId]);
-
-  return (
-    <ProgressContext.Provider value={{ completed, markComplete, status, retry }}>
-      {children}
-    </ProgressContext.Provider>
-  );
+  }, [remote, storageKey]);
+  const markComplete = useCallback((slug: string) => clientRef.current?.complete(slug) ?? Promise.resolve(), []);
+  const saveResume = useCallback((point: ResumePoint) => clientRef.current?.resume(point) ?? Promise.resolve(), []);
+  const retry = useCallback(() => { void clientRef.current?.retry(); }, []);
+  return <ProgressContext.Provider value={{ ...state, markComplete, saveResume, retry, resetLocal: remote ? undefined : () => clientRef.current?.reset() ?? false }}>{children}</ProgressContext.Provider>;
 }
 
-export function ProgressProvider({ children, isolated = false }: { children: React.ReactNode; isolated?: boolean }) {
+function AccountProgressProvider({ children, userId }: { children: ReactNode; userId: string }) {
+  const remote = useMemo<ProgressTransport>(() => ({
+    read: () => getMyProgress({ data: { expectedUserId: userId } }),
+    merge: (snapshot) => syncMyProgress({ data: { expectedUserId: userId, completedSlugs: snapshot.completed, resume: snapshot.resume } }),
+  }), [userId]);
+  return <StoredProgressProvider storageKey={accountProgressKey(userId)} remote={remote}>{children}</StoredProgressProvider>;
+}
+
+function IdentityProgressProvider({ children }: { children: ReactNode }) {
+  const { isLoaded, isSignedIn, userId } = useAuth();
+  if (!isLoaded) return <ProgressContext.Provider value={{ ...initial, markComplete: async () => {}, saveResume: async () => {}, retry: () => {} }}>{children}</ProgressContext.Provider>;
+  if (isSignedIn && userId) return <AccountProgressProvider key={userId} userId={userId}>{children}</AccountProgressProvider>;
+  return <StoredProgressProvider key="anonymous" storageKey={anonymousProgressKey}>{children}</StoredProgressProvider>;
+}
+
+export function ProgressProvider({ children, isolated = false }: { children: ReactNode; isolated?: boolean }) {
   const clerkEnabled = useClerkEnabled();
-
-  if (isolated) return <LocalProgressProvider key="rehearsal" storageKey="rootorial-progress:rehearsal:v1">{children}</LocalProgressProvider>;
-
-  return clerkEnabled ? (
-    <ClerkProgressProvider>{children}</ClerkProgressProvider>
-  ) : (
-    <LocalProgressProvider>{children}</LocalProgressProvider>
-  );
+  if (isolated) return <StoredProgressProvider key="rehearsal" storageKey="rootorial-progress:rehearsal:v1">{children}</StoredProgressProvider>;
+  return clerkEnabled ? <IdentityProgressProvider>{children}</IdentityProgressProvider> : <StoredProgressProvider storageKey={anonymousProgressKey}>{children}</StoredProgressProvider>;
 }
 
 export function useProgress() {
   const progress = useContext(ProgressContext);
-  if (!progress) {
-    throw new Error("useProgress는 ProgressProvider 안에서 사용해야 합니다.");
-  }
-
+  if (!progress) throw new Error("useProgress must be inside ProgressProvider");
   return progress;
 }

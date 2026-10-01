@@ -77,7 +77,7 @@ test("renders the Linux browser runtime experiment", async () => {
   assert.match(html, /Linux를/);
   assert.match(html, /브라우저 안에서/);
   assert.match(html, /교육용 시뮬레이터 · 실제 Linux 아님/);
-  assert.match(html, /Rootorial shell simulator/);
+  assert.match(html, /Rootorial 셸 시뮬레이터/);
   assert.match(html, /실제 Linux 커널 부팅/);
   assert.match(html, /v86가 32비트 x86 PC를 WebAssembly로 에뮬레이션/);
   assert.match(html, /Linux 부팅 시작/);
@@ -90,6 +90,7 @@ test("renders the Linux browser runtime experiment", async () => {
   assert.match(englishHtml, /<html[^>]+lang="en"/);
   assert.match(englishHtml, /Linux in the Browser Experiment · Rootorial/);
   assert.match(englishHtml, /Teaching simulator · not real Linux/);
+  assert.match(englishHtml, /Rootorial shell simulator/);
 });
 
 test("renders the English landing on the first server response", async () => {
@@ -178,7 +179,8 @@ test("renders the interactive Linux shell and filesystem chapter", async () => {
   assert.match(html, /보호된 파일의 권한 오류 관찰/);
   assert.match(html, /명령을 외우기보다 경로와 오류의 규칙을 설명해 보세요/);
   assert.match(html, /실제 Linux 부팅 실험 열기/);
-  assert.match(html, /이 챕터 완료하기/);
+  assert.match(html, /data-completion-ready="false"[^>]*disabled=""/);
+  assert.match(html, /진도 불러오는 중/);
   assert.match(html, /class="continuous-chapter-nav-shell"/);
   assert.match(html, /다음: 전원이 켜지고 셸이 뜨기까지/);
   assert.match(html, /공개 준비 중/);
@@ -1286,12 +1288,13 @@ test("renders the interactive vectors chapter", async () => {
   assert.doesNotMatch(html, /토큰 벡터를 문장과 배치로 쌓기/);
   assert.match(html, /shape 이해 확인/);
   assert.match(html, /이해 확인: 계산 전에 구조를 예측하기/);
-  assert.match(html, /다섯 문제를 모두 맞히면/);
+  assert.match(html, /다섯 문제와 축 조립·shape 탐정 실습을 모두 마치면/);
   assert.match(html, /남은 조건: 축 조립 세 연산 · shape 탐정 세 미션 · 이해 확인 5문제/);
   assert.match(html, /aria-label="v의 x 좌표"/);
   assert.match(html, /aria-label="w의 x 좌표"/);
   assert.match(html, /In \[ \]/);
-  assert.match(html, /이 챕터 완료하기/);
+  assert.match(html, /data-completion-ready="false"[^>]*disabled=""/);
+  assert.match(html, /진도 불러오는 중/);
   assert.match(html, /data-language="python"/);
   assert.match(html, /tok-variableName/);
   assert.match(html, /tok-number/);

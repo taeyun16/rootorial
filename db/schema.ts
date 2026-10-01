@@ -495,3 +495,21 @@ export const contentPublicationOverrides = sqliteTable("content_publication_over
     sql`${table.version} > 0`,
   ),
 ]);
+
+export const learningCompletions = sqliteTable("learning_completions", {
+  userId: text("user_id").notNull(),
+  chapterId: text("chapter_id").notNull(),
+  completedAt: integer("completed_at").notNull(),
+}, (table) => [primaryKey({ columns: [table.userId, table.chapterId] })]);
+
+export const learningResume = sqliteTable("learning_resume", {
+  userId: text("user_id").primaryKey(),
+  chapterId: text("chapter_id").notNull(),
+  sectionId: text("section_id").notNull(),
+  updatedAt: integer("updated_at").notNull(),
+});
+
+export const learningProgressImports = sqliteTable("learning_progress_imports", {
+  userId: text("user_id").primaryKey(),
+  importedAt: integer("imported_at").notNull(),
+});

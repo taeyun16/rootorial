@@ -1,3 +1,4 @@
+import { ChapterResume } from "../../components/ChapterResume";
 import { lazy, Suspense } from "react";
 import type { ComponentType } from "react";
 import { chapterId } from "../../data/curriculum";
@@ -35,6 +36,7 @@ function chapterPage(load: ChapterModuleLoader): ComponentType<ChapterPageProps>
       || curriculumSlug === "infrastructure-design";
     return (
       <Suspense fallback={<main className="chapter-shell chapter-loading-shell"><p role="status">Loading chapter…</p></main>}>
+        <ChapterResume chapterId={chapterId(curriculumSlug, chapterSlug)} />
         {continuousPath ? (
           <ChapterNavigationProvider access={navigation}>
             <div className="continuous-chapter-frame">

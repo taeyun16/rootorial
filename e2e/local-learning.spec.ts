@@ -99,3 +99,25 @@ test("notebook compares a prediction, marks edits stale, stops, restarts and res
   await expect(cell).toHaveAttribute("data-evidence", "unexecuted");
   await expect(cell.locator(".notebook-cell-output-text")).toHaveCount(0);
 });
+
+test("restores a saved section without restoring quiz evidence", async ({ page }) => {
+  await page.goto(rehearsal + vectorPath + "?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
+  await page.locator('.article-toc a[href="#tensor-shape"]').click();
+  await expect(page.getByRole("link", { name: "Continue from your saved section" })).toHaveAttribute("href", "#tensor-shape");
+  await page.reload();
+  await expect(page.getByRole("link", { name: "Continue from your saved section" })).toHaveAttribute("href", "#tensor-shape");
+  await expect(page.getByRole("button", { name: /Complete this chapter/ })).toBeDisabled();
+  await page.getByRole("button", { name: "Reset practice progress" }).click();
+  await expect(page.getByRole("link", { name: "Continue from your saved section" })).toHaveCount(0);
+});
+
+test("reports unavailable browser storage instead of claiming a durable save", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("rootorial-progress:rehearsal:v1", '["transformer-from-zero/vectors"]');
+    Storage.prototype.setItem = () => { throw new DOMException("Storage disabled", "QuotaExceededError"); };
+  });
+  await page.goto(rehearsal + vectorPath + "?lang=en");
+  await expect(page.getByText("Browser storage is unavailable. Progress lasts only on this page.")).toBeVisible();
+  await expect(page.getByText("Progress saved in this browser.", { exact: true })).toHaveCount(0);
+});

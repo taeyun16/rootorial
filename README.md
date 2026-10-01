@@ -79,7 +79,7 @@ CLERK_SECRET_KEY=sk_test_...
 `clerkMiddleware()`는 인증 상태만 주입하며 페이지를 자동으로 잠그지 않습니다.
 따라서 읽기는 계속 공개합니다. 로그아웃 상태의 챕터 진도는 브라우저에 저장되고,
 로그인하면 기존 브라우저 진도와 Clerk 계정의 진도를 병합합니다. 계정 진도는
-서버 함수가 `auth()`로 사용자 ID를 확정한 뒤 Clerk `privateMetadata`에만 씁니다.
+서버 함수가 `auth()`로 사용자 ID를 확정한 뒤 D1의 완료·이어보기 저장소에 씁니다. 기존 Clerk `privateMetadata`는 첫 동기화 때 한 번만 가져오고 수정하거나 삭제하지 않습니다.
 질문 작성·관리자 답변처럼 별도 데이터가 필요한 쓰기 작업도 같은 서버 인증
 경계를 사용합니다.
 
@@ -261,3 +261,11 @@ changes, update the corresponding source and commit the regenerated
 ## Anonymous learning checks
 
 `npm run test:e2e:anonymous` runs the public vector/Linux flows and isolated local rehearsal in Chromium without Clerk keys or remote users. It migrates only `.wrangler/e2e-state`. Install the browser once with `npx playwright install chromium`. Rehearsal uses `.wrangler/rehearsal-state` and never changes publication defaults.
+
+## Progress storage and recovery
+
+Apply the new `0010_learning_progress.sql` migration locally before testing. Deployment still requires the normal migration-first process; this change does not apply a production migration. Clerk supplies identity; `progress-repository.ts` owns additive completion inserts, last-section resume, and atomic legacy import markers. Existing metadata is retained for rollback, but new completions are written only to D1.
+
+The browser keeps an account-scoped cache and a persistent `:outbox:v1` retry record. Failed syncs retry on reconnect, every 15 seconds while online, and via the explicit retry button. Responses merge with newer local work; switching accounts disposes the old client and server requests verify the expected account. Storage failures are shown as session-only progress rather than a saved claim.
+
+Following an in-chapter contents link remembers that section. The next visit offers **Continue from your saved section**; lab answers are deliberately rechecked. Local rehearsal uses its own keys and never imports into an account.

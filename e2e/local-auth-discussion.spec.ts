@@ -4,6 +4,7 @@ import {
   deleteTestUser,
   discussionToggleName,
   findUserByEmail,
+  readLocalCompletedChapters,
   setupDiscussionProfile,
 } from "./helpers";
 
@@ -54,14 +55,9 @@ test("signs up a local test user and persists a discussion question in D1", asyn
   expect(await page.evaluate(() => localStorage.getItem("rootorial-progress"))).toBeNull();
 
   const createdUser = await findUserByEmail(createdEmail);
-  expect(createdUser?.privateMetadata).toMatchObject({
-    rootorial: {
-      progressVersion: 2,
-      curricula: {
-        "transformer-from-zero": { completedChapters: { vectors: true } },
-      },
-    },
-  });
+  expect(createdUser).not.toBeNull();
+  expect(readLocalCompletedChapters(createdUser!.id)).toContain("transformer-from-zero/vectors");
+  expect(createdUser?.privateMetadata.rootorial).toBeUndefined();
 
   await page
     .getByRole("button", {

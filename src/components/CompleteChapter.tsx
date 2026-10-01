@@ -19,7 +19,7 @@ export function CompleteChapter({
   canComplete = true,
   lockedMessage,
 }: CompleteChapterProps) {
-  const { completed, markComplete, retry, status } = useProgress();
+  const { completed, markComplete, retry, status, storageAvailable } = useProgress();
   const { locale } = useLocale();
   const preview = usePublicationPreview();
   const localLearning = useLocalLearning();
@@ -61,8 +61,10 @@ export function CompleteChapter({
         : status === "synced"
           ? (isKo ? "진도가 계정에 저장되었습니다." : "Progress saved to your account.")
           : status === "error"
-            ? (isKo ? "이 기기에는 저장했지만 계정 동기화에 실패했습니다." : "Saved on this device, but account sync failed.")
-            : (isKo ? "진도가 이 브라우저에 저장되었습니다." : "Progress saved in this browser.");
+            ? (storageAvailable ? (isKo ? "이 기기에는 저장했지만 계정 동기화에 실패했습니다." : "Saved on this device, but account sync failed.") : (isKo ? "진도 저장에 실패했습니다. 이 페이지를 닫기 전에 다시 동기화하세요." : "Progress could not be saved. Sync again before closing this page."))
+            : status === "memory"
+              ? (isKo ? "브라우저 저장 공간을 사용할 수 없어 이 페이지에서만 진도를 유지합니다." : "Browser storage is unavailable. Progress lasts only on this page.")
+              : (isKo ? "진도가 이 브라우저에 저장되었습니다." : "Progress saved in this browser.");
 
     return (
       <div className="completed-panel">
@@ -71,9 +73,9 @@ export function CompleteChapter({
           <strong>{isKo ? "챕터 완료" : "Chapter complete"}</strong>
           <p role="status">{message}</p>
         </div>
-        {status === "error" ? (
+        {status === "error" || status === "memory" ? (
           <button className="text-link" type="button" onClick={retry}>
-            {isKo ? "다시 동기화" : "Sync again"}
+            {status === "memory" ? (isKo ? "다시 저장" : "Save again") : (isKo ? "다시 동기화" : "Sync again")}
           </button>
         ) : preview ? (
           <a href={`/admin/preview/curricula/${curriculumSlug}`}>{isKo ? "커리큘럼으로" : "To curriculum"}</a>

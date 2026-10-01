@@ -53,6 +53,9 @@ export function cleanupLocalDiscussion(userId: string) {
   const safeUserId = userId.replaceAll("'", "''");
   const sql = [
     "PRAGMA foreign_keys = ON",
+    `DELETE FROM learning_completions WHERE user_id = '${safeUserId}'`,
+    `DELETE FROM learning_resume WHERE user_id = '${safeUserId}'`,
+    `DELETE FROM learning_progress_imports WHERE user_id = '${safeUserId}'`,
     `DELETE FROM discussion_answer_likes WHERE user_id = '${safeUserId}'`,
     `DELETE FROM discussion_moderation_events WHERE actor_user_id = '${safeUserId}'`,
     `DELETE FROM discussion_user_blocks WHERE blocker_user_id = '${safeUserId}' OR blocked_user_id = '${safeUserId}'`,
@@ -62,8 +65,8 @@ export function cleanupLocalDiscussion(userId: string) {
     `DELETE FROM discussion_profiles WHERE user_id = '${safeUserId}'`,
   ].join("; ");
 
-  execFileSync("npx", [
-    "wrangler",
+  execFileSync(process.execPath, [
+    "node_modules/wrangler/bin/wrangler.js",
     "d1",
     "execute",
     "DB",
@@ -75,6 +78,16 @@ export function cleanupLocalDiscussion(userId: string) {
     "--command",
     sql,
   ], { stdio: "ignore" });
+}
+
+export function readLocalCompletedChapters(userId: string): string[] {
+  const safeUserId = userId.replaceAll("'", "''");
+  const output = execFileSync(process.execPath, [
+    "node_modules/wrangler/bin/wrangler.js", "d1", "execute", "DB", "--local", "--env", "e2e",
+    "--persist-to", ".wrangler/e2e-state", "--json", "--command",
+    `SELECT chapter_id FROM learning_completions WHERE user_id = '${safeUserId}' ORDER BY chapter_id`,
+  ], { encoding: "utf8" });
+  return JSON.parse(output)[0].results.map((row: { chapter_id: string }) => row.chapter_id);
 }
 
 export async function deleteTestUser(userId: string) {

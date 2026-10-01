@@ -26,8 +26,9 @@ const copy = {
     summary: "공식을 외우기 전에 직접 움직여 보고, 코드를 복사하기 전에 브라우저에서 실행합니다. 벡터에서 시작해 Attention과 작은 Transformer까지 하나의 길로 연결합니다.",
     start: "첫 챕터 시작하기", journey: "전체 여정 보기", overview: "커리큘럼 개요",
     chapters: "CHAPTERS", progress: "나의 진도", totalProgress: "전체 진도",
-    loading: "계정 진도를 불러오는 중입니다.", syncing: "계정에 진도를 저장하는 중입니다.",
-    synced: "Clerk 계정에 안전하게 동기화됩니다.", error: "계정 동기화가 잠시 중단되었습니다.",
+    loading: "진도를 불러오는 중입니다.", syncing: "계정에 진도를 저장하는 중입니다.",
+    synced: "진도가 계정에 저장되었습니다.", error: "계정 동기화가 잠시 중단되었습니다.",
+    memory: "저장 공간을 사용할 수 없어 이 페이지에서만 진도를 유지합니다.",
     local: "이 브라우저에 자동 저장됩니다.", retry: "다시 시도", principle: "학습 원칙",
     principleTitle: "읽는 지식을 움직이는 지식으로", intuition: "먼저 직관",
     intuitionBody: "슬라이더와 그림으로 변화의 방향을 본 뒤 수식을 만납니다.", run: "바로 실행",
@@ -43,8 +44,9 @@ const copy = {
     summary: "Move ideas before memorizing formulas, and run code in the browser before copying it. Follow one continuous path from vectors to attention and a small Transformer.",
     start: "Start chapter one", journey: "See the full journey", overview: "Curriculum overview",
     chapters: "CHAPTERS", progress: "My progress", totalProgress: "Overall progress",
-    loading: "Loading your account progress.", syncing: "Saving progress to your account.",
-    synced: "Safely synced with your Clerk account.", error: "Account sync is temporarily unavailable.",
+    loading: "Loading your progress.", syncing: "Saving progress to your account.",
+    synced: "Progress saved to your account.", error: "Account sync is temporarily unavailable.",
+    memory: "Storage is unavailable. Progress lasts only on this page.",
     local: "Automatically saved in this browser.", retry: "Try again", principle: "LEARNING PRINCIPLES",
     principleTitle: "Turn knowledge you read into knowledge you can use", intuition: "Intuition first",
     intuitionBody: "See the direction of change with sliders and diagrams before meeting the formula.", run: "Run it now",
@@ -559,7 +561,7 @@ export function CurriculumHome({
                     ? c.synced
                     : status === "error"
                       ? c.error
-                      : c.local}
+                      : status === "memory" ? c.memory : c.local}
               {status === "error" ? (
                 <>
                   {" "}
