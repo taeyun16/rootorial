@@ -1,4 +1,3 @@
-import { clerk } from "@clerk/testing/playwright";
 import { expect, test, type Page } from "@playwright/test";
 import { findUndersizedVisibleTouchTargets } from "./helpers/touch-targets";
 
@@ -12,6 +11,7 @@ function watchConsoleErrors(page: Page) {
 
 test("starts the localized Three.js lesson preview from the landing page", async ({ page }) => {
   await page.goto("/?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
 
   const stage = page.getByTestId("rootorial-learning-scene").first();
   const canvas = stage.locator("canvas");
@@ -35,6 +35,7 @@ test("starts the localized Three.js lesson preview from the landing page", async
 test("keeps the English chapter free of untranslated Korean UI", async ({ page }) => {
   const consoleErrors = watchConsoleErrors(page);
   await page.goto("/?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
   await page.getByRole("link", { name: "Transformers from the Ground Up" }).click();
   await page.getByRole("link", { name: "Start chapter one" }).click();
   await expect(page.getByRole("heading", { name: "Vectors and Tensors" })).toBeVisible();
@@ -67,7 +68,7 @@ test("keeps the English chapter free of untranslated Korean UI", async ({ page }
 test("runs Python and persists anonymous chapter progress", async ({ page }) => {
   const consoleErrors = watchConsoleErrors(page);
   await page.goto("/curricula/transformer-from-zero/chapters/vectors");
-  await clerk.loaded({ page });
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
 
   const firstCell = page.locator(".notebook-cell").first();
   await firstCell.getByRole("button", { name: /코드 실행: 벡터를 만들고 크기와 방향 확인하기$/ }).click();
@@ -106,7 +107,7 @@ test("runs Python and persists anonymous chapter progress", async ({ page }) => 
     { stage: "축 없애기", answer: "(3,)" },
   ];
   for (const mission of axisMissions) {
-    await axisLab.getByRole("button", { name: mission.stage }).click();
+    await axisLab.getByRole("tab", { name: new RegExp(mission.stage) }).click();
     await axisLab.getByRole("radio", { name: mission.answer, exact: true }).check();
     await axisLab.getByRole("button", { name: "예측 확인", exact: true }).click();
     await expect(axisLab.getByText(/정확해요/)).toBeVisible();
@@ -114,13 +115,11 @@ test("runs Python and persists anonymous chapter progress", async ({ page }) => 
   await expect(axisLab.getByText("세 가지 축 연산을 모두 예측했습니다.")).toBeVisible();
   await expect(finishButton).toBeDisabled();
 
-  await page.getByRole("radio", { name: "(3, 3)" }).check();
-  await page.getByRole("radio", { name: "정의되지 않는다" }).check();
-  await page.locator('input[name="tensor-shape"][value="2-4-8"]').check();
-  await page.locator('input[name="broadcast-shape"][value="shape-kept"]').check();
-  await page.getByRole("radio", { name: "둘 다 0" }).check();
+  for (const [id, answer] of [["orientation", "(3, 3)"], ["normalization", "정의되지 않는다"], ["tensor-shape", "[2, 4, 8]"], ["broadcast-shape", "[2, 4, 8]"], ["dot-product", "둘 다 0"]]) {
+    await page.locator('[data-question-id="' + id + '"]').getByRole("button", { name: answer, exact: true }).click();
+  }
   await page.getByRole("button", { name: "답 확인하기" }).click();
-  await expect(page.getByText("이해 확인 완료 — 이제 챕터를 완료할 수 있습니다.")).toBeVisible();
+  await expect(page.getByText(/이해 확인 완료.*모든 필수 실습/)).toBeVisible();
   await expect(page.locator(".concept-question")).toHaveCount(5);
   await expect(page.locator('input[name="attention-context"]')).toHaveCount(0);
   await expect(page.locator(".answer-visual")).toHaveCount(5);
@@ -133,7 +132,7 @@ test("runs Python and persists anonymous chapter progress", async ({ page }) => 
     .toBe('["transformer-from-zero/vectors"]');
 
   await page.reload();
-  await clerk.loaded({ page });
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
   await expect(page.getByText("챕터 완료", { exact: true })).toBeVisible();
   expect(consoleErrors).toEqual([]);
 });
@@ -143,6 +142,7 @@ test("keeps the vectors practice usable on a 390px reduced-motion viewport", asy
   await page.setViewportSize({ width: 390, height: 844 });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/curricula/transformer-from-zero/chapters/vectors?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
 
   await expect(page.getByRole("heading", { name: "Vectors and Tensors" })).toBeVisible();
   const pageOverflow = await page.evaluate(
@@ -186,6 +186,7 @@ test("retries and completes the independent vector practice without hidden choic
   const consoleErrors = watchConsoleErrors(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/curricula/transformer-from-zero/chapters/vectors?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
 
   const practice = page.getByRole("region", {
     name: "Can you rebuild the shape rules with new inputs?",
@@ -194,7 +195,7 @@ test("retries and completes the independent vector practice without hidden choic
 
   await practice.getByRole("button", { name: "(3, 4) · ShapeError", exact: true }).click();
   await practice.getByRole("button", { name: "4", exact: true }).click();
-  await practice.getByRole("button", { name: "Run both reshape fixtures" }).click();
+  await practice.getByRole("button", { name: "Run both reshape tests" }).click();
   await expect(practice.getByText("Inspect the first failed contract, then run the same challenge again."))
     .toBeVisible();
   await expect(practice.locator(".practice-check-list article").first()).toHaveClass(/is-failed/);
@@ -204,8 +205,8 @@ test("retries and completes the independent vector practice without hidden choic
 
   await practice.getByRole("button", { name: "(3, 4) · (3, 6)", exact: true }).click();
   await practice.getByRole("button", { name: "-1", exact: true }).click();
-  await practice.getByRole("button", { name: "Run both reshape fixtures" }).click();
-  await expect(practice.getByText("✓ reshape(3, ?)", { exact: true })).toBeVisible();
+  await practice.getByRole("button", { name: "Run both reshape tests" }).click();
+  await expect(practice.locator("span.is-complete").filter({ hasText: "✓ reshape(3, ?)" })).toBeVisible();
 
   await practice.getByRole("button", {
     name: "Next incomplete challenge Broadcast boundary",
@@ -213,13 +214,13 @@ test("retries and completes the independent vector practice without hidden choic
   await expect(practice.getByRole("button", {
     name: "02 · Multi-boundary Broadcast boundary",
   })).toHaveAttribute("aria-pressed", "true");
-  await expect(practice.getByRole("button", { name: "ShapeError", exact: true }))
+  await expect(practice.getByRole("button", { name: "Broadcast succeeds", exact: true }))
     .toBeFocused();
   await practice.getByRole("button", { name: "ShapeError", exact: true }).click();
   await practice.getByRole("button", { name: "Feature axis", exact: true }).click();
   await practice.getByRole("button", { name: "(1, 4, 1)", exact: true }).click();
   await practice.getByRole("button", { name: "Run and inspect the first failed boundary" }).click();
-  await expect(practice.getByText("✓ Broadcast boundary", { exact: true })).toBeVisible();
+  await expect(practice.locator("span.is-complete").filter({ hasText: "✓ Broadcast boundary" })).toBeVisible();
 
   const transfer = practice.getByRole("button", {
     name: "03 · Transfer QKᵀ shape",
@@ -230,8 +231,8 @@ test("retries and completes the independent vector practice without hidden choic
   await expect(transfer).toHaveAttribute("aria-pressed", "true");
   await practice.getByRole("button", { name: "Queries × keys", exact: true }).press(" ");
   await practice.getByRole("button", { name: "Q @ K.T", exact: true }).click();
-  await practice.getByRole("button", { name: "Run both Attention fixtures" }).click();
-  await expect(practice.getByText("✓ QKᵀ shape", { exact: true })).toBeVisible();
+  await practice.getByRole("button", { name: "Run both Attention tests" }).click();
+  await expect(practice.locator("span.is-complete").filter({ hasText: "✓ QKᵀ shape" })).toBeVisible();
 
   await expect(practice.getByText("3 / 3", { exact: true })).toBeVisible();
   await expect(

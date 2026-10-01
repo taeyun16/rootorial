@@ -142,7 +142,7 @@ export function LinuxShellWorkspace({
 }: LinuxShellWorkspaceProps) {
   const { locale } = useLocale();
   const c = copy[locale];
-  const [shellState, setShellState] = useState(() => createLinuxShellState());
+  const [shellState, setShellState] = useState(() => createLinuxShellState(locale));
   const [observations, setObservations] = useState(emptyLinuxShellObservations);
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [command, setCommand] = useState("");
@@ -228,7 +228,7 @@ export function LinuxShellWorkspace({
   };
 
   const resetShell = () => {
-    setShellState(createLinuxShellState());
+    setShellState(createLinuxShellState(locale));
     setObservations(emptyLinuxShellObservations);
     setTranscript([]);
     setHistory([]);

@@ -257,3 +257,7 @@ changes, update the corresponding source and commit the regenerated
 - `public/pyodide-worker.js`: 브라우저 Python worker
 - `db/`, `drizzle/`: 토론 스키마와 D1 migration
 - `tests/`: Workers SSR 렌더링 테스트
+
+## Anonymous learning checks
+
+`npm run test:e2e:anonymous` runs the public vector/Linux flows and isolated local rehearsal in Chromium without Clerk keys or remote users. It migrates only `.wrangler/e2e-state`. Install the browser once with `npx playwright install chromium`. Rehearsal uses `.wrangler/rehearsal-state` and never changes publication defaults.

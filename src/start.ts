@@ -19,7 +19,7 @@ export const startInstance = createStart(() => ({
   requestMiddleware: [
     localWriteBoundary,
     csrfMiddleware,
-    ...(!isolatedLearning && process.env.CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY
+    ...(!isolatedLearning && import.meta.env.MODE !== "e2e-anonymous" && process.env.CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY
       ? [clerkMiddleware()]
       : []),
   ],

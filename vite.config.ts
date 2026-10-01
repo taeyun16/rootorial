@@ -18,7 +18,9 @@ export default defineConfig(({ mode }) => ({
     cloudflare({
       viteEnvironment: { name: "ssr" },
       persistState:
-        mode === "e2e" ? { path: ".wrangler/e2e-state" } : true,
+        mode === "e2e" || mode === "e2e-anonymous"
+          ? { path: ".wrangler/e2e-state" }
+          : mode === "content-preview" ? { path: ".wrangler/rehearsal-state" } : true,
     }),
     tanstackStart(),
     react(),

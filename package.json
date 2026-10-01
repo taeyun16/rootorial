@@ -32,7 +32,8 @@
     "test:e2e": "npm run db:migrate:e2e && node e2e/run-local-e2e.mjs",
     "check": "tsc --noEmit",
     "lint": "npm run check",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "test:e2e:anonymous": "node e2e/run-anonymous-e2e.mjs"
   },
   "dependencies": {
     "@clerk/tanstack-react-start": "1.4.17",

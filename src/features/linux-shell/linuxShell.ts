@@ -1047,7 +1047,7 @@ function executeTree(
   return result(state, lines.join("\n"));
 }
 
-export function createLinuxShellState(): LinuxShellState {
+export function createLinuxShellState(locale: "ko" | "en" = "en"): LinuxShellState {
   const filesystem = freezeFilesystem({
     "/": directoryEntry(),
     "/etc": directoryEntry(),
@@ -1064,10 +1064,9 @@ export function createLinuxShellState(): LinuxShellState {
     "/home/student": directoryEntry("student"),
     "/home/student/readme.txt": fileEntry(
       [
-        "Rootorial 셸 시뮬레이터에 오신 것을 환영합니다 (실제 커널 아님)",
-        "Welcome to the Rootorial shell simulator (not a real kernel)!",
+        locale === "ko" ? "Rootorial 셸 시뮬레이터에 오신 것을 환영합니다 (실제 커널 아님)" : "Welcome to the Rootorial shell simulator (not a real kernel)!",
         "",
-        "시도해 보세요 | Try: ls, cat readme.txt, pwd, tree /",
+        locale === "ko" ? "시도해 보세요: ls, cat readme.txt, pwd, tree /" : "Try: ls, cat readme.txt, pwd, tree /",
         "",
       ].join("\n"),
       "student",

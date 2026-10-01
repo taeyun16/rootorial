@@ -7,6 +7,7 @@ import {
 } from "@tanstack/react-router";
 import { LocalLearningContext, LocalLearningTools } from "../components/LocalLearning";
 import { getLocalLearningMode } from "../features/publication/local-learning.functions";
+import { useEffect, useState } from "react";
 import appCss from "../styles/globals.css?url";
 import { ClerkBoundary } from "../components/ClerkBoundary";
 import { ContentFeedback } from "../components/ContentFeedback";
@@ -47,6 +48,8 @@ export const Route = createRootRoute({
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
   const search = useRouterState({ select: (state) => state.location.searchStr });
   const pathname = useRouterState({ select: (state) => state.location.pathname });
   const localLearning = Route.useLoaderData()?.localLearning ?? false;
@@ -58,7 +61,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
   });
 
   return (
-    <html lang={documentLocale} suppressHydrationWarning>
+    <html lang={documentLocale} data-hydrated={hydrated} suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>

@@ -73,6 +73,27 @@ jobs:
       - name: Run unit tests
         run: npm run check:llms && npm run build && node --experimental-strip-types --test tests/*.test.mjs
 
+  anonymous-learning:
+    name: Anonymous learning and local rehearsal
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.13.0'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:anonymous
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: anonymous-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
   e2e-tests:
     name: E2E Tests (Citations)
     runs-on: ubuntu-latest

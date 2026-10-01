@@ -13,6 +13,7 @@ test("moves from the Linux roadmap through the sample chapter and persists progr
   });
 
   await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
   const linuxCurriculumLink = page.getByRole("link", { name: "Linux 시스템을 바닥부터" });
   await expect(linuxCurriculumLink).toHaveAttribute("href", "/curricula/linux-systems");
   await linuxCurriculumLink.click();
@@ -60,7 +61,7 @@ test("moves from the Linux roadmap through the sample chapter and persists progr
   await page.getByRole("button", { name: ".", exact: true }).click();
   await page.getByRole("button", { name: "/home/student/readme.txt", exact: true }).click();
   await page.getByRole("button", { name: "student가 root 소유 파일을 쓸 수 없어서", exact: true }).click();
-  await page.getByRole("button", { name: "/var/log/app.log", exact: true }).click();
+  await page.getByRole("button", { name: "/var/log/boot.log", exact: true }).click();
   await page.getByRole("button", { name: "현재 자격으로 해당 경로의 연산이 거부됨", exact: true }).click();
   await page.getByRole("button", { name: "답 확인하기" }).click();
   await expect(page.getByText("아직 연결되지 않은 규칙이 있습니다. 설명을 읽고 다시 답해 보세요.")).toBeVisible();
@@ -77,9 +78,11 @@ test("moves from the Linux roadmap through the sample chapter and persists progr
     .toBe('["linux-systems/shell-and-filesystem"]');
 
   await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
   await expect(page.getByText("챕터 완료", { exact: true })).toBeVisible({ timeout: 30_000 });
 
   await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
   await expect(page.getByRole("link", { name: /학습 이어가기/ }))
     .toHaveAttribute("href", "/curricula/linux-systems");
   expect(bootAssetRequests).toEqual([]);
@@ -88,6 +91,7 @@ test("moves from the Linux roadmap through the sample chapter and persists progr
 
 test("renders the English sample chapter without untranslated lesson UI", async ({ page }) => {
   await page.goto("/curricula/linux-systems/chapters/shell-and-filesystem?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
   await expect(page).toHaveTitle("01. From the Shell to Your First File · Rootorial");
   await expect(page.getByRole("heading", { name: "From the Shell to Your First File" })).toBeVisible();
 
@@ -128,6 +132,7 @@ test("renders the English sample chapter without untranslated lesson UI", async 
 test("keeps the Linux sample usable on a narrow mobile viewport", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/curricula/linux-systems/chapters/shell-and-filesystem");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
   const commandInput = page.getByRole("textbox", { name: "교육용 Linux 명령 입력" });
   await expect(commandInput).toBeVisible();
   await expect(page.locator("select")).toHaveCount(0);

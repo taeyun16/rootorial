@@ -384,7 +384,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
           </section>
 
           <section className="article-section" id="practice">
-            <div className="margin-label">06 — 선택 실습 · OPTIONAL PRACTICE</div>
+            <div className="margin-label">{t("06 — 선택 실습", "06 — OPTIONAL PRACTICE")}</div>
             <h2>{t(
               "도움 없이 shape 규칙을 다시 만드세요",
               "Rebuild the shape rules without the walkthrough",
