@@ -11,6 +11,7 @@ import type { ReactNode } from "react";
 
 type ConceptCheckProps = {
   onMasteryChange: (mastered: boolean) => void;
+  readinessMessage: string;
 };
 
 const questionContracts =
@@ -24,7 +25,7 @@ function questionOptions<Answer extends string>(
   return answers.map((value) => ({ value, label: labels[value] }));
 }
 
-export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
+export function ConceptCheck({ onMasteryChange, readinessMessage }: ConceptCheckProps) {
   const { locale } = useLocale();
   const isKo = locale === "ko";
   const t = (ko: string, en: string) => isKo ? ko : en;
@@ -130,11 +131,11 @@ export function ConceptCheck({ onMasteryChange }: ConceptCheckProps) {
       copy={{
         kicker: "PREDICT BEFORE YOU RUN",
         title: t("실행하지 않고 연산 결과와 shape를 먼저 예측하세요", "Predict each result and shape before running the code"),
-        description: t("다섯 문제를 모두 맞히면 이 챕터를 완료할 수 있습니다.", "Answer all five questions correctly to complete this chapter."),
+        description: t("다섯 문제와 축 조립·shape 탐정 실습을 모두 마치면 챕터를 완료할 수 있습니다.", "Finish all five questions, Axis Builder, and Shape Detective to complete the chapter."),
         correct: t("정답이에요", "Correct"),
         incorrect: t("다시 살펴봐요", "Take another look"),
         checkAnswers: t("답 확인하기", "Check answers"),
-        completed: t("이해 확인 완료 — 이제 챕터를 완료할 수 있습니다.", "Concept check complete — you can now finish the chapter."),
+        completed: `${t("이해 확인 완료", "Concept check complete")} · ${readinessMessage}`,
         retry: t("아직 확인할 축이 있습니다. 설명을 읽고 다시 답해 보세요.", "Some axes still need attention. Read the explanations and try again."),
         idle: t("다섯 답을 고른 뒤 확인해 보세요.", "Choose all five answers, then check your work."),
       }}

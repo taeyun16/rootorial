@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { vectorReadiness } from "../features/vectors/vector-readiness";
 import { useEffect, useState } from "react";
 import { ChapterToc } from "./ChapterToc";
 import { CitationSection } from "./CitationSection";
@@ -106,11 +107,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
   const [topbarHidden, setTopbarHidden] = useChapterTopbarVisibility();
   const curriculumPreviewHref = `/admin/preview/curricula/transformer-from-zero${isKo ? "" : "?lang=en"}`;
   const nextPreviewHref = `/admin/preview/curricula/transformer-from-zero/chapters/optimization${isKo ? "" : "?lang=en"}`;
-  const remainingRequirements = [
-    !axisPracticeComplete ? t("축 조립 세 연산", "Axis Builder: three operations") : null,
-    !shapePracticeComplete ? t("shape 탐정 세 미션", "Shape Detective: three missions") : null,
-    !mastered ? t("이해 확인 5문제", "five concept-check questions") : null,
-  ].filter((requirement): requirement is string => Boolean(requirement));
+  const readiness = vectorReadiness({ axis: axisPracticeComplete, shape: shapePracticeComplete, concepts: mastered }, locale);
 
   return (
     <main
@@ -222,6 +219,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                 <NotebookCell
                   title={t("벡터를 만들고 크기와 방향 확인하기", "Create a vector and inspect its magnitude and direction")}
                   initialCode={isKo ? vectorMagnitudeCode : vectorMagnitudeCodeEn}
+                  predictionPrompt={t("실행 전 예측: 이 벡터의 shape와 크기는 얼마일까요?", "Predict before running: what are this vector’s shape and magnitude?")}
                   description={
                     <p>
                       {isKo ? <>배열의 <PythonCode>shape</PythonCode>와 크기를 출력하고, 같은 벡터를 좌표 평면의 화살표로 그립니다.</> : <>Print the array <PythonCode>shape</PythonCode> and magnitude, then draw the same vector as an arrow on a coordinate plane.</>}
@@ -407,7 +405,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                 : "When reading Transformer code, build the habit of tracing directions, edge cases, and the meaning of each axis before calculating values."}
             </p>
             <Discussable scopeId="transformer-from-zero.vectors.check" subjectLabel={t("shape 이해 확인", "Shape concept check")}>
-              <ConceptCheck onMasteryChange={setMastered} />
+              <ConceptCheck onMasteryChange={setMastered} readinessMessage={readiness.message} />
             </Discussable>
           </section>
 
@@ -421,8 +419,8 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             </p>
             <CompleteChapter
               slug="vectors"
-              canComplete={mastered && axisPracticeComplete && shapePracticeComplete}
-              lockedMessage={`${t("남은 조건", "Remaining")}: ${remainingRequirements.join(" · ")}`}
+              canComplete={readiness.ready}
+              lockedMessage={readiness.message}
             />
           </section>
 

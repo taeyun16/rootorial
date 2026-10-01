@@ -31,6 +31,7 @@ type NotebookErrorCategory =
 
 export type NotebookCellProps = {
   initialCode: string;
+  predictionPrompt?: string;
   supportCode?: string;
   title?: string;
   description?: ReactNode;
@@ -124,6 +125,7 @@ function notebookErrorNextAction(category: NotebookErrorCategory, isKo: boolean)
 
 export function NotebookCell({
   initialCode,
+  predictionPrompt,
   supportCode,
   title = "Python 코드 셀",
   description,
@@ -141,6 +143,9 @@ export function NotebookCell({
   const statusId = useId();
   const outputId = useId();
   const [code, setCode] = useState(initialCode);
+  const [executedCode, setExecutedCode] = useState<string | null>(null);
+  const [prediction, setPrediction] = useState("");
+  const [runPrediction, setRunPrediction] = useState("");
   const [status, setStatus] = useState<NotebookCellStatus>("idle");
   const [output, setOutput] = useState("");
   const [error, setError] = useState("");
@@ -167,6 +172,9 @@ export function NotebookCell({
     runVersionRef.current += 1;
     inFlightRef.current = false;
     setCode(initialCode);
+    setExecutedCode(null);
+    setPrediction("");
+    setRunPrediction("");
     setStatus("idle");
     setOutput("");
     setError("");
@@ -178,6 +186,12 @@ export function NotebookCell({
 
   const busy = status === "loading" || status === "queued" || status === "running";
   const changed = code !== initialCode;
+  const stale = executedCode !== null && executedCode !== code;
+  const evidenceLabel = stale
+    ? (isKo ? "이전 코드의 결과입니다. 수정한 코드를 다시 실행하세요." : "Output is from earlier code. Run the edited code again.")
+    : executedCode === null
+      ? (isKo ? "현재 코드는 아직 실행하지 않았습니다." : "The current code has not been run.")
+      : statusLabels[status];
   const hasResult = status === "done" || status === "stopped" || status === "error";
   const resolvedAriaLabel = ariaLabel ?? (isKo ? `${title}에 실행할 Python 코드` : `Python code to run for ${title}`);
   const codeLines = code.split("\n");
@@ -205,6 +219,8 @@ export function NotebookCell({
 
     const runVersion = runVersionRef.current + 1;
     runVersionRef.current = runVersion;
+    setExecutedCode(code);
+    setRunPrediction(prediction.trim());
     setStatus("loading");
     setOutput("");
     setError("");
@@ -261,6 +277,7 @@ export function NotebookCell({
     runVersionRef.current += 1;
     inFlightRef.current = false;
     restartNotebookRuntime();
+    setExecutedCode(null);
     setStatus("stopped");
     setOutput("");
     setError("");
@@ -270,6 +287,9 @@ export function NotebookCell({
   }
 
   function resetCell() {
+    setExecutedCode(null);
+    setPrediction("");
+    setRunPrediction("");
     runVersionRef.current += 1;
     inFlightRef.current = false;
     setCode(initialCode);
@@ -307,6 +327,7 @@ export function NotebookCell({
     <section
       className={rootClassName}
       data-status={status}
+      data-evidence={stale ? "stale" : executedCode === null ? "unexecuted" : "current"}
       aria-labelledby={titleId}
       aria-busy={busy}
     >
@@ -357,6 +378,14 @@ export function NotebookCell({
             </button>
           </div>
         </div>
+
+        {predictionPrompt ? (
+          <label className="notebook-cell-prediction">
+            <span>{predictionPrompt}</span>
+            <input type="text" value={prediction} onChange={(event) => setPrediction(event.target.value)} maxLength={300} />
+          </label>
+        ) : null}
+        <p className="notebook-cell-evidence" role="status">{busy ? statusLabels[status] : evidenceLabel}</p>
 
         {description ? (
           <div className="notebook-cell-description">{description}</div>
@@ -420,7 +449,7 @@ export function NotebookCell({
         ) : null}
 
         <span className="sr-only" id={statusId} aria-live="polite">
-          {statusLabels[status]}
+          {busy ? statusLabels[status] : evidenceLabel}
         </span>
 
         <div
@@ -435,10 +464,11 @@ export function NotebookCell({
               <div className="notebook-cell-output-heading">
                 <span aria-hidden="true">Out [{executionCount ?? " "}]</span>
                 <span className={`notebook-cell-status notebook-cell-status-${status}`}>
-                  {statusLabels[status]}
+                  {stale ? (isKo ? "이전 실행 결과" : "Previous output") : statusLabels[status]}
                 </span>
               </div>
 
+              {runPrediction ? <p className="notebook-cell-comparison">{isKo ? "실행 전 내 예측" : "My prediction before this run"}: <strong>{runPrediction}</strong> · {isKo ? "아래 실제 출력과 비교하세요." : "Compare with the actual output below."}</p> : null}
               {output ? (
                 <pre className="notebook-cell-output-text">{output}</pre>
               ) : status === "stopped" ? (

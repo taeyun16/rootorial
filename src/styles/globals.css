@@ -25822,3 +25822,8 @@ textarea:focus-visible {
     font-size: 0.9375rem;
   }
 }
+
+.notebook-cell-prediction { display: grid; gap: 8px; padding: 16px; }
+.notebook-cell-prediction input { width: 100%; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; color: inherit; background: transparent; }
+.notebook-cell-evidence, .notebook-cell-comparison { padding: 8px 16px; overflow-wrap: anywhere; }
+.notebook-cell[data-evidence="stale"] .notebook-cell-evidence { font-weight: 700; }
