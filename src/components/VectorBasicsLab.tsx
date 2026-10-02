@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useLocale } from "../features/localization/localization";
 import { MathFormula } from "./MathFormula";
 import { UnitVectorPlot } from "./UnitVectorPlot";
+import { VectorOperationPlot } from "./VectorOperationPlot";
+import { vectorOperationTrace, vectorOperationContract, matchesVectorPrediction, type Vector2 } from "../features/learning/vector-operation";
 
 type Vector = [number, number];
 type Operation = "add" | "subtract" | "scale" | "normalize";
@@ -17,7 +19,7 @@ function formatNumber(value: number) {
   return Math.abs(value) < 0.0005 ? "0" : Number(value.toFixed(3)).toString();
 }
 
-function formatVectorLatex(vector: Vector) {
+function formatVectorLatex(vector: Vector2) {
   return String.raw`\left[${vector.map(formatNumber).join(",")}\right]`;
 }
 
@@ -29,21 +31,19 @@ export function VectorBasicsLab() {
   const [w, setW] = useState<Vector>([5, -4]);
   const [scalar, setScalar] = useState(2);
   const [revealed, setRevealed] = useState(false);
+  const [prediction, setPrediction] = useState<[string, string]>(["", ""]);
+  const [predictUndefined, setPredictUndefined] = useState(false);
+  const [lastComparison, setLastComparison] = useState<{ predicted: string; actual: string; matches: boolean } | null>(null);
+  const predictionReady = predictUndefined || prediction.every(value => value.trim() !== "" && Number.isFinite(Number(value)));
+  function invalidate() {
+    setRevealed(false);
+    setPrediction(["", ""]);
+    setPredictUndefined(false);
+  }
 
   const calculation = useMemo(() => {
-    const norm = Math.hypot(...v);
-    const result: Vector =
-      operation === "add"
-        ? [v[0] + w[0], v[1] + w[1]]
-        : operation === "subtract"
-          ? [v[0] - w[0], v[1] - w[1]]
-          : operation === "scale"
-            ? [scalar * v[0], scalar * v[1]]
-            : norm === 0
-              ? [0, 0]
-              : [v[0] / norm, v[1] / norm];
-
-    const resultNorm = Math.hypot(...result);
+    const trace = vectorOperationTrace(operation, v, w, scalar);
+    const { norm, result, resultNorm } = trace;
     const expressionLatex =
       operation === "add"
         ? `${formatVectorLatex(v)} + ${formatVectorLatex(w)}`
@@ -72,7 +72,7 @@ export function VectorBasicsLab() {
           : (isKo ? "정규화 뒤에는 방향은 같고 길이만 정확히 1이 됩니다." : "After normalization, the direction stays the same and the length becomes exactly 1.");
     }
 
-    return { result, resultNorm, expressionLatex, insight, norm };
+    return { ...trace, result, resultNorm, expressionLatex, insight, norm };
   }, [isKo, operation, scalar, v, w]);
 
   function coordinateInput(
@@ -92,8 +92,9 @@ export function VectorBasicsLab() {
           step="1"
           value={value}
           onChange={(event) => {
-            const next = Number(event.target.value);
-            setRevealed(false);
+            const next = Math.max(-9, Math.min(9, Number(event.target.value)));
+            if (!Number.isFinite(next)) return;
+            invalidate();
             setVector(index === 0 ? [next, vector[1]] : [vector[0], next]);
           }}
         />
@@ -102,7 +103,7 @@ export function VectorBasicsLab() {
   }
 
   return (
-    <section className="vector-basics-lab" aria-labelledby="vector-basics-title">
+    <section className="vector-basics-lab" aria-labelledby="vector-basics-title" data-formula-id={vectorOperationContract.formulaId} data-evidence={revealed ? "current" : lastComparison ? "stale" : "unexecuted"}>
       <div className="vector-basics-header">
         <div>
           <p className="tensor-shape-kicker">VECTOR WORKBENCH</p>
@@ -111,7 +112,7 @@ export function VectorBasicsLab() {
         <span className="vector-basics-norm">
           {revealed ? <>
             {isKo ? "결과 크기" : "Result magnitude"}{" "}
-            <MathFormula latex={String.raw`\lVert \mathbf{r} \rVert_2 = ${formatNumber(calculation.resultNorm)}`} />
+            <MathFormula latex={String.raw`\lVert \mathbf{r} \rVert_2 = ${calculation.resultNorm === null ? String.raw`\text{undefined}` : formatNumber(calculation.resultNorm)}`} />
           </> : (isKo ? "결과를 먼저 예측하세요" : "Predict before revealing")}
         </span>
       </div>
@@ -126,7 +127,7 @@ export function VectorBasicsLab() {
             className={operation === candidate.id ? "vector-basics-tab-active" : ""}
             onClick={() => {
               setOperation(candidate.id);
-              setRevealed(false);
+              invalidate();
             }}
           >
             <MathFormula latex={candidate.latex} />
@@ -163,7 +164,7 @@ export function VectorBasicsLab() {
                 value={scalar}
                 onChange={(event) => {
                   setScalar(Number(event.target.value));
-                  setRevealed(false);
+                  invalidate();
                 }}
               />
               <output>{formatNumber(scalar)}</output>
@@ -179,13 +180,24 @@ export function VectorBasicsLab() {
               ? <strong>{isKo ? "정의되지 않음" : "Undefined"}</strong>
               : <MathFormula latex={`= ${formatVectorLatex(calculation.result)}`} className="vector-basics-answer" />}
             <p>{calculation.insight}</p>
+            {lastComparison && <p className="vector-prediction-feedback">{isKo ? "실행 전 예측" : "Prediction before this run"}: {lastComparison.predicted} → {isKo ? "실제" : "Actual"}: {lastComparison.actual}. {lastComparison.matches ? (isKo ? "예측과 일치합니다." : "Your prediction matches.") : (isKo ? "다른 성분을 표와 그림에서 비교해 보세요." : "Compare the differing coordinates in the table and diagram.")}</p>}
+            {calculation.defined && operation !== "normalize" && <VectorOperationPlot trace={calculation} isKo={isKo} />}
             {operation === "normalize" && calculation.norm !== 0 ? (
               <UnitVectorPlot vector={calculation.result} sourceVector={v} locale={locale} />
             ) : null}
           </> : (
             <div className="vector-basics-reveal">
               <p>{isKo ? "각 좌표의 결과와 방향 변화를 머릿속이나 종이에 먼저 적어 보세요." : "Write down the resulting coordinates and direction change before revealing the answer."}</p>
-              <button type="button" onClick={() => setRevealed(true)}>
+              {lastComparison && <p className="vector-prediction-feedback">{isKo ? "입력이 바뀌었습니다. 이전 결과" : "Inputs changed. Previous result"}: {lastComparison.actual}. {isKo ? "현재 입력을 다시 예측하세요." : "Predict the current inputs again."}</p>}
+              <div className="vector-prediction-fields">
+                {([0, 1] as const).map(index => <label key={index}>{isKo ? "예측" : "Predicted"} {index === 0 ? "x" : "y"}<input type="number" step="any" disabled={predictUndefined} value={prediction[index]} onChange={event => setPrediction(index === 0 ? [event.target.value, prediction[1]] : [prediction[0], event.target.value])} /></label>)}
+              </div>
+              {operation === "normalize" && <label><input type="checkbox" checked={predictUndefined} onChange={event => setPredictUndefined(event.target.checked)} />{isKo ? "정의되지 않음으로 예측" : "Predict undefined"}</label>}
+              <button type="button" disabled={!predictionReady} onClick={() => {
+                const guessed: Vector2 | "undefined" = predictUndefined ? "undefined" : [Number(prediction[0]), Number(prediction[1])];
+                setLastComparison({ predicted: guessed === "undefined" ? (isKo ? "정의되지 않음" : "undefined") : '[' + guessed.join(', ') + ']', actual: calculation.defined ? '[' + calculation.result.map(formatNumber).join(', ') + ']' : (isKo ? "정의되지 않음" : "undefined"), matches: matchesVectorPrediction(calculation, guessed) });
+                setRevealed(true);
+              }}>
                 {isKo ? "예측 완료 · 결과 보기" : "Prediction ready · reveal result"}
               </button>
             </div>
@@ -196,10 +208,10 @@ export function VectorBasicsLab() {
       <div className="vector-missions" aria-label={isKo ? "추천 실험" : "Suggested experiments"}>
         <strong>{isKo ? "추천 실험" : "Suggested experiments"}</strong>
         <ol>
-          <li><button type="button" onClick={() => { setOperation("add"); setV([1, 2]); setW([5, -4]); setRevealed(false); }}><MathFormula latex={String.raw`\mathbf{v} + \mathbf{w}`} />{isKo ? "를 먼저 눈으로 예측한 뒤 확인" : " — predict visually, then check"}</button></li>
-          <li><button type="button" onClick={() => { setOperation("scale"); setV([3, 2]); setScalar(-1); setRevealed(false); }}><MathFormula latex={String.raw`\lambda = -1`} />{isKo ? "로 방향이 뒤집히는지 확인" : " — watch the direction reverse"}</button></li>
-          <li><button type="button" onClick={() => { setOperation("normalize"); setV([3, 4]); setRevealed(false); }}>{isKo ? "[3, 4]를 길이 1로 정규화" : "Normalize [3, 4] to length 1"}</button></li>
-          <li><button type="button" onClick={() => { setOperation("normalize"); setV([0, 0]); setRevealed(false); }}>{isKo ? "영벡터를 정규화할 수 없는 이유 확인" : "See why the zero vector cannot be normalized"}</button></li>
+          <li><button type="button" onClick={() => { setOperation("add"); setV([1, 2]); setW([5, -4]); invalidate(); }}><MathFormula latex={String.raw`\mathbf{v} + \mathbf{w}`} />{isKo ? "를 먼저 눈으로 예측한 뒤 확인" : " — predict visually, then check"}</button></li>
+          <li><button type="button" onClick={() => { setOperation("scale"); setV([3, 2]); setScalar(-1); invalidate(); }}><MathFormula latex={String.raw`\lambda = -1`} />{isKo ? "로 방향이 뒤집히는지 확인" : " — watch the direction reverse"}</button></li>
+          <li><button type="button" onClick={() => { setOperation("normalize"); setV([3, 4]); invalidate(); }}>{isKo ? "[3, 4]를 길이 1로 정규화" : "Normalize [3, 4] to length 1"}</button></li>
+          <li><button type="button" onClick={() => { setOperation("normalize"); setV([0, 0]); invalidate(); }}>{isKo ? "영벡터를 정규화할 수 없는 이유 확인" : "See why the zero vector cannot be normalized"}</button></li>
         </ol>
       </div>
     </section>

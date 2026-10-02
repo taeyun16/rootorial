@@ -1,0 +1,21 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { vectorOperationTrace, matchesVectorPrediction } from "../src/features/learning/vector-operation.ts";
+test("vector trace preserves geometry and distinguishes undefined normalization", () => {
+  const added = vectorOperationTrace("add", [2,2], [5,-4], 2);
+  assert.deepEqual(added.result, [7,-2]);
+  assert.ok(Math.abs(added.resultNorm - Math.sqrt(53)) < 1e-12);
+  assert.equal(matchesVectorPrediction(added, [7,-2]), true);
+  assert.equal(matchesVectorPrediction(added, [7,2]), false);
+  assert.deepEqual(vectorOperationTrace("subtract", [2,2], [5,-4], 2).result, [-3,6]);
+  assert.deepEqual(vectorOperationTrace("add", [2,2], [-2,-2], 1).result, [0,0]);
+  assert.deepEqual(vectorOperationTrace("scale", [3,2], [0,0], -1).result, [-3,-2]);
+  assert.equal(vectorOperationTrace("scale", [3,2], [0,0], 0).resultNorm, 0);
+  assert.equal(vectorOperationTrace("normalize", [3,4], [0,0], 1).resultNorm, 1);
+  const zero = vectorOperationTrace("normalize", [0,0], [0,0], 1);
+  assert.equal(zero.defined, false);
+  assert.equal(zero.resultNorm, null);
+  assert.equal(matchesVectorPrediction(zero, "undefined"), true);
+  assert.equal(matchesVectorPrediction(zero, [0,0]), false);
+  assert.throws(() => vectorOperationTrace("add", [Infinity,0], [0,0], 1));
+});
