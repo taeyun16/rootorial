@@ -25,6 +25,7 @@ import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { PythonCode } from "../PythonCode";
 import { RootorialMark } from "../RootorialMark";
+import { FoundationTransferCheck } from "../FoundationTransferCheck";
 import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { OptimizationConceptCheck } from "./OptimizationConceptCheck";
 import { OptimizationDebuggerLab } from "./OptimizationDebuggerLab";
@@ -305,6 +306,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
               <span aria-hidden="true">→</span>
               <article><span>{t("그대로 유지", "STAYS THE SAME")}</span><strong>W ← W − η∇L</strong><p>{t("손실 기반 업데이트", "Loss-driven update")}</p></article>
             </div>
+            <FoundationTransferCheck chapterSlug="optimization" />
           </section>
 
           <section className="article-section concept-check-section" id="check">

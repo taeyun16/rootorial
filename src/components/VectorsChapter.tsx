@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ChapterToc } from "./ChapterToc";
 import { CitationSection } from "./CitationSection";
 import { CompleteChapter } from "./CompleteChapter";
+import { FoundationTransferCheck } from "./FoundationTransferCheck";
 import { ConceptCheck } from "./ConceptCheck";
 import { ConceptLearningStage } from "./ConceptLearningStage";
 import { Discussable } from "./DiscussionPanel";
@@ -368,11 +369,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                 <span>NEXT · CHAPTER 02</span>
                 <h3>{t("같은 shape의 벡터가 파라미터를 갱신합니다", "Same-shaped vectors update parameters")}</h3>
                 <p>
-                  {isKo ? <>
-                    파라미터 <MathFormula latex={String.raw`\mathbf{W}`} />와 gradient <MathFormula latex={String.raw`\nabla L`} />는 같은 shape의 벡터입니다. <PythonCode>W = [0.20, -0.40]</PythonCode>, <PythonCode>grad = [-0.60, 0.30]</PythonCode>, <PythonCode>eta = 0.10</PythonCode>이면 <MathFormula latex={String.raw`\mathbf{W}_{next}=\mathbf{W}-\eta\nabla L`} />의 좌표별 뺄셈 결과는 <PythonCode>[0.26, -0.43]</PythonCode>입니다.
-                  </> : <>
-                    A parameter vector <MathFormula latex={String.raw`\mathbf{W}`} /> and its gradient <MathFormula latex={String.raw`\nabla L`} /> have the same shape. With <PythonCode>W = [0.20, -0.40]</PythonCode>, <PythonCode>grad = [-0.60, 0.30]</PythonCode>, and <PythonCode>eta = 0.10</PythonCode>, coordinate-wise subtraction in <MathFormula latex={String.raw`\mathbf{W}_{next}=\mathbf{W}-\eta\nabla L`} /> gives <PythonCode>[0.26, -0.43]</PythonCode>.
-                  </>}
+                  {t("파라미터와 gradient는 같은 shape입니다. 다음 장의 업데이트는 gradient에 학습률을 곱하고 각 좌표에서 빼는 벡터 연산입니다. 아래의 새 입력으로 먼저 예측해 보세요.", "Parameters and gradients have the same shape. The next chapter's update multiplies the gradient by a learning rate, then subtracts it coordinate by coordinate. Predict with fresh inputs below.")}
                 </p>
               </article>
               <article>
@@ -382,6 +379,8 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
               </article>
             </div>
           </section>
+
+          <FoundationTransferCheck chapterSlug="vectors" />
 
           <section className="article-section" id="practice">
             <div className="margin-label">{t("06 — 선택 실습", "06 — OPTIONAL PRACTICE")}</div>

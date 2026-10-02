@@ -41,3 +41,11 @@ test("an unsubmitted concept check includes choices but no answer, explanation, 
   assert.doesNotMatch(html, /SECRET|concept-feedback|concept-review-link/);
   assert.match(html, /disabled=""/);
 });
+
+test("optional transfer is identified separately from registered completion questions", () => {
+  assert.match(source("FoundationTransferCheck.tsx"), /purpose="transfer"/);
+  const renderer = source("interactive/ConceptCheckRenderer.tsx");
+  assert.match(renderer, /data-check-purpose=\{purpose\}/);
+  assert.match(renderer, /data-question-id=\{purpose === "core" \? question.id : undefined\}/);
+  assert.match(renderer, /data-transfer-question-id=\{purpose === "transfer" \? question.id : undefined\}/);
+});

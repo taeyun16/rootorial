@@ -59,3 +59,9 @@
 .learning-guide-prerequisites p { line-height: 1.75; }
 .learning-guide-prerequisites nav { display: flex; flex-wrap: wrap; gap: 12px 24px; }
 .learning-guide-prerequisites a, .concept-review-link { display: inline-flex; align-items: center; min-height: 44px; overflow-wrap: anywhere; }
+
+.foundation-transfer-check { margin-block: 24px; }
+.foundation-transfer-check .concept-check { margin-block: 16px; }
+.foundation-transfer-shapes { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-block: 16px; }
+.foundation-transfer-result table { width: 100%; border-collapse: collapse; }
+.foundation-transfer-result th, .foundation-transfer-result td { padding: 8px; text-align: left; border-bottom: 1px solid var(--line); }

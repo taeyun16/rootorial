@@ -25,6 +25,7 @@ import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
 import { PythonCode } from "../PythonCode";
 import { RootorialMark } from "../RootorialMark";
+import { FoundationTransferCheck } from "../FoundationTransferCheck";
 import { TransformerLearningGuide } from "../TransformerLearningGuide";
 import { NeuralNetworkBackpropLab } from "./NeuralNetworkBackpropLab";
 import { NeuralNetworkDebuggerLab } from "./NeuralNetworkDebuggerLab";
@@ -365,6 +366,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
                 <p>{t("넓은 hidden layer는 복잡한 규칙을 표현할 수 있지만 unseen data에서도 잘 작동한다는 보장은 아닙니다. mini-batch, Dropout과 train/test 관점은 다음 장에서 분리해 다룹니다.", "A wide hidden layer can represent complex rules, but that does not guarantee good behavior on unseen data. The next chapter treats mini-batches, dropout, and train/test reasoning separately.")}</p>
               </div>
             </div>
+            <FoundationTransferCheck chapterSlug="neural-networks" />
           </section>
 
           <section className="article-section concept-check-section" id="check">

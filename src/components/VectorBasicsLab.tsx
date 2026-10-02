@@ -1,10 +1,31 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "../features/localization/localization";
 import { MathFormula } from "./MathFormula";
 import { UnitVectorPlot } from "./UnitVectorPlot";
 import { VectorOperationPlot } from "./VectorOperationPlot";
 import { vectorOperationTrace, vectorOperationContract, matchesVectorPrediction, type Vector2 } from "../features/learning/vector-operation";
 import { useExperimentDraft } from "../features/progress/useExperimentDraft";
+
+function CoordinateField({ name, index, value, onValue, onValidity }: {
+  name: "v" | "w"; index: 0 | 1; value: number;
+  onValue: (value: number) => void; onValidity: (valid: boolean) => void;
+}) {
+  // Keep an empty/negative-prefix edit separate from the last usable number.
+  const [text, setText] = useState(String(value));
+  useEffect(() => { setText(String(value)); onValidity(true); }, [value]);
+  const valid = text.trim() !== "" && Number.isFinite(Number(text)) && Math.abs(Number(text)) <= 9;
+  return <label className="vector-basics-coordinate">
+    <MathFormula latex={name + "_" + (index + 1)} />
+    <input type="number" min="-9" max="9" step="1" value={text} aria-invalid={!valid}
+      onChange={event => {
+        const raw = event.target.value;
+        setText(raw);
+        const valid = raw.trim() !== "" && Number.isFinite(Number(raw)) && Math.abs(Number(raw)) <= 9;
+        onValidity(valid);
+        if (valid) onValue(Number(raw));
+      }} />
+  </label>;
+}
 
 type Vector = [number, number];
 type Operation = "add" | "subtract" | "scale" | "normalize";
@@ -43,10 +64,14 @@ export function VectorBasicsLab() {
   const setW = (w: Vector) => draft.setValue(previous => ({ ...previous, w }));
   const setScalar = (scalar: number) => draft.setValue(previous => ({ ...previous, scalar }));
   const [revealed, setRevealed] = useState(false);
+  const predictionInput = useRef<HTMLInputElement>(null);
+  const [coordinateValidity, setCoordinateValidity] = useState<Record<string, boolean>>({});
+  const [coordinateReset, setCoordinateReset] = useState(0);
+  const coordinatesValid = ["v0", "v1", ...(["add", "subtract"].includes(operation) ? ["w0", "w1"] : [])].every(key => coordinateValidity[key] !== false);
   const [prediction, setPrediction] = useState<[string, string]>(["", ""]);
   const [predictUndefined, setPredictUndefined] = useState(false);
   const [lastComparison, setLastComparison] = useState<{ predicted: string; actual: string; matches: boolean } | null>(null);
-  const predictionReady = predictUndefined || prediction.every(value => value.trim() !== "" && Number.isFinite(Number(value)));
+  const predictionReady = coordinatesValid && (predictUndefined || prediction.every(value => value.trim() !== "" && Number.isFinite(Number(value))));
   function invalidate() {
     setRevealed(false);
     setPrediction(["", ""]);
@@ -94,24 +119,15 @@ export function VectorBasicsLab() {
     setVector: (vector: Vector) => void,
     vector: Vector,
   ) {
-    return (
-      <label className="vector-basics-coordinate">
-        <MathFormula latex={`${name}_${index + 1}`} />
-        <input
-          type="number"
-          min="-9"
-          max="9"
-          step="1"
-          value={value}
-          onChange={(event) => {
-            const next = Math.max(-9, Math.min(9, Number(event.target.value)));
-            if (!Number.isFinite(next)) return;
-            invalidate();
-            setVector(index === 0 ? [next, vector[1]] : [vector[0], next]);
-          }}
-        />
-      </label>
-    );
+    return <CoordinateField key={name + index + ":" + coordinateReset} name={name} index={index} value={value}
+      onValidity={valid => {
+        setCoordinateValidity(previous => previous[name + index] === valid ? previous : { ...previous, [name + index]: valid });
+        if (!valid) invalidate();
+      }}
+      onValue={next => {
+        invalidate();
+        setVector(index === 0 ? [next, vector[1]] : [vector[0], next]);
+      }} />;
   }
 
   return (
@@ -135,7 +151,7 @@ export function VectorBasicsLab() {
           : draft.restored
             ? (isKo ? "지난 실험 입력을 복원했습니다. 예측과 결과는 다시 확인하세요." : "Previous experiment inputs restored. Make a fresh prediction and run again.")
             : (isKo ? "실험 입력만 이 브라우저에 저장합니다. 입력을 복원해도 실습 완료로 인정되지는 않습니다." : "Only experiment inputs are saved here. Restoring inputs does not count as completing the exercise.")}</span>
-        <button type="button" onClick={() => { draft.clear(); invalidate(); setLastComparison(null); }}>{isKo ? "실험 입력 초기화" : "Reset experiment inputs"}</button>
+        <button type="button" onClick={() => { draft.clear(); invalidate(); setLastComparison(null); setCoordinateValidity({}); setCoordinateReset(value => value + 1); }}>{isKo ? "실험 입력 초기화" : "Reset experiment inputs"}</button>
       </div>
 
       <div className="vector-basics-tabs" role="group" aria-label={isKo ? "벡터 연산 선택" : "Choose a vector operation"}>
@@ -144,7 +160,7 @@ export function VectorBasicsLab() {
             type="button"
             key={candidate.id}
             aria-pressed={operation === candidate.id}
-            aria-label={candidate.label}
+            aria-label={isKo ? ({ add: "벡터 v와 w 더하기", subtract: "벡터 v에서 w 빼기", scale: "벡터 v에 스칼라 곱하기", normalize: "벡터 v를 단위벡터로 정규화" }[candidate.id]) : candidate.label}
             className={operation === candidate.id ? "vector-basics-tab-active" : ""}
             onClick={() => {
               setOperation(candidate.id);
@@ -195,6 +211,7 @@ export function VectorBasicsLab() {
 
         <div className="vector-basics-result" aria-live="polite">
           <span className="vector-basics-result-label">{isKo ? "계산" : "CALCULATION"}</span>
+          {!coordinatesValid && <p role="status">{isKo ? "좌표 입력을 완성하세요. −9부터 9까지의 숫자가 필요합니다. 식은 마지막 유효 입력을 표시하며 새 결과는 실행할 수 없습니다." : "Finish the coordinate input with a number from −9 to 9. The expression shows the last valid input; a new result cannot run yet."}</p>}
           <MathFormula latex={calculation.expressionLatex} display className="vector-basics-expression" />
           {revealed ? <>
             {operation === "normalize" && calculation.norm === 0
@@ -202,6 +219,11 @@ export function VectorBasicsLab() {
               : <MathFormula latex={`= ${formatVectorLatex(calculation.result)}`} className="vector-basics-answer" />}
             <p>{calculation.insight}</p>
             {lastComparison && <p className="vector-prediction-feedback">{isKo ? "실행 전 예측" : "Prediction before this run"}: {lastComparison.predicted} → {isKo ? "실제" : "Actual"}: {lastComparison.actual}. {lastComparison.matches ? (isKo ? "예측과 일치합니다." : "Your prediction matches.") : (isKo ? "다른 성분을 표와 그림에서 비교해 보세요." : "Compare the differing coordinates in the table and diagram.")}</p>}
+            <button type="button" className="button button-secondary" onClick={() => {
+              invalidate();
+              setLastComparison(null);
+              requestAnimationFrame(() => predictionInput.current?.focus());
+            }}>{isKo ? "같은 입력으로 다시 예측" : "Predict again with the same inputs"}</button>
             {calculation.defined && operation !== "normalize" && <VectorOperationPlot trace={calculation} isKo={isKo} />}
             {operation === "normalize" && calculation.norm !== 0 ? (
               <UnitVectorPlot vector={calculation.result} sourceVector={v} locale={locale} />
@@ -211,7 +233,7 @@ export function VectorBasicsLab() {
               <p>{isKo ? "각 좌표의 결과와 방향 변화를 머릿속이나 종이에 먼저 적어 보세요." : "Write down the resulting coordinates and direction change before revealing the answer."}</p>
               {lastComparison && <p className="vector-prediction-feedback">{isKo ? "입력이 바뀌었습니다. 이전 결과" : "Inputs changed. Previous result"}: {lastComparison.actual}. {isKo ? "현재 입력을 다시 예측하세요." : "Predict the current inputs again."}</p>}
               <div className="vector-prediction-fields">
-                {([0, 1] as const).map(index => <label key={index}>{isKo ? "예측" : "Predicted"} {index === 0 ? "x" : "y"}<input type="number" step="any" disabled={predictUndefined} value={prediction[index]} onChange={event => setPrediction(index === 0 ? [event.target.value, prediction[1]] : [prediction[0], event.target.value])} /></label>)}
+                {([0, 1] as const).map(index => <label key={index}>{isKo ? "예측" : "Predicted"} {index === 0 ? "x" : "y"}<input ref={index === 0 ? predictionInput : undefined} type="number" step="any" disabled={predictUndefined} value={prediction[index]} onChange={event => setPrediction(index === 0 ? [event.target.value, prediction[1]] : [prediction[0], event.target.value])} /></label>)}
               </div>
               {operation === "normalize" && <label><input type="checkbox" checked={predictUndefined} onChange={event => setPredictUndefined(event.target.checked)} />{isKo ? "정의되지 않음으로 예측" : "Predict undefined"}</label>}
               <button type="button" disabled={!predictionReady} onClick={() => {

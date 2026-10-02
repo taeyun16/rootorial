@@ -28,6 +28,7 @@ type ConceptCheckCopy = {
 type ConceptCheckRendererProps<QuestionId extends string> = {
   questions: Array<ConceptQuestionSpec<QuestionId>>;
   copy: ConceptCheckCopy;
+  purpose?: "core" | "transfer";
   onMasteryChange: (mastered: boolean) => void;
   onSubmitAttempt?: (answers: Record<QuestionId, string>) => void;
 };
@@ -35,6 +36,7 @@ type ConceptCheckRendererProps<QuestionId extends string> = {
 export function ConceptCheckRenderer<QuestionId extends string>({
   questions,
   copy,
+  purpose = "core",
   onMasteryChange,
   onSubmitAttempt,
 }: ConceptCheckRendererProps<QuestionId>) {
@@ -76,7 +78,7 @@ export function ConceptCheckRenderer<QuestionId extends string>({
   }
 
   return (
-    <form className="concept-check" onSubmit={checkAnswers}>
+    <form className="concept-check" data-check-purpose={purpose} onSubmit={checkAnswers}>
       <div className="concept-check-intro">
         <p className="concept-check-kicker">{copy.kicker}</p>
         <h3>{copy.title}</h3>
@@ -88,9 +90,10 @@ export function ConceptCheckRenderer<QuestionId extends string>({
         const feedbackId = `${question.id}-feedback`;
         return (
           <fieldset
-            className="concept-question"
+            className={purpose === "transfer" ? "concept-question concept-question-transfer" : "concept-question"}
             aria-describedby={submitted ? feedbackId : undefined}
-            data-question-id={question.id}
+            data-question-id={purpose === "core" ? question.id : undefined}
+            data-transfer-question-id={purpose === "transfer" ? question.id : undefined}
             key={question.id}
           >
             <legend>
