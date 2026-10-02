@@ -17250,6 +17250,13 @@ textarea:focus-visible {
     linear-gradient(145deg, #17131f 0%, #272038 58%, #352458 100%);
 }
 
+/* Scope dark-surface ink to hero copy; the objectives keep their light paper ink. */
+.neural-networks-hero h1 { color: #fbf7ed; }
+.neural-networks-hero .lesson-deck { color: #e8e0f2; }
+.neural-networks-hero .eyebrow,
+.neural-networks-hero .lesson-deck em,
+.neural-networks-hero > .public-learning-proof { color: #ddccff; }
+
 .neural-prerequisite a,
 .neural-prerequisite > div > span {
   display: inline-flex;
