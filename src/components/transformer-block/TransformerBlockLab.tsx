@@ -343,7 +343,7 @@ export function TransformerBlockLab({ onCompletionChange }: { onCompletionChange
       title={t("Pre-Norm Block Assembly Workbench", "Pre-Norm Block Assembly Workbench")}
       description={t("LayerNorm·FFN·block handoff의 핵심 preset 세 개를 완료하면 통과합니다. 나머지 두 preset은 선택 탐색입니다.", "Complete the three core LayerNorm, FFN, and block-handoff presets. The other two presets are optional exploration.")}
       className="transformer-block-workbench"
-      actions={<button ref={resetButtonRef} type="button" className="button button-ghost" aria-label={t("Transformer block lab 전체 초기화", "Reset the entire Transformer block lab")} onClick={resetAll}>{t("전체 lab 초기화", "Reset entire lab")}</button>}
+      actions={<button ref={resetButtonRef} type="button" className="button button-ghost" aria-label={t("전체 lab 초기화 · Transformer block lab 전체 초기화", "Reset entire lab · Reset the entire Transformer block lab")} onClick={resetAll}>{t("전체 lab 초기화", "Reset entire lab")}</button>}
     >
       <div data-interactive-ready={interactiveReady ? "true" : "false"}>
         <div className="transformer-block-preset-row" role="group" aria-label={t("Transformer block challenge preset", "Transformer block challenge presets")}>
@@ -367,8 +367,8 @@ export function TransformerBlockLab({ onCompletionChange }: { onCompletionChange
           </details>
           <DirectChoice className="direct-choice-prediction" groupRef={predictionRef} label={t("실행 전 예측", "Prediction before running")} ariaLabel={t("Transformer block challenge 예측", "Transformer block challenge prediction")} value={prediction} options={challengeCopy[challengeId].predictions.map(([value, label]) => ({ value, label }))} onChange={(value) => { setPrediction(value as TransformerBlockPrediction); invalidateRun(); }} />
           <div className="transformer-block-run-actions">
-            <button type="button" className="button button-primary" disabled={!prediction} aria-label={t("Transformer block 조립 실행", "Assemble and run the Transformer block")} onClick={runChallenge}>{t("예측 고정 · block 조립", "Lock prediction · assemble block")}</button>
-            <button type="button" className="button button-secondary" aria-label={t("현재 Transformer block challenge 초기화", "Reset the current Transformer block challenge")} onClick={resetCurrent}>{t("현재 설정 초기화", "Reset current setup")}</button>
+            <button type="button" className="button button-primary" disabled={!prediction} aria-label={t("예측 고정 · block 조립 · Transformer block 조립 실행", "Lock prediction · assemble block · Assemble and run the Transformer block")} onClick={runChallenge}>{t("예측 고정 · block 조립", "Lock prediction · assemble block")}</button>
+            <button type="button" className="button button-secondary" aria-label={t("현재 설정 초기화 · 현재 Transformer block challenge 초기화", "Reset current setup · Reset the current Transformer block challenge")} onClick={resetCurrent}>{t("현재 설정 초기화", "Reset current setup")}</button>
           </div>
         </div>
 

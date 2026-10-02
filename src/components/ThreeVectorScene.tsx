@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
+import { VectorPlaneFallback } from "./VectorPlaneFallback";
 import type {
   BufferAttribute,
   Line,
@@ -119,7 +120,7 @@ export function ThreeVectorScene({
     const connection = (navigator as NavigatorWithConnection).connection;
     if (connection?.saveData) {
       setFallback("save-data");
-      onSceneStatusChangeRef.current({ motionAvailable: false, interactive: false });
+      onSceneStatusChangeRef.current({ motionAvailable: false, interactive: true });
       return;
     }
 
@@ -150,7 +151,7 @@ export function ThreeVectorScene({
           });
         } catch {
           setFallback("unavailable");
-          onSceneStatusChangeRef.current({ motionAvailable: false, interactive: false });
+          onSceneStatusChangeRef.current({ motionAvailable: false, interactive: true });
           return;
         }
 
@@ -489,7 +490,7 @@ export function ThreeVectorScene({
       .catch(() => {
         if (!cancelled) {
           setFallback("unavailable");
-          onSceneStatusChangeRef.current({ motionAvailable: false, interactive: false });
+          onSceneStatusChangeRef.current({ motionAvailable: false, interactive: true });
         }
       });
 
@@ -508,7 +509,7 @@ export function ThreeVectorScene({
     };
   }, []);
 
-  function handleKeyDown(event: KeyboardEvent<HTMLCanvasElement>) {
+  function handleKeyDown(event: KeyboardEvent<HTMLCanvasElement | SVGSVGElement>) {
     const step = event.shiftKey ? 0.5 : 0.1;
     let next = value;
     if (event.key === "ArrowLeft") next = { ...value, x: clamp(value.x - step) };
@@ -528,20 +529,14 @@ export function ThreeVectorScene({
   }
 
   if (fallback) {
-    return (
-      <div className="three-vector-fallback" role="img" tabIndex={-1} aria-label={
-        locale === "ko"
-          ? `벡터 좌표 x ${value.x.toFixed(2)}, y ${value.y.toFixed(2)}`
-          : `Vector coordinates x ${value.x.toFixed(2)}, y ${value.y.toFixed(2)}`
-      }>
-        <strong>v = [{value.x.toFixed(2)}, {value.y.toFixed(2)}]</strong>
-        <span>
-          {fallback === "save-data"
-            ? (locale === "ko" ? "데이터 절약 모드에서는 정적 값으로 표시합니다." : "A static value is shown while data saver is enabled.")
-            : (locale === "ko" ? "이 환경에서는 3D 장면을 표시할 수 없습니다." : "The 3D scene is unavailable in this environment.")}
-        </span>
-      </div>
-    );
+    return <VectorPlaneFallback value={value} locale={locale} reason={fallback}
+      onKeyDown={handleKeyDown} announcement={announcement} onChange={(next) => {
+        onUserInteraction();
+        onChange(next);
+        setAnnouncement(locale === "ko"
+          ? `벡터 좌표 x ${next.x.toFixed(2)}, y ${next.y.toFixed(2)}`
+          : `Vector coordinates x ${next.x.toFixed(2)}, y ${next.y.toFixed(2)}`);
+      }} />;
   }
 
   return (

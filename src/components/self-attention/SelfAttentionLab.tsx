@@ -327,7 +327,7 @@ export function SelfAttentionLab({ onCompletionChange }: { onCompletionChange: (
       title={t("Self-Attention Workbench", "Self-Attention Workbench")}
       description={t("핵심 preset 세 개를 완료하면 통과합니다. Scaling과 padding preset은 더 확인하고 싶을 때 선택하세요.", "Complete three core presets. Choose the scaling and padding presets only when you want deeper verification.")}
       className="self-attention-workbench"
-      actions={<button ref={resetButtonRef} type="button" className="button button-ghost" aria-label={t("Self-Attention lab 전체 초기화", "Reset the entire Self-Attention lab")} onClick={resetAll}>{t("전체 lab 초기화", "Reset entire lab")}</button>}
+      actions={<button ref={resetButtonRef} type="button" className="button button-ghost" aria-label={t("전체 lab 초기화 · Self-Attention lab 전체 초기화", "Reset entire lab · Reset the entire Self-Attention lab")} onClick={resetAll}>{t("전체 lab 초기화", "Reset entire lab")}</button>}
     >
       <div data-interactive-ready={interactiveReady ? "true" : "false"}>
         <div className="self-attention-preset-row" role="group" aria-label={t("Self-Attention challenge preset", "Self-Attention challenge presets")}>
@@ -355,8 +355,8 @@ export function SelfAttentionLab({ onCompletionChange }: { onCompletionChange: (
           </details>
           <DirectChoice className="direct-choice-prediction" groupRef={predictionRef} label={t("실행 전 예측", "Prediction before running")} ariaLabel={t("Self-Attention challenge 예측", "Self-Attention challenge prediction")} value={prediction} options={challengeCopy[challengeId].predictions.map(([value, label]) => ({ value, label }))} onChange={(value) => { setPrediction(value as SelfAttentionPrediction); invalidateRun(); }} />
           <div className="self-attention-run-actions">
-            <button type="button" className="button button-primary" disabled={!prediction} aria-label={t("Self-Attention pipeline 실행", "Run the Self-Attention pipeline")} onClick={runChallenge}>{t("예측 고정 · pipeline 실행", "Lock prediction · run pipeline")}</button>
-            <button type="button" className="button button-secondary" aria-label={t("현재 Self-Attention challenge 설정 초기화", "Reset the current Self-Attention challenge setup")} onClick={resetCurrent}>{t("현재 설정 초기화", "Reset current setup")}</button>
+            <button type="button" className="button button-primary" disabled={!prediction} aria-label={t("예측 고정 · pipeline 실행 · Self-Attention pipeline 실행", "Lock prediction · run pipeline · Run the Self-Attention pipeline")} onClick={runChallenge}>{t("예측 고정 · pipeline 실행", "Lock prediction · run pipeline")}</button>
+            <button type="button" className="button button-secondary" aria-label={t("현재 설정 초기화 · 현재 Self-Attention challenge 설정 초기화", "Reset current setup · Reset the current Self-Attention challenge setup")} onClick={resetCurrent}>{t("현재 설정 초기화", "Reset current setup")}</button>
           </div>
         </div>
 

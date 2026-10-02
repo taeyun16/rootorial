@@ -315,7 +315,7 @@ export function MiniTransformerLab({ onCompletionChange }: { onCompletionChange:
       title={t("Mini Transformer End-to-End Workbench", "Mini Transformer End-to-End Workbench")}
       description={t("Causal block·LM head·생성의 핵심 preset 세 개를 완료하면 통과합니다. Tokenize와 position preset은 선택 복습입니다.", "Complete the three core causal-block, LM-head, and generation presets. Tokenization and position are optional review.")}
       className="mini-transformer-workbench"
-      actions={<button ref={resetButtonRef} type="button" className="button button-ghost" aria-label={t("Mini Transformer lab 전체 초기화", "Reset the entire Mini Transformer lab")} onClick={resetAll}>{t("전체 lab 초기화", "Reset entire lab")}</button>}
+      actions={<button ref={resetButtonRef} type="button" className="button button-ghost" aria-label={t("전체 lab 초기화 · Mini Transformer lab 전체 초기화", "Reset entire lab · Reset the entire Mini Transformer lab")} onClick={resetAll}>{t("전체 lab 초기화", "Reset entire lab")}</button>}
     >
       <div data-interactive-ready={interactiveReady ? "true" : "false"}>
         <div className="mini-transformer-preset-row" role="group" aria-label={t("Mini Transformer challenge preset", "Mini Transformer challenge presets")}>
@@ -342,8 +342,8 @@ export function MiniTransformerLab({ onCompletionChange }: { onCompletionChange:
           </details>
           <DirectChoice className="direct-choice-prediction" groupRef={predictionRef} label={t("실행 전 예측", "Prediction before running")} ariaLabel={t("Mini Transformer challenge 예측", "Mini Transformer challenge prediction")} value={prediction} options={challengeCopy[challengeId].predictions.map(([value, label]) => ({ value, label }))} onChange={(value) => { setPrediction(value as MiniTransformerPrediction); invalidateRun(); }} />
           <div className="mini-transformer-run-actions">
-            <button type="button" className="button button-primary" disabled={!prediction} aria-label={t("Mini Transformer 실행", "Run the Mini Transformer")} onClick={runChallenge}>{t("예측 고정 · 전체 경로 실행", "Lock prediction · run full path")}</button>
-            <button type="button" className="button button-secondary" aria-label={t("현재 Mini Transformer challenge 초기화", "Reset the current Mini Transformer challenge")} onClick={resetCurrent}>{t("현재 설정 초기화", "Reset current setup")}</button>
+            <button type="button" className="button button-primary" disabled={!prediction} aria-label={t("예측 고정 · 전체 경로 실행 · Mini Transformer 실행", "Lock prediction · run full path · Run the Mini Transformer")} onClick={runChallenge}>{t("예측 고정 · 전체 경로 실행", "Lock prediction · run full path")}</button>
+            <button type="button" className="button button-secondary" aria-label={t("현재 설정 초기화 · 현재 Mini Transformer challenge 초기화", "Reset current setup · Reset the current Mini Transformer challenge")} onClick={resetCurrent}>{t("현재 설정 초기화", "Reset current setup")}</button>
           </div>
         </div>
 
