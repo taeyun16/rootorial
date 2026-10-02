@@ -192,7 +192,7 @@ export function SequenceMemoryLab({
   useEffect(() => {
     if (!runtimeError && focusPredictionAfterRecovery.current) {
       focusPredictionAfterRecovery.current = false;
-      predictionRef.current?.focus();
+      predictionRef.current?.querySelector<HTMLButtonElement>("button:not(:disabled)")?.focus();
     }
   }, [runtimeError]);
 

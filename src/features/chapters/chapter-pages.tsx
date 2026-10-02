@@ -1,3 +1,4 @@
+import { useInitialChapterFragment } from "../../components/useInitialChapterFragment";
 import { ChapterResume } from "../../components/ChapterResume";
 import { lazy, Suspense } from "react";
 import type { ComponentType } from "react";
@@ -31,6 +32,7 @@ function chapterPage(load: ChapterModuleLoader): ComponentType<ChapterPageProps>
     learnerCount,
     navigation,
   }: ChapterPageProps) {
+    useInitialChapterFragment(chapterId(curriculumSlug, chapterSlug));
     const continuousPath = curriculumSlug === "linux-systems"
       || curriculumSlug === "linux-networking"
       || curriculumSlug === "infrastructure-design";

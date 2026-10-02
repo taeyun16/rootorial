@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { ChapterStartLink } from "./ChapterStartLink";
 import { LearningDisclosure } from "./OptionalLearningSection";
 import { LearningLabGlossary } from "./LearningLabGlossary";
 import {
@@ -47,17 +48,17 @@ export function TransformerLearningGuide({
         <div>
           <span className="transformer-learning-guide-label">{t("완료에 필요한 핵심 행동", "CORE ACTIONS FOR COMPLETION")}</span>
           <p className="learning-guide-instruction">{t("설명을 읽은 뒤 아래 실습과 확인 문제를 순서대로 진행하세요. 선택 심화는 필요할 때 펼칠 수 있습니다.", "After reading the explanations, follow these exercises and questions in order. Open optional depth when you need it.")}</p>
-          <a className="learning-guide-start" href={guide.coreActions[0].href}>
+          <ChapterStartLink className="learning-guide-start" href={guide.coreActions[0].href}>
             {t("첫 필수 실습으로 이동", "Go to the first required exercise")}
-          </a>
+          </ChapterStartLink>
           <ol>
             {guide.coreActions.map((action, index) => (
               <li key={action.href}>
-                <a href={action.href}>
+                <ChapterStartLink className="learning-guide-action" href={action.href}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <strong>{action.label[locale]}</strong>
                   <small>{t("이동", "Go")}</small>
-                </a>
+                </ChapterStartLink>
               </li>
             ))}
           </ol>
