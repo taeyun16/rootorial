@@ -88,3 +88,11 @@
 .attempt-comparison p { padding: 8px 12px; font-size: 13px; line-height: 1.6; }
 .attempt-comparison table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .attempt-comparison th, .attempt-comparison td { text-align: left; padding: 8px 12px; border-top: 1px solid var(--line); overflow-wrap: anywhere; min-width: 90px; }
+
+.chapter-resume { align-items: center; }
+.chapter-resume dl { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 0; }
+.chapter-resume dl > div { min-width: 0; }
+.chapter-resume dt { font-size: 12px; font-weight: 700; }
+.chapter-resume dd { margin: 4px 0 0; font-size: 13px; max-width: 48ch; line-height: 1.6; }
+.completed-panel .completed-return-link { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 10px 16px; border: 1px solid var(--forest); border-radius: 8px; }
+.completed-return-link:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; }

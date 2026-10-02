@@ -29,17 +29,8 @@ function CoordinateField({ name, index, value, onValue, onValidity }: {
   </label>;
 }
 
+import { initialInputs, validInputs, type VectorInputDraft, type Operation } from "../features/learning/vector-input-draft";
 type Vector = [number, number];
-type Operation = "add" | "subtract" | "scale" | "normalize";
-type VectorInputDraft = { operation: Operation; v: Vector; w: Vector; scalar: number };
-const initialInputs: VectorInputDraft = { operation: "add", v: [1, 2], w: [5, -4], scalar: 2 };
-function validInputs(value: unknown): value is VectorInputDraft {
-  if (!value || typeof value !== "object") return false;
-  const draft = value as Partial<VectorInputDraft>;
-  const vector = (v: unknown) => Array.isArray(v) && v.length === 2 && v.every(n => typeof n === "number" && Number.isFinite(n) && Math.abs(n) <= 9);
-  return ["add", "subtract", "scale", "normalize"].includes(draft.operation ?? "") && vector(draft.v) && vector(draft.w)
-    && typeof draft.scalar === "number" && Number.isFinite(draft.scalar) && Math.abs(draft.scalar) <= 3;
-}
 
 const operations: Array<{ id: Operation; label: string; latex: string }> = [
   { id: "add", label: "v plus w", latex: String.raw`\mathbf{v} + \mathbf{w}` },

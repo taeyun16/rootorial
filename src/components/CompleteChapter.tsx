@@ -78,9 +78,9 @@ export function CompleteChapter({
             {status === "memory" ? (isKo ? "다시 저장" : "Save again") : (isKo ? "다시 동기화" : "Sync again")}
           </button>
         ) : preview ? (
-          <a href={`/admin/preview/curricula/${curriculumSlug}`}>{isKo ? "커리큘럼으로" : "To curriculum"}</a>
+          <a className="completed-return-link" href={`/admin/preview/curricula/${curriculumSlug}`}>{isKo ? "커리큘럼으로" : "To curriculum"}</a>
         ) : (
-          <Link to="/curricula/$curriculumSlug" params={{ curriculumSlug }}>
+          <Link className="completed-return-link" to="/curricula/$curriculumSlug" params={{ curriculumSlug }}>
             {isKo ? "커리큘럼으로" : "To curriculum"}
           </Link>
         )}

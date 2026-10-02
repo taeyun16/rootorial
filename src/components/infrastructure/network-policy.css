@@ -630,3 +630,6 @@
     transition: none !important;
   }
 }
+
+/* The connected terms in the hero exceeded 312px at a 360px viewport. */
+.network-policy-lesson-hero .lesson-deck { overflow-wrap: anywhere; }

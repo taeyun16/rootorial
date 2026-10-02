@@ -2,13 +2,20 @@ import { useEffect, useRef } from "react";
 import { useLocale } from "../features/localization/localization";
 import { useProgress } from "./ProgressProvider";
 import { usePublicationPreview } from "./PublicationPreview";
+import { useExperimentDraft } from "../features/progress/useExperimentDraft";
+import { initialInputs, validInputs } from "../features/learning/vector-input-draft";
 import { useLocalLearning } from "./LocalLearning";
 
 export function ChapterResume({ chapterId }: { chapterId: string }) {
-  const { resume, saveResume, status } = useProgress();
+  const { resume, saveResume, status, completed, storageAvailable } = useProgress();
   const { locale } = useLocale();
   const preview = usePublicationPreview();
   const local = useLocalLearning();
+  const vectorDraft = useExperimentDraft("vector-basic-inputs:v1", initialInputs, validInputs);
+  const hasRestoredInputs = chapterId === "transformer-from-zero/vectors" && vectorDraft.restored;
+  const isCompleted = completed.includes(chapterId);
+  const hasSavedSection = resume?.chapterId === chapterId;
+  const t = (ko: string, en: string) => locale === "ko" ? ko : en;
   const enabled = (!preview || local) && status !== "loading";
   const remembered = useRef<string | null>(null);
   remembered.current = resume?.chapterId === chapterId ? resume.sectionId : null;
@@ -70,11 +77,17 @@ export function ChapterResume({ chapterId }: { chapterId: string }) {
       window.removeEventListener("scroll", rememberVisibleSection);
     };
   }, [chapterId, enabled, saveResume]);
-  if (!enabled || resume?.chapterId !== chapterId) return null;
+  if (!enabled || (!hasSavedSection && !hasRestoredInputs && !isCompleted)) return null;
   return (
-    <aside className="chapter-resume" aria-label={locale === "ko" ? "학습 이어보기" : "Resume learning"}>
-      <a href={`#${resume.sectionId}`}>{locale === "ko" ? "지난 위치에서 이어보기" : "Continue from your saved section"}</a>
-      <span>{locale === "ko" ? "실습 답안은 새로 확인합니다." : "Practice answers are checked again."}</span>
+    <aside className="chapter-resume" aria-label={t("학습 이어보기", "Resume learning")}>
+      {hasSavedSection && <a href={`#${resume!.sectionId}`}>{t("지난 위치에서 이어보기", "Continue from your saved section")}</a>}
+      <dl>
+        <div><dt>{storageAvailable ? t("저장된 완료", "Saved completion") : t("이 페이지의 완료", "Completion on this page")}</dt><dd>{isCompleted ? t("완료 기록 있음", "Completion recorded") : t("완료 기록 없음", "No completion recorded")}</dd></div>
+        <div><dt>{t("복원된 입력", "Restored inputs")}</dt><dd>{hasRestoredInputs ? t("벡터 연산·좌표·스칼라", "Vector operation, coordinates, and scalar") : t("없음", "None")}</dd></div>
+        <div><dt>{t("재확인할 답안", "Answers to recheck")}</dt><dd>{t("예측·실습 결과·이해 확인은 새로 제출하세요. 입력 복원은 완료 증거가 아닙니다.", "Submit predictions, exercise results, and concept checks again. Restored inputs are not completion evidence.")}</dd></div>
+      </dl>
+      {!storageAvailable && <p role="status">{t("브라우저 저장 공간을 사용할 수 없어 현재 페이지에서만 유지됩니다.", "Browser storage is unavailable; state lasts only on this page.")}</p>}
+      {status === "error" && <p role="status">{t("계정 동기화 상태를 확인하지 못했습니다. 완료 영역에서 다시 동기화하세요.", "Account sync could not be confirmed. Retry in the completion area.")}</p>}
     </aside>
   );
 }
