@@ -1,3 +1,4 @@
+import { ChapterStartLink } from "./ChapterStartLink";
 import { useId } from "react";
 import { LearningLabGlossary } from "./LearningLabGlossary";
 import { getCurriculum } from "../data/curriculum";
@@ -54,6 +55,7 @@ export function CurriculumChapterCompass({
         ? { ko: ["process·listener·probe를 namespace에 배치하세요", "namespace별 lo와 socket 상태를 확인하세요", "같은 namespace와 격리된 경로를 비교하세요"], en: ["Place process, listener, and probe in namespaces", "Inspect each namespace's lo and socket state", "Compare local and isolated paths"] }
         : null;
   const actions = domainActions?.[locale] ?? interactionCopy[contract.interaction][locale];
+  const firstTarget = chapterSlug === "shell-and-filesystem" ? "#practice" : chapterSlug === "interfaces-addresses-and-loopback" ? "#required-figure" : chapterSlug === "network-namespaces-and-boundaries" ? "#namespace-topology-lab" : null;
 
   function openClarificationFeedback() {
     requestContentFeedback({
@@ -74,6 +76,7 @@ export function CurriculumChapterCompass({
         <span>{t("핵심 경로만 완료 · 도움 요청은 진도에 포함되지 않습니다", "Complete the core path · asking for help never affects progress")}</span>
       </header>
 
+      {firstTarget && <ChapterStartLink href={firstTarget}>{t("지금 시작 · ", "Start · ")}{actions[0]}</ChapterStartLink>}
       <div className="curriculum-chapter-compass-body">
         <ol aria-label={t("완료에 필요한 핵심 행동", "Core actions for completion")}>
           {actions.map((action, index) => (

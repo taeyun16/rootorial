@@ -192,6 +192,7 @@ export function NeuralNetworkXorLab({
       actions={<button type="button" className="button button-secondary" onClick={resetLab}>{t("전체 초기화", "Reset lab")}</button>}
       className="neural-xor-lab"
     >
+      <p className="lab-term-help">{t("affine은 가중합+편향입니다. 예: 2x₁+x₂−1. sigmoid는 이 점수를 확률로 바꾸며, half-plane은 경계 직선의 한쪽 영역입니다. 먼저 최대 개수 하나만 판단하세요.", "An affine map is a weighted sum plus bias, e.g. 2x₁+x₂−1. Sigmoid maps its score to probability; a half-plane is one side of a boundary line. Judge only the maximum count first.")}</p>
       <fieldset className="neural-prediction-step">
         <legend>{t("1 · 단일 직선 경계 예측", "1 · Predict one linear boundary")}</legend>
         <DirectChoice
@@ -237,6 +238,7 @@ export function NeuralNetworkXorLab({
           </div>
         </header>
 
+        <p className="lab-term-help">{t("다음은 hidden activation → h₁ → h₂ → 출력 결합 순서로 하나씩 정하세요. logit은 확률로 바꾸기 전 점수입니다. 예: logit 0은 sigmoid에서 확률 0.5가 됩니다.", "Next, choose activation → h₁ → h₂ → output combination one at a time. A logit is the score before probability; logit 0 maps to sigmoid probability 0.5.")}</p>
         <div className="neural-config-grid">
           <DirectChoice compact label={t("hidden activation", "Hidden activation")} value={config.activation} options={activationIds.map((id) => ({ value: id, label: activationCopy[id] }))} onChange={(activation: ActivationId) => patchConfig({ activation })} />
           <DirectChoice compact label={t("hidden unit h₁", "Hidden unit h₁")} value={config.hiddenFeatures[0]} options={hiddenFeatureIds.map((id) => ({ value: id, label: hiddenCopy[id] }))} onChange={(feature: HiddenFeatureId) => patchConfig({ hiddenFeatures: [feature, config.hiddenFeatures[1]] })} />
@@ -251,9 +253,10 @@ export function NeuralNetworkXorLab({
 
       {run ? <NeuralNetworkStateView run={run} /> : null}
 
+      <p className="lab-term-help">{t("ablation은 구성 요소를 하나 지워 비교하는 검사입니다. 여기서는 h₁ 또는 h₂를 0으로 둔 결과와 원래 결과를 비교합니다.", "Ablation removes one component to compare outcomes. Here, compare the original output with h₁ or h₂ set to zero.")}</p>
       <div className="neural-evidence" aria-label={t("필수 lab 완료 증거", "Required lab completion evidence")}>
         <span className={evidence.predictionCorrect ? "is-complete" : undefined}>{evidence.predictionCorrect ? "✓" : "○"} {t("직선 한계 예측", "Predict linear limit")}</span>
-        <span className={evidence.linearFailureObserved ? "is-complete" : undefined}>{evidence.linearFailureObserved ? "✓" : "○"} {t("3/4 실패 관찰", "Observe 3/4 failure")}</span>
+        <span className={evidence.linearFailureObserved ? "is-complete" : undefined}>{evidence.linearFailureObserved ? "✓" : "○"} {t("직선 경계 결과 관찰", "Observe the linear boundary result")}</span>
         <span className={evidence.rebuiltAfterFailure ? "is-complete" : undefined}>{evidence.rebuiltAfterFailure ? "✓" : "○"} {t("hidden 구조 변경", "Change hidden structure")}</span>
         <span className={mastery?.mastered ? "is-complete" : undefined}>{mastery?.mastered ? "✓" : "○"} {t("XOR·BCE·ablation 통과", "Pass XOR, BCE, and ablation")}</span>
       </div>

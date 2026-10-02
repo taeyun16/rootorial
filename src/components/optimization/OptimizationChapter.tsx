@@ -1,3 +1,4 @@
+import { ChapterStartLink } from "../ChapterStartLink";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -38,6 +39,7 @@ const tocItems = {
     { id: "measure", label: "여러 오차를 하나의 손실로" },
     { id: "gradient", label: "Gradient 방향" },
     { id: "descent", label: "필수 경사하강 실습" },
+    { id: "numpy-check", label: "선택 · NumPy로 재현" },
     { id: "debug", label: "선택 · 업데이트 디버깅" },
     { id: "practice", label: "선택 · 독립 연습 3문제" },
     { id: "transfer", label: "뉴런으로 전이" },
@@ -48,6 +50,7 @@ const tocItems = {
     { id: "measure", label: "Many errors, one loss" },
     { id: "gradient", label: "Gradient direction" },
     { id: "descent", label: "Required descent lab" },
+    { id: "numpy-check", label: "Optional · Reproduce with NumPy" },
     { id: "debug", label: "Optional · Debug updates" },
     { id: "practice", label: "Optional · Three independent challenges" },
     { id: "transfer", label: "Transfer to neurons" },
@@ -109,6 +112,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
             </p>
             <div className="lesson-number">02</div>
             <h1>{chapter.title}</h1>
+            <ChapterStartLink href="#descent">{t("시작하기 · 학습률 결과 예측", "Start · predict the learning-rate outcome")}</ChapterStartLink>
             <p className="lesson-deck">
               {isKo ? (
                 <>모델은 틀린 정도를 하나의 <em>손실</em>로 요약하고, 그 손실이 가장 빨리 커지는 반대 방향으로 파라미터를 조금씩 옮기며 배웁니다.</>
@@ -232,6 +236,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
             <OptimizationDescentLab onCompletionChange={setDescentLabComplete} />
           </div>
 
+          <OptionalLearningSection title={t("선택 심화: NumPy로 재현하기", "Optional depth: reproduce with NumPy")}>
           <section className="article-section optimization-notebook-section" id="numpy-check">
             <div className="margin-label">05 — NUMPY · OPTIONAL</div>
             <h2>{t("실제 NumPy에서 trace와 gradient 계약을 함께 확인하세요", "Check both the trace and gradient contract in real NumPy")}</h2>
@@ -276,6 +281,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
               />
             </div>
           </section>
+          </OptionalLearningSection>
 
           <OptionalLearningSection title={t("선택 심화: 원인 찾기", "Optional depth: diagnose a failure")}>
           <section className="article-section" id="debug">

@@ -189,7 +189,8 @@ export function NeuralNetworkBackpropLab({
 
       <fieldset className="neural-backprop-controls">
         <legend>{t("backward graph의 두 빈칸", "Two missing factors in the backward graph")}</legend>
-        <div className="neural-config-grid">
+        <p className="lab-term-help">{t("upstream factor는 다음 층의 오차가 현재 층으로 돌아올 때 곱하는 연결 계수입니다. 예: g에 연결 계수 a를 곱하면 ga. 먼저 연결을 고른 뒤, sigmoid의 local derivative(이 노드의 변화율)를 고르세요.", "An upstream factor is the connection coefficient multiplying a gradient from the next layer, e.g. g times a gives ga. Choose the connection first, then the sigmoid local derivative—the rate of change at this node.")}</p>
+        <div className="neural-config-grid neural-factor-sequence">
           <DirectChoice compact label={t("hidden으로 돌아오는 upstream factor", "Upstream factor returning to hidden")} value={upstreamFactor} options={[{ value: "output-weight-transpose", label: "W²ᵀ" }, { value: "first-weight-transpose", label: "W¹ᵀ" }, { value: "skip-upstream", label: `1 · ${t("연결 weight 생략", "skip connection weights")}` }]} onChange={(value: Exclude<UpstreamFactor, "">) => { setUpstreamFactor(value); revokeResult(); }} />
           <DirectChoice compact label={t("hidden sigmoid의 local derivative", "Hidden sigmoid local derivative")} value={localDerivative} options={[{ value: "sigmoid-local-derivative", label: "H ⊙ (1 − H)" }, { value: "activation-value", label: "H" }, { value: "skip-local", label: `1 · ${t("activation derivative 생략", "skip activation derivative")}` }]} onChange={(value: Exclude<LocalDerivative, "">) => { setLocalDerivative(value); revokeResult(); }} />
         </div>

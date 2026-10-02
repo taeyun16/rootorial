@@ -1,3 +1,4 @@
+import { ChapterStartLink } from "../ChapterStartLink";
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -41,7 +42,7 @@ const tocItems = {
     { id: "hidden", label: "hidden feature" },
     { id: "xor-lab", label: "필수 XOR 실습" },
     { id: "backprop-lab", label: "필수 hidden backprop" },
-    { id: "numpy-bridge", label: "NumPy로 다시 만들기" },
+    { id: "numpy-bridge", label: "선택 · NumPy로 다시 만들기" },
     { id: "debug", label: "선택 · 네트워크 수술" },
     { id: "practice", label: "선택 · 독립 연습" },
     { id: "transfer", label: "batch·class로 전이" },
@@ -116,13 +117,14 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
         <article className="lesson-article">
           <header className="lesson-hero neural-networks-hero">
             <p className="eyebrow">
-              LOGIT → ACTIVATION → PROBABILITY → LOSS → BACKPROP · {isKo ? `약 ${chapter.estimatedMinutes}분` : `ABOUT ${chapter.estimatedMinutes} MIN`}
+              {t("LOGIT(확률 전 점수) → ACTIVATION", "LOGIT → ACTIVATION")} → PROBABILITY → LOSS → BACKPROP · {isKo ? `약 ${chapter.estimatedMinutes}분` : `ABOUT ${chapter.estimatedMinutes} MIN`}
             </p>
             <div className="lesson-number">03</div>
             <h1>{chapter.title}</h1>
+            <ChapterStartLink href="#xor-lab">{t("시작하기 · 직선 경계 예측", "Start · predict a linear boundary")}</ChapterStartLink>
             <p className="lesson-deck">
               {isKo ? (
-                <>직선 하나가 표현하지 못하는 규칙은 더 오래 학습한다고 생기지 않습니다. 뉴런은 affine 점수를 <em>활성화</em>해 중간 feature를 만들고, loss 신호는 같은 경로를 거꾸로 돌아 두 층의 weight를 바꿉니다.</>
+                <>직선 하나가 표현하지 못하는 규칙은 더 오래 학습한다고 생기지 않습니다. 뉴런은 affine(가중합+편향, 예: 2x+1) 점수를 <em>활성화</em>해 중간 feature를 만들고, loss 신호는 같은 경로를 거꾸로 돌아 두 층의 weight를 바꿉니다.</>
               ) : (
                 <>Training longer cannot create a rule that one line cannot represent. A neuron <em>activates</em> an affine score into an intermediate feature, then the loss signal travels back through the same path to change both layers of weights.</>
               )}
@@ -131,7 +133,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
             <div className="lesson-objectives">
               <span>{t("학습 목표", "LEARNING OBJECTIVES")}</span>
               <ul>
-                <li>{t("z=Xw+b의 logit, sigmoid probability와 threshold class를 구분할 수 있다.", "Distinguish logits from z=Xw+b, sigmoid probabilities, and thresholded classes.")}</li>
+                <li>{t("z=Xw+b의 logit(확률 전 점수, 예: z=0 → p=0.5), sigmoid probability와 threshold class를 구분할 수 있다.", "Distinguish logits from z=Xw+b, sigmoid probabilities, and thresholded classes.")}</li>
                 <li>{t("BCE가 정답 class에 배정한 확률을 읽고 확신한 오답을 더 크게 벌점 주는 이유를 설명할 수 있다.", "Explain why BCE reads probability assigned to the true class and penalizes confident wrong predictions most.")}</li>
                 <li>{t("단일 affine+sigmoid와 activation 없는 연속 affine이 XOR을 표현하지 못함을 예측할 수 있다.", "Predict why one affine+sigmoid—or stacked affine maps without activation—cannot represent XOR.")}</li>
                 <li>{t("X[4,2]→hidden[4,2]→logit[4,1]의 값과 shape를 추적하고 두 hidden feature로 XOR을 조립할 수 있다.", "Trace values and shapes through X[4,2]→hidden[4,2]→logit[4,1] and assemble XOR from two hidden features.")}</li>
@@ -187,8 +189,8 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
 
           <section className="article-section" id="linear-limit">
             <div className="margin-label">03 — REPRESENTATION</div>
-            <h2>{t("XOR의 대각선은 하나의 half-plane에 들어가지 않습니다", "XOR's diagonal positives do not fit one half-plane")}</h2>
-            <p>{t("XOR은 두 입력이 다를 때만 1입니다. 양성 [0,1]과 [1,0]을 한 직선의 같은 쪽에 넣으려 하면 음성 [0,0] 또는 [1,1]도 따라 들어옵니다. 그래서 대표 직선은 3/4까지 가도 4/4가 되지 않습니다. 이것은 학습률이나 epoch가 아니라 모델의 표현력 문제입니다.", "XOR is 1 only when the inputs differ. Any half-plane containing both positive points [0,1] and [1,0] also captures a negative point [0,0] or [1,1]. A representative line can reach 3/4 but not 4/4. This is model expressiveness, not learning rate or epoch count.")}</p>
+            <h2>{t("XOR의 대각선은 하나의 half-plane(직선 한쪽 영역)에 들어가지 않습니다", "XOR's diagonal positives do not fit one half-plane")}</h2>
+            <p>{t("half-plane은 직선으로 나눈 한쪽 평면입니다. 예: x₁=0의 오른쪽 x₁>0 영역. XOR은 두 입력이 다를 때만 1입니다. 양성 [0,1]과 [1,0]을 한 직선의 같은 쪽에 넣으려 하면 음성 [0,0] 또는 [1,1]도 따라 들어옵니다. 그래서 대표 직선은 3/4까지 가도 4/4가 되지 않습니다. 이것은 학습률이나 epoch가 아니라 모델의 표현력 문제입니다.", "XOR is 1 only when the inputs differ. Any half-plane containing both positive points [0,1] and [1,0] also captures a negative point [0,0] or [1,1]. A representative line can reach 3/4 but not 4/4. This is model expressiveness, not learning rate or epoch count.")}</p>
             <div className="neural-xor-data">
               <ArrayDiagram
                 values={[[0, 0], [0, 1], [1, 0], [1, 1]]}
@@ -270,6 +272,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
             <NeuralNetworkBackpropLab onCompletionChange={setBackpropLabComplete} />
           </section>
 
+          <OptionalLearningSection title={t("선택 심화: NumPy로 재현하기", "Optional depth: reproduce with NumPy")}>
           <section className="article-section neural-python-bridge" id="numpy-bridge">
             <div className="margin-label">07 — NUMPY BRIDGE · OPTIONAL</div>
             <h2>{t("시뮬레이터의 XOR을 실제 NumPy forward pass로 옮깁니다", "Move the simulator's XOR into a real NumPy forward pass")}</h2>
@@ -323,6 +326,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
               ariaLabel={t("hidden activation 수리 NumPy 코드", "NumPy code for repairing the hidden activation")}
             />
           </section>
+          </OptionalLearningSection>
 
           <OptionalLearningSection title={t("선택 심화: 원인 찾기", "Optional depth: diagnose a failure")}>
           <section className="article-section" id="debug">

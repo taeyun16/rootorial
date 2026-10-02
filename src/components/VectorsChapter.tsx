@@ -1,3 +1,4 @@
+import { ChapterStartLink } from "./ChapterStartLink";
 import { Link } from "@tanstack/react-router";
 import { vectorReadiness } from "../features/vectors/vector-readiness";
 import { useEffect, useState } from "react";
@@ -148,7 +149,8 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             </p>
             <div className="lesson-number">01</div>
             <h1>{isKo ? "벡터와 텐서" : "Vectors and Tensors"}</h1>
-            <a className="button button-primary lesson-first-action" href="#vector-first-action">{t("지금 시작하기 · 벡터를 두 배로", "Start now · double a vector")}</a>
+            <p className="lesson-first-goal">{t("첫 목표 · 방향을 유지하며 크기를 바꾸기", "First goal · change magnitude while keeping direction")}</p>
+            <ChapterStartLink href="#vector-first-action">{t("지금 시작하기 · 벡터를 두 배로", "Start now · double a vector")}</ChapterStartLink>
             <p className="lesson-deck">
               {isKo ? (
                 <>Transformer가 읽는 문장은 결국 숫자의 묶음입니다. 첫 챕터에서는 그 숫자가 어떻게 <em>크기</em>, <em>방향</em>, 그리고 <em>관계</em>를 갖게 되는지 직접 움직이며 확인합니다.</>
