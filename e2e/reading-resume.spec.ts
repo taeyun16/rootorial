@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-const url = "http://localhost:3101/admin/preview/curricula/transformer-from-zero/chapters/vectors?lang=en";
+const preview = process.env.CONTENT_PREVIEW_URL ?? "http://localhost:3101";
+const url = `${preview}/admin/preview/curricula/transformer-from-zero/chapters/vectors?lang=en`;
 const key = "rootorial-progress:rehearsal:v1:resume";
 
 for (const width of [1440, 390]) {
@@ -18,7 +19,7 @@ for (const width of [1440, 390]) {
       // A hidden optional section after the current reading point must not win.
       const optional = document.createElement("details");
       optional.innerHTML = '<summary>Optional fixture</summary><section id="hidden-reading-fixture">Hidden content</section>';
-      document.querySelector(".lesson-article")!.append(optional);
+      document.querySelector<HTMLElement>(".lesson-article")!.appendChild(optional);
     });
     await page.waitForTimeout(900);
     await expect(resume).toHaveAttribute("href", "#tensor-shape");

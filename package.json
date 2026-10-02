@@ -31,6 +31,7 @@
     "test": "npm run check:llms && npm run check:curriculum-quality && npm run build && node --experimental-strip-types --test tests/*.test.mjs",
     "test:e2e": "npm run db:migrate:e2e && node e2e/run-local-e2e.mjs",
     "check": "tsc --noEmit",
+    "check:e2e": "tsc --noEmit -p tsconfig.e2e.json",
     "lint": "npm run check",
     "db:generate": "drizzle-kit generate",
     "test:e2e:anonymous": "node e2e/run-anonymous-e2e.mjs",

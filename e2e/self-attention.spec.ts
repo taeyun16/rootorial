@@ -22,7 +22,7 @@ async function choose(scope: Locator, label: string, value: string) {
   return option;
 }
 
-async function chooseConceptOption(scope: Locator, questionId: string, optionIndex: number) {
+async function chooseConceptOption(scope: Locator | TestPage, questionId: string, optionIndex: number) {
   const option = scope
     .locator(`.concept-question[data-question-id="${questionId}"] .concept-option`)
     .nth(optionIndex);
