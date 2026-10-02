@@ -45,12 +45,17 @@ export function LinuxVirtualMemoryLab({
   const [writeValue, setWriteValue] = useState("99");
   const [prediction, setPrediction] = useState<MemoryPrediction | "">("");
   const [result, setResult] = useState<MemoryAccessResult | null>(null);
+  const [submitted, setSubmitted] = useState<{ key: string; label: string } | null>(null);
   const [evidence, setEvidence] = useState(emptyEvidence);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [interactiveReady, setInteractiveReady] = useState(false);
   const [engineError, setEngineError] = useState("");
 
   useEffect(() => setInteractiveReady(true), []);
+
+  const inputKey = JSON.stringify({ processId, operation, address, writeValue, prediction });
+  const inputLabel = `${processId} · ${operation} · VA ${address}${operation === "write" ? ` · byte ${writeValue}` : ""} · prediction ${prediction || "—"}`;
+  const resultCurrent = submitted?.key === inputKey && !engineError;
 
   const reset = () => {
     setMachine(createVirtualMemoryMachine());
@@ -60,6 +65,7 @@ export function LinuxVirtualMemoryLab({
     setWriteValue("99");
     setPrediction("");
     setResult(null);
+    setSubmitted(null);
     setEvidence(emptyEvidence);
     setFeedback(null);
     setEngineError("");
@@ -88,6 +94,7 @@ export function LinuxVirtualMemoryLab({
     }
     setPrediction("");
     setResult(null);
+    setSubmitted(null);
     setFeedback(null);
   };
 
@@ -134,6 +141,7 @@ export function LinuxVirtualMemoryLab({
     );
     setMachine(access.machine);
     setResult(access);
+    setSubmitted({ key: inputKey, label: inputLabel });
     setEvidence(nextEvidence);
     const mastered = canMasterVirtualMemoryLab(access.machine, nextEvidence);
     onCompletionChange(mastered);
@@ -204,6 +212,14 @@ export function LinuxVirtualMemoryLab({
           ]} />
           <button type="button" className="button button-primary memory-run-access" onClick={runAccess}>{t("CPU 접근 실행·판정", "Run and evaluate CPU access")}</button>
         </div>
+
+        {submitted ? (
+          <div className="memory-result-provenance lab-execution-provenance" data-evidence={resultCurrent ? "current" : "stale"} role="status" aria-live="polite">
+            <strong>{resultCurrent ? t("현재 입력의 실행 결과", "Executed result for the current inputs") : t("이전 실행 결과 — 현재 입력은 아직 실행하지 않았습니다", "Previous execution — current inputs have not been run")}</strong>
+            <p>{t("실행한 입력", "Submitted inputs")}: {submitted.label}</p>
+            {!resultCurrent ? <p>{t("현재 입력", "Current inputs")}: {inputLabel}. {t("아래 결과와 상태는 이전 실행을 설명합니다. CPU 접근을 실행하면 새 결과가 표시됩니다. 누적 완료 근거는 유지됩니다.", "The result and machine below describe the previous execution. Run CPU access to update them. Accumulated completion evidence is preserved.")}</p> : null}
+          </div>
+        ) : null}
 
         {feedback ? (
           <div className={`memory-live-feedback ${feedback.correct ? "is-correct" : "is-incorrect"}`} role="status" aria-live="polite" tabIndex={-1}>

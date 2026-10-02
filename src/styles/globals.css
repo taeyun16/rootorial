@@ -25844,3 +25844,6 @@ textarea:focus-visible {
 
 .chapter-resume { display: flex; flex-wrap: wrap; gap: 12px; padding: 12px 24px; background: var(--paper); border-bottom: 1px solid var(--border); }
 .chapter-resume a { min-height: 44px; display: inline-flex; align-items: center; }
+
+.lab-execution-provenance { padding: 1rem; border: 1px solid var(--line); border-radius: 0.75rem; overflow-wrap: anywhere; }
+.lab-execution-provenance p { margin: 0.5rem 0 0; }

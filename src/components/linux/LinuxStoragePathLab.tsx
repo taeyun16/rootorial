@@ -58,6 +58,7 @@ export function LinuxStoragePathLab({
   const [offset, setOffset] = useState("0x1340");
   const [prediction, setPrediction] = useState(initialPrediction);
   const [trace, setTrace] = useState<StorageOffsetTrace | null>(null);
+  const [submitted, setSubmitted] = useState<{ key: string; label: string; machine: StorageMachine } | null>(null);
   const [evidence, setEvidence] = useState<StorageLabEvidence>(emptyStorageLabEvidence);
   const [writeValue, setWriteValue] = useState("candidate-v2");
   const [crashPrediction, setCrashPrediction] = useState("");
@@ -79,12 +80,17 @@ export function LinuxStoragePathLab({
     onCompletionChange(canMasterStorageLab(nextMachine, nextEvidence));
   };
 
+  const inputKey = JSON.stringify({ path, offset, prediction });
+  const inputLabel = `${path} · offset ${offset} · ${prediction.device || "—"}:inode ${prediction.inode || "—"} · LBN ${prediction.logicalBlock || "—"} · in-block ${prediction.inBlockOffset || "—"} · block ${prediction.deviceBlock || "—"} · byte ${prediction.deviceByteAddress || "—"}`;
+  const resultCurrent = submitted?.key === inputKey && submitted.machine === machine && !engineError;
+
   const reset = () => {
     setMachine(createStorageMachine());
     setPath("/srv/data/report.bin");
     setOffset("0x1340");
     setPrediction(initialPrediction);
     setTrace(null);
+    setSubmitted(null);
     setEvidence(emptyStorageLabEvidence);
     setWriteValue("candidate-v2");
     setCrashPrediction("");
@@ -100,6 +106,7 @@ export function LinuxStoragePathLab({
     setOffset("0");
     setPrediction(initialPrediction);
     setTrace(null);
+    setSubmitted(null);
     setEvidence(emptyStorageLabEvidence);
     setFeedback({
       correct: true,
@@ -141,6 +148,7 @@ export function LinuxStoragePathLab({
         && actualTrace.deviceBlock === submitted.deviceBlock
         && actualTrace.deviceByteAddress === submitted.deviceByteAddress;
       setTrace(actualTrace);
+      setSubmitted({ key: inputKey, label: inputLabel, machine });
       setEvidence(nextEvidence);
       setEngineError("");
       updateCompletion(machine, nextEvidence);
@@ -335,6 +343,14 @@ export function LinuxStoragePathLab({
           <label className="storage-wide-control"><span>device byte address</span><input aria-label={t("device byte 주소 예측", "Predicted device byte address")} value={prediction.deviceByteAddress} onChange={(event) => setPrediction((current) => ({ ...current, deviceByteAddress: event.target.value }))} spellCheck={false} /></label>
           <button type="button" className="button button-primary storage-run-action" onClick={runPathTrace}>{t("path·block trace 실행", "Run path and block trace")}</button>
         </div>
+
+        {submitted ? (
+          <div className="storage-result-provenance lab-execution-provenance" data-evidence={resultCurrent ? "current" : "stale"} role="status" aria-live="polite">
+            <strong>{resultCurrent ? t("현재 입력과 상태에서 실행한 trace", "Trace executed for the current inputs and state") : t("이전 실행 trace — 현재 입력과 상태는 아직 추적하지 않았습니다", "Previous trace — current inputs and state have not been traced")}</strong>
+            <p>{t("실행한 입력", "Submitted inputs")}: {submitted.label}</p>
+            {!resultCurrent ? <p>{t("현재 입력", "Current inputs")}: {inputLabel}. {t("아래 trace는 이전 실행 결과이며 피드백은 마지막 실행 동작을 설명합니다. path trace를 실행하면 새 결과가 표시됩니다. 누적 완료 근거는 유지됩니다.", "The trace below is from the previous execution; feedback describes the last submitted action. Run path trace to update it. Accumulated completion evidence is preserved.")}</p> : null}
+          </div>
+        ) : null}
 
         {feedback ? <p className={`storage-feedback ${feedback.correct ? "is-correct" : "is-incorrect"}`} role="status" aria-live="polite">{feedback.text}</p> : <p className="storage-feedback" role="status" aria-live="polite">{t("힌트: 0x1340 ÷ 0x1000에서 quotient와 remainder를 먼저 구하세요.", "Hint: first compute the quotient and remainder of 0x1340 ÷ 0x1000.")}</p>}
 
