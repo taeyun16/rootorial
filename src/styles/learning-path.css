@@ -83,3 +83,8 @@
 
 .curriculum-chapter-compass > .lesson-first-action { margin: 16px 28px; width: auto; max-width: calc(100% - 56px); white-space: normal; }
 .lesson-first-goal { font-size: 15px; line-height: 1.6; margin-block: 8px; }
+
+.attempt-comparison { margin-block: 16px; max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; }
+.attempt-comparison p { padding: 8px 12px; font-size: 13px; line-height: 1.6; }
+.attempt-comparison table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.attempt-comparison th, .attempt-comparison td { text-align: left; padding: 8px 12px; border-top: 1px solid var(--line); overflow-wrap: anywhere; min-width: 90px; }

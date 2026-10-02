@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { AttemptComparison } from "./AttemptComparison";
 import { useLocale } from "../features/localization/localization";
 import { MathFormula } from "./MathFormula";
 import { isRoundedDisplay } from "../features/learning/rounded-display";
@@ -71,7 +72,8 @@ export function VectorBasicsLab() {
   const coordinatesValid = ["v0", "v1", ...(["add", "subtract"].includes(operation) ? ["w0", "w1"] : [])].every(key => coordinateValidity[key] !== false);
   const [prediction, setPrediction] = useState<[string, string]>(["", ""]);
   const [predictUndefined, setPredictUndefined] = useState(false);
-  const [lastComparison, setLastComparison] = useState<{ predicted: string; actual: string; matches: boolean } | null>(null);
+  const [lastComparison, setLastComparison] = useState<{ predicted: string; actual: string; matches: boolean; inputs: VectorInputDraft } | null>(null);
+  const [previousComparison, setPreviousComparison] = useState<typeof lastComparison>(null);
   const predictionReady = coordinatesValid && (predictUndefined || prediction.every(value => value.trim() !== "" && Number.isFinite(Number(value))));
   function invalidate() {
     setRevealed(false);
@@ -152,7 +154,7 @@ export function VectorBasicsLab() {
           : draft.restored
             ? (isKo ? "지난 실험 입력을 복원했습니다. 예측과 결과는 다시 확인하세요." : "Previous experiment inputs restored. Make a fresh prediction and run again.")
             : (isKo ? "실험 입력만 이 브라우저에 저장합니다. 입력을 복원해도 실습 완료로 인정되지는 않습니다." : "Only experiment inputs are saved here. Restoring inputs does not count as completing the exercise.")}</span>
-        <button type="button" onClick={() => { draft.clear(); invalidate(); setLastComparison(null); setCoordinateValidity({}); setCoordinateReset(value => value + 1); }}>{isKo ? "실험 입력 초기화" : "Reset experiment inputs"}</button>
+        <button type="button" onClick={() => { draft.clear(); invalidate(); setLastComparison(null); setPreviousComparison(null); setCoordinateValidity({}); setCoordinateReset(value => value + 1); }}>{isKo ? "실험 입력 초기화" : "Reset experiment inputs"}</button>
       </div>
 
       <div className="vector-basics-tabs" role="group" aria-label={isKo ? "벡터 연산 선택" : "Choose a vector operation"}>
@@ -222,7 +224,6 @@ export function VectorBasicsLab() {
             {lastComparison && <p className="vector-prediction-feedback">{isKo ? "실행 전 예측" : "Prediction before this run"}: {lastComparison.predicted} → {isKo ? "실제" : "Actual"}: {lastComparison.actual}. {lastComparison.matches ? (isKo ? "예측과 일치합니다." : "Your prediction matches.") : (isKo ? "다른 성분을 표와 그림에서 비교해 보세요." : "Compare the differing coordinates in the table and diagram.")}</p>}
             <button type="button" className="button button-secondary" onClick={() => {
               invalidate();
-              setLastComparison(null);
               requestAnimationFrame(() => predictionInput.current?.focus());
             }}>{isKo ? "같은 입력으로 다시 예측" : "Predict again with the same inputs"}</button>
             {calculation.defined && operation !== "normalize" && <VectorOperationPlot trace={calculation} isKo={isKo} />}
@@ -232,14 +233,15 @@ export function VectorBasicsLab() {
           </> : (
             <div className="vector-basics-reveal">
               <p>{isKo ? "각 좌표의 결과와 방향 변화를 머릿속이나 종이에 먼저 적어 보세요." : "Write down the resulting coordinates and direction change before revealing the answer."}</p>
-              {lastComparison && <p className="vector-prediction-feedback">{isKo ? "입력이 바뀌었습니다. 이전 결과" : "Inputs changed. Previous result"}: {lastComparison.actual}. {isKo ? "현재 입력을 다시 예측하세요." : "Predict the current inputs again."}</p>}
+              {lastComparison && <p className="vector-prediction-feedback">{isKo ? "현재 예측은 미실행입니다. 지난 결과" : "Current prediction has not run. Previous result"}: {lastComparison.actual}. {isKo ? "현재 입력을 다시 예측하세요." : "Predict the current inputs again."}</p>}
               <div className="vector-prediction-fields">
                 {([0, 1] as const).map(index => <label key={index}>{isKo ? "예측" : "Predicted"} {index === 0 ? "x" : "y"}<input ref={index === 0 ? predictionInput : undefined} type="number" step="any" disabled={predictUndefined} value={prediction[index]} onChange={event => setPrediction(index === 0 ? [event.target.value, prediction[1]] : [prediction[0], event.target.value])} /></label>)}
               </div>
               {operation === "normalize" && <label><input type="checkbox" checked={predictUndefined} onChange={event => setPredictUndefined(event.target.checked)} />{isKo ? "정의되지 않음으로 예측" : "Predict undefined"}</label>}
               <button type="button" disabled={!predictionReady} onClick={() => {
                 const guessed: Vector2 | "undefined" = predictUndefined ? "undefined" : [Number(prediction[0]), Number(prediction[1])];
-                setLastComparison({ predicted: guessed === "undefined" ? (isKo ? "정의되지 않음" : "undefined") : '[' + guessed.join(', ') + ']', actual: calculation.defined ? '[' + calculation.result.map(formatNumber).join(', ') + ']' : (isKo ? "정의되지 않음" : "undefined"), matches: matchesVectorPrediction(calculation, guessed) });
+                setPreviousComparison(lastComparison);
+                setLastComparison({ inputs: { operation, v: [...v], w: [...w], scalar }, predicted: guessed === "undefined" ? (isKo ? "정의되지 않음" : "undefined") : '[' + guessed.join(', ') + ']', actual: calculation.defined ? '[' + calculation.result.map(formatNumber).join(', ') + ']' : (isKo ? "정의되지 않음" : "undefined"), matches: matchesVectorPrediction(calculation, guessed) });
                 setRevealed(true);
               }}>
                 {isKo ? "예측 완료 · 결과 보기" : "Prediction ready · reveal result"}
@@ -248,6 +250,11 @@ export function VectorBasicsLab() {
           )}
         </div>
       </div>
+
+      <AttemptComparison executed={revealed} previous={(revealed ? previousComparison : lastComparison) && (() => {
+        const old = (revealed ? previousComparison : lastComparison)!;
+        return { operation: old.inputs.operation, v: '[' + old.inputs.v.join(', ') + ']', w: '[' + old.inputs.w.join(', ') + ']', 'λ': String(old.inputs.scalar), [isKo ? "예측" : "Prediction"]: old.predicted, [isKo ? "실제" : "Actual"]: old.actual };
+      })()} current={{ operation, v: '[' + v.join(', ') + ']', w: '[' + w.join(', ') + ']', 'λ': String(scalar), [isKo ? "예측" : "Prediction"]: revealed ? lastComparison!.predicted : predictUndefined ? (isKo ? "정의되지 않음" : "Undefined") : '[' + prediction.map(value => value || '—').join(', ') + ']', [isKo ? "실제" : "Actual"]: revealed ? lastComparison!.actual : (isKo ? "미실행" : "Not run") }} />
 
       <div className="vector-missions" aria-label={isKo ? "추천 실험" : "Suggested experiments"}>
         <strong>{isKo ? "추천 실험" : "Suggested experiments"}</strong>

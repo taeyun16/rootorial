@@ -5,6 +5,7 @@ import {
   type XorBackpropStep,
   xorBackpropFixture,
 } from "../../features/neural-networks/backpropagation";
+import { AttemptComparison } from "../AttemptComparison";
 import { useLocale } from "../../features/localization/localization";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { DirectChoice } from "../interactive/DirectChoice";
@@ -59,6 +60,8 @@ export function NeuralNetworkBackpropLab({
   const [localDerivative, setLocalDerivative] = useState<LocalDerivative>("");
   const [step, setStep] = useState<XorBackpropStep | null>(null);
   const [outcome, setOutcome] = useState<LabOutcome>("idle");
+  const [lastAttempt, setLastAttempt] = useState<{ upstream: UpstreamFactor; local: LocalDerivative; result: string } | null>(null);
+  const [previousAttempt, setPreviousAttempt] = useState<typeof lastAttempt>(null);
   const [runtimeFailure, setRuntimeFailure] = useState<string | null>(null);
 
   const upstreamCorrect = upstreamFactor === "output-weight-transpose";
@@ -79,11 +82,15 @@ export function NeuralNetworkBackpropLab({
   function resetLab() {
     setUpstreamFactor("");
     setLocalDerivative("");
+    setLastAttempt(null);
+    setPreviousAttempt(null);
     revokeResult();
   }
 
   function runBackpropStep() {
     if (!upstreamFactor || !localDerivative) return;
+    setPreviousAttempt(lastAttempt);
+    setLastAttempt({ upstream: upstreamFactor, local: localDerivative, result: t("factor 불일치 · update 미실행", "Factor mismatch · update not run") });
     if (!upstreamCorrect || !localCorrect) {
       setStep(null);
       setOutcome("incorrect");
@@ -98,6 +105,7 @@ export function NeuralNetworkBackpropLab({
       const nextMeanLossReduced = nextStep.after.meanLoss < nextStep.before.meanLoss
         && nextStep.after.correctCount === nextStep.before.rows.length;
       const complete = nextGradientsValid && nextMeanLossReduced;
+      setLastAttempt({ upstream: upstreamFactor, local: localDerivative, result: `BCE ${formatNumber(nextStep.before.meanLoss)} → ${formatNumber(nextStep.after.meanLoss)}` });
       setStep(nextStep);
       setOutcome(complete ? "complete" : "error");
       setRuntimeFailure(
@@ -151,6 +159,9 @@ export function NeuralNetworkBackpropLab({
     );
   }
 
+  const upstreamLabel = (value: UpstreamFactor) => value === "output-weight-transpose" ? "W²ᵀ" : value === "first-weight-transpose" ? "W¹ᵀ" : value === "skip-upstream" ? "1" : "—";
+  const localLabel = (value: LocalDerivative) => value === "sigmoid-local-derivative" ? "H ⊙ (1 − H)" : value === "activation-value" ? "H" : value === "skip-local" ? "1" : "—";
+  const comparisonBefore = outcome === "idle" ? lastAttempt : previousAttempt;
   const representativeTrace = step?.rowTraces[2];
   const outputDeltas = step?.rowTraces.map((trace) => [trace.outputDelta]);
   const hiddenDeltas = step?.rowTraces.map((trace) => [...trace.hiddenLogitDelta]);
@@ -203,6 +214,8 @@ export function NeuralNetworkBackpropLab({
           {t("역전파 1 step 실행·판정", "Run and grade one backprop step")}
         </button>
       </fieldset>
+
+      <AttemptComparison executed={outcome !== "idle"} previous={comparisonBefore ? { 'upstream factor': upstreamLabel(comparisonBefore.upstream), 'local derivative': localLabel(comparisonBefore.local), [t("실제", "Actual")]: comparisonBefore.result } : null} current={{ 'upstream factor': upstreamLabel(upstreamFactor), 'local derivative': localLabel(localDerivative), [t("실제", "Actual")]: outcome === "idle" ? t("미실행", "Not run") : outcome === "error" ? t("실행 오류", "Execution error") : lastAttempt?.result ?? '—' }} />
 
       {step && representativeTrace && outputDeltas && hiddenDeltas ? (
         <div className="neural-backprop-result">

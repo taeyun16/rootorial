@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { AttemptComparison, type AttemptValues } from "../AttemptComparison";
 import { useLocale } from "../../features/localization/localization";
 import {
   canMasterDescentRepair,
@@ -71,6 +72,8 @@ export function OptimizationDescentLab({
   const [stepPreview, setStepPreview] = useState<DescentSimulation | null>(null);
   const [badRunConfig, setBadRunConfig] = useState<DescentConfig | null>(null);
   const [mastered, setMastered] = useState(false);
+  const [lastAttempt, setLastAttempt] = useState<{ config: DescentConfig; predicted: DescentOutcome; result: DescentSimulation } | null>(null);
+  const [previousAttempt, setPreviousAttempt] = useState<typeof lastAttempt>(null);
   const [inputError, setInputError] = useState("");
   const [interactiveReady, setInteractiveReady] = useState(false);
 
@@ -147,6 +150,8 @@ export function OptimizationDescentLab({
       predictedOutcome: prediction,
       simulation: next,
     });
+    setPreviousAttempt(lastAttempt);
+    setLastAttempt({ config: { ...config, initialWeights: { ...config.initialWeights } }, predicted: prediction, result: next });
     setSimulation(next);
     setStepPreview(null);
     setBadRunConfig(nextBadRunConfig);
@@ -160,11 +165,17 @@ export function OptimizationDescentLab({
     setSimulation(null);
     setStepPreview(null);
     setBadRunConfig(null);
+    setLastAttempt(null);
+    setPreviousAttempt(null);
     setMastered(false);
     setInputError("");
     onCompletionChange?.(false);
   }
 
+  function attemptValues(attempt: NonNullable<typeof lastAttempt>): AttemptValues {
+    return { 'η': attempt.config.learningRate.toFixed(2), 'W₀': '[' + attempt.config.initialWeights.bias + ', ' + attempt.config.initialWeights.slope + ']', [t("횟수", "Updates")]: String(attempt.config.steps), [t("예측", "Prediction")]: outcomeCopy[attempt.predicted][locale], [t("실제", "Actual")]: outcomeCopy[attempt.result.outcome][locale], [t("마지막 loss", "Final loss")]: formatNumber(attempt.result.finalLoss) };
+  }
+  const comparisonBefore = simulation ? previousAttempt : lastAttempt;
   const displayed = stepPreview ?? simulation;
   const initialSnapshot = displayed?.snapshots[0];
   const finalSnapshot = displayed?.snapshots.at(-1);
@@ -325,6 +336,8 @@ export function OptimizationDescentLab({
           <p>{t("학습률 η는 gradient 방향을 바꾸지 않고 업데이트 벡터의 전체 크기를 조절합니다.", "The learning rate η scales the whole update vector without changing the gradient's direction.")}</p>
         </div>
       )}
+
+      <AttemptComparison executed={Boolean(simulation)} previous={comparisonBefore ? attemptValues(comparisonBefore) : null} current={{ 'η': config.learningRate.toFixed(2), 'W₀': '[' + config.initialWeights.bias + ', ' + config.initialWeights.slope + ']', [t("횟수", "Updates")]: String(config.steps), [t("예측", "Prediction")]: prediction ? outcomeCopy[prediction][locale] : '—', [t("실제", "Actual")]: simulation ? outcomeCopy[simulation.outcome][locale] : t("미실행", "Not run"), [t("마지막 loss", "Final loss")]: simulation ? formatNumber(simulation.finalLoss) : '—' }} />
 
       <div className="optimization-evidence" aria-label={t("실습 완료 증거", "Lab completion evidence")}>
         <span className={observedBadRate ? "is-complete" : undefined}>{observedBadRate ? "✓" : "○"} {t("나쁜 학습률을 정확히 예측·관찰", "Correctly predicted and observed a bad rate")}</span>
