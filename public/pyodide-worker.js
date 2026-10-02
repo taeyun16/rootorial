@@ -1,5 +1,5 @@
 const PYODIDE_VERSION = "0.27.7";
-const PYODIDE_BASE = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
+const LOCAL_ASSET_HELP = "Local Python assets are unavailable. Run npm run python:prepare -- --download on an authorized network, or use --from DIRECTORY, then reload the page.";
 
 let pyodideReady;
 let runQueue = Promise.resolve();
@@ -7,9 +7,21 @@ let executionCount = 0;
 
 async function initialize() {
   if (!pyodideReady) {
-    importScripts(`${PYODIDE_BASE}pyodide.js`);
-    pyodideReady = self.loadPyodide({ indexURL: PYODIDE_BASE }).then(async (pyodide) => {
-      await pyodide.runPythonAsync(`
+    pyodideReady = (async () => {
+      let manifest;
+      try {
+        const response = await fetch(new URL("python-runtime/manifest.json", self.location.href), { cache: "no-store" });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        manifest = await response.json();
+        if (manifest.version !== PYODIDE_VERSION ||
+            !new RegExp(`^/python-runtime/v${PYODIDE_VERSION.replaceAll(".", "\\.")}-[a-f0-9]{16}/$`).test(manifest.baseURL)) {
+          throw new Error("Runtime version or asset path mismatch");
+        }
+        const baseURL = new URL(manifest.baseURL, self.location.origin).href;
+        importScripts(`${baseURL}pyodide.js`);
+        const pyodide = await self.loadPyodide({ indexURL: baseURL, lockFileURL: `${baseURL}pyodide-lock.json`, stdLibURL: `${baseURL}python_stdlib.zip` });
+        if (pyodide.version !== PYODIDE_VERSION) throw new Error("Runtime version mismatch");
+        await pyodide.runPythonAsync(`
 import os as __rootorial_os
 import warnings as __rootorial_warnings
 __rootorial_os.environ.setdefault("MPLBACKEND", "Agg")
@@ -19,8 +31,11 @@ __rootorial_warnings.filterwarnings(
 )
 del __rootorial_os, __rootorial_warnings
 `);
-      return pyodide;
-    });
+        return pyodide;
+      } catch (error) {
+        throw new Error(`${LOCAL_ASSET_HELP}\n${String(error)}`);
+      }
+    })();
   }
   return pyodideReady;
 }
@@ -123,7 +138,13 @@ async function executeRun({ code, requestId }) {
       { type: "status", phase: "loading-packages", executionCount: currentExecution },
       requestId,
     );
-    await pyodide.loadPackagesFromImports(code);
+    const packageErrors = [];
+    await pyodide.loadPackagesFromImports(code, { errorCallback: (message) => packageErrors.push(message) });
+    if (packageErrors.length > 0) {
+      const error = new Error(`Python package assets are unavailable locally. Prepared lesson libraries: NumPy and Matplotlib. Reprepare the assets if one of these is missing.\n${packageErrors.join("\n")}`);
+      error.runtimeAssetError = true;
+      throw error;
+    }
     await clearFigures(pyodide);
 
     pyodide.setStdout({ batched: appendOutput });
@@ -163,6 +184,7 @@ async function executeRun({ code, requestId }) {
       {
         type: "error",
         error: String(error),
+        code: !pyodide || error.runtimeAssetError ? "runtime" : "execution",
         output: lines.join("\n"),
         figures,
         executionCount: currentExecution,

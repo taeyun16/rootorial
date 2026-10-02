@@ -37,6 +37,7 @@ type WorkerErrorMessage = {
   type: "error";
   requestId?: string;
   error: string;
+  code?: "runtime" | "execution";
   output?: string;
   figures?: string[];
   executionCount?: number;
@@ -184,7 +185,7 @@ function handleWorkerMessage(
     pendingRuns.delete(message.requestId);
     pending.reject(
       new NotebookExecutionError(message.error, {
-        code: "execution",
+        code: message.code ?? "execution",
         output: message.output,
         figures: message.figures,
         executionCount: message.executionCount,

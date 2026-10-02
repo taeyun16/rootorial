@@ -22,10 +22,13 @@ Linux 네트워킹, 네트워크 인프라 설계, 시스템 아키텍처 등 �
 
 ## Local development
 
+Python runtime setup and real execution E2E: [Local Python](docs/local-python.md).
+
 Node.js `>=22.13.0`이 필요합니다.
 
 ```bash
 npm install
+npm run python:prepare -- --download
 npm run db:migrate:local
 npm run db:seed:local
 npm run dev

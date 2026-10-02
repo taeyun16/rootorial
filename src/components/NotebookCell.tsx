@@ -111,8 +111,8 @@ function notebookErrorNextAction(category: NotebookErrorCategory, isKo: boolean)
       en: "Check the module name. This browser lab supports the libraries prepared in the cell.",
     },
     runtime: {
-      ko: "네트워크 연결을 확인한 뒤 잠시 후 코드 실행을 다시 누르세요.",
-      en: "Check your network connection, wait a moment, then choose Run code again.",
+      ko: "Python 실행 자산을 불러오지 못했습니다. 페이지를 새로고침한 뒤 다시 실행하세요. 로컬 개발 중이라면 자산 준비 상태를 확인하세요.",
+      en: "Python assets could not be loaded. Reload the page and run again. For local development, check that the Python assets are prepared.",
     },
     execution: {
       ko: "오류 메시지의 마지막 줄을 확인하고 해당 코드를 수정한 뒤 다시 실행하세요.",

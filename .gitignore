@@ -50,3 +50,6 @@ next-env.d.ts
 /work/
 /.omx/
 /.codex/
+
+# prepared local WASM Python runtime and package assets
+/public/python-runtime/

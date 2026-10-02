@@ -120,10 +120,10 @@ test("runs Python and persists anonymous chapter progress", async ({ page }) => 
   }
   await page.getByRole("button", { name: "답 확인하기" }).click();
   await expect(page.getByText(/이해 확인 완료.*모든 필수 실습/)).toBeVisible();
-  await expect(page.locator(".concept-question")).toHaveCount(5);
+  await expect(page.locator('[data-check-purpose="core"] .concept-question')).toHaveCount(5);
   await expect(page.locator('input[name="attention-context"]')).toHaveCount(0);
-  await expect(page.locator(".answer-visual")).toHaveCount(5);
-  await expect(page.getByText("그림으로 확인")).toHaveCount(5);
+  await expect(page.locator('[data-check-purpose="core"] .answer-visual')).toHaveCount(5);
+  await expect(page.locator('[data-check-purpose="core"]').getByText("그림으로 확인")).toHaveCount(5);
   await expect(finishButton).toBeEnabled();
 
   await finishButton.click();

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const rehearsal = "http://localhost:3101";
+const rehearsal = process.env.ROOTORIAL_REHEARSAL_URL ?? "http://localhost:3101";
 const vectorPath = "/admin/preview/curricula/transformer-from-zero/chapters/vectors";
 
 async function solveQuiz(page: Page) {
