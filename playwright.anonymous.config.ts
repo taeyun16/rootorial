@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: ["learning-flow.spec.ts", "linux-curriculum.spec.ts", "local-learning.spec.ts"],
+  testMatch: ["learning-flow.spec.ts", "linux-curriculum.spec.ts", "local-learning.spec.ts", "ui-improvements.spec.ts", "optimization-trace.spec.ts", "formula-explorers.spec.ts", "vector-fallback.spec.ts", "learning-path.spec.ts", "reading-resume.spec.ts"],
   fullyParallel: false,
   workers: 1,
   forbidOnly: Boolean(process.env.CI),

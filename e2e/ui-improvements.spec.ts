@@ -81,3 +81,21 @@ test("input drafts report storage failure without preventing exploration", async
   await page.reload();
   await expect(lab.locator('.vector-basics-coordinate input').first()).toHaveValue("1");
 });
+
+test("failed storage deletion still clears transient prediction evidence", async ({ page }) => {
+  await page.goto(route("transformer-from-zero", "vectors") + "?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
+  const lab = page.locator(".vector-basics-lab");
+  await lab.locator('.vector-basics-coordinate input').first().fill("2");
+  await lab.getByLabel("Predicted x", { exact: true }).fill("7");
+  await lab.getByLabel("Predicted y", { exact: true }).fill("-2");
+  await lab.getByRole("button", { name: "Prediction ready · reveal result" }).click();
+  await page.evaluate(() => { Storage.prototype.removeItem = () => { throw new DOMException("Blocked", "SecurityError"); }; });
+  await page.getByRole("button", { name: "Reset practice progress", exact: true }).click();
+  await expect(lab.locator('.vector-basics-coordinate input').first()).toHaveValue("1");
+  await expect(lab).toHaveAttribute("data-evidence", "unexecuted");
+  await expect(lab.locator(".vector-operation-plot")).toHaveCount(0);
+  await expect(lab.locator(".vector-prediction-feedback")).toHaveCount(0);
+  await expect(lab.getByText(/Inputs cannot be saved/)).toBeVisible();
+  await expect(page.getByRole("button", { name: /Complete this chapter/ })).toBeDisabled();
+});

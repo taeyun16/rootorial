@@ -1253,7 +1253,7 @@ test("renders the interactive vectors chapter", async () => {
   assert.match(html, /브로드캐스팅/);
   assert.match(html, /두 벡터를 움직여 보세요/);
   assert.match(html, /LIVE CONCEPT LAB/);
-  assert.match(html, /끝점을 드래그하거나 방향키로 움직여 보세요/);
+  assert.match(html, /좌표를 탭하거나 방향키로 움직여 보세요/);
   assert.match(html, /원소별로 곱하고 모두 더하기/);
   assert.match(html, /연산을 바꾸고 결과를 예측하세요/);
   assert.match(html, /예측 완료 · 결과 보기/);

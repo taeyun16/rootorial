@@ -134,7 +134,7 @@ export function VectorBasicsLab() {
           ? (isKo ? "브라우저에 입력을 저장할 수 없습니다. 현재 페이지에서만 유지됩니다." : "Inputs cannot be saved in this browser. They last only on this page.")
           : draft.restored
             ? (isKo ? "지난 실험 입력을 복원했습니다. 예측과 결과는 다시 확인하세요." : "Previous experiment inputs restored. Make a fresh prediction and run again.")
-            : (isKo ? "실험 입력만 이 브라우저에 저장합니다. 예측 결과와 완료 여부는 복원하지 않습니다." : "Only experiment inputs are saved in this browser. Predictions, results and completion are not restored.")}</span>
+            : (isKo ? "실험 입력만 이 브라우저에 저장합니다. 입력을 복원해도 실습 완료로 인정되지는 않습니다." : "Only experiment inputs are saved here. Restoring inputs does not count as completing the exercise.")}</span>
         <button type="button" onClick={() => { draft.clear(); invalidate(); setLastComparison(null); }}>{isKo ? "실험 입력 초기화" : "Reset experiment inputs"}</button>
       </div>
 

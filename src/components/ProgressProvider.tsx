@@ -1,5 +1,5 @@
 import { useAuth } from "@clerk/tanstack-react-start";
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { Fragment, createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { accountProgressKey, anonymousProgressKey, parseStoredProgress } from "../features/progress/progress";
 import { getMyProgress, syncMyProgress } from "../features/progress/progress.functions";
 import { ProgressClient, type ClientProgress, type ProgressStatus, type ProgressTransport } from "../features/progress/progress-client";
@@ -27,6 +27,7 @@ const browserStorage = {
 
 function StoredProgressProvider({ children, storageKey, remote }: { children: ReactNode; storageKey: string; remote?: ProgressTransport }) {
   const [state, setState] = useState<ClientProgress>(initial);
+  const [practiceEpoch, setPracticeEpoch] = useState(0);
   const clientRef = useRef<ProgressClient | null>(null);
   const drafts = useMemo(() => new ExperimentDraftStore(browserStorage, storageKey), [storageKey]);
   const draftState = useSyncExternalStore(drafts.subscribe, drafts.getSnapshot, () => emptyDraftSnapshot);
@@ -62,11 +63,14 @@ function StoredProgressProvider({ children, storageKey, remote }: { children: Re
   const resetLocal = useCallback(() => {
     const draftsReset = drafts.reset();
     const progressReset = clientRef.current?.reset() ?? false;
+    // Reset transient quiz/prediction evidence even when disk removal fails and
+    // LocalLearningTools correctly avoids reloading old persisted progress.
+    setPracticeEpoch(epoch => epoch + 1);
     return draftsReset && progressReset;
   }, [drafts]);
   const storageAvailable = state.storageAvailable && draftState.storageAvailable;
   const status = !storageAvailable && state.status === "local" ? "memory" : state.status;
-  return <ExperimentDraftContext.Provider value={drafts}><ProgressContext.Provider value={{ ...state, status, storageAvailable, markComplete, saveResume, retry, resetLocal: remote ? undefined : resetLocal }}>{children}</ProgressContext.Provider></ExperimentDraftContext.Provider>;
+  return <ExperimentDraftContext.Provider value={drafts}><ProgressContext.Provider value={{ ...state, status, storageAvailable, markComplete, saveResume, retry, resetLocal: remote ? undefined : resetLocal }}><Fragment key={practiceEpoch}>{children}</Fragment></ProgressContext.Provider></ExperimentDraftContext.Provider>;
 }
 
 function AccountProgressProvider({ children, userId }: { children: ReactNode; userId: string }) {

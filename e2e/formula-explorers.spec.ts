@@ -14,6 +14,7 @@ for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
     for (const [chapter, id] of examples) {
       await page.goto(`${preview}/admin/preview/curricula/transformer-from-zero/chapters/${chapter}?lang=en`);
+      await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
       const example = page.locator(`[data-formula-explorer="${id}"]`);
       const status = example.getByRole("status");
       await expect(status).toBeVisible();

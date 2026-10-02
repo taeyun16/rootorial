@@ -16310,6 +16310,10 @@ textarea:focus-visible {
   min-height: 48px;
 }
 
+.lesson-article .vectors-practice-deck .practice-actions .button {
+  min-height: 48px;
+}
+
 .practice-result {
   grid-column: 1 / -1;
 }
