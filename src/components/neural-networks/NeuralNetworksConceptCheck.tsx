@@ -22,6 +22,7 @@ export function NeuralNetworksConceptCheck({
   const questions: Array<ConceptQuestionSpec<QuestionId>> = [
     {
       id: "logit-to-probability",
+      review: { href: "#logit", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "01",
       prompt: isKo
         ? <>뉴런의 <MathFormula latex={String.raw`z=\mathbf{x}\cdot\mathbf{w}+b`} />를 0과 1 사이 확률로 바꾸는 단계는?</>
@@ -44,6 +45,7 @@ export function NeuralNetworksConceptCheck({
     },
     {
       id: "bce-penalty",
+      review: { href: "#bce", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "02",
       prompt: t(
         "정답 y=1인 두 예측 p=0.49와 p=0.01 중 BCE가 더 크게 벌점 주는 것은?",
@@ -67,6 +69,7 @@ export function NeuralNetworksConceptCheck({
     },
     {
       id: "activation-purpose",
+      review: { href: "#linear-limit", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "03",
       prompt: t(
         "Linear 층 두 개 사이의 activation을 제거하면 XOR 표현력에 어떤 일이 생길까요?",
@@ -90,6 +93,7 @@ export function NeuralNetworksConceptCheck({
     },
     {
       id: "xor-hidden-features",
+      review: { href: "#xor-lab", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "04",
       prompt: t(
         "hidden OR와 NAND가 각각 XOR 네 행의 다른 패턴을 표시할 때 output 뉴런이 해야 할 일은?",
@@ -113,6 +117,7 @@ export function NeuralNetworksConceptCheck({
     },
     {
       id: "layer-shapes",
+      review: { href: "#backprop-lab", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "05",
       prompt: isKo
         ? <>W¹[2,2]을 update할 <MathFormula latex={String.raw`\nabla_{W^1}L`} />의 shape는?</>

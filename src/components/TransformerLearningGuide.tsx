@@ -2,6 +2,7 @@ import { useId } from "react";
 import { LearningLabGlossary } from "./LearningLabGlossary";
 import {
   transformerLearningGuides,
+  foundationPrerequisites,
   transformerLearningPhases,
   type TransformerLearningGuideSlug,
 } from "../data/transformerLearningGuide";
@@ -16,6 +17,7 @@ export function TransformerLearningGuide({
   const { locale } = useLocale();
   const titleId = useId();
   const guide = transformerLearningGuides[chapterSlug];
+  const prerequisite = foundationPrerequisites[chapterSlug];
   const isKo = locale === "ko";
   const t = (ko: string, en: string) => (isKo ? ko : en);
 
@@ -57,6 +59,14 @@ export function TransformerLearningGuide({
         <span>{t("TRANSFORMER에서 다시 만나는 곳", "WHERE THIS RETURNS IN THE TRANSFORMER")}</span>
         <p>{guide.transformerRole[locale]}</p>
       </div>
+
+      {prerequisite ? <div className="learning-guide-prerequisites">
+        <strong>{t("선수개념과 이번 장의 연결", "Prerequisites and this chapter")}</strong>
+        <p>{prerequisite.carry[locale]}</p>
+        <nav aria-label={t("선수개념 복습", "Review prerequisites")}>
+          {prerequisite.review.map(item => <a key={item.href} href={item.href}>{item.label[locale]} →</a>)}
+        </nav>
+      </div> : null}
 
       <div className="transformer-learning-guide-path">
         <div>

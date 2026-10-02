@@ -54,3 +54,8 @@
   .optional-learning-section-content { padding-inline: 12px; }
   .learning-lab-glossary { margin-inline: 16px; }
 }
+
+.learning-guide-prerequisites { margin: 16px 0; padding: 16px; border: 1px solid var(--line); border-radius: 12px; }
+.learning-guide-prerequisites p { line-height: 1.75; }
+.learning-guide-prerequisites nav { display: flex; flex-wrap: wrap; gap: 12px 24px; }
+.learning-guide-prerequisites a, .concept-review-link { display: inline-flex; align-items: center; min-height: 44px; overflow-wrap: anywhere; }

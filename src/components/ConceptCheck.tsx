@@ -34,6 +34,7 @@ export function ConceptCheck({ onMasteryChange, readinessMessage }: ConceptCheck
   const questions: Array<ConceptQuestionSpec<QuestionId>> = [
     {
       id: "orientation",
+      review: { href: "#orientation", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "01",
       prompt: isKo
         ? <>NumPy의 행벡터 <code>(1, 3)</code>과 열벡터 <code>(3, 1)</code>을 더하면 shape는?</>
@@ -51,6 +52,7 @@ export function ConceptCheck({ onMasteryChange, readinessMessage }: ConceptCheck
     },
     {
       id: "normalization",
+      review: { href: "#basics", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "02",
       prompt: isKo
         ? <>영벡터 <MathFormula latex={String.raw`[0, 0]`} />을 단위벡터로 정규화하면?</>
@@ -72,6 +74,7 @@ export function ConceptCheck({ onMasteryChange, readinessMessage }: ConceptCheck
     },
     {
       id: "tensor-shape",
+      review: { href: "#tensor-shape", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "03",
       prompt: t("두 문장에 각각 토큰 4개가 있고 임베딩 차원이 8이라면 입력 shape는?", "What is the input shape for two sentences with four tokens each and embedding dimension 8?"),
       options: questionOptions(questionContracts["tensor-shape"].answers, {
@@ -87,6 +90,7 @@ export function ConceptCheck({ onMasteryChange, readinessMessage }: ConceptCheck
     },
     {
       id: "broadcast-shape",
+      review: { href: "#tensor-shape", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "04",
       prompt: isKo
         ? <>텐서 <code>[2, 4, 8]</code>에 보정값 <code>[4, 8]</code>을 더한 결과 shape는?</>
@@ -104,6 +108,7 @@ export function ConceptCheck({ onMasteryChange, readinessMessage }: ConceptCheck
     },
     {
       id: "dot-product",
+      review: { href: "#dot-product", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "05",
       prompt: t("두 벡터가 직교하면 내적과 코사인 유사도는?", "When two vectors are perpendicular, what are their dot product and cosine similarity?"),
       options: questionOptions(questionContracts["dot-product"].answers, {

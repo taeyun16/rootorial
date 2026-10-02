@@ -248,3 +248,22 @@ export const transformerLearningGuides: Record<TransformerLearningGuideSlug, Tra
     ],
   },
 };
+
+// Current-chapter review links remain usable when another chapter is unpublished.
+export const foundationPrerequisites: Partial<Record<TransformerLearningGuideSlug, {
+  carry: LocalizedText;
+  review: Array<{ href: string; label: LocalizedText }>;
+}>> = {
+  vectors: {
+    carry: text("준비 개념: 숫자의 순서와 좌표. 같은 숫자라도 행·열·축이 바뀌면 계산 구조가 달라집니다.", "Start with ordered numbers and coordinates. Rows, columns, and axes determine how the same values combine."),
+    review: [{ href: "#orientation", label: text("행·열과 shape부터 확인", "Review rows, columns, and shape") }],
+  },
+  optimization: {
+    carry: text("벡터에서 가져올 것: 내적은 예측 점수 하나를 만들고, 좌표별 연산은 같은 shape의 파라미터를 갱신합니다. 이번 장에서는 그 이동을 loss로 판단합니다.", "Carry forward: a dot product produces one prediction; coordinate-wise operations update same-shaped parameters. Here, loss tells us whether that movement helped."),
+    review: [{ href: "#predict", label: text("내적 → 예측 다시 보기", "Review dot product → prediction") }, { href: "#gradient", label: text("같은 shape → 업데이트 다시 보기", "Review same shape → update") }],
+  },
+  "neural-networks": {
+    carry: text("최적화에서 가져올 것: 예측 → loss → gradient → 업데이트. 이번 장에서는 점수를 확률로 바꾸고 hidden 층까지 gradient를 전달합니다.", "Carry forward: prediction → loss → gradient → update. Here, scores become probabilities and gradients travel through a hidden layer."),
+    review: [{ href: "#logit", label: text("내적 점수 → 확률 다시 보기", "Review dot-product score → probability") }, { href: "#backprop-lab", label: text("gradient → hidden 업데이트 확인", "Review gradient → hidden update") }],
+  },
+};

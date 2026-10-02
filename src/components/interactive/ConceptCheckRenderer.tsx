@@ -10,6 +10,7 @@ export type ConceptQuestionSpec<QuestionId extends string> = {
   correctFeedback: ReactNode;
   incorrectFeedback: ReactNode;
   visual?: ReactNode;
+  review?: { href: string; label: string };
 };
 
 type ConceptCheckCopy = {
@@ -122,6 +123,7 @@ export function ConceptCheckRenderer<QuestionId extends string>({
                 </div>
                 <p>{correct ? question.correctFeedback : question.incorrectFeedback}</p>
                 {question.visual}
+                {!correct && question.review ? <a className="concept-review-link" href={question.review.href}>{question.review.label} →</a> : null}
               </div>
             ) : null}
           </fieldset>

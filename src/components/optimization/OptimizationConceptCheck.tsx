@@ -22,6 +22,7 @@ export function OptimizationConceptCheck({
   const questions: Array<ConceptQuestionSpec<QuestionId>> = [
     {
       id: "loss-role",
+      review: { href: "#measure", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "01",
       prompt: t(
         "세 데이터 점의 잔차가 [0, -3, -6]일 때 MSE 손실이 하는 일은 무엇일까요?",
@@ -45,6 +46,7 @@ export function OptimizationConceptCheck({
     },
     {
       id: "gradient-direction",
+      review: { href: "#gradient", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "02",
       prompt: isKo
         ? <>현재 gradient가 <MathFormula latex={String.raw`\nabla L(\mathbf{W})=[-6,-4]`} />입니다. 손실을 줄이는 기본 업데이트는?</>
@@ -67,6 +69,7 @@ export function OptimizationConceptCheck({
     },
     {
       id: "learning-rate",
+      review: { href: "#descent", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "03",
       prompt: t(
         "업데이트 방향은 맞지만 학습률이 지나치게 크면 loss trace에 어떤 일이 생길 수 있을까요?",
@@ -90,6 +93,7 @@ export function OptimizationConceptCheck({
     },
     {
       id: "gradient-shape",
+      review: { href: "#gradient", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "04",
       prompt: isKo
         ? <>파라미터가 <MathFormula latex={String.raw`\mathbf{W}=[b,w]`} />인 선형 모델에서 <MathFormula latex={String.raw`\nabla L(\mathbf{W})`} />의 shape는?</>
@@ -112,6 +116,7 @@ export function OptimizationConceptCheck({
     },
     {
       id: "sse-mse-scale",
+      review: { href: "#measure", label: t("관련 그림과 실습으로 복습", "Review the related visual and exercise") },
       index: "05",
       prompt: t(
         "표본 n개의 squared error를 더한 SSE에서 평균을 낸 MSE로 바꾸면 같은 W에서 gradient는 어떻게 달라질까요?",
