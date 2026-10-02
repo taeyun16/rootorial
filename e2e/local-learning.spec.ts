@@ -30,7 +30,7 @@ test("rehearses completion, invalidation, refresh and reset without account or a
   await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
   const complete = page.getByRole("button", { name: /이 챕터 완료하기/ });
   await solveQuiz(page);
-  await expect(page.locator(".concept-check-summary")).toContainText("남은 조건: 축 조립 세 연산 · shape 탐정 세 미션");
+  await expect(page.locator('[data-check-purpose="core"] .concept-check-summary')).toContainText("남은 조건: 축 조립 세 연산 · shape 탐정 세 미션");
   await expect(complete).toBeDisabled();
   const shape = page.locator(".shape-debug-lab");
   for (const [i, answer] of ["(3,)", "(3, 3)", "[2, 3, 4]"].entries()) {
