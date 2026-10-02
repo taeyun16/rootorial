@@ -18,6 +18,8 @@ import { CompleteChapter } from "../CompleteChapter";
 import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { OptionalLearningSection } from "../OptionalLearningSection";
+import { SigmoidBceExplorer } from "../formula-explorers/FormulaExplorers";
 import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
@@ -179,6 +181,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
               <article className="is-bad"><span>y=1 · p=0.01</span><strong>BCE ≈ 4.605</strong><p>{t("확신한 오답", "Confidently wrong")}</p></article>
             </div>
             <MathFormula latex={String.raw`\operatorname{BCE}(y,p)=-\left[y\log p+(1-y)\log(1-p)\right]`} display className="neural-bce-formula" />
+            <SigmoidBceExplorer />
           </section>
 
           <section className="article-section" id="linear-limit">
@@ -320,13 +323,16 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
             />
           </section>
 
+          <OptionalLearningSection title={t("선택 심화: 원인 찾기", "Optional depth: diagnose a failure")}>
           <section className="article-section" id="debug">
             <div className="margin-label">08 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("깨진 층은 이름이 아니라 실제 forward 결과로 수리합니다", "Repair broken layers by actual forward results, not names")}</h2>
             <p>{t("shape가 맞는지, activation 뒤 네 행이 달라지는지, output이 truth table을 회복하는지, BCE 입력이 유효한 확률인지 차례로 검사하세요. 각 patch는 같은 수학 모델을 다시 실행해 의미론적으로 판정됩니다.", "Check shape compatibility, whether activation differentiates the four rows, whether the output restores the truth table, and whether BCE receives valid probabilities. Every patch is graded semantically by rerunning the same math model.")}</p>
             <NeuralNetworkDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
+          </OptionalLearningSection>
 
+          <OptionalLearningSection title={t("선택 심화: 독립 연습", "Optional depth: independent practice")}>
           <section className="article-section" id="practice">
             <div className="margin-label">09 — OPTIONAL PRACTICE · REPRODUCE / DIAGNOSE / TRANSFER</div>
             <h2>{t(
@@ -339,6 +345,7 @@ export function NeuralNetworksChapter({ learnerCount = 0 }: { learnerCount?: num
             )}</p>
             <NeuralNetworksPracticeDeck />
           </section>
+          </OptionalLearningSection>
 
           <section className="article-section" id="transfer">
             <div className="margin-label">10 — TRANSFER</div>

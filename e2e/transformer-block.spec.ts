@@ -1,5 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
+import { openOptionalDepth } from "./optional-depth";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/transformer-block";
 const publicPath = "/curricula/transformer-from-zero/chapters/transformer-block";
@@ -183,6 +184,7 @@ test("completes five block challenges, four repairs, and concepts in the Korean 
   });
   await expect(lab.locator(".transformer-block-evidence")).toHaveAttribute("data-mastered", "true");
 
+  await openOptionalDepth(page, "debug");
   const incidents = page.locator(".transformer-block-debug-card");
   await expect(page.locator('.transformer-block-debug-progress[data-interactive-ready="true"]')).toHaveCount(1);
   await expect(incidents).toHaveCount(4);
@@ -354,6 +356,7 @@ test("keeps the English draft keyboard-usable at 390px with reduced motion and n
   await expect(prediction.locator('[aria-pressed="true"]')).toHaveCount(0);
   await expect(lab.locator(".transformer-block-evidence .is-complete")).toHaveCount(0);
 
+  await openOptionalDepth(page, "debug");
   const firstIncident = page.locator('.transformer-block-debug-card[data-scenario-id="position-placement"]');
   const repairSelect = choiceGroup(firstIncident, "Repair for Transformer block incident 1");
   await choose(firstIncident, "Repair for Transformer block incident 1", "omit-position-signal");
@@ -418,6 +421,7 @@ test("retries and completes independent Transformer Block practice on fresh fixt
   const response = await page.goto(`${previewPath}?lang=en`);
   expect(response?.status()).toBe(200);
 
+  await openOptionalDepth(page, "practice");
   const practice = page.locator(".transformer-block-practice-deck");
   expect(await practice.locator("select").count()).toBe(0);
   await expect(practice.getByRole("heading", {

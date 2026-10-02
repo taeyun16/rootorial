@@ -18,6 +18,8 @@ import { CompleteChapter } from "../CompleteChapter";
 import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { OptionalLearningSection } from "../OptionalLearningSection";
+import { FiniteDifferenceExplorer } from "../formula-explorers/FormulaExplorers";
 import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
@@ -253,6 +255,7 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
                 <p>{t("두 셀은 공유 Pyodide worker와 NumPy를 처음 실행할 때만 지연 로드합니다. 런타임 다운로드 실패는 필수 실습이나 챕터 완료를 막지 않습니다.", "Both cells lazily load the shared Pyodide worker and NumPy only when first run. A runtime download failure never blocks the required lab or chapter completion.")}</p>
               </div>
             </div>
+            <FiniteDifferenceExplorer />
             <div className="notebook-stack">
               <NotebookCell
                 title={t("NumPy로 MSE gradient descent 실행", "Run MSE gradient descent with NumPy")}
@@ -273,19 +276,23 @@ export function OptimizationChapter({ learnerCount = 0 }: { learnerCount?: numbe
             </div>
           </section>
 
+          <OptionalLearningSection title={t("선택 심화: 원인 찾기", "Optional depth: diagnose a failure")}>
           <section className="article-section" id="debug">
             <div className="margin-label">06 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("공식을 외우는 대신 다음 loss로 업데이트를 검증합니다", "Verify an update by its next loss, not by memorizing a formula")}</h2>
             <p>{t("올바른 부호만으로는 충분하지 않습니다. gradient와 반대 방향이어도 학습률이 너무 크면 최솟값을 건너뛸 수 있습니다. 아래 활동은 제안한 update를 실제 loss 함수에 넣어 판정합니다.", "The correct sign is not enough. Even a direction opposite the gradient can overshoot when the learning rate is too large. The activity below substitutes each proposed update into the actual loss function.")}</p>
             <OptimizationDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
+          </OptionalLearningSection>
 
+          <OptionalLearningSection title={t("선택 심화: 독립 연습", "Optional depth: independent practice")}>
           <section className="article-section" id="practice">
             <div className="margin-label">07 — OPTIONAL PRACTICE · REPRODUCE / DIAGNOSE / TRANSFER</div>
             <h2>{t("안내 없이 같은 update 원리를 다시 만드세요", "Rebuild the same update rule without the walkthrough")}</h2>
             <p>{t("앞 실습과 다른 숫자를 사용합니다. support code는 고정하고 학습자가 소유한 작은 영역만 조작한 뒤, 공개 fixture와 두 번째 fixture의 결과를 같은 자리에서 확인합니다.", "These challenges use different numbers from the walkthrough. Support code stays fixed; you change only a small learner-owned region, then inspect visible and second-fixture results in the same place.")}</p>
             <OptimizationPracticeDeck />
           </section>
+          </OptionalLearningSection>
 
           <section className="article-section" id="transfer">
             <div className="margin-label">08 — TRANSFER</div>

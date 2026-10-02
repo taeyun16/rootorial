@@ -1,0 +1,25 @@
+.formula-explorer { margin: 1.5rem 0; padding: clamp(1rem, 3vw, 1.5rem); border: 1px solid #c9c5ba; border-radius: 12px; background: #f8f7f2; color: #242c34; min-width: 0; overflow-wrap: anywhere; }
+.formula-explorer h3 { margin-top: 0; font-size: 1.2rem; }
+.formula-explorer .formula-explorer-note { font-size: .85rem; color: #535a5c; }
+.formula-explorer-controls { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%, 180px),1fr)); gap: 1rem; }
+.formula-explorer-control { display: grid; gap: .25rem; min-width: 0; font-size: .95rem; }
+.formula-explorer-control input { width: 100%; min-height: 44px; accent-color: #2d5878; margin: 0; }
+.formula-explorer input:focus-visible { outline: 3px solid #28678f; outline-offset: 3px; }
+.formula-explorer-toggle { display: flex; align-items: center; gap: .75rem; min-height: 44px; }
+.formula-explorer-toggle input { width: 22px; height: 22px; }
+.formula-explorer-plot { margin: 1rem 0; }
+.formula-explorer svg { display: block; width: 100%; max-width: 560px; margin-inline: auto; height: auto; overflow: visible; }
+.formula-explorer svg text { fill: #303c47; font: 12px system-ui, sans-serif; }
+.formula-explorer-axis line { stroke: #d4d8db; stroke-width: 1; }
+.formula-series { fill: none; stroke-width: 2.5; stroke-linejoin: round; }
+.formula-series-0 { stroke: #235d85; color: #235d85; }
+.formula-series-1 { stroke: #ab4926; color: #ab4926; }
+.formula-series-2 { stroke: #397040; color: #397040; }
+.formula-series-3 { stroke: #7e458a; color: #7e458a; }
+.formula-explorer-marker { fill: #1a2026; stroke: #fff; stroke-width: 1; }
+.formula-explorer-plot figcaption { display: flex; flex-wrap: wrap; gap: .25rem 1rem; font-size: .82rem; }
+.formula-explorer-table { overflow-x: auto; }
+.formula-explorer table { width: 100%; font-size: .85rem; border-collapse: collapse; }
+.formula-explorer caption { text-align: left; margin-bottom: .5rem; }
+.formula-explorer th, .formula-explorer td { padding: .4rem; text-align: right; border-bottom: 1px solid #d4d8db; }
+.formula-explorer th:first-child { text-align: left; }

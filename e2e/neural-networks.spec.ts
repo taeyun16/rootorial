@@ -1,5 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
+import { openOptionalDepth } from "./optional-depth";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/neural-networks";
 const publicPath = "/curricula/transformer-from-zero/chapters/neural-networks";
@@ -184,6 +185,7 @@ test("completes XOR, hidden backprop, network surgery, and concepts in the Korea
   await completeBackpropLab(page);
   await expect(completeButton).toHaveAttribute("data-completion-ready", "false");
 
+  await openOptionalDepth(page, "debug");
   const incidents = page.locator(".neural-debug-card");
   const missingActivation = incidents.nth(1);
   await choose(missingActivation, "적용할 patch", "identity");
@@ -327,6 +329,7 @@ test("keeps the English draft keyboard-usable at 390px with no heavy runtime or 
   await expect(choiceGroup(backpropLab, "Hidden sigmoid local derivative").locator('[aria-pressed="true"]')).toHaveCount(0);
   await expect(backpropLab.locator(".neural-evidence .is-complete")).toHaveCount(0);
 
+  await openOptionalDepth(page, "debug");
   const firstIncident = page.locator(".neural-debug-card").first();
   await choose(firstIncident, "Patch to apply", "3x2");
   await firstIncident.getByRole("button", { name: "Apply patch and run" }).click();
@@ -351,6 +354,7 @@ test("retries and completes the independent neural-network practice without hidd
   const response = await page.goto(`${previewPath}?lang=en`);
   expect(response?.status()).toBe(200);
 
+  await openOptionalDepth(page, "practice");
   const practice = page.getByRole("region", {
     name: "Can you rebuild the forward and backward contracts on fresh inputs?",
   });

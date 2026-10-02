@@ -25,6 +25,8 @@ import { ArrayDiagram } from "../interactive/ArrayDiagram";
 import { MatrixGrid } from "../interactive/MatrixGrid";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { OptionalLearningSection } from "../OptionalLearningSection";
+import { CosineExplorer } from "../formula-explorers/FormulaExplorers";
 import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
@@ -282,6 +284,7 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
                 )}</p>
               </div>
             </div>
+            <CosineExplorer />
           </section>
 
           <section className="article-section" id="pooling">
@@ -343,6 +346,7 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
             />
           </section>
 
+          <OptionalLearningSection title={t("선택 심화: 원인 찾기", "Optional depth: diagnose a failure")}>
           <section className="article-section" id="debug">
             <div className="margin-label">08 — OPTIONAL REMEDIATION · DEBUG</div>
             <h2>{t("lookup·gradient·geometry·pooling 경계를 숫자로 복구합니다", "Restore lookup, gradient, geometry, and pooling boundaries with numbers")}</h2>
@@ -352,7 +356,9 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
             )}</p>
             <EmbeddingDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
+          </OptionalLearningSection>
 
+          <OptionalLearningSection title={t("선택 심화: 독립 연습", "Optional depth: independent practice")}>
           <section className="article-section" id="practice">
             <div className="margin-label">09 — OPTIONAL PRACTICE · REPRODUCE / DIAGNOSE / TRANSFER</div>
             <h2>{t(
@@ -365,6 +371,7 @@ export function EmbeddingsChapter({ learnerCount = 0 }: { learnerCount?: number 
             )}</p>
             <EmbeddingsPracticeDeck />
           </section>
+          </OptionalLearningSection>
 
           <section className="article-section" id="transfer">
             <div className="margin-label">10 — TRANSFER TO SEQUENCES</div>

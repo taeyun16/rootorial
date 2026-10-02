@@ -1,5 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
+import { openOptionalDepth } from "./optional-depth";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/embeddings";
 const publicPath = "/curricula/transformer-from-zero/chapters/embeddings";
@@ -144,6 +145,7 @@ test("completes lookup evidence, four repairs, and concepts in the Korean admin 
   await expect(lab.locator(".embeddings-live-feedback")).toContainText("data-gradient update 전후");
   await expect(lab.locator(".embeddings-evidence .is-complete")).toHaveCount(4);
 
+  await openOptionalDepth(page, "debug");
   const incidents = page.locator(".embeddings-debug-card");
   await expect(incidents).toHaveCount(4);
   const lookupIncident = incidents.nth(0);
@@ -278,6 +280,7 @@ test("keeps the English draft keyboard-usable at 390px with fallback and no heav
   expect(overflowingSurfaces).toEqual([]);
   expect(await horizontalOverflow()).toBeLessThanOrEqual(1);
 
+  await openOptionalDepth(page, "debug");
   const firstIncident = page.locator(".embeddings-debug-card").first();
   await choose(firstIncident, "Repair for incident 1", "softmax-row");
   const runRepair = firstIncident.getByRole("button", { name: "Run contract" });
@@ -319,6 +322,7 @@ test("retries and completes the independent Embeddings practice on fresh tokens"
   const response = await page.goto(`${previewPath}?lang=en`);
   expect(response?.status()).toBe(200);
 
+  await openOptionalDepth(page, "practice");
   const practice = page.getByRole("region", {
     name: "Can you rebuild lookup and gradient boundaries on fresh tokens?",
   });

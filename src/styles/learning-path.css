@@ -1,0 +1,56 @@
+.optional-learning-section,
+.learning-lab-glossary {
+  min-width: 0;
+  margin-block: 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow-wrap: anywhere;
+}
+.optional-learning-section > summary,
+.learning-lab-glossary > summary,
+.learning-guide-optional > summary {
+  padding: 18px 20px;
+  min-height: 48px;
+  cursor: pointer;
+  color: var(--forest);
+  line-height: 1.6;
+}
+.optional-learning-section > summary:focus-visible,
+.learning-lab-glossary > summary:focus-visible,
+.learning-guide-optional > summary:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 3px;
+}
+.optional-learning-section > summary > span {
+  display: block;
+  padding-top: 4px;
+  color: var(--ink-muted, #555);
+  font-size: 13px;
+}
+.optional-learning-section[open] > summary { border-bottom: 1px solid var(--line); }
+.optional-learning-section-content { padding: 0 20px 20px; }
+.optional-learning-section-content > .article-section { margin-block: 24px; }
+.learning-lab-glossary { margin: 20px 28px; }
+.learning-lab-glossary dl { padding: 0 20px 20px; margin: 0; }
+.learning-lab-glossary dl > div + div { margin-top: 16px; }
+.learning-lab-glossary dt { font-weight: 700; line-height: 1.6; }
+.learning-lab-glossary dt span { font-weight: 400; }
+.learning-lab-glossary dd { margin: 4px 0 0; font-size: 14px; line-height: 1.75; }
+.learning-guide-optional > summary { padding: 0; min-height: 44px; font-weight: 700; }
+.transformer-learning-guide-path .learning-guide-start {
+  display: inline-flex;
+  width: auto;
+  margin: 12px 0 8px;
+  padding: 12px 16px;
+  min-height: 44px;
+  border: 1px solid var(--forest);
+  border-radius: 8px;
+  color: var(--forest);
+  font-size: 14px;
+  font-weight: 700;
+}
+.learning-guide-instruction { margin: 8px 0 12px; font-size: 14px; line-height: 1.75; }
+@media (max-width: 640px) {
+  .optional-learning-section-content { padding-inline: 12px; }
+  .learning-lab-glossary { margin-inline: 16px; }
+}

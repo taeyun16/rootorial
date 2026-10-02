@@ -18,6 +18,8 @@ import { CitationSection } from "../CitationSection";
 import { CompleteChapter } from "../CompleteChapter";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { MathFormula } from "../MathFormula";
+import { OptionalLearningSection } from "../OptionalLearningSection";
+import { LayerNormExplorer, PositionWaveExplorer } from "../formula-explorers/FormulaExplorers";
 import { NotebookCell } from "../NotebookCell";
 import { usePublicationPreview } from "../PublicationPreview";
 import { PublicLearningProof } from "../PublicLearningProof";
@@ -164,6 +166,7 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
               <MathFormula latex={String.raw`x_0=E+P,\qquad E,P,x_0\in\mathbb{R}^{T\times d_{model}}`} display />
               <MathFormula latex={String.raw`P_{t,2i}=\sin(t/10000^{2i/d}),\quad P_{t,2i+1}=\cos(t/10000^{2i/d})`} display />
             </div>
+            <PositionWaveExplorer />
           </section>
 
           <section className="article-section" id="prenorm">
@@ -201,6 +204,7 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
               <MathFormula latex={String.raw`\mu_t=\frac1d\sum_j x_{t,j},\qquad \sigma_t^2=\frac1d\sum_j(x_{t,j}-\mu_t)^2`} display />
               <MathFormula latex={String.raw`\operatorname{LN}(x_t)=\gamma\odot\frac{x_t-\mu_t}{\sqrt{\sigma_t^2+\epsilon}}+\beta`} display />
             </div>
+            <LayerNormExplorer />
           </section>
 
           <section className="article-section" id="ffn">
@@ -257,6 +261,7 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
             </div>
           </section>
 
+          <OptionalLearningSection title={t("선택 심화: 원인 찾기", "Optional depth: diagnose a failure")}>
           <section className="article-section" id="debug">
             <div className="margin-label">09 — OPTIONAL REMEDIATION · REPAIR CONSOLE</div>
             <h2>{t("position·axis·skip source·FFN 경계를 실행 결과로 수리합니다", "Repair position, axis, skip-source, and FFN boundaries from executed results")}</h2>
@@ -266,11 +271,14 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
             )}</p>
             <TransformerBlockDebuggerLab onCompletionChange={setDebuggerComplete} />
           </section>
+          </OptionalLearningSection>
 
+          <OptionalLearningSection title={t("선택 심화: 독립 연습", "Optional depth: independent practice")}>
           <div id="practice">
             <div className="margin-label">10 — OPTIONAL PRACTICE · INDEPENDENT PERFORMANCE</div>
             <TransformerBlockPracticeDeck />
           </div>
+          </OptionalLearningSection>
 
           <section className="article-section" id="transfer">
             <div className="margin-label">11 — TRANSFER TO A MINI TRANSFORMER</div>
@@ -280,7 +288,6 @@ export function TransformerBlockChapter({ learnerCount = 0 }: { learnerCount?: n
               "Suppose you stack a second block. Pass the first block's y as the next x without adding P again, then state which two LN-to-sublayer-to-ADD paths repeat. Also separate the final normalization and vocabulary projection needed outside the block to create next-token logits.",
             )}</p></div>
           </section>
-
           <section className="article-section" id="check">
             <div className="margin-label">12 — CONCEPT CHECK</div>
             <TransformerBlockConceptCheck onMasteryChange={setConceptsMastered} />

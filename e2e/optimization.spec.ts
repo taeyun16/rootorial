@@ -1,5 +1,6 @@
 import { expect, test, type Locator } from "@playwright/test";
 import { signInTestUser } from "./helpers";
+import { openOptionalDepth } from "./optional-depth";
 
 const previewPath = "/admin/preview/curricula/transformer-from-zero/chapters/optimization";
 const publicPath = "/curricula/transformer-from-zero/chapters/optimization";
@@ -68,6 +69,7 @@ async function completeLearningRateRepair(
 async function completeOptimizationPractice(
   page: TestPage,
 ) {
+  await openOptionalDepth(page, "practice");
   const practice = page.locator(".optimization-practice-deck");
   await expect(practice.getByLabel("0 / 3")).toBeVisible();
   await expect(practice.locator("select")).toHaveCount(0);
@@ -134,6 +136,7 @@ test("completes both optimization activities in the admin draft preview", async 
   await expect(descentLab.getByText("안정적 수렴")).not.toHaveClass(/is-complete/);
   await completeLearningRateRepair(page);
 
+  await openOptionalDepth(page, "debug");
   const incidents = page.locator(".optimization-debug-card");
   const firstIncident = incidents.nth(0);
   await choose(firstIncident, "optimizer 동작", "add-gradient");
@@ -269,6 +272,7 @@ test("keeps the English draft keyboard-usable at 390px and its public URL closed
   await resetLab.press("Enter");
   await expect(page.getByRole("slider", { name: "Learning rate" })).toHaveValue("1.1");
 
+  await openOptionalDepth(page, "debug");
   const firstIncident = page.locator(".optimization-debug-card").first();
   await choose(firstIncident, "Optimizer action", "add-gradient");
   await choose(firstIncident, "Learning rate η", "0.25");
@@ -280,6 +284,7 @@ test("keeps the English draft keyboard-usable at 390px and its public URL closed
   await expect(choiceGroup(firstIncident, "Optimizer action").locator('[aria-pressed="true"]')).toHaveCount(0);
 
   const practice = page.locator(".optimization-practice-deck");
+  await openOptionalDepth(page, "practice");
   await expect(practice.getByRole("heading", { name: "Can you rebuild the same rule with new numbers?" })).toBeVisible();
   await practice.getByRole("button", { name: /New curvature/ }).focus();
   await practice.getByRole("button", { name: /New curvature/ }).press("Enter");

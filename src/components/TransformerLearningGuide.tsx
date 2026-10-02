@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { LearningLabGlossary } from "./LearningLabGlossary";
 import {
   transformerLearningGuides,
   transformerLearningPhases,
@@ -31,7 +32,7 @@ export function TransformerLearningGuide({
     <section className="transformer-learning-guide" id="chapter-compass" aria-labelledby={titleId}>
       <header className="transformer-learning-guide-header">
         <div>
-          <p>{t("CHAPTER COMPASS", "CHAPTER COMPASS")}</p>
+          <p>{t("이번 장의 학습 순서", "CHAPTER COMPASS")}</p>
           <h2 id={titleId}>{t("지금 어디를 배우고 있나요?", "Where are you in the build?")}</h2>
         </div>
         <span className="transformer-learning-guide-budget">
@@ -60,6 +61,10 @@ export function TransformerLearningGuide({
       <div className="transformer-learning-guide-path">
         <div>
           <span className="transformer-learning-guide-label">{t("완료에 필요한 핵심 행동", "CORE ACTIONS FOR COMPLETION")}</span>
+          <p className="learning-guide-instruction">{t("설명을 읽은 뒤 아래 실습과 확인 문제를 순서대로 진행하세요. 선택 심화는 필요할 때 펼칠 수 있습니다.", "After reading the explanations, follow these exercises and questions in order. Open optional depth when you need it.")}</p>
+          <a className="learning-guide-start" href={guide.coreActions[0].href}>
+            {t("첫 필수 실습으로 이동", "Go to the first required exercise")}
+          </a>
           <ol>
             {guide.coreActions.map((action, index) => (
               <li key={action.href}>
@@ -73,9 +78,11 @@ export function TransformerLearningGuide({
           </ol>
         </div>
         <aside>
-          <span>{t("선택 심화", "OPTIONAL DEPTH")}</span>
-          <p>{guide.optionalPath[locale]}</p>
-          <strong>{t("선택 활동은 완료 조건이 아닙니다.", "Optional activities never block completion.")}</strong>
+          <details className="learning-guide-optional">
+            <summary>{t("선택 심화 안내", "Optional depth guide")}</summary>
+            <p>{guide.optionalPath[locale]}</p>
+            <strong>{t("선택 활동은 완료 조건이 아닙니다. 필수 실습과 확인 문제로 바로 이동해도 됩니다.", "Optional activities never block completion. You can go straight to the required exercises and questions.")}</strong>
+          </details>
         </aside>
       </div>
 
@@ -105,6 +112,7 @@ export function TransformerLearningGuide({
           </button>
         </div>
       </div>
+      <LearningLabGlossary />
     </section>
   );
 }

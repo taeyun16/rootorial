@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { LearningLabGlossary } from "./LearningLabGlossary";
 import { getCurriculum } from "../data/curriculum";
 import { getChapterExperienceContract } from "../features/chapters/experience-contracts";
 import { requestContentFeedback } from "../features/feedback/content-feedback-events";
@@ -6,7 +7,7 @@ import { useLocale } from "../features/localization/localization";
 
 const interactionCopy = {
   "build-and-observe": {
-    ko: ["경계를 조립하세요", "상태를 실행하세요", "결과 증거를 확인하세요"],
+    ko: ["구성 요소를 연결하세요", "설정을 적용해 실행하세요", "출력으로 결과를 확인하세요"],
     en: ["Build the boundary", "Execute the state", "Verify the resulting evidence"],
   },
   "compare-and-tune": {
@@ -14,11 +15,11 @@ const interactionCopy = {
     en: ["Predict two states", "Compare them on one basis", "Tune one variable"],
   },
   "predict-and-repair": {
-    ko: ["결과를 먼저 예측하세요", "첫 실패 경계를 찾으세요", "최소 상태만 복구하세요"],
+    ko: ["결과를 먼저 예측하세요", "처음 실패한 단계를 찾으세요", "필요한 설정만 고쳐 다시 확인하세요"],
     en: ["Predict the outcome", "Find the first failed boundary", "Repair only the minimal state"],
   },
   "trace-and-diagnose": {
-    ko: ["관측 위치를 고정하세요", "증거를 순서대로 추적하세요", "첫 실패 경계를 진단하세요"],
+    ko: ["어디에서 측정할지 정하세요", "출력을 순서대로 추적하세요", "처음 실패한 단계를 찾으세요"],
     en: ["Fix the observation point", "Trace evidence in order", "Diagnose the first failed boundary"],
   },
   "trade-off-and-review": {
@@ -60,8 +61,8 @@ export function CurriculumChapterCompass({
     <section className="curriculum-chapter-compass" aria-labelledby={titleId} data-chapter-id={`${curriculumSlug}/${chapterSlug}`}>
       <header>
         <div>
-          <p>{t("CHAPTER COMPASS", "CHAPTER COMPASS")}</p>
-          <h2 id={titleId}>{t("이번 챕터의 증거 경로", "Evidence path for this chapter")}</h2>
+          <p>{t("이번 장의 학습 순서", "CHAPTER COMPASS")}</p>
+          <h2 id={titleId}>{t("예측하고, 실행하고, 확인하기", "Evidence path for this chapter")}</h2>
         </div>
         <span>{t("핵심 경로만 완료 · 도움 요청은 진도에 포함되지 않습니다", "Complete the core path · asking for help never affects progress")}</span>
       </header>
@@ -76,7 +77,7 @@ export function CurriculumChapterCompass({
           ))}
         </ol>
         <div className="curriculum-chapter-compass-evidence">
-          <span>{t("연결할 증거", "EVIDENCE TO CONNECT")}</span>
+          <span>{t("출력에서 함께 확인할 항목", "EVIDENCE TO CONNECT")}</span>
           <p>{contract.linkedEvidence}</p>
         </div>
       </div>
@@ -87,9 +88,10 @@ export function CurriculumChapterCompass({
           <ul>{focusTerms.map((term) => <li key={term}>{term}</li>)}</ul>
         </div>
         <button type="button" className="button button-secondary" onClick={openClarificationFeedback}>
-          {t("용어·증거 경계가 막혔어요", "A term or evidence boundary is unclear")}
+          {t("용어나 결과 해석이 어려워요", "A term or evidence boundary is unclear")}
         </button>
       </div>
+      <LearningLabGlossary />
     </section>
   );
 }
