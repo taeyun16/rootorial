@@ -12,7 +12,7 @@ export function TcpBoundaryEvidence({ config, locale, phaseId, visited }: Advanc
         id: phase.id,
         index: String(index + 1).padStart(2, "0"),
         label: phase.label[locale],
-        detail: phase.facts.map((fact) => fact.value).join(" · "),
+        detail: visited.has(phase.id) ? phase.facts.map((fact) => fact.value).join(" · ") : text("아직 실행하지 않음", "Not executed yet"),
         state: phase.id === phaseId ? "current" : visited.has(phase.id) ? "visited" : "pending",
       }))}
       title={text("ACK와 application read의 증거 경계를 분리합니다", "Separate ACK evidence from application-read evidence")}

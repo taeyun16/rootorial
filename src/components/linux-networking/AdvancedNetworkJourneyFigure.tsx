@@ -66,6 +66,16 @@ export function AdvancedNetworkJourneyFigure({ config, onMasteryChange }: { conf
 
   useEffect(() => onMasteryChange?.(mastered), [mastered, onMasteryChange]);
 
+  function nodeDetail(id: string, detail: string): string {
+    if (id === "remote" && phase.routeLookup) return phase.routeLookup.destination;
+    if (config.slug === "sockets-ports-and-tcp" && id === "server-app" && !visited.has("accept")) return "listen fd 3";
+    if (config.slug === "dns-and-service-reachability") {
+      if (id === "endpoint" && !visited.has("dns-answer")) return locale === "ko" ? "DNS 응답 대기" : "Awaiting DNS answer";
+      if (id === "service" && !visited.has("response")) return locale === "ko" ? "응답 관찰 전" : "Response not observed";
+    }
+    return detail;
+  }
+
   function choose(next: string) {
     const nextIndex = phases.findIndex((candidate) => candidate.id === next);
     if (!canExecuteSequentialPhase({ phaseIndex: nextIndex, visitedCount: visited.size, predictionCorrect })) return;
@@ -133,7 +143,7 @@ export function AdvancedNetworkJourneyFigure({ config, onMasteryChange }: { conf
               <rect width="144" height="84" rx="18" />
               <circle cx="18" cy="18" r="5" />
               <text className="journey-node-label" x="72" y="37" textAnchor="middle">{candidate.label[locale]}</text>
-              <text className="journey-node-detail" x="72" y="59" textAnchor="middle">{candidate.detail}</text>
+              <text className="journey-node-detail" x="72" y="59" textAnchor="middle">{nodeDetail(candidate.id, candidate.detail)}</text>
             </g>;
           })}
         </svg>

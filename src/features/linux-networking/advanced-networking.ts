@@ -1,3 +1,5 @@
+import { formatRoute, formatRouteLookup, learningRouteTable, routeLookupForPhase, type RouteLookup } from "./route-lookup.ts";
+
 export const advancedLinuxNetworkingSlugs = [
   "routes-and-packet-paths",
   "sockets-ports-and-tcp",
@@ -27,6 +29,7 @@ export type NetworkJourneyEdge = Readonly<{
 export type NetworkJourneyPhase = Readonly<{
   id: string;
   label: LocalizedText;
+  routeLookup?: RouteLookup;
   command: string;
   output: readonly string[];
   activeNodes: readonly string[];
@@ -81,6 +84,15 @@ const edge = (id: string, from: string, to: string, ko: string, en: string): Net
 const repair = (id: string, ko: string, en: string) => Object.freeze({ id, label: t(ko, en) });
 const option = (value: string, ko: string, en: string) => Object.freeze({ value, label: t(ko, en) });
 
+function routePhase(phase: NetworkJourneyPhase): NetworkJourneyPhase {
+  const routeLookup = routeLookupForPhase(phase.id);
+  const selected = routeLookup.selected!;
+  if (phase.id === "inspect-table") return { ...phase, routeLookup, output: learningRouteTable.map(formatRoute), facts: [fact("일치 후보", "MATCHING CANDIDATES", "/24 · /0"), fact("선택 전", "BEFORE SELECT", `${routeLookup.candidates.length} matching routes`)] };
+  if (phase.id === "longest-prefix" || phase.id === "metric-tie") return { ...phase, routeLookup, command: `ip route get ${routeLookup.destination}`, output: [formatRouteLookup(routeLookup)], facts: [fact("선택 경로", "SELECTED", selected.prefix), fact("다음 홉", "NEXT HOP", selected.nextHop), fact("선택 metric", "METRIC", String(selected.metric))] };
+  return { ...phase, routeLookup };
+}
+
+
 export const advancedLinuxNetworkingConfigs: Record<AdvancedLinuxNetworkingSlug, AdvancedChapterConfig> = {
   "routes-and-packet-paths": {
     slug: "routes-and-packet-paths",
@@ -116,12 +128,12 @@ export const advancedLinuxNetworkingConfigs: Record<AdvancedLinuxNetworkingSlug,
         edge("router-remote", "router", "remote", "링크 B · 원격 MAC", "LINK B · REMOTE MAC"),
       ],
       phases: [
-        { id: "inspect-table", label: t("경로 표 읽기", "Read routes"), command: "ip -4 route show", output: ["203.0.113.0/24 via 10.20.0.1 dev eth0 metric 20", "default via 10.20.0.254 dev eth0 metric 100"], activeNodes: ["host"], activeEdges: [], decision: t("/24와 /0 후보를 찾았습니다.", "Found /24 and /0 candidates."), facts: [fact("후보", "CANDIDATES", "/24 · /0"), fact("선택 전", "BEFORE SELECT", "2 routes")] },
-        { id: "longest-prefix", label: t("가장 긴 프리픽스", "Longest prefix"), command: "ip route get 203.0.113.20", output: ["203.0.113.20 via 10.20.0.1 dev eth0 src 10.20.0.2"], activeNodes: ["host", "router"], activeEdges: ["host-router"], decision: t("/24가 /0보다 구체적이므로 선택됩니다.", "/24 is selected because it is more specific than /0."), facts: [fact("선택 경로", "SELECTED", "203.0.113.0/24"), fact("다음 홉", "NEXT HOP", "10.20.0.1")] },
-        { id: "metric-tie", label: t("같은 길이의 metric", "Metric tie-break"), command: "ip route get 198.51.100.8", output: ["198.51.100.8 via 10.20.0.1 dev eth0 src 10.20.0.2 metric 20"], activeNodes: ["host", "router"], activeEdges: ["host-router"], decision: t("같은 /24 후보 중 metric 20이 선택됩니다.", "Metric 20 wins among equal /24 candidates."), facts: [fact("프리픽스", "PREFIX", "/24 = /24"), fact("선택 metric", "METRIC", "20")] },
-        { id: "first-link", label: t("첫 링크 전송", "First link"), command: "tcpdump -eni eth0 'host 203.0.113.20'", output: ["eth dst 02:00:00:00:00:01 · ip dst 203.0.113.20 · ttl 64"], activeNodes: ["host", "router"], activeEdges: ["host-router"], decision: t("프레임은 게이트웨이로, IP 패킷은 원격 호스트로 향합니다.", "The frame targets the gateway while the IP packet targets the remote host."), facts: [fact("Ethernet dst", "ETHERNET DST", "gateway MAC"), fact("IP dst", "IP DST", "203.0.113.20")] },
-        { id: "forward", label: t("라우터 전달", "Router forwards"), command: "tcpdump -eni eth1 'host 203.0.113.20'", output: ["eth src 02:00:00:00:01:01 · eth dst 02:00:00:00:01:20", "ip dst 203.0.113.20 · ttl 63"], activeNodes: ["router", "remote"], activeEdges: ["router-remote"], decision: t("링크 헤더는 교체되고 TTL은 63이 됩니다.", "The link header is replaced and TTL becomes 63."), facts: [fact("새 프레임", "NEW FRAME", "link B"), fact("TTL", "TTL", "64 → 63")] },
-        { id: "ttl-expired", label: t("TTL 만료", "TTL expires"), command: "traceroute -m 1 203.0.113.20", output: ["1  10.20.0.1  0.412 ms", "ICMP time exceeded"], activeNodes: ["host", "router"], activeEdges: ["host-router"], decision: t("TTL 1은 첫 라우터에서 0이 되어 전달되지 않습니다.", "TTL 1 becomes 0 at the first router and is not forwarded."), facts: [fact("중단 경계", "STOPPED AT", "router"), fact("ICMP", "ICMP", "time exceeded")] },
+        routePhase({ id: "inspect-table", label: t("경로 표 읽기", "Read routes"), command: "ip -4 route show", output: ["203.0.113.0/24 via 10.20.0.1 dev eth0 metric 20", "default via 10.20.0.254 dev eth0 metric 100"], activeNodes: ["host"], activeEdges: [], decision: t("/24와 /0 후보를 찾았습니다.", "Found /24 and /0 candidates."), facts: [fact("후보", "CANDIDATES", "/24 · /0"), fact("선택 전", "BEFORE SELECT", "2 routes")] }),
+        routePhase({ id: "longest-prefix", label: t("가장 긴 프리픽스", "Longest prefix"), command: "ip route get 203.0.113.20", output: ["203.0.113.20 via 10.20.0.1 dev eth0 src 10.20.0.2"], activeNodes: ["host", "router"], activeEdges: ["host-router"], decision: t("/24가 /0보다 구체적이므로 선택됩니다.", "/24 is selected because it is more specific than /0."), facts: [fact("선택 경로", "SELECTED", "203.0.113.0/24"), fact("다음 홉", "NEXT HOP", "10.20.0.1")] }),
+        routePhase({ id: "metric-tie", label: t("같은 길이의 metric", "Metric tie-break"), command: "ip route get 198.51.100.8", output: ["198.51.100.8 via 10.20.0.1 dev eth0 src 10.20.0.2 metric 20"], activeNodes: ["host", "router"], activeEdges: ["host-router"], decision: t("같은 /24 후보 중 metric 20이 선택됩니다.", "Metric 20 wins among equal /24 candidates."), facts: [fact("프리픽스", "PREFIX", "/24 = /24"), fact("선택 metric", "METRIC", "20")] }),
+        routePhase({ id: "first-link", label: t("첫 링크 전송", "First link"), command: "tcpdump -eni eth0 'host 203.0.113.20'", output: ["eth dst 02:00:00:00:00:01 · ip dst 203.0.113.20 · ttl 64"], activeNodes: ["host", "router"], activeEdges: ["host-router"], decision: t("프레임은 게이트웨이로, IP 패킷은 원격 호스트로 향합니다.", "The frame targets the gateway while the IP packet targets the remote host."), facts: [fact("Ethernet dst", "ETHERNET DST", "gateway MAC"), fact("IP dst", "IP DST", "203.0.113.20")] }),
+        routePhase({ id: "forward", label: t("라우터 전달", "Router forwards"), command: "tcpdump -eni eth1 'host 203.0.113.20'", output: ["eth src 02:00:00:00:01:01 · eth dst 02:00:00:00:01:20", "ip dst 203.0.113.20 · ttl 63"], activeNodes: ["router", "remote"], activeEdges: ["router-remote"], decision: t("링크 헤더는 교체되고 TTL은 63이 됩니다.", "The link header is replaced and TTL becomes 63."), facts: [fact("새 프레임", "NEW FRAME", "link B"), fact("TTL", "TTL", "64 → 63")] }),
+        routePhase({ id: "ttl-expired", label: t("TTL 만료", "TTL expires"), command: "traceroute -m 1 203.0.113.20", output: ["1  10.20.0.1  0.412 ms", "ICMP time exceeded"], activeNodes: ["host", "router"], activeEdges: ["host-router"], decision: t("TTL 1은 첫 라우터에서 0이 되어 전달되지 않습니다.", "TTL 1 becomes 0 at the first router and is not forwarded."), facts: [fact("중단 경계", "STOPPED AT", "router"), fact("ICMP", "ICMP", "time exceeded")] }),
       ],
     },
     incidents: [
