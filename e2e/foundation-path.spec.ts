@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 const preview = process.env.CONTENT_PREVIEW_URL ?? "http://localhost:3101";
 const route = (slug: string, lang = "en") => preview + "/admin/preview/curricula/transformer-from-zero/chapters/" + slug + "?lang=" + lang;
 
-for (const width of [1440, 390]) {
+for (const width of [360, 390, 1440]) {
   test("foundation transfer: hidden answers, keyboard retry, stale grading and resume at " + width + "px", async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     for (const [slug, correct, wrong] of [["vectors", "[0.6, -0.3]", "[0.2, −0.1]"], ["optimization", "[0.1, 0.05]", "[−0.1, −0.05]"], ["neural-networks", "[5,4] · [4,3] · [5,3]", "[5,4] · [4,1] · [5,1]"]]) {
@@ -29,8 +29,13 @@ for (const width of [1440, 390]) {
       await submit.focus(); await submit.press("Space");
       await expect(transfer.locator(".concept-feedback-correct")).toBeVisible();
       const next = transfer.getByRole("link", { name: "Next action: apply in the concept check" });
-      await next.click();
-      await expect(page.locator("#check")).toBeVisible();
+      await next.focus();
+      await next.press("Enter");
+      const check = page.locator("#check");
+      await expect(check).toBeFocused();
+      await expect(check).toBeVisible();
+      await page.keyboard.press("Tab");
+      await expect(check.locator("button:not([disabled])").first()).toBeFocused();
       await expect(page.getByRole("button", { name: /Complete this chapter/ })).toBeDisabled();
       // An edited answer revokes the successful handoff until re-submitted.
       await transfer.getByRole("button", { name: wrong, exact: true }).click();
@@ -90,7 +95,13 @@ test("three chapters navigate consecutively and Korean transfer remains actionab
     await transfer.locator(".concept-option").first().click();
     await expect(transfer.locator(".concept-option").first()).toHaveAttribute("aria-pressed", "true");
     await transfer.getByRole("button", { name: "전이 예측 확인" }).click();
-    await expect(transfer.getByRole("link", { name: "다음 행동: 이해 확인에 적용" })).toBeVisible();
+    const next = transfer.getByRole("link", { name: "다음 행동: 이해 확인에 적용" });
+    await next.focus();
+    await next.press("Enter");
+    const check = page.locator("#check");
+    await expect(check).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(check.locator("button:not([disabled])").first()).toBeFocused();
   }
 });
 

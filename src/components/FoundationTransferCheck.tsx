@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ChapterStartLink } from "./ChapterStartLink";
 import { useLocale } from "../features/localization/localization";
 import { vectorOperationTrace } from "../features/learning/vector-operation";
 import { binarySample } from "./formula-explorers/formula-model";
@@ -73,6 +74,6 @@ export function FoundationTransferCheck({ chapterSlug }: { chapterSlug: Foundati
       checkAnswers: t("전이 예측 확인", "Check transfer prediction"), completed: t("설명을 확인한 뒤 이해 확인으로 이어가세요.", "Read the explanation, then continue to the concept check."),
       retry: t("복습 링크에서 규칙을 확인하고 다시 예측하세요.", "Review the rule with the link, then predict again."), idle: t("제출하면 그림과 해설이 나타납니다.", "Submit to reveal the visual and explanation."),
     }} />
-    {passed ? <a className="learning-guide-start" href={next}>{t("다음 행동: 이해 확인에 적용", "Next action: apply in the concept check")} →</a> : null}
+    {passed ? <ChapterStartLink className="learning-guide-start" href={next}>{t("다음 행동: 이해 확인에 적용", "Next action: apply in the concept check")} →</ChapterStartLink> : null}
   </section>;
 }
