@@ -13,6 +13,8 @@ import { PythonCode } from "./PythonCode";
 import { TensorShapeExplorer } from "./TensorShapeExplorer";
 import { TransformerLearningGuide } from "./TransformerLearningGuide";
 import { VectorExplorer } from "./VectorExplorer";
+import { LearningDisclosure, OptionalLearningSection } from "./OptionalLearningSection";
+import { VectorFirstAction } from "./vectors/VectorFirstAction";
 import { VectorBasicsLab } from "./VectorBasicsLab";
 import { VectorNotationGuide } from "./VectorNotationGuide";
 import { ShapeDebuggingLab } from "./ShapeDebuggingLab";
@@ -146,6 +148,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             </p>
             <div className="lesson-number">01</div>
             <h1>{isKo ? "벡터와 텐서" : "Vectors and Tensors"}</h1>
+            <a className="button button-primary lesson-first-action" href="#vector-first-action">{t("지금 시작하기 · 벡터를 두 배로", "Start now · double a vector")}</a>
             <p className="lesson-deck">
               {isKo ? (
                 <>Transformer가 읽는 문장은 결국 숫자의 묶음입니다. 첫 챕터에서는 그 숫자가 어떻게 <em>크기</em>, <em>방향</em>, 그리고 <em>관계</em>를 갖게 되는지 직접 움직이며 확인합니다.</>
@@ -154,6 +157,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
               )}
             </p>
             <PublicLearningProof count={learnerCount} locale={locale} scope="chapter" />
+            <LearningDisclosure title={t("학습 목표 · 크기와 방향에서 배열 구조까지", "Learning objectives · magnitude, direction, and shape")}>
             <div className="lesson-objectives">
               <span>{isKo ? "학습 목표" : "LEARNING OBJECTIVES"}</span>
               {isKo ? (
@@ -174,8 +178,10 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
                 </ul>
               )}
             </div>
+            </LearningDisclosure>
           </header>
 
+          <VectorFirstAction />
           <TransformerLearningGuide chapterSlug="vectors" />
 
           <section className="article-section" id="meaning">
@@ -382,6 +388,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
 
           <FoundationTransferCheck chapterSlug="vectors" />
 
+          <OptionalLearningSection title={t("선택 심화: 독립 연습", "Optional depth: independent practice")}>
           <section className="article-section" id="practice">
             <div className="margin-label">{t("06 — 선택 실습", "06 — OPTIONAL PRACTICE")}</div>
             <h2>{t(
@@ -394,6 +401,7 @@ export function VectorsChapter({ learnerCount = 0 }: { learnerCount?: number }) 
             )}</p>
             <VectorsPracticeDeck />
           </section>
+          </OptionalLearningSection>
 
           <section className="article-section concept-check-section" id="check">
             <div className="margin-label">07 — CHECK</div>

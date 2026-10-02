@@ -65,3 +65,15 @@
 .foundation-transfer-shapes { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; margin-block: 16px; }
 .foundation-transfer-result table { width: 100%; border-collapse: collapse; }
 .foundation-transfer-result th, .foundation-transfer-result td { padding: 8px; text-align: left; border-bottom: 1px solid var(--line); }
+
+.lesson-first-action { margin-block: 8px 16px; }
+.lesson-hero > .optional-learning-section { margin-bottom: 0; }
+.vector-first-action { margin-block: 24px; padding: 20px; border: 1px solid var(--forest); border-radius: 12px; }
+.vector-first-action h2 { margin-top: 0; font-size: 24px; }
+.vector-first-action fieldset { display: flex; flex-wrap: wrap; gap: 8px 16px; border: 0; padding: 0; margin-block: 16px; }
+.vector-first-action label, .vector-first-action a { display: inline-flex; min-height: 44px; align-items: center; gap: 8px; }
+.vector-first-action nav { display: flex; flex-wrap: wrap; gap: 8px 24px; margin-block: 12px; }
+.vector-first-action small { display: block; line-height: 1.7; }
+.vector-first-action a:focus-visible, .lesson-first-action:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; }
+.transformer-learning-guide > .optional-learning-section { margin-inline: 20px; }
+.transformer-learning-guide .optional-learning-section-content { padding-top: 16px; }

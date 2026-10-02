@@ -46,7 +46,14 @@ export function CurriculumChapterCompass({
   const t = (ko: string, en: string) => isKo ? ko : en;
   const evidenceTerms = contract.linkedEvidence.split(" · ");
   const focusTerms = [...new Set([...chapter.concepts, ...evidenceTerms])].slice(0, 5);
-  const actions = interactionCopy[contract.interaction][locale];
+  const domainActions = chapterSlug === "shell-and-filesystem"
+    ? { ko: ["pwd를 입력하고 Enter를 누르세요", "출력 경로를 확인하고 다음 명령을 입력하세요", "만든 파일의 경로와 내용을 확인하세요"], en: ["Type pwd and press Enter", "Read the path, then enter the next command", "Verify the created file's path and contents"] }
+    : chapterSlug === "interfaces-addresses-and-loopback"
+      ? { ko: ["packet 경로를 먼저 예측하세요", "ip addr·ip route로 상태를 확인하세요", "상태 하나를 고치고 경로를 다시 실행하세요"], en: ["Predict the packet path", "Inspect state with ip addr and ip route", "Repair one state and run the path again"] }
+      : chapterSlug === "network-namespaces-and-boundaries"
+        ? { ko: ["process·listener·probe를 namespace에 배치하세요", "namespace별 lo와 socket 상태를 확인하세요", "같은 namespace와 격리된 경로를 비교하세요"], en: ["Place process, listener, and probe in namespaces", "Inspect each namespace's lo and socket state", "Compare local and isolated paths"] }
+        : null;
+  const actions = domainActions?.[locale] ?? interactionCopy[contract.interaction][locale];
 
   function openClarificationFeedback() {
     requestContentFeedback({

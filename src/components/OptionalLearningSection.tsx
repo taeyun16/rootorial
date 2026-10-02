@@ -3,7 +3,7 @@ import { useLocale } from "../features/localization/localization";
 import "../styles/learning-path.css";
 
 /** Keeps the exercise mounted while hiding optional depth from the main reading path. */
-export function OptionalLearningSection({ title, children }: { title: string; children: ReactNode }) {
+export function LearningDisclosure({ title, children, optional = false }: { title: string; children: ReactNode; optional?: boolean }) {
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const { locale } = useLocale();
@@ -19,7 +19,11 @@ export function OptionalLearningSection({ title, children }: { title: string; ch
       if (!target || !details || !details.contains(target)) return;
       details.open = true;
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => target.scrollIntoView({ block: "start" }));
+      frame = requestAnimationFrame(() => {
+        target.scrollIntoView({ block: "start" });
+        if (!target.hasAttribute("tabindex")) target.tabIndex = -1;
+        target.focus({ preventScroll: true });
+      });
     }
     function onHashChange() { revealHashTarget(); }
     function onAnchorClick(event: MouseEvent) {
@@ -33,10 +37,12 @@ export function OptionalLearningSection({ title, children }: { title: string; ch
     }
     revealHashTarget();
     window.addEventListener("hashchange", onHashChange);
+    window.addEventListener("popstate", onHashChange);
     document.addEventListener("click", onAnchorClick);
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("hashchange", onHashChange);
+      window.removeEventListener("popstate", onHashChange);
       document.removeEventListener("click", onAnchorClick);
     };
   }, []);
@@ -45,11 +51,15 @@ export function OptionalLearningSection({ title, children }: { title: string; ch
     <details className="optional-learning-section" ref={detailsRef} onToggle={(event) => setIsOpen(event.currentTarget.open)}>
       <summary>
         <strong>{title}</strong>
-        <span>{locale === "ko"
+        <span>{optional ? (locale === "ko"
           ? `완료 조건에 포함되지 않습니다 · ${isOpen ? "접어도 현재 입력과 결과는 유지됩니다" : "펼쳐 보기"}`
-          : `Not required for completion · ${isOpen ? "collapsing preserves current inputs and results" : "expand to explore"}`}</span>
+          : `Not required for completion · ${isOpen ? "collapsing preserves current inputs and results" : "expand to explore"}`) : (locale === "ko" ? "상세 안내 · 필요할 때 펼쳐 보세요" : "Detailed guidance · expand when needed")}</span>
       </summary>
       <div className="optional-learning-section-content">{children}</div>
     </details>
   );
+}
+
+export function OptionalLearningSection({ title, children }: { title: string; children: ReactNode }) {
+  return <LearningDisclosure title={title} optional>{children}</LearningDisclosure>;
 }

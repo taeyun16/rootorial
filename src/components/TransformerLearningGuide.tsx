@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { LearningDisclosure } from "./OptionalLearningSection";
 import { LearningLabGlossary } from "./LearningLabGlossary";
 import {
   transformerLearningGuides,
@@ -42,32 +43,6 @@ export function TransformerLearningGuide({
         </span>
       </header>
 
-      <ol className="transformer-learning-phases" aria-label={t("Transformer 학습 단계", "Transformer learning phases")}>
-        {transformerLearningPhases.map((phase, index) => (
-          <li
-            className={index === guide.phaseIndex ? "is-current" : undefined}
-            aria-current={index === guide.phaseIndex ? "step" : undefined}
-            key={phase.en}
-          >
-            <span>{String(index + 1).padStart(2, "0")}</span>
-            <strong>{phase[locale]}</strong>
-          </li>
-        ))}
-      </ol>
-
-      <div className="transformer-learning-guide-role">
-        <span>{t("TRANSFORMER에서 다시 만나는 곳", "WHERE THIS RETURNS IN THE TRANSFORMER")}</span>
-        <p>{guide.transformerRole[locale]}</p>
-      </div>
-
-      {prerequisite ? <div className="learning-guide-prerequisites">
-        <strong>{t("선수개념과 이번 장의 연결", "Prerequisites and this chapter")}</strong>
-        <p>{prerequisite.carry[locale]}</p>
-        <nav aria-label={t("선수개념 복습", "Review prerequisites")}>
-          {prerequisite.review.map(item => <a key={item.href} href={item.href}>{item.label[locale]} →</a>)}
-        </nav>
-      </div> : null}
-
       <div className="transformer-learning-guide-path">
         <div>
           <span className="transformer-learning-guide-label">{t("완료에 필요한 핵심 행동", "CORE ACTIONS FOR COMPLETION")}</span>
@@ -96,6 +71,33 @@ export function TransformerLearningGuide({
         </aside>
       </div>
 
+      <LearningDisclosure title={t("학습 위치·선수개념·용어 자세히 보기", "Learning context, prerequisites, and terms")}>
+      <ol className="transformer-learning-phases" aria-label={t("Transformer 학습 단계", "Transformer learning phases")}>
+        {transformerLearningPhases.map((phase, index) => (
+          <li
+            className={index === guide.phaseIndex ? "is-current" : undefined}
+            aria-current={index === guide.phaseIndex ? "step" : undefined}
+            key={phase.en}
+          >
+            <span>{String(index + 1).padStart(2, "0")}</span>
+            <strong>{phase[locale]}</strong>
+          </li>
+        ))}
+      </ol>
+
+      <div className="transformer-learning-guide-role">
+        <span>{t("TRANSFORMER에서 다시 만나는 곳", "WHERE THIS RETURNS IN THE TRANSFORMER")}</span>
+        <p>{guide.transformerRole[locale]}</p>
+      </div>
+
+      {prerequisite ? <div className="learning-guide-prerequisites">
+        <strong>{t("선수개념과 이번 장의 연결", "Prerequisites and this chapter")}</strong>
+        <p>{prerequisite.carry[locale]}</p>
+        <nav aria-label={t("선수개념 복습", "Review prerequisites")}>
+          {prerequisite.review.map(item => <a key={item.href} href={item.href}>{item.label[locale]} →</a>)}
+        </nav>
+      </div> : null}
+
       <div className="transformer-key-terms">
         <div className="transformer-key-terms-heading">
           <div>
@@ -123,6 +125,7 @@ export function TransformerLearningGuide({
         </div>
       </div>
       <LearningLabGlossary />
+      </LearningDisclosure>
     </section>
   );
 }
