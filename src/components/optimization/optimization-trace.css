@@ -1,0 +1,23 @@
+.optimization-chart.optimization-readable-chart text { font-size: 12px; }
+.optimization-selectable-trace { cursor: pointer; touch-action: pan-y; }
+.optimization-loss-point.is-selected { stroke: #211431; stroke-width: 3; }
+.optimization-step-controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 20px 24px 8px; }
+.optimization-step-controls label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.optimization-step-controls input { width: 70px; min-height: 44px; padding: 8px; border: 1px solid var(--line-strong); border-radius: 4px; font: inherit; }
+.optimization-selected-snapshot { display: flex; flex-wrap: wrap; gap: 12px 24px; padding: 16px 24px; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.optimization-selected-snapshot strong, .optimization-selected-snapshot small { flex-basis: 100%; }
+.optimization-numeric-trace { padding: 0 24px 20px; border-bottom: 1px solid var(--line); min-width: 0; }
+.optimization-numeric-trace summary { cursor: pointer; min-height: 44px; padding-block: 12px; }
+.optimization-trace-table-scroll { max-width: 100%; overflow-x: auto; }
+.optimization-numeric-trace table { width: 100%; border-collapse: collapse; font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+.optimization-numeric-trace caption { text-align: start; padding-block: 8px; }
+.optimization-numeric-trace th, .optimization-numeric-trace td { text-align: start; border-bottom: 1px solid var(--line); padding: 8px; }
+.optimization-numeric-trace tr[data-selected="true"] { background: #eee8ff; }
+.optimization-numeric-trace button { min-width: 44px; min-height: 44px; border: 1px solid var(--line-strong); border-radius: 4px; background: white; cursor: pointer; font: inherit; }
+.optimization-numeric-trace button[aria-pressed="true"] { border: 2px solid #5f48a7; }
+.optimization-step-controls :focus-visible, .optimization-numeric-trace :focus-visible { outline: 3px solid #5f48a7; outline-offset: 3px; }
+@media (max-width: 600px) {
+  .optimization-step-controls, .optimization-selected-snapshot { padding-inline: 16px; }
+  .optimization-numeric-trace { padding-inline: 16px; }
+  .optimization-step-controls label { order: -1; flex-basis: 100%; }
+}

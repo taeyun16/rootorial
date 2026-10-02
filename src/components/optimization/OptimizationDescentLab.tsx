@@ -7,11 +7,11 @@ import {
   type DescentConfig,
   type DescentOutcome,
   type DescentSimulation,
-  type LinearWeights,
 } from "../../features/optimization/gradient-descent";
 import { InteractiveLab } from "../interactive/InteractiveLab";
 import { DirectChoice } from "../interactive/DirectChoice";
 import { MathFormula } from "../MathFormula";
+import { OptimizationTraceCharts } from "./OptimizationTraceCharts";
 
 const outcomeCopy: Record<DescentOutcome, { ko: string; en: string }> = {
   slow: { ko: "줄지만 너무 느림", en: "Decreases, but too slowly" },
@@ -55,151 +55,6 @@ function predictionMessage(
   return locale === "ko"
     ? `예측: '${outcomeCopy[predicted].ko}', 실제: '${outcomeCopy[actual].ko}'입니다. 첫 loss와 마지막 loss의 크기를 비교하세요.`
     : `You predicted '${outcomeCopy[predicted].en}', but the run '${outcomeCopy[actual].en}'. Compare the first and final losses.`;
-}
-
-function RegressionPlot({
-  initialWeights,
-  finalWeights,
-  locale,
-}: {
-  initialWeights: LinearWeights;
-  finalWeights: LinearWeights;
-  locale: "ko" | "en";
-}) {
-  const width = 420;
-  const height = 240;
-  const padding = 34;
-  const xMin = -1.5;
-  const xMax = 1.5;
-  const yMin = -5;
-  const yMax = 5;
-  const xScale = (x: number) => padding + ((x - xMin) / (xMax - xMin)) * (width - padding * 2);
-  const yScale = (y: number) => height - padding - ((y - yMin) / (yMax - yMin)) * (height - padding * 2);
-  const line = (weights: LinearWeights) => ({
-    x1: xScale(xMin),
-    y1: yScale(weights.bias + weights.slope * xMin),
-    x2: xScale(xMax),
-    y2: yScale(weights.bias + weights.slope * xMax),
-  });
-  const initialLine = line(initialWeights);
-  const finalLine = line(finalWeights);
-  const finalEndValues = [
-    finalWeights.bias + finalWeights.slope * xMin,
-    finalWeights.bias + finalWeights.slope * xMax,
-  ];
-  const finalLineState = finalEndValues.every((value) => value > yMax)
-    ? "off-scale-above"
-    : finalEndValues.every((value) => value < yMin)
-      ? "off-scale-below"
-      : "visible";
-  const offScaleDescription = finalLineState === "off-scale-above"
-    ? (locale === "ko" ? " 마지막 예측선은 표시 범위 위에 있어 위쪽 표식으로 나타냅니다." : " The final prediction line is above the plotted range and is represented by an upper marker.")
-    : finalLineState === "off-scale-below"
-      ? (locale === "ko" ? " 마지막 예측선은 표시 범위 아래에 있어 아래쪽 표식으로 나타냅니다." : " The final prediction line is below the plotted range and is represented by a lower marker.")
-      : "";
-  const points = [
-    { x: -1, y: -1 },
-    { x: 0, y: 1 },
-    { x: 1, y: 3 },
-  ];
-
-  return (
-    <svg
-      className="optimization-chart"
-      viewBox={`0 0 ${width} ${height}`}
-      role="img"
-      data-final-line-state={finalLineState}
-      aria-labelledby="optimization-fit-title optimization-fit-description"
-    >
-      <title id="optimization-fit-title">
-        {locale === "ko" ? "업데이트 전후 예측선" : "Prediction line before and after updates"}
-      </title>
-      <desc id="optimization-fit-description">
-        {locale === "ko"
-          ? `세 데이터 점과 초기 파라미터의 예측선, 마지막 파라미터의 예측선을 비교합니다.${offScaleDescription}`
-          : `Compares three data points with the prediction lines from the initial and final parameters.${offScaleDescription}`}
-      </desc>
-      <line className="optimization-axis" x1={padding} y1={yScale(0)} x2={width - padding} y2={yScale(0)} />
-      <line className="optimization-axis" x1={xScale(0)} y1={padding} x2={xScale(0)} y2={height - padding} />
-      <line className="optimization-fit-line is-initial" {...initialLine} />
-      <line className="optimization-fit-line is-final" {...finalLine} />
-      {points.map((point) => (
-        <circle
-          className="optimization-data-point"
-          cx={xScale(point.x)}
-          cy={yScale(point.y)}
-          r="6"
-          key={point.x}
-        />
-      ))}
-      <text x={padding + 4} y={padding + 12}>{locale === "ko" ? "점: 데이터" : "dots: data"}</text>
-      <text className="is-initial" x={padding + 4} y={padding + 30}>{locale === "ko" ? "점선: 시작" : "dashed: start"}</text>
-      <text className="is-final" x={padding + 4} y={padding + 48}>{locale === "ko" ? "실선: 마지막" : "solid: final"}</text>
-      {finalLineState !== "visible" ? (
-        <text
-          className="is-final optimization-offscale-label"
-          x={padding + 4}
-          y={finalLineState === "off-scale-above" ? padding + 66 : height - padding - 8}
-        >
-          {finalLineState === "off-scale-above"
-            ? (locale === "ko" ? "↑ 마지막 선: 표시 범위 위" : "↑ final line: above range")
-            : (locale === "ko" ? "↓ 마지막 선: 표시 범위 아래" : "↓ final line: below range")}
-        </text>
-      ) : null}
-    </svg>
-  );
-}
-
-function LossTrace({
-  simulation,
-  locale,
-}: {
-  simulation: DescentSimulation;
-  locale: "ko" | "en";
-}) {
-  const width = 420;
-  const height = 240;
-  const padding = 34;
-  const values = simulation.snapshots.map((snapshot) => {
-    const safeLoss = Number.isFinite(snapshot.loss)
-      ? Math.min(1_000_000_000_000, Math.max(0, snapshot.loss))
-      : 1_000_000_000_000;
-    return Math.log10(1 + safeLoss);
-  });
-  const maxValue = Math.max(1, ...values);
-  const maxStep = Math.max(1, simulation.snapshots.at(-1)!.step);
-  const points = simulation.snapshots.map((snapshot, index) => {
-    const x = padding + (snapshot.step / maxStep) * (width - padding * 2);
-    const y = height - padding - (values[index] / maxValue) * (height - padding * 2);
-    return `${x},${y}`;
-  }).join(" ");
-
-  return (
-    <svg
-      className="optimization-chart"
-      viewBox={`0 0 ${width} ${height}`}
-      role="img"
-      aria-labelledby="optimization-loss-title optimization-loss-description"
-    >
-      <title id="optimization-loss-title">
-        {locale === "ko" ? "업데이트별 손실 기록" : "Loss history by update"}
-      </title>
-      <desc id="optimization-loss-description">
-        {locale === "ko"
-          ? `손실 ${formatNumber(simulation.initialLoss)}에서 ${formatNumber(simulation.finalLoss)}까지의 변화를 로그 눈금으로 표시합니다.`
-          : `Shows the change from loss ${formatNumber(simulation.initialLoss)} to ${formatNumber(simulation.finalLoss)} on a log scale.`}
-      </desc>
-      <line className="optimization-axis" x1={padding} y1={height - padding} x2={width - padding} y2={height - padding} />
-      <line className="optimization-axis" x1={padding} y1={padding} x2={padding} y2={height - padding} />
-      <polyline className={`optimization-loss-line is-${simulation.outcome}`} points={points} />
-      {simulation.snapshots.map((snapshot, index) => {
-        const [cx, cy] = points.split(" ")[index].split(",");
-        return <circle className={`optimization-loss-point is-${simulation.outcome}`} cx={cx} cy={cy} r="4" key={snapshot.step} />;
-      })}
-      <text x={padding + 4} y={padding + 12}>{locale === "ko" ? "log(1 + loss)" : "log(1 + loss)"}</text>
-      <text x={width - padding - 50} y={height - 10}>{locale === "ko" ? "업데이트" : "updates"}</text>
-    </svg>
-  );
 }
 
 export function OptimizationDescentLab({
@@ -456,10 +311,7 @@ export function OptimizationDescentLab({
             <div><span>−η∇L</span><strong>[{formatNumber(updateVector!.bias)}, {formatNumber(updateVector!.slope)}]</strong></div>
             <div><span>W₁</span><strong>[{formatNumber(displayed.snapshots[1].weights.bias)}, {formatNumber(displayed.snapshots[1].weights.slope)}]</strong></div>
           </div>
-          <div className="optimization-chart-grid">
-            <RegressionPlot initialWeights={initialSnapshot.weights} finalWeights={finalSnapshot.weights} locale={locale} />
-            <LossTrace simulation={displayed} locale={locale} />
-          </div>
+          <OptimizationTraceCharts simulation={displayed} locale={locale} />
           <div className="optimization-trace-summary">
             <div><span>{t("시작 loss", "Initial loss")}</span><strong>{formatNumber(displayed.initialLoss)}</strong></div>
             <div><span>{t("마지막 loss", "Final loss")}</span><strong>{formatNumber(displayed.finalLoss)}</strong></div>
