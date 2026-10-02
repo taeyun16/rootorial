@@ -1,9 +1,42 @@
 const PYODIDE_VERSION = "0.27.7";
-const LOCAL_ASSET_HELP = "Local Python assets are unavailable. Run npm run python:prepare -- --download on an authorized network, or use --from DIRECTORY, then reload the page.";
+const LOCAL_ASSET_HELP = "Local Python assets are unavailable. Run npm run python:prepare -- --download on an authorized network, or use --from DIRECTORY, then choose Run code again.";
 
 let pyodideReady;
 let runQueue = Promise.resolve();
 let executionCount = 0;
+
+// Pyodide 0.27.7 logs some bootstrap failures without rejecting loadPyodide.
+// Observe its local fetches directly so failed assets settle our initialization.
+async function loadLocalRuntime(baseURL) {
+  const originalFetch = self.fetch;
+  let rejectAssetFailure;
+  const assetFailure = new Promise((_, reject) => { rejectAssetFailure = reject; });
+  self.fetch = async (input, options) => {
+    const url = new URL(input instanceof Request ? input.url : String(input), self.location.href);
+    const watched = url.href.startsWith(baseURL);
+    try {
+      const response = await originalFetch.call(self, input, options);
+      if (watched && !response.ok) {
+        throw new Error(`Python runtime asset ${url.pathname.split("/").pop()} returned HTTP ${response.status}`);
+      }
+      return response;
+    } catch (error) {
+      if (watched) rejectAssetFailure(error);
+      throw error;
+    }
+  };
+  try {
+    // Attach both rejection handlers before the upstream loader starts fetching.
+    const runtime = Promise.resolve().then(() => self.loadPyodide({
+      indexURL: baseURL,
+      lockFileURL: `${baseURL}pyodide-lock.json`,
+      stdLibURL: `${baseURL}python_stdlib.zip`,
+    }));
+    return await Promise.race([runtime, assetFailure]);
+  } finally {
+    self.fetch = originalFetch;
+  }
+}
 
 async function initialize() {
   if (!pyodideReady) {
@@ -19,7 +52,7 @@ async function initialize() {
         }
         const baseURL = new URL(manifest.baseURL, self.location.origin).href;
         importScripts(`${baseURL}pyodide.js`);
-        const pyodide = await self.loadPyodide({ indexURL: baseURL, lockFileURL: `${baseURL}pyodide-lock.json`, stdLibURL: `${baseURL}python_stdlib.zip` });
+        const pyodide = await loadLocalRuntime(baseURL);
         if (pyodide.version !== PYODIDE_VERSION) throw new Error("Runtime version mismatch");
         await pyodide.runPythonAsync(`
 import os as __rootorial_os

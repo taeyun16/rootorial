@@ -12,7 +12,7 @@ ax.quiver(0, 0, v[0], v[1], angles="xy", scale_units="xy", scale=1,
           color="#365548", width=0.012)
 ax.scatter([0, v[0]], [0, v[1]], color=["#252420", "#8f4f3c"], zorder=3)
 ax.set(xlim=(-1, 4), ylim=(-1, 3), xlabel="x", ylabel="y",
-       title="벡터는 크기 + 방향")
+       title="Vector: magnitude + direction")
 ax.set_aspect("equal")
 ax.grid(alpha=0.22)
 plt.show()`;
@@ -33,7 +33,7 @@ ax.axvline(90, color="#8f4f3c", linestyle="--", label="orthogonal")
 ax.fill_between(degrees, cosine, 0, where=cosine >= 0, color="#365548", alpha=0.12)
 ax.fill_between(degrees, cosine, 0, where=cosine < 0, color="#8f4f3c", alpha=0.12)
 ax.set(xlim=(0, 180), ylim=(-1.08, 1.08), xlabel="angle (degrees)",
-       ylabel="cosine similarity", title="방향이 유사도 점수로")
+       ylabel="cosine similarity", title="Angle and cosine similarity")
 ax.legend()
 ax.grid(alpha=0.18)
 plt.show()`;

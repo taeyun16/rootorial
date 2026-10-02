@@ -94,6 +94,28 @@ Official deployment and API references:
 [Downloading and deploying](https://pyodide.org/en/0.27.7/usage/downloading-and-deploying.html),
 [JavaScript API](https://pyodide.org/en/0.27.7/usage/api/js-api.html).
 
+## Initialization failures and plot text
+
+Failed local bootstrap HTTP or network requests settle initialization immediately,
+including upstream Pyodide failures that otherwise only log warnings. A watchdog
+on the page bounds the full cold start at **three minutes**, including stalled
+requests or WASM compilation. It is separate from Python execution; long learner
+code is still stopped manually. The generous limit allows slower machines to
+initialize; timeout reports that loading/compilation did not finish rather than
+claiming an HTTP error or a missing asset.
+
+Failure, timeout or Stop terminates the failed worker and rejects all consumers
+waiting for it. A retry from the same Run code button starts a fresh worker. The
+initialization timer is cleared on readiness/termination, and late messages and
+already queued timers from the old worker cannot affect its replacement. No
+shared runtime assets are deleted or modified during failure-injection tests.
+
+The bundled Matplotlib fonts do not cover Hangul. The stock vector plots use
+ASCII chart titles and axes supported by the bundled fonts, while the Korean
+lesson text and stdout stay localized. Both English and Korean stock plots are
+tested without missing-glyph warnings. Arbitrary edited plots containing Hangul
+would still need a suitably licensed additional font; no font was downloaded.
+
 ## Real execution E2E
 
 `npm run test:e2e:python` validates prepared assets, applies only local E2E D1
@@ -112,7 +134,11 @@ The dedicated tests execute actual WASM Python and cover:
 NumPy and both Matplotlib vector charts; stdout/stderr and expression results;
 Python errors and recovery; predictions and stale edited/in-flight results;
 infinite-loop stop and a clean restart; missing local assets and recovery;
-unprepared packages without CDN fallback.
+unprepared packages without CDN fallback; immediate WASM/stdlib/lockfile/network
+failure and real retry; stalled initialization and late responses. The watchdog
+E2E advances the page clock by three minutes while holding an actual local WASM
+request, then retries the real runtime. It never substitutes Python or WASM.
+Both stock Korean charts are also checked for missing-glyph warnings.
 
 Each fresh browser context rejects external HTTP requests and asserts **zero
 attempted external requests**. Network evidence is attached as

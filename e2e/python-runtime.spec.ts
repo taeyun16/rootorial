@@ -55,11 +55,13 @@ test("runs both vector lessons with real NumPy, Matplotlib and local WASM assets
   await first.getByRole("button", { name: /^Run code:/ }).click();
   await expect(first.locator(".notebook-cell-output-text")).toContainText("shape: (2,)", { timeout: 90_000 });
   await expect(first.locator(".notebook-cell-figure img")).toBeVisible();
+  await expect(first.locator(".notebook-cell-output-text")).not.toContainText(/Glyph.*missing from font/);
   expect(await first.locator(".notebook-cell-figure img").evaluate((img) => (img as HTMLImageElement).naturalWidth)).toBeGreaterThan(100);
   const second = page.locator(".notebook-cell").nth(1);
   await second.getByRole("button", { name: /^Run code:/ }).click();
   await expect(second.locator(".notebook-cell-output-text")).toContainText(/90° -> cosine\s+0\.000/);
   await expect(second.locator(".notebook-cell-figure img")).toBeVisible();
+  await expect(second.locator(".notebook-cell-output-text")).not.toContainText(/Glyph.*missing from font/);
   const requests = traffic.get(context)!;
   expect(requests.some((entry) => entry.url.endsWith("/pyodide.asm.wasm") && entry.status === 200 && entry.contentType === "application/wasm")).toBe(true);
   expect(requests.some((entry) => /numpy-.*\.whl$/.test(entry.url) && entry.status === 200)).toBe(true);
@@ -133,4 +135,69 @@ test("reports an unprepared package without falling back to an external package 
   await expect(cell.locator(".notebook-cell-error")).toContainText("Python package assets");
   await run(cell, "import numpy as np\nprint(np.arange(3).tolist())");
   await expect(cell.locator(".notebook-cell-output-text")).toHaveText("[0, 1, 2]");
+});
+
+for (const [asset, mode] of [
+  ["pyodide.asm.wasm", "404"],
+  ["python_stdlib.zip", "404"],
+  ["pyodide-lock.json", "404"],
+  ["pyodide.asm.wasm", "network"],
+] as const) {
+  test(`reports bootstrap ${asset} ${mode} promptly and retries real Python in the same cell`, async ({ page, context }) => {
+    const pattern = `**/${asset}`;
+    await context.route(pattern, (route) => mode === "404"
+      ? route.fulfill({ status: 404, contentType: "text/plain", body: "Injected missing local asset" })
+      : route.abort("failed"));
+    const cell = await openCell(page);
+    await run(cell, "print(42)");
+    await expect(cell).toHaveAttribute("data-status", "error", { timeout: 10_000 });
+    await expect(cell).toHaveAttribute("aria-busy", "false");
+    await expect(cell.locator(".notebook-cell-error")).toContainText("npm run python:prepare");
+    if (mode === "404") {
+      await expect(cell.locator(".notebook-cell-error")).toContainText(`${asset} returned HTTP 404`);
+    }
+    await context.unroute(pattern);
+    await cell.getByRole("button", { name: /^Run code:/ }).click();
+    await expect(cell.locator(".notebook-cell-output-text")).toHaveText("42", { timeout: 90_000 });
+    await expect(cell).toHaveAttribute("data-evidence", "current");
+  });
+}
+
+test("bounds a stalled bootstrap on the main thread, discards its late fetch, and retries actual Python", async ({ page, context }) => {
+  await page.clock.install();
+  let markRequested!: () => void;
+  const requested = new Promise<void>((resolve) => { markRequested = resolve; });
+  let release!: () => void;
+  const held = new Promise<void>((resolve) => { release = resolve; });
+  const pattern = "**/pyodide.asm.wasm";
+  await context.route(pattern, async (route) => {
+    markRequested();
+    await held;
+    try { await route.continue(); } catch { /* The timed-out worker is already gone. */ }
+  });
+  const cell = await openCell(page);
+  await run(cell, "print(42)");
+  await requested;
+  await expect(cell).toHaveAttribute("data-status", "loading");
+  // Advance only the page watchdog clock. WASM/Python are never substituted.
+  await page.clock.fastForward(180_001);
+  await expect(cell).toHaveAttribute("data-status", "error");
+  await expect(cell).toHaveAttribute("aria-busy", "false");
+  await expect(cell.locator(".notebook-cell-error")).toContainText("timed out after 3 minutes");
+  await context.unroute(pattern);
+  release();
+  await cell.getByRole("button", { name: /^Run code:/ }).click();
+  await expect(cell.locator(".notebook-cell-output-text")).toHaveText("42", { timeout: 90_000 });
+  await expect(cell).toHaveAttribute("data-status", "done");
+});
+
+test("renders both stock Korean lesson charts without missing glyph warnings", async ({ page }) => {
+  await page.goto(vectorPath.replace("?lang=en", "?lang=ko"));
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
+  for (let index = 0; index < 2; index += 1) {
+    const cell = page.locator(".notebook-cell").nth(index);
+    await cell.locator(".notebook-cell-run").click();
+    await expect(cell.locator(".notebook-cell-figure img")).toBeVisible({ timeout: 90_000 });
+    await expect(cell.locator(".notebook-cell-output-text")).not.toContainText(/Glyph.*missing from font/);
+  }
 });

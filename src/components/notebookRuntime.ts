@@ -89,6 +89,8 @@ let activeConsumers = 0;
 let idleDisposeTimer: ReturnType<typeof setTimeout> | null = null;
 
 const IDLE_DISPOSE_DELAY_MS = 15_000;
+const INITIALIZATION_TIMEOUT_MS = 180_000;
+let initializationTimer: ReturnType<typeof setTimeout> | null = null;
 
 function nextRequestId() {
   requestSequence += 1;
@@ -108,7 +110,14 @@ function cancelIdleDispose() {
   idleDisposeTimer = null;
 }
 
+function clearInitializationTimer() {
+  if (initializationTimer === null) return;
+  clearTimeout(initializationTimer);
+  initializationTimer = null;
+}
+
 function terminateRuntime(error: NotebookExecutionError) {
+  clearInitializationTimer();
   const activeWorker = worker;
   const rejectInitialization = rejectReady;
 
@@ -153,6 +162,7 @@ function handleWorkerMessage(
   const message = event.data;
 
   if (message.type === "ready") {
+    clearInitializationTimer();
     resolveReady?.();
     resolveReady = null;
     rejectReady = null;
@@ -224,19 +234,34 @@ function createWorker() {
 
 async function ensureRuntime(onPhase?: (phase: NotebookRunPhase) => void) {
   cancelIdleDispose();
-  if (!readyPromise) {
+  let initialization = readyPromise;
+  if (!initialization) {
     onPhase?.("loading-runtime");
     const activeWorker = worker ?? createWorker();
-    readyPromise = new Promise<void>((resolve, reject) => {
+    initialization = new Promise<void>((resolve, reject) => {
       resolveReady = resolve;
       rejectReady = reject;
     });
-    activeWorker.postMessage({ type: "init" });
+    readyPromise = initialization;
+    // This runs outside the worker, even if WASM compilation blocks that worker.
+    // Three minutes gives slower machines a generous cold-start window.
+    initializationTimer = setTimeout(() => {
+      if (activeWorker !== worker || !resolveReady) return;
+      handleWorkerFailure(
+        "Python initialization timed out after 3 minutes. Loading or compiling the local runtime did not finish. Choose Run code to retry with a fresh kernel. For local development, verify assets with npm run python:check.",
+      );
+    }, INITIALIZATION_TIMEOUT_MS);
+    try {
+      activeWorker.postMessage({ type: "init" });
+    } catch (error) {
+      handleWorkerFailure(`Python initialization could not start: ${String(error)}. Choose Run code to retry.`);
+    }
   } else if (resolveReady) {
     onPhase?.("loading-runtime");
   }
 
-  await readyPromise;
+  // Hold this attempt's promise; termination clears the shared pointer for retry.
+  await initialization;
 }
 
 /** Begin loading the shared runtime when the user signals intent to run a cell. */
