@@ -96,3 +96,8 @@
 .chapter-resume dd { margin: 4px 0 0; font-size: 13px; max-width: 48ch; line-height: 1.6; }
 .completed-panel .completed-return-link { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 10px 16px; border: 1px solid var(--forest); border-radius: 8px; }
 .completed-return-link:focus-visible { outline: 2px solid var(--terracotta); outline-offset: 3px; }
+
+/* Keep the newly linked task titles below the existing sticky chapter controls. */
+.vector-first-action, #descent, #xor-lab, #namespace-topology-lab {
+  scroll-margin-top: calc(var(--chapter-sticky-header-height, 80px) + var(--chapter-sticky-toc-height, 0px) + 16px);
+}

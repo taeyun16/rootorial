@@ -36,7 +36,7 @@ test("vector predictions gate geometry and edits invalidate the displayed answer
     await lab.locator('.vector-basics-coordinate input').first().fill("2");
     await expect(lab).toHaveAttribute("data-evidence", "stale");
     await expect(lab.locator(".vector-operation-plot")).toHaveCount(0);
-    await expect(lab.getByText(/Inputs changed. Previous result/)).toBeVisible();
+    await expect(lab.getByText(/Current prediction has not run. Previous result/)).toBeVisible();
     await expect(reveal).toBeDisabled();
     await lab.getByRole("button", { name: "normalize v to a unit vector", exact: true }).click();
     await lab.locator('.vector-basics-coordinate input').nth(0).fill("0");

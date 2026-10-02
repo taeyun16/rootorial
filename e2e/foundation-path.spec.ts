@@ -9,6 +9,7 @@ for (const width of [1440, 390]) {
     for (const [slug, correct, wrong] of [["vectors", "[0.6, -0.3]", "[0.2, −0.1]"], ["optimization", "[0.1, 0.05]", "[−0.1, −0.05]"], ["neural-networks", "[5,4] · [4,3] · [5,3]", "[5,4] · [4,1] · [5,1]"]]) {
       await page.goto(route(slug));
       await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
+      await page.locator("details.optional-learning-section").filter({ has: page.locator(".learning-guide-prerequisites") }).locator(":scope > summary").click();
       await expect(page.locator(".learning-guide-prerequisites")).toBeVisible();
       const transfer = page.locator(".foundation-transfer-check");
       await expect(transfer.locator(".concept-feedback")).toHaveCount(0);

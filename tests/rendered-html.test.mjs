@@ -511,7 +511,8 @@ test("renders an infrastructure-specific curriculum landing without Transformer 
   assert.match(html, /선수 커리큘럼 공개 준비 중/);
   assert.doesNotMatch(html, /href="\/curricula\/linux-networking"/);
   assert.doesNotMatch(
-    html,
+    // Asset module names are implementation details, not learner-facing content.
+    html.replace(/<head[\s\S]*?<\/head>/gi, "").replace(/<script\b[\s\S]*?<\/script>/gi, ""),
     /\b(?:transformers?|vectors?|embeddings?|attention|python|numpy)\b/i,
   );
 
@@ -532,7 +533,8 @@ test("renders an infrastructure-specific curriculum landing without Transformer 
     /href="\/curricula\/linux-networking\?lang=en"/,
   );
   assert.doesNotMatch(
-    englishHtml,
+    // Asset module names are implementation details, not learner-facing content.
+    englishHtml.replace(/<head[\s\S]*?<\/head>/gi, "").replace(/<script\b[\s\S]*?<\/script>/gi, ""),
     /\b(?:transformers?|vectors?|embeddings?|attention|python|numpy)\b/i,
   );
 });

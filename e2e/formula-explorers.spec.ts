@@ -16,6 +16,8 @@ for (const width of [1440, 390]) {
       await page.goto(`${preview}/admin/preview/curricula/transformer-from-zero/chapters/${chapter}?lang=en`);
       await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
       const example = page.locator(`[data-formula-explorer="${id}"]`);
+      // Finite differences are part of the optional NumPy reproduction section.
+      if (id === "finite-difference") await page.locator("details.optional-learning-section").filter({ has: example }).locator(":scope > summary").click();
       const status = example.getByRole("status");
       await expect(status).toBeVisible();
       const before = await status.textContent();

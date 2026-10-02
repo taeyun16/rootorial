@@ -64,6 +64,7 @@ test("plain-language guide and expandable glossary work in both locales", async 
     const guide = page.locator(".transformer-learning-guide");
     await expect(guide.getByRole("link", { name: lang === "ko" ? "첫 필수 실습으로 이동" : "Go to the first required exercise" })).toBeVisible();
     await expect(guide.locator(".learning-lab-glossary")).toHaveJSProperty("open", false);
+    await guide.locator("details.optional-learning-section > summary").click();
     await guide.locator(".learning-lab-glossary > summary").click();
     await expect(guide.locator(".learning-lab-glossary dd")).toHaveCount(5);
     await expect(guide.locator(".learning-lab-glossary")).toContainText(lang === "ko" ? "이 실습의 기준 상태" : "reference setup");
