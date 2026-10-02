@@ -38,7 +38,11 @@
     "python:prepare": "node scripts/prepare-python-assets.mjs",
     "python:check": "node scripts/prepare-python-assets.mjs --check",
     "dev:python": "npm run python:check && vite dev --host 127.0.0.1 --port 3212 --mode content-preview",
-    "test:e2e:python": "node scripts/run-python-e2e.mjs"
+    "test:e2e:python": "node scripts/run-python-e2e.mjs",
+    "local:runtime": "node scripts/local-runtime.mjs",
+    "test:runtime": "node tests/runtime/run.mjs",
+    "test:runtime:browser": "node scripts/run-local-browser.mjs",
+    "check:runtime": "tsc --noEmit -p tsconfig.runtime.json"
   },
   "dependencies": {
     "@clerk/tanstack-react-start": "1.4.17",

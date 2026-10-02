@@ -1,0 +1,14 @@
+{
+  "name": "rootorial-local-repository-test",
+  "main": "progress-worker.ts",
+  "compatibility_date": "2026-07-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "env": {
+    "integration": {
+      "vars": { "LOCAL_REPOSITORY_TEST": "1" },
+      "d1_databases": [{ "binding": "DB", "database_name": "rootorial-integration-local", "database_id": "rootorial-integration-local", "migrations_dir": "../../drizzle", "remote": false }]
+    }
+  }
+}

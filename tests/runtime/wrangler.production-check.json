@@ -1,0 +1,57 @@
+{
+  "name": "rootorial-local-production-check",
+  "main": "../../dist/server/index.js",
+  "compatibility_date": "2026-07-11",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "workers_dev": false,
+  "preview_urls": false,
+  "env": {
+    "integration": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "rootorial-integration-local",
+          "database_id": "rootorial-integration-local",
+          "migrations_dir": "../../drizzle",
+          "remote": false
+        }
+      ],
+      "durable_objects": {
+        "bindings": [
+          {
+            "name": "LEARNING_SESSIONS",
+            "class_name": "LearningSession"
+          },
+          {
+            "name": "LEARNING_PRESENCE",
+            "class_name": "LearningPresence"
+          }
+        ]
+      },
+      "migrations": [
+        {
+          "tag": "v1-local",
+          "new_sqlite_classes": [
+            "LearningSession",
+            "LearningPresence"
+          ]
+        }
+      ]
+    }
+  },
+  "assets": {
+    "directory": "../../dist/client"
+  },
+  "no_bundle": true,
+  "rules": [
+    {
+      "type": "ESModule",
+      "globs": [
+        "**/*.js",
+        "**/*.mjs"
+      ]
+    }
+  ]
+}
