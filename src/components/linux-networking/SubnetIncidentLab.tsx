@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState, type KeyboardEvent } from "react";
 import { useLocale } from "../../features/localization/localization";
 import {
   canCompleteSubnetIncidents,
@@ -16,6 +16,8 @@ export function SubnetIncidentLab({ onCompletionChange }: { onCompletionChange?:
   const [active, setActive] = useState<SubnetIncidentId>("prefix-too-wide");
   const [solved, setSolved] = useState<Partial<Record<SubnetIncidentId, SubnetRepairId>>>({});
   const [feedback, setFeedback] = useState<string>("");
+  const tabId = useId();
+  const panelId = useId();
   const complete = canCompleteSubnetIncidents(solved);
   useEffect(() => onCompletionChange?.(complete), [complete, onCompletionChange]);
 
@@ -32,6 +34,27 @@ export function SubnetIncidentLab({ onCompletionChange }: { onCompletionChange?:
     "restore-on-link-gateway": ["게이트웨이를 10.20.0.1로 복구", "Restore gateway 10.20.0.1"],
   };
 
+  function activateIncident(id: SubnetIncidentId) {
+    setActive(id);
+    setFeedback("");
+  }
+
+  function navigateIncident(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    let next: number;
+    switch (event.key) {
+      case "ArrowRight":
+      case "ArrowDown": next = (index + 1) % subnetIncidentIds.length; break;
+      case "ArrowLeft":
+      case "ArrowUp": next = (index - 1 + subnetIncidentIds.length) % subnetIncidentIds.length; break;
+      case "Home": next = 0; break;
+      case "End": next = subnetIncidentIds.length - 1; break;
+      default: return;
+    }
+    event.preventDefault();
+    activateIncident(subnetIncidentIds[next]);
+    event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]').item(next)?.focus();
+  }
+
   function repair(id: SubnetRepairId) {
     const result = evaluateSubnetIncidentRepair(active, id);
     setFeedback(result.correct ? t("정확한 경계만 복구했습니다.", "You repaired exactly the broken boundary.") : t("이 조치는 현재 증거와 맞지 않습니다.", "That change does not match the current evidence."));
@@ -41,9 +64,9 @@ export function SubnetIncidentLab({ onCompletionChange }: { onCompletionChange?:
   return (
     <div className="subnet-incident-lab">
       <div className="subnet-incident-tabs" role="tablist" aria-label={t("장애 사건", "Network incidents")}>
-        {subnetIncidentIds.map((id, index) => <button key={id} type="button" role="tab" aria-selected={active === id} className={active === id ? "is-active" : solved[id] ? "is-solved" : undefined} onClick={() => { setActive(id); setFeedback(""); }}><span>{solved[id] ? "✓" : String(index + 1).padStart(2, "0")}</span>{incidentCopy[id][locale === "ko" ? 0 : 1]}</button>)}
+        {subnetIncidentIds.map((id, index) => <button key={id} type="button" role="tab" id={`${tabId}-${id}`} aria-controls={panelId} tabIndex={active === id ? 0 : -1} aria-selected={active === id} className={active === id ? "is-active" : solved[id] ? "is-solved" : undefined} onClick={() => activateIncident(id)} onKeyDown={(event) => navigateIncident(event, index)}><span>{solved[id] ? "✓" : String(index + 1).padStart(2, "0")}</span>{incidentCopy[id][locale === "ko" ? 0 : 1]}</button>)}
       </div>
-      <div className="subnet-incident-scene" role="tabpanel">
+      <div className="subnet-incident-scene" id={panelId} role="tabpanel" aria-labelledby={`${tabId}-${active}`}>
         <p className="section-index">FAULT EVIDENCE</p>
         <h3>{incidentCopy[active][locale === "ko" ? 0 : 1]}</h3>
         <p>{incidentCopy[active][locale === "ko" ? 2 : 3]}</p>
