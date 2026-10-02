@@ -63,7 +63,9 @@ export ROOTORIAL_LOCAL_STATE=work/local-runtime/my-experiment
 The automated tests always create fresh named directories and print their paths.
 They retain the databases for inspection. Those directories are ignored by Git.
 Do not run suites concurrently: runtime tests reserve 3220/3221/3223; browser
-tests reserve 3220/3222. No existing preview server is reused.
+tests reserve 3220. No existing preview server is reused. The browser modes run
+sequentially: two independent workerd processes must not own the same persisted
+D1 directory simultaneously.
 
 ## Browser verification
 
@@ -82,14 +84,16 @@ npm run test:runtime:browser
 ```
 
 The suite reuses the existing local-learning and Python specs, plus public-route
-protection checks, with two isolated Vite modes sharing one migrated local D1
-directory. It never imports the Clerk E2E setup. Python tests assert that browser
+protection checks, with two isolated Vite modes reusing one migrated local D1
+directory sequentially. It never imports the Clerk E2E setup. Python tests assert that browser
 runtime and package traffic stays on the local origin.
 
 If a matching browser download is unavailable, an explicitly chosen system
 browser can provide supplementary evidence using `ROOTORIAL_BROWSER_EXECUTABLE`
 (absolute executable path). Record its version; this is not matching-browser
-validation. Reports are in `playwright-report/runtime` and `test-results`.
+validation. Reports are in `playwright-report/runtime-learning`,
+`playwright-report/runtime-public` and the corresponding `test-results/runtime-*`
+directories. Use `-- --project public-boundary` to rerun only the public check.
 
 ## Isolation and limits
 
@@ -114,3 +118,31 @@ host. No always-on service or remote access is established by this setup.
 CI currently calls the build without preparing ignored Python assets. A fresh CI
 checkout needs the documented preparation step before its existing build jobs;
 this change does not alter CI workflows.
+
+## Cloud verification, 2026-10-02
+
+The source handover was verified at `1929cc5ab153dbe27b0f9c655f30f0f4d475b574`.
+Linux x86_64 with Node 24.19.0/npm 11.9.0 installed the lockfile successfully.
+Official Pyodide assets passed verification (13 packages, 26,788,952 bytes).
+On this proxy-based host, asset preparation needed Node's
+`NODE_USE_ENV_PROXY=1`; that is an environment-specific setup detail.
+
+- Existing `npm test`: 588 passed, including its typecheck/build and content checks.
+- New launcher isolation tests: 2 passed; runtime and E2E typechecks passed.
+- Actual workerd/D1 and built production rejection suite: passed, independently
+  repeated by a read-only QA agent; persisted SQLite rows were independently read.
+- Supplemental system Chromium 151.0.7922.173: 15/16 browser tests passed,
+  including all 11 real Python tests and four local-learning tests.
+- The remaining public-route test times out retrieving the public vectors page
+  after its protected-route checks. It also fails when run alone with a single
+  Vite server. A separate manual server returned the public vectors page normally;
+  the trigger is unresolved. The assertion remains intact, and the browser suite
+  exits unsuccessfully rather than skipping it.
+- Matching Playwright Chromium 149/build1228 and its headless shell downloads
+  were blocked by the host proxy (`403 Domain forbidden`). Matching-browser,
+  Windows execution and real Clerk account integration remain unverified.
+
+Wrangler/Vite attempted optional `Request.cf` metadata fetches, which failed and
+fell back to a placeholder. No remote bindings, remote D1 operations, deployments
+or real Clerk-user creation were used. Local evidence logs and retained databases
+are under ignored `work/local-runtime/`; the setup can regenerate them elsewhere.
