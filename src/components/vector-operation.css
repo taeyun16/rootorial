@@ -8,3 +8,6 @@
 .vector-prediction-fields label { display: grid; gap: 6px; flex: 1 1 100px; }
 .vector-prediction-fields input { width: 100%; min-width: 0; min-height: 44px; padding: 8px; }
 .vector-prediction-feedback { padding: 12px; border-left: 3px solid #6f43aa; background: #f0eafa; }
+.vector-draft-status { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 16px; font-size: 13px; background: #edf1ed; }
+.vector-draft-status span { flex: 1 1 220px; }
+.vector-draft-status button { min-height: 44px; padding: 8px 12px; }

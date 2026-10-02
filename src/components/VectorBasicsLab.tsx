@@ -4,9 +4,19 @@ import { MathFormula } from "./MathFormula";
 import { UnitVectorPlot } from "./UnitVectorPlot";
 import { VectorOperationPlot } from "./VectorOperationPlot";
 import { vectorOperationTrace, vectorOperationContract, matchesVectorPrediction, type Vector2 } from "../features/learning/vector-operation";
+import { useExperimentDraft } from "../features/progress/useExperimentDraft";
 
 type Vector = [number, number];
 type Operation = "add" | "subtract" | "scale" | "normalize";
+type VectorInputDraft = { operation: Operation; v: Vector; w: Vector; scalar: number };
+const initialInputs: VectorInputDraft = { operation: "add", v: [1, 2], w: [5, -4], scalar: 2 };
+function validInputs(value: unknown): value is VectorInputDraft {
+  if (!value || typeof value !== "object") return false;
+  const draft = value as Partial<VectorInputDraft>;
+  const vector = (v: unknown) => Array.isArray(v) && v.length === 2 && v.every(n => typeof n === "number" && Number.isFinite(n) && Math.abs(n) <= 9);
+  return ["add", "subtract", "scale", "normalize"].includes(draft.operation ?? "") && vector(draft.v) && vector(draft.w)
+    && typeof draft.scalar === "number" && Number.isFinite(draft.scalar) && Math.abs(draft.scalar) <= 3;
+}
 
 const operations: Array<{ id: Operation; label: string; latex: string }> = [
   { id: "add", label: "v plus w", latex: String.raw`\mathbf{v} + \mathbf{w}` },
@@ -26,10 +36,12 @@ function formatVectorLatex(vector: Vector2) {
 export function VectorBasicsLab() {
   const { locale } = useLocale();
   const isKo = locale === "ko";
-  const [operation, setOperation] = useState<Operation>("add");
-  const [v, setV] = useState<Vector>([1, 2]);
-  const [w, setW] = useState<Vector>([5, -4]);
-  const [scalar, setScalar] = useState(2);
+  const draft = useExperimentDraft("vector-basic-inputs:v1", initialInputs, validInputs);
+  const { operation, v, w, scalar } = draft.value;
+  const setOperation = (operation: Operation) => draft.setValue(previous => ({ ...previous, operation }));
+  const setV = (v: Vector) => draft.setValue(previous => ({ ...previous, v }));
+  const setW = (w: Vector) => draft.setValue(previous => ({ ...previous, w }));
+  const setScalar = (scalar: number) => draft.setValue(previous => ({ ...previous, scalar }));
   const [revealed, setRevealed] = useState(false);
   const [prediction, setPrediction] = useState<[string, string]>(["", ""]);
   const [predictUndefined, setPredictUndefined] = useState(false);
@@ -115,6 +127,15 @@ export function VectorBasicsLab() {
             <MathFormula latex={String.raw`\lVert \mathbf{r} \rVert_2 = ${calculation.resultNorm === null ? String.raw`\text{undefined}` : formatNumber(calculation.resultNorm)}`} />
           </> : (isKo ? "결과를 먼저 예측하세요" : "Predict before revealing")}
         </span>
+      </div>
+
+      <div className="vector-draft-status" role="status">
+        <span>{!draft.storageAvailable
+          ? (isKo ? "브라우저에 입력을 저장할 수 없습니다. 현재 페이지에서만 유지됩니다." : "Inputs cannot be saved in this browser. They last only on this page.")
+          : draft.restored
+            ? (isKo ? "지난 실험 입력을 복원했습니다. 예측과 결과는 다시 확인하세요." : "Previous experiment inputs restored. Make a fresh prediction and run again.")
+            : (isKo ? "실험 입력만 이 브라우저에 저장합니다. 예측 결과와 완료 여부는 복원하지 않습니다." : "Only experiment inputs are saved in this browser. Predictions, results and completion are not restored.")}</span>
+        <button type="button" onClick={() => { draft.clear(); invalidate(); setLastComparison(null); }}>{isKo ? "실험 입력 초기화" : "Reset experiment inputs"}</button>
       </div>
 
       <div className="vector-basics-tabs" role="group" aria-label={isKo ? "벡터 연산 선택" : "Choose a vector operation"}>

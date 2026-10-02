@@ -20,6 +20,8 @@ test("vector predictions gate geometry and edits invalidate the displayed answer
     await page.setViewportSize({ width, height: 900 });
     await page.goto(route("transformer-from-zero", "vectors") + "?lang=en");
     const lab = page.locator(".vector-basics-lab");
+    await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
+    await lab.getByRole("button", { name: "Reset experiment inputs", exact: true }).click();
     const reveal = lab.getByRole("button", { name: "Prediction ready · reveal result" });
     await expect(reveal).toBeDisabled();
     await expect(lab.locator(".vector-operation-plot")).toHaveCount(0);
@@ -45,4 +47,37 @@ test("vector predictions gate geometry and edits invalidate the displayed answer
     await expect(lab.locator(".unit-vector-plot")).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width + 1);
   }
+});
+
+test("experiment inputs resume without restoring a prediction or completion", async ({ page }) => {
+  await page.goto(route("transformer-from-zero", "vectors") + "?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
+  const lab = page.locator(".vector-basics-lab");
+  await lab.locator('.vector-basics-coordinate input').first().fill("4");
+  await lab.getByLabel("Predicted x", { exact: true }).fill("9");
+  await lab.getByLabel("Predicted y", { exact: true }).fill("-2");
+  await lab.getByRole("button", { name: "Prediction ready · reveal result" }).click();
+  await page.reload();
+  await expect(lab.locator('.vector-basics-coordinate input').first()).toHaveValue("4");
+  await expect(lab.getByText(/Previous experiment inputs restored/)).toBeVisible();
+  await expect(lab).toHaveAttribute("data-evidence", "unexecuted");
+  await expect(lab.getByLabel("Predicted x", { exact: true })).toHaveValue("");
+  await expect(lab.locator(".vector-operation-plot")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Complete this chapter/ })).toBeDisabled();
+  await lab.getByRole("button", { name: "Reset experiment inputs", exact: true }).click();
+  await page.reload();
+  await expect(lab.locator('.vector-basics-coordinate input').first()).toHaveValue("1");
+  await expect(lab.getByText(/Previous experiment inputs restored/)).toHaveCount(0);
+});
+
+test("input drafts report storage failure without preventing exploration", async ({ page }) => {
+  await page.addInitScript(() => { Storage.prototype.setItem = () => { throw new DOMException("Blocked", "QuotaExceededError"); }; });
+  await page.goto(route("transformer-from-zero", "vectors") + "?lang=en");
+  await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
+  const lab = page.locator(".vector-basics-lab");
+  await lab.locator('.vector-basics-coordinate input').first().fill("4");
+  await expect(lab.getByText(/Inputs cannot be saved/)).toBeVisible();
+  await expect(lab.locator('.vector-basics-coordinate input').first()).toHaveValue("4");
+  await page.reload();
+  await expect(lab.locator('.vector-basics-coordinate input').first()).toHaveValue("1");
 });

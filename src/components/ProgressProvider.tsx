@@ -1,10 +1,12 @@
 import { useAuth } from "@clerk/tanstack-react-start";
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { accountProgressKey, anonymousProgressKey, parseStoredProgress } from "../features/progress/progress";
 import { getMyProgress, syncMyProgress } from "../features/progress/progress.functions";
 import { ProgressClient, type ClientProgress, type ProgressStatus, type ProgressTransport } from "../features/progress/progress-client";
 import type { ResumePoint } from "../features/progress/progress-repository";
 import { useClerkEnabled } from "./ClerkBoundary";
+import { emptyDraftSnapshot, ExperimentDraftStore } from "../features/progress/experiment-drafts";
+import { ExperimentDraftContext } from "../features/progress/useExperimentDraft";
 
 export type { ProgressStatus };
 type ProgressContextValue = ClientProgress & {
@@ -26,6 +28,9 @@ const browserStorage = {
 function StoredProgressProvider({ children, storageKey, remote }: { children: ReactNode; storageKey: string; remote?: ProgressTransport }) {
   const [state, setState] = useState<ClientProgress>(initial);
   const clientRef = useRef<ProgressClient | null>(null);
+  const drafts = useMemo(() => new ExperimentDraftStore(browserStorage, storageKey), [storageKey]);
+  const draftState = useSyncExternalStore(drafts.subscribe, drafts.getSnapshot, () => emptyDraftSnapshot);
+  useEffect(() => { drafts.start(); }, [drafts]);
   useEffect(() => {
     const client = new ProgressClient(browserStorage, storageKey, remote, setState);
     clientRef.current = client;
@@ -54,7 +59,14 @@ function StoredProgressProvider({ children, storageKey, remote }: { children: Re
   const markComplete = useCallback((slug: string) => clientRef.current?.complete(slug) ?? Promise.resolve(), []);
   const saveResume = useCallback((point: ResumePoint) => clientRef.current?.resume(point) ?? Promise.resolve(), []);
   const retry = useCallback(() => { void clientRef.current?.retry(); }, []);
-  return <ProgressContext.Provider value={{ ...state, markComplete, saveResume, retry, resetLocal: remote ? undefined : () => clientRef.current?.reset() ?? false }}>{children}</ProgressContext.Provider>;
+  const resetLocal = useCallback(() => {
+    const draftsReset = drafts.reset();
+    const progressReset = clientRef.current?.reset() ?? false;
+    return draftsReset && progressReset;
+  }, [drafts]);
+  const storageAvailable = state.storageAvailable && draftState.storageAvailable;
+  const status = !storageAvailable && state.status === "local" ? "memory" : state.status;
+  return <ExperimentDraftContext.Provider value={drafts}><ProgressContext.Provider value={{ ...state, status, storageAvailable, markComplete, saveResume, retry, resetLocal: remote ? undefined : resetLocal }}>{children}</ProgressContext.Provider></ExperimentDraftContext.Provider>;
 }
 
 function AccountProgressProvider({ children, userId }: { children: ReactNode; userId: string }) {
