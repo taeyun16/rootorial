@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocale } from "../features/localization/localization";
 import { MathFormula } from "./MathFormula";
+import { isRoundedDisplay } from "../features/learning/rounded-display";
 import { UnitVectorPlot } from "./UnitVectorPlot";
 import { VectorOperationPlot } from "./VectorOperationPlot";
 import { vectorOperationTrace, vectorOperationContract, matchesVectorPrediction, type Vector2 } from "../features/learning/vector-operation";
@@ -216,7 +217,7 @@ export function VectorBasicsLab() {
           {revealed ? <>
             {operation === "normalize" && calculation.norm === 0
               ? <strong>{isKo ? "정의되지 않음" : "Undefined"}</strong>
-              : <MathFormula latex={`= ${formatVectorLatex(calculation.result)}`} className="vector-basics-answer" />}
+              : <MathFormula latex={`${operation === "normalize" && calculation.result.some(value => isRoundedDisplay(value)) ? String.raw`\approx` : "="} ${formatVectorLatex(calculation.result)}`} className="vector-basics-answer" />}
             <p>{calculation.insight}</p>
             {lastComparison && <p className="vector-prediction-feedback">{isKo ? "실행 전 예측" : "Prediction before this run"}: {lastComparison.predicted} → {isKo ? "실제" : "Actual"}: {lastComparison.actual}. {lastComparison.matches ? (isKo ? "예측과 일치합니다." : "Your prediction matches.") : (isKo ? "다른 성분을 표와 그림에서 비교해 보세요." : "Compare the differing coordinates in the table and diagram.")}</p>}
             <button type="button" className="button button-secondary" onClick={() => {

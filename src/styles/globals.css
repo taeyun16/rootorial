@@ -17329,6 +17329,7 @@ textarea:focus-visible {
 .neural-bce-grid strong { font: 800 16px var(--mono); }
 
 .neural-bce-formula {
+  display: block;
   max-width: 100%;
   padding: 18px;
   border: 1px solid var(--line);

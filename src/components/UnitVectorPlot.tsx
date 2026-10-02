@@ -1,3 +1,4 @@
+import { isRoundedDisplay } from "../features/learning/rounded-display";
 import { MathFormula } from "./MathFormula";
 
 type Vector2 = readonly [number, number];
@@ -27,7 +28,9 @@ export function UnitVectorPlot({ vector, sourceVector, locale }: UnitVectorPlotP
     ? String.raw`[${formatNumber(sourceVector[0])},${formatNumber(sourceVector[1])}]`
     : String.raw`\mathbf v`;
   const normalizedLatex = String.raw`[${formatNumber(x)},${formatNumber(y)}]`;
-  const proofLatex = String.raw`\sqrt{${formatNumber(x)}^2 + ${formatNumber(y)}^2} = ${formatNumber(Math.hypot(x, y))}`;
+  const coordinatesRounded = vector.some(value => isRoundedDisplay(value));
+  const relation = coordinatesRounded || isRoundedDisplay(Math.hypot(x, y)) ? String.raw`\approx` : "=";
+  const proofLatex = String.raw`\sqrt{${formatNumber(x)}^2 + ${formatNumber(y)}^2} ${relation} ${formatNumber(Math.hypot(x, y))}`;
 
   return (
     <figure className="unit-vector-plot">
@@ -76,8 +79,8 @@ export function UnitVectorPlot({ vector, sourceVector, locale }: UnitVectorPlotP
           <g className="unit-vector-projections" aria-hidden="true">
             <line x1={origin.x} y1={origin.y} x2={endpoint.x} y2={origin.y} />
             <line x1={endpoint.x} y1={origin.y} x2={endpoint.x} y2={endpoint.y} />
-            <text x={(origin.x + endpoint.x) / 2} y={xLabelY} textAnchor="middle">x = {formatNumber(x)}</text>
-            <text x={yLabelX} y={(origin.y + endpoint.y) / 2} textAnchor={x >= 0 ? "start" : "end"}>y = {formatNumber(y)}</text>
+            <text x={(origin.x + endpoint.x) / 2} y={xLabelY} textAnchor="middle">x {isRoundedDisplay(x) ? "≈" : "="} {formatNumber(x)}</text>
+            <text x={yLabelX} y={(origin.y + endpoint.y) / 2} textAnchor={x >= 0 ? "start" : "end"}>y {isRoundedDisplay(y) ? "≈" : "="} {formatNumber(y)}</text>
           </g>
 
           <line
@@ -97,6 +100,7 @@ export function UnitVectorPlot({ vector, sourceVector, locale }: UnitVectorPlotP
       </div>
 
       <figcaption>
+        {coordinatesRounded ? <p className="unit-vector-rounding-note">{isKo ? "표시 좌표는 소수 셋째 자리까지 반올림했습니다. ≈는 표시값의 근사 계산이며, 반올림 전 정규화 벡터의 길이는 정확히 1입니다." : "Displayed coordinates are rounded to three decimal places. ≈ marks the approximate calculation using those values; the normalized vector before rounding has length exactly 1."}</p> : null}
         <div className="unit-vector-plot-proof">
           <span>{isKo ? "원점에서 끝점까지의 거리" : "Distance from the origin"}</span>
           <MathFormula latex={proofLatex} display />
@@ -104,12 +108,12 @@ export function UnitVectorPlot({ vector, sourceVector, locale }: UnitVectorPlotP
         <p>
           {isKo ? (
             <>
-              <MathFormula latex={normalizedLatex} />의 두 숫자는 좌표이고, 두 좌표로 만든 직각삼각형의 빗변이 <MathFormula latex="1" />입니다.
+              <MathFormula latex={normalizedLatex} />의 두 숫자는 표시 좌표입니다. 반올림 전 정규화 좌표로 만든 직각삼각형의 빗변은 <MathFormula latex="1" />입니다.
               따라서 <MathFormula latex={sourceLatex} />와 방향은 같지만 길이는 정확히 <MathFormula latex="1" />입니다.
             </>
           ) : (
             <>
-              The two numbers in <MathFormula latex={normalizedLatex} /> are coordinates. The right triangle they form has a hypotenuse of <MathFormula latex="1" />.
+              The two numbers in <MathFormula latex={normalizedLatex} /> are displayed coordinates. The unrounded normalized coordinates form a right triangle with a hypotenuse of <MathFormula latex="1" />.
               It keeps the direction of <MathFormula latex={sourceLatex} /> while making its length exactly <MathFormula latex="1" />.
             </>
           )}

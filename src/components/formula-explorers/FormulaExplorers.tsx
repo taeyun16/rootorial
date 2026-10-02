@@ -19,16 +19,16 @@ function Slider({ label, value, min, max, step = 1, change }: { label: string; v
   const id = useId();
   return <label className="formula-explorer-control" htmlFor={id}><span>{label}: <strong>{fmt(value)}</strong></span><input id={id} type="range" min={min} max={max} step={step} value={value} onChange={(e) => change(Number(e.target.value))} /></label>;
 }
-function Plot({ title, series, xDomain, yDomain, xLabel, yLabel, markers = [] }: { title: string; series: Series[]; xDomain: Point; yDomain: Point; xLabel: string; yLabel: string; markers?: Point[] }) {
+function Plot({ title, series, xDomain, yDomain, xLabel, yLabel, markers = [], roomyLabels = false }: { title: string; series: Series[]; xDomain: Point; yDomain: Point; xLabel: string; yLabel: string; markers?: Point[]; roomyLabels?: boolean }) {
   const id = useId();
   const sx = (n: number) => 50 + (n - xDomain[0]) / (xDomain[1] - xDomain[0]) * 300;
   const sy = (n: number) => 190 - (n - yDomain[0]) / (yDomain[1] - yDomain[0]) * 160;
-  return <figure className="formula-explorer-plot"><svg viewBox="0 0 390 235" role="img" aria-labelledby={id}>
+  return <figure className="formula-explorer-plot"><svg viewBox={roomyLabels ? "0 0 390 260" : "0 0 390 235"} role="img" aria-labelledby={id}>
     <title id={id}>{title}</title>
-    {[0, .5, 1].map((fraction) => { const x = xDomain[0] + fraction * (xDomain[1] - xDomain[0]); const y = yDomain[0] + fraction * (yDomain[1] - yDomain[0]); return <g key={fraction} className="formula-explorer-axis"><line x1={sx(x)} x2={sx(x)} y1="30" y2="190" /><line x1="50" x2="350" y1={sy(y)} y2={sy(y)} /><text x={sx(x)} y="207" textAnchor="middle">{fmt(x)}</text><text x="43" y={sy(y) + 4} textAnchor="end">{fmt(y)}</text></g>; })}
+    {[0, .5, 1].map((fraction) => { const x = xDomain[0] + fraction * (xDomain[1] - xDomain[0]); const y = yDomain[0] + fraction * (yDomain[1] - yDomain[0]); return <g key={fraction} className="formula-explorer-axis"><line x1={sx(x)} x2={sx(x)} y1="30" y2="190" /><line x1="50" x2="350" y1={sy(y)} y2={sy(y)} /><text x={sx(x)} y={roomyLabels ? 218 : 207} textAnchor="middle">{fmt(x)}</text><text x="43" y={sy(y) + 4} textAnchor="end">{fmt(y)}</text></g>; })}
     {series.map((line, index) => <polyline key={line.name} className={`formula-series formula-series-${index % 4}`} points={line.points.map(([x, y]) => `${sx(x)},${sy(y)}`).join(" ")} strokeDasharray={line.dashed ? "6 4" : undefined} />)}
     {markers.map(([x, y], index) => <circle key={index} cx={sx(x)} cy={sy(y)} r="4.5" className="formula-explorer-marker" />)}
-    <text x="200" y="228" textAnchor="middle">{xLabel}</text><text x="50" y="18">{yLabel}</text>
+    <text x="200" y={roomyLabels ? 252 : 228} textAnchor="middle">{xLabel}</text><text x="50" y="18">{yLabel}</text>
   </svg><figcaption>{series.map((line, index) => <span className={`formula-legend formula-series-${index % 4}`} key={line.name}>{line.dashed ? "┄" : "━"} {line.name}</span>)}</figcaption></figure>;
 }
 
@@ -51,8 +51,8 @@ export function SigmoidBceExplorer() {
   return <Frame id="sigmoid-bce" title={t("한 표본의 z → 확률 → BCE", "One sample: z → probability → BCE")}>
     <div className="formula-explorer-controls"><Slider label="z" value={z} min={-6} max={6} step={.1} change={setZ}/><Slider label={t("정답 y", "Label y")} value={label} min={0} max={1} change={setLabel}/></div>
     <p>{t("두 그림의 검은 점은 같은 z를 가리킵니다. y는 손실 곡선을 바꾸지만 sigmoid 자체를 바꾸지는 않습니다. 로그는 자연로그입니다.", "Both black dots use the same z. Changing y changes the loss curve, but not sigmoid itself. The logarithm is natural log.")}</p>
-    <Plot title="p=σ(z)" xDomain={[-6,6]} yDomain={[0,1]} xLabel="z" yLabel="p" series={[{name:"σ(z)",points:samples(-6,6,(v)=>binarySample(v,label).probability)}]} markers={[[z,result.probability]]}/>
-    <Plot title={`BCE(y=${label}, σ(z))`} xDomain={[-6,6]} yDomain={[0,6.1]} xLabel="z" yLabel="BCE" series={[{name:`BCE(y=${label}, σ(z))`,points:samples(-6,6,(v)=>binarySample(v,label).loss)}]} markers={[[z,result.loss]]}/>
+    <Plot roomyLabels title="p=σ(z)" xDomain={[-6,6]} yDomain={[0,1]} xLabel="z" yLabel="p" series={[{name:"σ(z)",points:samples(-6,6,(v)=>binarySample(v,label).probability)}]} markers={[[z,result.probability]]}/>
+    <Plot roomyLabels title={`BCE(y=${label}, σ(z))`} xDomain={[-6,6]} yDomain={[0,6.1]} xLabel="z" yLabel="BCE" series={[{name:`BCE(y=${label}, σ(z))`,points:samples(-6,6,(v)=>binarySample(v,label).loss)}]} markers={[[z,result.loss]]}/>
     <p role="status">z={fmt(z)} → p={fmt(result.probability)} → BCE={fmt(result.loss)}<br/>∂L/∂z = p−y = <strong>{fmt(result.gradient)}</strong></p>
   </Frame>;
 }

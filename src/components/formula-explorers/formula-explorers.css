@@ -23,3 +23,8 @@
 .formula-explorer caption { text-align: left; margin-bottom: .5rem; }
 .formula-explorer th, .formula-explorer td { padding: .4rem; text-align: right; border-bottom: 1px solid #d4d8db; }
 .formula-explorer th:first-child { text-align: left; }
+
+@media (max-width: 600px) {
+  /* 17 SVG units render above 12 CSS px at the 360px supported viewport. */
+  .formula-explorer[data-formula-explorer="sigmoid-bce"] .formula-explorer-plot svg text { font-size: 17px; }
+}
