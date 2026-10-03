@@ -32,6 +32,8 @@ npm run dev
 ```
 
 브라우저에서 [http://localhost:3000](http://localhost:3000)을 엽니다.
+Codex 클라우드에서의 서버 실행 결과와 Tailscale 접근 제한은
+[클라우드 개발 환경 검토](./docs/cloud-development-review.md)에 정리되어 있습니다.
 로컬 D1 데이터는 `.wrangler/` 아래에 저장되며 Cloudflare 로그인이나 원격
 데이터베이스 없이도 질문·답변 기능을 검증할 수 있습니다. 스키마가 변경되면
 개발 서버를 시작하기 전에 `npm run db:migrate:local`을 다시 실행하세요.
