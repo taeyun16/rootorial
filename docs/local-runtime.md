@@ -127,17 +127,13 @@ Official Pyodide assets passed verification (13 packages, 26,788,952 bytes).
 On this proxy-based host, asset preparation needed Node's
 `NODE_USE_ENV_PROXY=1`; that is an environment-specific setup detail.
 
-- Existing `npm test`: 588 passed, including its typecheck/build and content checks.
+- Initial `npm test`: 588 passed, including its typecheck/build and content checks.
 - New launcher isolation tests: 2 passed; runtime and E2E typechecks passed.
 - Actual workerd/D1 and built production rejection suite: passed, independently
   repeated by a read-only QA agent; persisted SQLite rows were independently read.
 - Supplemental system Chromium 151.0.7922.173: 15/16 browser tests passed,
   including all 11 real Python tests and four local-learning tests.
-- The remaining public-route test times out retrieving the public vectors page
-  after its protected-route checks. It also fails when run alone with a single
-  Vite server. A separate manual server returned the public vectors page normally;
-  the trigger is unresolved. The assertion remains intact, and the browser suite
-  exits unsuccessfully rather than skipping it.
+- The initial public-route timeout was diagnosed and fixed on 2026-10-03; see below.
 - Matching Playwright Chromium 149/build1228 and its headless shell downloads
   were blocked by the host proxy (`403 Domain forbidden`). Matching-browser,
   Windows execution and real Clerk account integration remain unverified.
@@ -146,3 +142,34 @@ Wrangler/Vite attempted optional `Request.cf` metadata fetches, which failed and
 fell back to a placeholder. No remote bindings, remote D1 operations, deployments
 or real Clerk-user creation were used. Local evidence logs and retained databases
 are under ignored `work/local-runtime/`; the setup can regenerate them elsewhere.
+
+### Cold public-route preload regression
+
+The original failing sequence first requests a draft chapter (404), then the
+published vectors chapter through the same parameterized route. Temporary server
+probes showed publication and analytics reads completing in about 44 ms, but
+the route did not reach chapter rendering or produce response headers. A warmed
+development server returned the same page normally. The unchanged production
+build returned the sequence correctly, with the public chapter completing in
+107 ms: this was observed in the cold Vite/workerd development runtime.
+
+TanStack starts the shared route component's split-chunk preload before its
+loader. A loader that throws `notFound` returns without awaiting that preload;
+the cached promise can remain pending across workerd requests. Keeping this one
+shared route shell eager (`codeSplitGroupings: []`) removes that cross-request
+preload. Individual chapter bodies still use `React.lazy`; publication checks
+and authentication are unchanged. The previously failing cold test then passed
+in 3.2 seconds, without warming the route or weakening its assertions.
+
+The regression now checks the original denied-route ordering, full SSR content,
+browser hydration and browser errors, and attaches `public-route-evidence.json`
+with response timings and console/request diagnostics. The runtime suite also
+checks the sequence against the built production Worker. Server stdout is
+captured in the browser test log. No diagnostic instrumentation remains in
+application code.
+
+After the fix, `npm test` passed all 590 tests and the build; the complete
+supplemental Chromium suite passed all 16 tests (15 learning/Python checks plus
+the public-route regression). The strengthened public test completed in 9.7 s,
+including browser navigation and hydration. Matching-browser and Windows
+execution limitations above still apply.

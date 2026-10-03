@@ -104,6 +104,12 @@ try {
   const getId = progressBundle.match(/id: "([a-f0-9]+)",\s*name: "getMyProgress"/)[1];
   const syncId = progressBundle.match(/id: "([a-f0-9]+)",\s*name: "syncMyProgress"/)[1];
   await start([wrangler, "dev", "--local", "--config", "tests/runtime/wrangler.production-check.json", "--env", "integration", "--persist-to", state, "--ip", "127.0.0.1", "--port", "3223", "--inspector-port", "0"], state, "http://127.0.0.1:3223/");
+  for (const path of ["/admin/preview/curricula/", "/curricula/transformer-from-zero/chapters/optimization", "/curricula/system-architecture/chapters/requirements-and-quality-attributes"]) {
+    assert.equal((await fetch(`http://127.0.0.1:3223${path}`, { signal: AbortSignal.timeout(30_000) })).status, 404);
+  }
+  const publicChapter = await fetch("http://127.0.0.1:3223/curricula/transformer-from-zero/chapters/vectors", { signal: AbortSignal.timeout(30_000) });
+  assert.equal(publicChapter.status, 200);
+  assert.match(await publicChapter.text(), /vectors-chapter-shell/);
   for (const [id, method, data] of [
     [getId, "GET", { expectedUserId: "fixture-a" }],
     [syncId, "POST", { expectedUserId: "fixture-a", completedSlugs: [vector], resume: null }],

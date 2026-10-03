@@ -8,6 +8,10 @@ import { localeFromLanguage } from "../features/localization/page-metadata";
 import { getPublicChapterPublication } from "../features/publication/publication.functions";
 
 export const Route = createFileRoute("/curricula/$curriculumSlug_/chapters/$chapterSlug")({
+  // Keep the shared route shell eager: a cold 404 can end a workerd request
+  // before TanStack's component preload settles, leaving later chapters waiting
+  // on that cached promise. Individual chapter bodies remain React.lazy chunks.
+  codeSplitGroupings: [],
   loader: async ({ params }) => {
     if (!getChapterPage(params.curriculumSlug, params.chapterSlug)) {
       throw notFound();

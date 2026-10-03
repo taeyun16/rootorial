@@ -21,6 +21,7 @@ export default defineConfig({
     launchOptions: process.env.ROOTORIAL_BROWSER_EXECUTABLE ? { executablePath: process.env.ROOTORIAL_BROWSER_EXECUTABLE } : {},
   },
   webServer: {
+    stdout: "pipe",
     command: `node scripts/local-runtime.mjs serve 3220 ${publicMode ? "e2e-anonymous" : "content-preview"}`,
     url: publicMode ? "http://127.0.0.1:3220/" : "http://127.0.0.1:3220/admin/preview/curricula/",
     reuseExistingServer: false,

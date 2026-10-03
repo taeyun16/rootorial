@@ -63,11 +63,42 @@ test("rehearses completion, invalidation, refresh and reset without account or a
   expect((await request.post(`${rehearsal}/`, { data: {} })).status()).toBe(403);
 });
 
-test("public routes keep drafts and preview protected", async ({ request }) => {
-  for (const path of ["/admin/preview/curricula/", vectorPath, "/curricula/transformer-from-zero/chapters/optimization", "/curricula/system-architecture/chapters/requirements-and-quality-attributes"]) {
-    expect((await request.get(path)).status(), path).toBe(404);
+test("public routes keep drafts and preview protected", async ({ request, page, baseURL }, testInfo) => {
+  const timings: Array<{ path: string; status: number; bytes: number; elapsedMs: number }> = [];
+  const consoleMessages: string[] = [];
+  const pageErrors: string[] = [];
+  const failedRequests: string[] = [];
+  page.on("console", (message) => consoleMessages.push(`${message.type()}: ${message.text()}`));
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  page.on("requestfailed", (req) => failedRequests.push(`${req.url()}: ${req.failure()?.errorText}`));
+  async function retrieve(path: string) {
+    const began = performance.now();
+    const response = await request.get(path, { timeout: 30_000 });
+    const body = await response.text();
+    timings.push({ path, status: response.status(), bytes: Buffer.byteLength(body), elapsedMs: Math.round(performance.now() - began) });
+    return { response, body };
   }
-  expect((await request.get("/curricula/transformer-from-zero/chapters/vectors")).status()).toBe(200);
+  try {
+    // Keep the denied routes first: a cold 404 on the shared chapter route must
+    // not strand a component preload and block the next published chapter.
+    for (const path of ["/admin/preview/curricula/", vectorPath, "/curricula/transformer-from-zero/chapters/optimization", "/curricula/system-architecture/chapters/requirements-and-quality-attributes"]) {
+      expect((await retrieve(path)).response.status(), path).toBe(404);
+    }
+    const publicPath = "/curricula/transformer-from-zero/chapters/vectors";
+    const { response, body } = await retrieve(publicPath);
+    expect(response.status()).toBe(200);
+    expect(body).toContain("vectors-chapter-shell");
+    const browserResponse = await page.goto(new URL(publicPath, baseURL).href);
+    expect(browserResponse?.status()).toBe(200);
+    await expect(page.locator("html")).toHaveAttribute("data-hydrated", "true");
+    await expect(page.locator(".vectors-chapter-shell")).toBeVisible();
+    expect(pageErrors).toEqual([]);
+  } finally {
+    await testInfo.attach("public-route-evidence.json", {
+      body: JSON.stringify({ timings, consoleMessages, pageErrors, failedRequests }, null, 2),
+      contentType: "application/json",
+    });
+  }
 });
 
 test("notebook compares a prediction, marks edits stale, stops, restarts and resets", async ({ page }) => {
