@@ -411,12 +411,6 @@ export const transformerContentQualityContracts = {
   },
 } as const satisfies Record<TransformerChapterSlug, ChapterQualityContract>;
 
-export const transformerContentQualityReview = {
-  reviewedAt: "2026-07-16",
-  scale: "0-5 per editorial dimension; Python score is derived from executable cells",
-  contracts: transformerContentQualityContracts,
-} as const;
-
 export type PlatformChapterQualityContract = {
   chapterId: string;
   number: number;
