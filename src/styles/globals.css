@@ -5612,68 +5612,6 @@ textarea:focus-visible {
   color: var(--forest);
 }
 
-/* Python lab */
-
-.python-lab {
-  overflow: hidden;
-  border: 1px solid #26302c;
-  background: var(--code);
-  color: #e8eee9;
-  box-shadow: var(--shadow);
-}
-
-.lab-toolbar {
-  min-height: 54px;
-  padding: 0 14px 0 18px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid #303834;
-}
-
-.lab-file {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: #bdc7c1;
-  font-family: var(--mono);
-  font-size: 11px;
-}
-
-.python-mark {
-  padding: 3px 5px;
-  border-radius: 2px;
-  background: #f1cf62;
-  color: #202823;
-  font-size: 8px;
-  font-weight: 900;
-}
-
-.lab-actions { display: flex; gap: 8px; }
-.lab-actions button { border: 0; cursor: pointer; font-family: var(--mono); font-size: 10px; }
-.lab-reset { padding: 8px 10px; background: transparent; color: #9eaaa3; }
-.lab-run { padding: 8px 12px; display: flex; gap: 7px; background: #d8f2e5; color: #173e35; font-weight: 800; }
-.lab-run:disabled { cursor: wait; opacity: 0.7; }
-
-.lab-body {
-  display: grid;
-  grid-template-columns: 1.25fr 0.75fr;
-  min-height: 390px;
-}
-
-.code-editor-shell {
-  min-width: 0;
-  border-right: 1px solid #303834;
-  background: #171d1a;
-}
-
-.code-editor {
-  height: 100%;
-  width: 100%;
-  min-height: 390px;
-  background: #171d1a;
-}
-
 /* Shared Python token palette for editable and inline code. */
 .syntax-code {
   padding: 0.13em 0.34em;
@@ -5742,53 +5680,6 @@ textarea:focus-visible {
 .notebook-code-editor .tok-meta,
 .notebook-code-editor .tok-macroName { color: #825a28; }
 .notebook-code-editor .tok-invalid { color: #9b352f; }
-
-.lab-output {
-  min-width: 0;
-  padding: 18px;
-  background: #121714;
-}
-
-.output-heading {
-  display: flex;
-  justify-content: space-between;
-  color: #7d8b83;
-  font-family: var(--mono);
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-}
-
-.output-status { color: #88948d; }
-.output-status-done { color: #75c8a6; }
-.output-status-error { color: #ed987d; }
-
-.lab-output pre {
-  margin: 24px 0 0;
-  overflow-x: auto;
-  color: #c6d2cb;
-  font-family: var(--mono);
-  font-size: 11px;
-  line-height: 1.8;
-  white-space: pre-wrap;
-}
-
-.lab-hint {
-  padding: 13px 18px;
-  display: flex;
-  gap: 16px;
-  border-top: 1px solid #303834;
-  background: #1c2420;
-  font-size: 10px;
-}
-
-.lab-hint > span { flex: none; color: #f1cf62; font-weight: 800; }
-.lab-hint p { margin: 0; color: #9eaaa3; }
-.lab-hint .syntax-code { background: rgba(255, 255, 255, 0.06); }
-.lab-hint .tok-variableName { color: #a8d5ee; }
-.lab-hint .tok-number { color: #ed987d; }
-.lab-hint .tok-operator { color: #d7a6cf; }
-.lab-hint .tok-punctuation { color: #9eaaa3; }
 
 .chapter-finish {
   padding: 100px 48px;
@@ -6943,12 +6834,6 @@ textarea:focus-visible {
   .vector-explorer { grid-template-columns: 1fr; }
   .vector-canvas-wrap { min-height: 360px; border-right: 0; border-bottom: 1px solid var(--line); }
   .vector-canvas { height: 360px; }
-  .lab-body { grid-template-columns: 1fr; }
-  .code-editor-shell { border-right: 0; border-bottom: 1px solid #303834; }
-  .code-editor,
-  .code-editor .cm-editor { min-height: 360px; }
-  .lab-output { min-height: 190px; }
-  .lab-hint { flex-direction: column; gap: 5px; }
   .completed-panel { grid-template-columns: 40px 1fr; }
   .completed-panel a { grid-column: 2; justify-self: start; }
 }
@@ -9925,8 +9810,7 @@ textarea:focus-visible {
 .concept-check,
 .vector-explorer,
 .vector-basics-lab,
-.notebook-cell-main,
-.python-lab {
+.notebook-cell-main {
   box-shadow: var(--shadow);
 }
 
@@ -10425,71 +10309,6 @@ textarea:focus-visible {
   background: var(--paper-subtle);
   font-size: var(--text-meta) !important;
 }
-
-.python-lab {
-  border-color: var(--code-border);
-  background: var(--code-bg);
-  color: var(--code-text);
-}
-
-.lab-toolbar,
-.code-editor-shell,
-.lab-hint {
-  border-color: var(--code-border);
-}
-
-.code-editor-shell,
-.code-editor,
-.lab-output {
-  background: var(--code-bg);
-}
-
-.lab-hint {
-  background: var(--code-surface);
-  font-size: var(--text-caption);
-  line-height: 1.65;
-}
-
-.lab-file,
-.output-heading,
-.output-status,
-.lab-hint p {
-  color: var(--code-muted);
-}
-
-.lab-file,
-.lab-actions button,
-.output-heading {
-  font-size: var(--text-meta);
-}
-
-.lab-output pre {
-  color: var(--code-text);
-  font-size: var(--text-code);
-  line-height: 1.75;
-}
-
-.output-status-done {
-  color: var(--syntax-string);
-}
-
-.output-status-error {
-  color: var(--syntax-invalid);
-}
-
-.code-editor .cm-editor .tok-keyword { color: var(--syntax-keyword); }
-.code-editor .cm-editor .tok-atom,
-.code-editor .cm-editor .tok-bool,
-.code-editor .cm-editor .tok-number { color: var(--syntax-number); }
-.code-editor .cm-editor .tok-string,
-.code-editor .cm-editor .tok-string2 { color: var(--syntax-string); }
-.code-editor .cm-editor .tok-variableName,
-.code-editor .cm-editor .tok-propertyName { color: var(--syntax-variable); }
-.code-editor .cm-editor .tok-typeName,
-.code-editor .cm-editor .tok-className,
-.code-editor .cm-editor .tok-namespace { color: var(--syntax-type); }
-.code-editor .cm-editor .tok-comment { color: var(--syntax-comment); }
-.code-editor .cm-editor .tok-invalid { color: var(--syntax-invalid); }
 
 .chapter-finish > p:not(.eyebrow) {
   max-width: var(--measure-reading);
