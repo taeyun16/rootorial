@@ -2652,70 +2652,6 @@ textarea:focus-visible {
   align-items: center;
 }
 
-.tensor-sentence {
-  min-width: 390px;
-  padding: 13px;
-  border: 1px solid rgba(76, 91, 100, 0.2);
-  background: rgba(251, 247, 237, 0.9);
-}
-
-.tensor-sentence + .tensor-sentence {
-  margin-top: 14px;
-  border-color: rgba(152, 82, 60, 0.28);
-}
-
-.tensor-sentence-label {
-  display: block;
-  margin-bottom: 8px;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 8px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
-.tensor-token-row {
-  min-width: 340px;
-  display: grid;
-  grid-template-columns: 58px minmax(276px, 1fr);
-  gap: 9px;
-  align-items: center;
-}
-
-.tensor-token-row + .tensor-token-row {
-  margin-top: 7px;
-}
-
-.tensor-token-label {
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 8px;
-  white-space: nowrap;
-}
-
-.tensor-cells {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(54px, 1fr));
-  gap: 5px;
-}
-
-.tensor-cell {
-  min-height: 38px;
-  display: grid;
-  place-items: center;
-  border: 1px solid rgba(68, 82, 65, 0.18);
-  background: rgba(68, 82, 65, 0.08);
-  color: var(--forest);
-  font-family: var(--mono);
-  font-size: 9px;
-}
-
-.tensor-cell:nth-child(even) {
-  border-color: rgba(76, 91, 100, 0.18);
-  background: rgba(76, 91, 100, 0.07);
-  color: #43545e;
-}
-
 .tensor-broadcast-panel {
   padding: 28px;
   border-top: 1px solid var(--line);
@@ -9830,10 +9766,6 @@ textarea:focus-visible {
   background: var(--paper-subtle);
 }
 
-.tensor-sentence {
-  background: var(--paper-raised);
-}
-
 .notation-vector-diagram > span,
 .canvas-legend {
   background: color-mix(in srgb, var(--paper) 92%, transparent);
@@ -9862,11 +9794,8 @@ textarea:focus-visible {
 
 .tensor-stage-copy > span,
 .tensor-broadcast-heading span,
-.tensor-sentence-label,
-.tensor-token-label,
 .tensor-axis-list dt,
 .tensor-axis-list dd,
-.tensor-cell,
 .tensor-broadcast-toggle,
 .tensor-broadcast-equation small {
   font-size: var(--text-meta);
