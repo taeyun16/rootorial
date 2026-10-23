@@ -6188,28 +6188,6 @@ textarea:focus-visible {
 .vector-missions button:hover { border-color: var(--forest); }
 .vector-rule-grid { margin-top: 26px; }
 
-.orientation-compare {
-  margin: 28px 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  border: 1px solid var(--line);
-  background: var(--white);
-}
-
-.orientation-compare > div {
-  min-width: 0;
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  border-right: 1px solid var(--line);
-}
-
-.orientation-compare > div:last-child { border-right: 0; }
-.orientation-compare span { color: var(--forest); font-size: 9px; font-weight: 850; }
-.orientation-compare code { overflow-wrap: anywhere; font-size: 11px; }
-.orientation-compare strong { font-family: var(--mono); font-size: 12px; }
-.orientation-compare small { color: var(--muted); font-size: 9px; }
 .misconception-callout { margin-top: 28px; }
 
 .shape-debug-lab {
@@ -6485,9 +6463,6 @@ textarea:focus-visible {
   .unit-vector-plot-canvas { padding-top: 12px; }
   .unit-vector-plot svg { max-height: 290px; }
   .vector-missions ol { grid-template-columns: 1fr; }
-  .orientation-compare { grid-template-columns: 1fr; }
-  .orientation-compare > div { border-right: 0; border-bottom: 1px solid var(--line); }
-  .orientation-compare > div:last-child { border-bottom: 0; }
   .shape-debug-header { padding: 22px 20px; display: block; }
   .shape-debug-progress {
     margin-top: 14px;
@@ -9869,8 +9844,7 @@ textarea:focus-visible {
 .vector-basics-inputs legend,
 .vector-basics-scalar > span,
 .vector-basics-result-label,
-.vector-missions > strong,
-.orientation-compare span {
+.vector-missions > strong {
   font-size: var(--text-meta);
 }
 
@@ -10097,13 +10071,6 @@ textarea:focus-visible {
 
 .vector-basics-result code {
   font-size: clamp(15px, 2vw, 19px);
-}
-
-.orientation-compare code,
-.orientation-compare strong,
-.orientation-compare small {
-  font-size: var(--text-caption);
-  line-height: 1.55;
 }
 
 .notebook-cell-prompt,
